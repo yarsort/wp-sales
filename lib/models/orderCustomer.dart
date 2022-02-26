@@ -5,7 +5,7 @@
 
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
-  String id = '';               // Инкремент
+  int id = 0;                   // Инкремент
   int isDeleted = 0;            // Пометка удаления
   DateTime date = DateTime.now(); // Дата создания заказа
   String uid = '';              // UID для 1С и связи с ТЧ
@@ -87,5 +87,4 @@ class OrderCustomer {
     data['numberFrom1C'] = numberFrom1C;
     return data;
   }
-
 }

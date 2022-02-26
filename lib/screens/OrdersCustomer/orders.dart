@@ -95,6 +95,150 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'dateSendingTo1C': '2022-07-21 19:00:00',
       'numberFrom1C': 'DDY-215'
     },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
+    {
+      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'isDeleted': 0,
+      'date': '2022-07-20 20:00:00',
+      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+      'uidOrganization': '',
+      'uidPartner': '',
+      'namePartner': 'ФОП Терманов Дмитро',
+      'uidContract': '',
+      'uidPrice': '',
+      'sum': '250.00',
+      'dateSending': '2022-07-21 19:00:00',
+      'datePaying': '2022-07-22 14:00:00',
+      'sendYesTo1C': 0,
+      'sendNoTo1C': 0,
+      'dateSendingTo1C': '2022-07-21 19:00:00',
+      'numberFrom1C': 'DDY-215'
+    },
   ];
 
   @override
@@ -103,6 +247,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: const Text('Заказы покупателей'),
           actions: [
             Padding(
@@ -120,18 +265,36 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
           ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.directions_car), text: 'Новые'),
-              Tab(icon: Icon(Icons.directions_transit), text: 'Отправленые'),
-              Tab(icon: Icon(Icons.directions_bike), text: 'Корзина'),
+              Tab(icon: Icon(Icons.filter_1), text: 'Новые'),
+              Tab(icon: Icon(Icons.filter_2), text: 'Отправленые'),
+              Tab(icon: Icon(Icons.filter_none), text: 'Корзина'),
             ],
           ),
         ),
         drawer: const MainDrawer(),
         body: TabBarView(
           children: [
-            countNewDocuments == 1 ? noDocuments() : yesNewDocuments(),
-            countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
-            countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                listParameters(),
+                countNewDocuments == 1 ? noDocuments() : yesNewDocuments(),
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                listParameters(),
+                countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                listParameters(),
+                countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
+              ],
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -169,22 +332,54 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
     // Количество документов в списке
     countNewDocuments = listNewOrdersCustomer.length;
 
-    // Отображение списка заказов покупателя
-    return ListView.builder(
-      itemCount: listNewOrdersCustomer.length,
+    return ColumnBuilder(
+      itemCount: countNewDocuments,
       itemBuilder: (context, index) {
-        return Card(
-          elevation: 5,
-          child: ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: Text(listNewOrdersCustomer[index].namePartner),
-            subtitle: Text(
-                'Сумма: ' + doubleToString(listNewOrdersCustomer[index].sum) + '\n'
-                'Номер в 1С: ' + listNewOrdersCustomer[index].numberFrom1C),
-            trailing: const Icon(Icons.delete_forever, color: Colors.red,),
+        final item = listNewOrdersCustomer[index];
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            5 * 2.0,
+            5,
+            5 * 2.0,
+            5,
+          ),
+          child: Card(
+            elevation: 5,
+            child: ListTile(
+              leading: const Icon(Icons.shopping_bag),
+              title: Text(listNewOrdersCustomer[index].namePartner),
+              subtitle: Text(
+                  'Сумма: ' + doubleToString(listNewOrdersCustomer[index].sum) +
+                      '\n'
+                          'Номер в 1С: ' +
+                      listNewOrdersCustomer[index].numberFrom1C),
+              trailing: PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Text('Редактировать'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'send',
+                      child: Text('Отправить'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Удалить'),
+                    )
+                  ];
+                },
+                onSelected: (String value) {
+                  print('You Click on po up menu item');
+                },
+              ),
+            ),
           ),
         );
       });
+
+
   }
 
   yesSendDocuments() {
@@ -208,6 +403,19 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
           leading: const Icon(Icons.abc),
           title: Text(listSendOrdersCustomer[index].uidPartner),
           subtitle: Text(listSendOrdersCustomer[index].sum.toString()),
+          trailing: PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                const PopupMenuItem(
+                  value: 'view',
+                  child: Text('Просмотр'),
+                ),
+              ];
+            },
+            onSelected: (String value){
+              print('You Click on po up menu item');
+            },
+          ),
         );
       },
     );
@@ -234,6 +442,23 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
           leading: const Icon(Icons.abc),
           title: Text(listTrashOrdersCustomer[index].uidPartner),
           subtitle: Text(listTrashOrdersCustomer[index].sum.toString()),
+          trailing: PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Text('Редактировать'),
+                ),
+                const PopupMenuItem(
+                  value: 'erase',
+                  child: Text('Уничтожить'),
+                )
+              ];
+            },
+            onSelected: (String value){
+              print('You Click on po up menu item');
+            },
+          ),
         );
       },
     );
@@ -243,6 +468,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: const [
           Text(
             'Заказов не обнаружено!',
