@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/screens/orders.dart';
+import 'package:wp_sales/screens/OrdersCustomer/orders.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class MainDrawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const OrderCustomer()));
+                        builder: (context) => const OrdersCustomer()));
               }
           ),
           ListTile(
