@@ -1,30 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/models/orderCustomer.dart';
-import 'package:intl/intl.dart';
-import '../../system/widgets.dart';
+import 'package:wp_sales/system/widgets.dart';
 
-class OrdersCustomer extends StatefulWidget {
-  const OrdersCustomer({Key? key}) : super(key: key);
+class ScreenListOrderCustomer extends StatefulWidget {
+  const ScreenListOrderCustomer({Key? key}) : super(key: key);
 
   @override
-  _OrdersCustomerState createState() => _OrdersCustomerState();
+  _ScreenListOrderCustomerState createState() => _ScreenListOrderCustomerState();
 }
 
-class _OrdersCustomerState extends State<OrdersCustomer> {
+class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
   int countNewDocuments = 0;
   int countSendDocuments = 0;
   int countTrashDocuments = 0;
 
-  DateTime startPeriodOrders = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
-  DateTime finishPeriodOrders = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day,23,59,59);
-  
+  DateTime startPeriodOrders =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime finishPeriodOrders = DateTime(DateTime.now().year,
+      DateTime.now().month, DateTime.now().day, 23, 59, 59);
+
   List<OrderCustomer> listNewOrdersCustomer = [];
   List<OrderCustomer> listSendOrdersCustomer = [];
   List<OrderCustomer> listTrashOrdersCustomer = [];
 
+  /// Выбор периода отображения документов в списке
+  String textPeriod = '';
+  DateTime firstDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+  DateTime lastDate = DateTime.now();
+
+  /// Поле ввода: Период
+  TextEditingController textFieldPeriodController = TextEditingController();
+
+  /// Поле ввода: Партнер
+  TextEditingController textFieldPartnerController = TextEditingController();
+
+  /// Поле ввода: Договор или торговая точка
+  TextEditingController textFieldContractController = TextEditingController();
+
+  /// Тестовые данные
   final messageList = [
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 1,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -42,7 +59,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 2,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -60,7 +77,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 3,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -78,7 +95,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 4,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -96,7 +113,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 5,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -114,7 +131,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 6,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -132,7 +149,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 7,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -150,7 +167,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 8,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -168,7 +185,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 9,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -186,7 +203,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 10,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -204,7 +221,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 11,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -222,7 +239,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
       'numberFrom1C': 'DDY-215'
     },
     {
-      'id': '931d0704-dad2-4363-9f29-473f50201cbf',
+      'id': 12,
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -253,15 +270,12 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
-                  onTap: () {
-                    
-                  },
+                  onTap: () {},
                   child: const Icon(
                     Icons.filter_list,
                     size: 26.0,
                   ),
-                )
-            ),
+                )),
           ],
           bottom: const TabBar(
             tabs: [
@@ -309,88 +323,270 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
     );
   }
 
+  loadNewDocuments() {}
+
+  loadSendDocuments() {}
+
+  loadTrashDocuments() {}
+
   listParameters() {
-    return const ExpansionTile(
-      title: Text('Параметры отбора'),
+    var validatePeriod = false;
+
+    return ExpansionTile(
+      title: const Text('Параметры отбора'),
       children: [
-        ListTile(title: Text('Отбор по датам')),
-        ListTile(title: Text('Отбор по контрагенту')),
+        /// Period
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            controller: textFieldPeriodController,
+            readOnly: true,
+            textInputAction: TextInputAction.continueAction,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Период',
+              errorText: validatePeriod ? 'Вы не указали период!' : null,
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min, //
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      var _datePick = await showDateRangePicker(
+                        context: context,
+                        initialDateRange:
+                            DateTimeRange(start: firstDate, end: lastDate),
+                        helpText: 'Выберите период',
+                        firstDate: DateTime(2021, 1, 1),
+                        lastDate: lastDate,
+                      );
+
+                      if (_datePick != null) {
+                        setState(() {
+                          validatePeriod = false;
+                          textPeriod = shortDateToString(_datePick.start) +
+                              ' - ' +
+                              shortDateToString(_datePick.end);
+                          textFieldPeriodController.text = textPeriod;
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.date_range, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {},
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// Partner
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldPartnerController,
+            readOnly: true,
+            textInputAction: TextInputAction.continueAction,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Партнер',
+              errorText: validatePeriod ? 'Вы не указали партнера!' : null,
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {},
+                    icon: const Icon(Icons.people, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {},
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// Contract
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldPartnerController,
+            readOnly: true,
+            textInputAction: TextInputAction.continueAction,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Договор (торговая точка)',
+              errorText:
+                  validatePeriod ? 'Вы не указали договор (торговую точку)!' : null,
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {},
+                    icon: const Icon(Icons.recent_actors, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {},
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// Button refresh
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 49) / 2,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      if (textFieldPeriodController.text.isEmpty) {
+                        setState(() {
+                          validatePeriod = true;
+                        });
+                        return;
+                      } else {
+                        setState(() {
+                          validatePeriod = false;
+                        });
+                      }
+                      await loadNewDocuments();
+                      await loadSendDocuments();
+                      //await loadTrashDocuments();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.update, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Заполнить список')
+                      ],
+                    )),
+              ),
+              const SizedBox(width: 14,),
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 35) / 2,
+                child: ElevatedButton(
+                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                    onPressed: () async {
+                      if (textFieldPeriodController.text.isEmpty) {
+                        setState(() {
+                          validatePeriod = true;
+                        });
+                        return;
+                      } else {
+                        setState(() {
+                          validatePeriod = false;
+                        });
+                      }
+                      await loadNewDocuments();
+                      await loadSendDocuments();
+                      //await loadTrashDocuments();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.delete, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Очистить отбор'),
+                      ],
+                    )),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
   yesNewDocuments() {
-
     // Очистка списка заказов покупателя
     listNewOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
     for (var message in messageList) {
       OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listNewOrdersCustomer.add(newOrderCustomer);}
+      listNewOrdersCustomer.add(newOrderCustomer);
+    }
 
     // Количество документов в списке
     countNewDocuments = listNewOrdersCustomer.length;
 
     return ColumnBuilder(
-      itemCount: countNewDocuments,
-      itemBuilder: (context, index) {
-        final item = listNewOrdersCustomer[index];
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(
-            5 * 2.0,
-            5,
-            5 * 2.0,
-            5,
-          ),
-          child: Card(
-            elevation: 5,
-            child: ListTile(
-              leading: const Icon(Icons.shopping_bag),
-              title: Text(listNewOrdersCustomer[index].namePartner),
-              subtitle: Text(
-                  'Сумма: ' + doubleToString(listNewOrdersCustomer[index].sum) +
-                      '\n'
-                          'Номер в 1С: ' +
-                      listNewOrdersCustomer[index].numberFrom1C),
-              trailing: PopupMenuButton(
-                itemBuilder: (context) {
-                  return [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Text('Редактировать'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'send',
-                      child: Text('Отправить'),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Удалить'),
-                    )
-                  ];
-                },
-                onSelected: (String value) {
-                  print('You Click on po up menu item');
-                },
+        itemCount: countNewDocuments,
+        itemBuilder: (context, index) {
+          final item = listNewOrdersCustomer[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(5 * 2.0,5,5 * 2.0,5,),
+            child: Card(
+              elevation: 5,
+              child: ListTile(
+                leading: const Icon(Icons.shopping_bag),
+                title: Text(listNewOrdersCustomer[index].namePartner),
+                subtitle: Text('Сумма: ' +
+                    doubleToString(listNewOrdersCustomer[index].sum) +
+                    '\n'
+                        'Номер в 1С: ' +
+                    listNewOrdersCustomer[index].numberFrom1C),
+                trailing: PopupMenuButton(
+                  itemBuilder: (context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Редактировать'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'send',
+                        child: Text('Отправить'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Удалить'),
+                      )
+                    ];
+                  },
+                  onSelected: (String value) {
+                    print('You Click on po up menu item');
+                  },
+                ),
               ),
             ),
-          ),
-        );
-      });
-
-
+          );
+        });
   }
 
   yesSendDocuments() {
-
     // Очистка списка заказов покупателя
     listSendOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
     for (var message in messageList) {
       OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listSendOrdersCustomer.add(newOrderCustomer);}
+      listSendOrdersCustomer.add(newOrderCustomer);
+    }
 
     // Количество документов в списке
     countSendDocuments = listSendOrdersCustomer.length;
@@ -412,7 +608,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
                 ),
               ];
             },
-            onSelected: (String value){
+            onSelected: (String value) {
               print('You Click on po up menu item');
             },
           ),
@@ -422,14 +618,14 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
   }
 
   yesTrashDocuments() {
-
     // Очистка списка заказов покупателя
     listTrashOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
     for (var message in messageList) {
       OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listTrashOrdersCustomer.add(newOrderCustomer);}
+      listTrashOrdersCustomer.add(newOrderCustomer);
+    }
 
     // Количество документов в списке
     countTrashDocuments = listTrashOrdersCustomer.length;
@@ -455,7 +651,7 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
                 )
               ];
             },
-            onSelected: (String value){
+            onSelected: (String value) {
               print('You Click on po up menu item');
             },
           ),
@@ -478,10 +674,5 @@ class _OrdersCustomerState extends State<OrdersCustomer> {
         ],
       ),
     );
-  }
-
-  doubleToString(double sum) {
-    var f = NumberFormat("##0.00", "en_US");
-    return (f.format(sum).toString());
   }
 }

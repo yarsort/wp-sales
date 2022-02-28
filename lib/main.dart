@@ -1,5 +1,7 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'system/widgets.dart';
+import 'screens/OrdersCustomer/itemOrderCustomer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(),
+      //home: const HomePage(),
+      home: const ScreenItemOrderCustomer(),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ru'),
+        Locale('en'),
+        Locale('uk'),
+        // ... other locales the app supports
+      ],
+      locale: const Locale('ru'),
     );
   }
 }

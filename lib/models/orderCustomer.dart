@@ -17,11 +17,6 @@ class OrderCustomer {
   double sum = 0.0;             // Сумма документа
   DateTime dateSending = DateTime(1900, 1, 1);      // Дата планируемой отгрузки заказа
   DateTime datePaying = DateTime(1900, 1, 1);       // Дата планируемой оплаты заказа
-
-  // У документа будут табличные части
-  // Товары - товары и услуги продаваемые в заказе клиенту
-
-  // Техническая информация
   int sendYesTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
   int sendNoTo1C = 0;  // Булево: "Отправлено в 1С" - для фильтрации в списках
   DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки заказа в 1С из мобильного устройства
@@ -85,6 +80,59 @@ class OrderCustomer {
     data['sendNoTo1C'] = sendNoTo1C;
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
+    return data;
+  }
+}
+
+/// ТЧ Товары, Документы.ЗаказПокупателя
+class ItemOrderCustomer {
+  int id = 0;                   // Инкремент
+  String uid = '';              // UID для 1С и связи с ТЧ
+  String name = '';             // Название товара
+  String uidUnit = '';          // Ссылка на единицу измерения товарв
+  String nameUnit = '';         // Название единицы измерения
+  double count = 0.0;           // Количество товара
+  double price = 0.0;           // Цена товарв
+  double discount = 0.0;        // Скидка/наценка на товар
+  double sum = 0.0;             // Сумма товаров
+
+//<editor-fold desc="Data Methods">
+
+  ItemOrderCustomer({
+    required this.id,
+    required this.uid,
+    required this.name,
+    required this.uidUnit,
+    required this.nameUnit,
+    required this.count,
+    required this.price,
+    required this.discount,
+    required this.sum,
+  });
+
+  ItemOrderCustomer.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    uid = json['uid'];
+    name = json['name'];
+    uidUnit = json['uidUnit'];
+    nameUnit = json['nameUnit'];
+    count = json['count'];
+    price = json['price'];
+    discount = json['discount'];
+    sum = json['sum'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['uid'] = uid;
+    data['name'] = name;
+    data['uidUnit'] = uidUnit;
+    data['nameUnit'] = nameUnit;
+    data['count'] = count;
+    data['price'] = price;
+    data['discount'] = discount;
+    data['sum'] = sum;
     return data;
   }
 }
