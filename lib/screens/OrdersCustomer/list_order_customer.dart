@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/models/orderCustomer.dart';
+import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenListOrderCustomer extends StatefulWidget {
@@ -545,12 +545,12 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
               elevation: 5,
               child: ListTile(
                 leading: const Icon(Icons.shopping_bag),
-                title: Text(listNewOrdersCustomer[index].namePartner),
+                title: Text(item.namePartner),
                 subtitle: Text('Сумма: ' +
-                    doubleToString(listNewOrdersCustomer[index].sum) +
+                    doubleToString(item.sum) +
                     '\n'
                         'Номер в 1С: ' +
-                    listNewOrdersCustomer[index].numberFrom1C),
+                    item.numberFrom1C),
                 trailing: PopupMenuButton(
                   itemBuilder: (context) {
                     return [
@@ -596,7 +596,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       itemCount: listSendOrdersCustomer.length,
       itemBuilder: (context, index) {
         return ListTile(
-          leading: const Icon(Icons.abc),
+          leading: const Icon(Icons.ac_unit),
           title: Text(listSendOrdersCustomer[index].uidPartner),
           subtitle: Text(listSendOrdersCustomer[index].sum.toString()),
           trailing: PopupMenuButton(
@@ -635,7 +635,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       itemCount: listTrashOrdersCustomer.length,
       itemBuilder: (context, index) {
         return ListTile(
-          leading: const Icon(Icons.abc),
+          leading: const Icon(Icons.ac_unit),
           title: Text(listTrashOrdersCustomer[index].uidPartner),
           subtitle: Text(listTrashOrdersCustomer[index].sum.toString()),
           trailing: PopupMenuButton(

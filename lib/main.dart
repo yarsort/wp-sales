@@ -1,7 +1,7 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'system/widgets.dart';
-import 'screens/OrdersCustomer/itemOrderCustomer.dart';
+import 'screens/OrdersCustomer/items_order_customer.dart';
 
 void main() {
   runApp(const MyApp());

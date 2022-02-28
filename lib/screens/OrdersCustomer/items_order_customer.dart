@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/orderCustomer.dart';
+import 'package:wp_sales/models/order_customer.dart';
+import 'package:wp_sales/screens/OrdersCustomer/add_item_order_customer.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -16,7 +17,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   int countItems = 0;
 
   /// Позиции товаров в заказе
-  List<ItemOrderCustomer> listItems = [];
+  List<ItemOrderCustomer> itemsOrder = [];
 
   /// Поле ввода: Организация
   TextEditingController textFieldOrganisationController =
@@ -65,7 +66,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       TextEditingController();
 
   /// Тестовые данные
-  final messageList = [
+  final tempItemsOrders = [
     {
       'id': 1,
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -74,7 +75,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       'nameUnit': 'шт.',
       'count': 3.0,
       'price': 63.67,
-      'discount': 0,
+      'discount': 0.0,
       'sum': 191.01
     },
     {
@@ -85,7 +86,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       'nameUnit': 'шт.',
       'count': 3.0,
       'price': 63.67,
-      'discount': 0,
+      'discount': 0.0,
       'sum': 191.01
     },
     {
@@ -96,7 +97,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       'nameUnit': 'шт.',
       'count': 5.0,
       'price': 261.52,
-      'discount': 0,
+      'discount': 0.0,
       'sum': 1307.60
     },
     {
@@ -107,7 +108,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       'nameUnit': 'м.п.',
       'count': 11.0,
       'price': 18.4,
-      'discount': 0,
+      'discount': 0.0,
       'sum': 1202.4
     },
   ];
@@ -128,17 +129,14 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 padding: const EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
                   onTap: () {},
-                  child: const Icon(
-                    Icons.filter_list,
-                    size: 26.0,
-                  ),
+                  child: const Icon(Icons.filter_list, size: 26.0),
                 )),
           ],
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.filter_2), text: 'Товары'),
-              Tab(icon: Icon(Icons.filter_none), text: 'Служебные'),
+              Tab(icon: Icon(Icons.list),     text: 'Товары'),
+              Tab(icon: Icon(Icons.tune),     text: 'Служебные'),
             ],
           ),
         ),
@@ -164,7 +162,14 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddItemOrderCustomer(itemOrderCustomer: itemsOrder),
+              ),
+            );
+          },
           tooltip: '+',
           child: const Text(
             "+",
@@ -177,42 +182,42 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   listItemsOrder() {
     // Очистка списка заказов покупателя
-    listItems.clear();
+    itemsOrder.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
+    for (var message in tempItemsOrders) {
       ItemOrderCustomer newItemOrderCustomer =
           ItemOrderCustomer.fromJson(message);
-      listItems.add(newItemOrderCustomer);
+      itemsOrder.add(newItemOrderCustomer);
     }
 
     // Количество документов в списке
-    countItems = listItems.length;
+    countItems = itemsOrder.length;
 
     return ColumnBuilder(
         itemCount: countItems,
         itemBuilder: (context, index) {
-          final item = listItems[index];
+          final item = itemsOrder[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(
-              5 * 2.0,
-              14,
-              5 * 2.0,
-              5,
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 0,
             ),
             child: Card(
-              elevation: 5,
+              elevation: 2,
               child: ListTile(
-                //leading: Text(item.id.toString()),
                 title: Text(item.name),
-                subtitle: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                subtitle: Column(
                   children: [
-                    Text(doubleThreeToString(item.count)),
-                    Text(item.nameUnit),
-                    Text(doubleToString(item.price)),
-                    Text(doubleToString(item.discount)),
-                    Text(doubleToString(item.sum)),
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(flex: 1,child: Text(doubleThreeToString(item.count))),
+                        Expanded(flex: 1,child: Text(item.nameUnit)),
+                        Expanded(flex: 1,child: Text(doubleToString(item.price))),
+                        Expanded(flex: 1,child: Text(doubleToString(item.discount))),
+                        Expanded(flex: 1,child: Text(doubleToString(item.sum))),
+                      ],
+                    ),
                   ],
                 ),
                 trailing: PopupMenuButton(
@@ -229,7 +234,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     ];
                   },
                   onSelected: (String value) {
-                    print('You Click on po up menu item');
+                    debugPrint('You Click on po up menu item');
                   },
                 ),
               ),

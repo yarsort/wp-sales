@@ -1,7 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/dbOrderCustomer.dart';
-import 'package:wp_sales/models/orderCustomer.dart';
+import 'package:wp_sales/models/order_customer.dart';
 
 class WPSalesDatabase {
   static final WPSalesDatabase instance = WPSalesDatabase._init();
