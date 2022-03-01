@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/OrdersCustomer/add_item_order_customer.dart';
+import 'package:wp_sales/screens/documents/add_item_order_customer.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -140,7 +140,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             ],
           ),
         ),
-        drawer: const MainDrawer(),
         body: TabBarView(
           children: [
             ListView(

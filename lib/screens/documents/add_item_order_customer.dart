@@ -15,7 +15,7 @@ class _AddItemOrderCustomerState extends State<AddItemOrderCustomer> {
   /// Поле ввода: Поиск товаров
   TextEditingController textFieldSearchController = TextEditingController();
 
-  final duplicateItems = List<String>.generate(10000, (i) => "Item $i");
+  final duplicateItems = List<String>.generate(10000, (i) => "Тестовый товар №$i");
   var items = <String>[];
 
   @override

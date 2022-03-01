@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/models/order_customer.dart';
+import 'package:wp_sales/screens/documents/items_order_customer.dart';
+import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenListOrderCustomer extends StatefulWidget {
   const ScreenListOrderCustomer({Key? key}) : super(key: key);
 
   @override
-  _ScreenListOrderCustomerState createState() => _ScreenListOrderCustomerState();
+  _ScreenListOrderCustomerState createState() =>
+      _ScreenListOrderCustomerState();
 }
 
 class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
@@ -49,6 +51,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uidPartner': '',
       'namePartner': 'ТОВ Сертон',
       'uidContract': '',
+      'nameContract': 'г. Винница, ул. Винниченка 24',
       'uidPrice': '',
       'sum': '2150.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -56,7 +59,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
+      'numberFrom1C': 'КР-ШТ-0103-012',
+      'countItems': 10,
     },
     {
       'id': 2,
@@ -67,6 +71,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uidPartner': '',
       'namePartner': 'ФОП Великов Сергій',
       'uidContract': '',
+      'nameContract':
+          'Магазин "На Володарського", г. Днепр, ул. Тараса Шевченка 130Б',
       'uidPrice': '',
       'sum': '10050.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -74,7 +80,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
+      'numberFrom1C': 'ЛД-ШТ-0103-024',
+      'countItems': 1259,
     },
     {
       'id': 3,
@@ -83,8 +90,9 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
       'uidOrganization': '',
       'uidPartner': '',
-      'uidContract': '',
       'namePartner': 'ФОП Сергієнко Володимир',
+      'uidContract': '',
+      'nameContract': 'г. Винница, ул. Шевченка 30',
       'uidPrice': '',
       'sum': '1050.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -92,7 +100,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
+      'numberFrom1C': 'DDY-215',
+      'countItems': 10,
     },
     {
       'id': 4,
@@ -103,6 +112,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
+      'nameContract': 'г. Винница, ул. С. Долгрукого 50',
       'uidPrice': '',
       'sum': '250.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -110,7 +120,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
+      'numberFrom1C': 'ЛД-ШТ-0103-024',
+      'countItems': 9,
     },
     {
       'id': 5,
@@ -121,6 +132,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
+      'nameContract': 'Магазин "Красуня", г. Винница, ул. С. Долгрукого 50',
       'uidPrice': '',
       'sum': '250.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -128,7 +140,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
+      'numberFrom1C': 'НД-РА-0103-014',
+      'countItems': 8,
     },
     {
       'id': 6,
@@ -139,6 +152,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
+      'nameContract': 'Магазин "Дитячий світ", г. Винница, ул. д. Вороного 100',
       'uidPrice': '',
       'sum': '250.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -146,116 +160,9 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
-    {
-      'id': 7,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
-    {
-      'id': 8,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
-    {
-      'id': 9,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
-    {
-      'id': 10,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
-    {
-      'id': 11,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
-    {
-      'id': 12,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215'
-    },
+      'numberFrom1C': 'ЛД-ШТ-0103-025',
+      'countItems': 15,
+    }
   ];
 
   @override
@@ -299,20 +206,27 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
+                countSendDocuments == 1 ? noDocuments() : yesSendDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
+                countTrashDocuments == 1 ? noDocuments() : yesTrashDocuments(),
               ],
             ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ScreenItemOrderCustomer(),
+              ),
+            );
+          },
           tooltip: '+',
           child: const Text(
             "+",
@@ -431,8 +345,9 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                 color: Colors.blueGrey,
               ),
               labelText: 'Договор (торговая точка)',
-              errorText:
-                  validatePeriod ? 'Вы не указали договор (торговую точку)!' : null,
+              errorText: validatePeriod
+                  ? 'Вы не указали договор (торговую точку)!'
+                  : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
@@ -485,12 +400,15 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       ],
                     )),
               ),
-              const SizedBox(width: 14,),
+              const SizedBox(
+                width: 14,
+              ),
               SizedBox(
                 height: 40,
                 width: (MediaQuery.of(context).size.width - 35) / 2,
                 child: ElevatedButton(
-                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.red)),
                     onPressed: () async {
                       if (textFieldPeriodController.text.isEmpty) {
                         setState(() {
@@ -540,17 +458,73 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
         itemBuilder: (context, index) {
           final item = listNewOrdersCustomer[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(5 * 2.0,5,5 * 2.0,5,),
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
-              elevation: 5,
+              elevation: 3,
               child: ListTile(
-                leading: const Icon(Icons.shopping_bag),
-                title: Text(item.namePartner),
-                subtitle: Text('Сумма: ' +
-                    doubleToString(item.sum) +
-                    '\n'
-                        'Номер в 1С: ' +
-                    item.numberFrom1C),
+                tileColor: Colors.cyan[50],
+                onTap: () {},
+                title: Flexible(child: Text(item.namePartner)),
+                subtitle: Column(
+                  children: [
+                    const Divider(),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const Icon(Icons.domain, color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(child: Text(item.nameContract)),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(children: [
+                      Expanded(
+                          flex: 6,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.access_time,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.date)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.history_toggle_off,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.dateSending)),
+                                ],
+                              )
+                            ],
+                          )),
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(item.sum) + ' грн'),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.format_list_numbered_rtl,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(item.countItems.toString() + ' поз'),
+                                ],
+                              )
+                            ],
+                          ))
+                    ]),
+                  ],
+                ),
                 trailing: PopupMenuButton(
                   itemBuilder: (context) {
                     return [
@@ -592,29 +566,122 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
     countSendDocuments = listSendOrdersCustomer.length;
 
     // Отображение списка заказов покупателя
-    return ListView.builder(
-      itemCount: listSendOrdersCustomer.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: const Icon(Icons.ac_unit),
-          title: Text(listSendOrdersCustomer[index].uidPartner),
-          subtitle: Text(listSendOrdersCustomer[index].sum.toString()),
-          trailing: PopupMenuButton(
-            itemBuilder: (context) {
-              return [
-                const PopupMenuItem(
-                  value: 'view',
-                  child: Text('Просмотр'),
+    return ColumnBuilder(
+        itemCount: countSendDocuments,
+        itemBuilder: (context, index) {
+          final item = listSendOrdersCustomer[index];
+          return Padding(
+            padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Card(
+              elevation: 3,
+              child: ListTile(
+                tileColor: Colors.lightGreen[50],
+                onTap: () {},
+                title: Flexible(child: Text(item.namePartner)),
+                subtitle: Column(
+                  children: [
+                    const Divider(),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const Icon(Icons.domain, color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(child: Text(item.nameContract)),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(children: [
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.access_time,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.date)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.history_toggle_off,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.dateSending)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.more_time,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.dateSendingTo1C)),
+                                ],
+                              )
+                            ],
+                          )),
+                      Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(item.sum) + ' грн'),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.format_list_numbered_rtl,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(item.countItems.toString() + ' поз'),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  item.numberFrom1C != ''
+                                      ? const Icon(Icons.repeat_one,
+                                          color: Colors.green, size: 20)
+                                      : const Icon(Icons.repeat_one,
+                                          color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(item.numberFrom1C),
+                                ],
+                              )
+                            ],
+                          ))
+                    ]),
+                  ],
                 ),
-              ];
-            },
-            onSelected: (String value) {
-              print('You Click on po up menu item');
-            },
-          ),
-        );
-      },
-    );
+                trailing: PopupMenuButton(
+                  itemBuilder: (context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Редактировать'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'send',
+                        child: Text('Отправить'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Удалить'),
+                      )
+                    ];
+                  },
+                  onSelected: (String value) {
+                    print('You Click on po up menu item');
+                  },
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   yesTrashDocuments() {
@@ -631,33 +698,103 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
     countTrashDocuments = listTrashOrdersCustomer.length;
 
     // Отображение списка заказов покупателя
-    return ListView.builder(
-      itemCount: listTrashOrdersCustomer.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: const Icon(Icons.ac_unit),
-          title: Text(listTrashOrdersCustomer[index].uidPartner),
-          subtitle: Text(listTrashOrdersCustomer[index].sum.toString()),
-          trailing: PopupMenuButton(
-            itemBuilder: (context) {
-              return [
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Text('Редактировать'),
+    return ColumnBuilder(
+        itemCount: countTrashDocuments,
+        itemBuilder: (context, index) {
+          final item = listTrashOrdersCustomer[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Card(
+              elevation: 3,
+              child: ListTile(
+                tileColor: Colors.deepOrange[50],
+                onTap: () {},
+                title: Flexible(child: Text(item.namePartner)),
+                subtitle: Column(
+                  children: [
+                    const Divider(),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const Icon(Icons.domain, color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(child: Text(item.nameContract)),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(children: [
+                      Expanded(
+                          flex: 6,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.access_time,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.date)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.history_toggle_off,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.dateSending)),
+                                ],
+                              )
+                            ],
+                          )),
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(item.sum) + ' грн'),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.format_list_numbered_rtl,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(item.countItems.toString() + ' поз'),
+                                ],
+                              )
+                            ],
+                          ))
+                    ]),
+                  ],
                 ),
-                const PopupMenuItem(
-                  value: 'erase',
-                  child: Text('Уничтожить'),
-                )
-              ];
-            },
-            onSelected: (String value) {
-              print('You Click on po up menu item');
-            },
-          ),
-        );
-      },
-    );
+                trailing: PopupMenuButton(
+                  itemBuilder: (context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Редактировать'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'send',
+                        child: Text('Отправить'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Удалить'),
+                      )
+                    ];
+                  },
+                  onSelected: (String value) {
+                    print('You Click on po up menu item');
+                  },
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   noDocuments() {

@@ -13,6 +13,7 @@ class OrderCustomer {
   String uidPartner = '';       // Ссылка на контрагента
   String namePartner = '';       // Имя контрагента
   String uidContract = '';      // Ссылка на договор контрагента
+  String nameContract = '';       // Имя контрагента
   String uidPrice = '';         // Ссылка на тип цены номенклатуры продажи контрагенту
   double sum = 0.0;             // Сумма документа
   DateTime dateSending = DateTime(1900, 1, 1);      // Дата планируемой отгрузки заказа
@@ -21,6 +22,7 @@ class OrderCustomer {
   int sendNoTo1C = 0;  // Булево: "Отправлено в 1С" - для фильтрации в списках
   DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки заказа в 1С из мобильного устройства
   String numberFrom1C = '';
+  int countItems = 0;           // Количество товаров
 
 //<editor-fold desc="Data Methods">
 
@@ -33,6 +35,7 @@ class OrderCustomer {
     required this.uidPartner,
     required this.namePartner,
     required this.uidContract,
+    required this.nameContract,
     required this.uidPrice,
     required this.sum,
     required this.dateSending,
@@ -41,6 +44,7 @@ class OrderCustomer {
     required this.sendNoTo1C,
     required this.dateSendingTo1C,
     required this.numberFrom1C,
+    required this.countItems,
   });
 
   OrderCustomer.fromJson(Map<String, dynamic> json) {
@@ -52,6 +56,7 @@ class OrderCustomer {
     uidPartner = json['uidPartner'];
     namePartner = json['namePartner'];
     uidContract = json['uidContract'];
+    nameContract = json['nameContract'];
     uidPrice = json['uidPrice'];
     sum = double.parse(json['sum']);
     dateSending = DateTime.parse(json['dateSending']);
@@ -60,6 +65,7 @@ class OrderCustomer {
     sendNoTo1C = json['sendNoTo1C'];
     dateSendingTo1C = DateTime.parse(json['dateSendingTo1C']);
     numberFrom1C = json['numberFrom1C'];
+    countItems = json['countItems'];
   }
 
   Map<String, dynamic> toJson() {
@@ -72,6 +78,7 @@ class OrderCustomer {
     data['uidPartner'] = uidPartner;
     data['namePartner'] = namePartner;
     data['uidContract'] = uidContract;
+    data['nameContract'] = nameContract;
     data['uidPrice'] = uidPrice;
     data['sum'] = sum.toString();
     data['dateSending'] = dateSending.toIso8601String();
@@ -80,6 +87,7 @@ class OrderCustomer {
     data['sendNoTo1C'] = sendNoTo1C;
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
+    data['countItems'] = countItems;
     return data;
   }
 }

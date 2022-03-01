@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/screens/OrdersCustomer/list_order_customer.dart';
+import 'package:wp_sales/screens/documents/list_order_customer.dart';
+import 'package:wp_sales/screens/references/partners.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
@@ -33,7 +34,18 @@ class MainDrawer extends StatelessWidget {
               leading: const Icon(Icons.payment),
               onTap: () {}
           ),
-          const Divider(),
+          const Divider(indent: 10, endIndent: 10),
+          ListTile(
+              title: const Text("Партнеры"),
+              leading: const Icon(Icons.people),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ScreenCustomers()));
+              }
+          ),
+          const Divider(indent: 10, endIndent: 10),
           ListTile(
               title: const Text("Настройки"),
               leading: const Icon(Icons.settings),
@@ -61,9 +73,9 @@ class MainDrawer extends StatelessWidget {
       title: const Text("Про автора"),
       content: Column(
         children: const [
-          Text("Стрижаков Ярослав"),
-          Text("Разработка ПО"),
-          Text("TM Yarsoft 2022"),
+          Text('Стрижаков Ярослав'),
+          Text('Разработка ПО'),
+          Text('TM \"Yarsoft\" 2022'),
         ],
       ),
       actions: [
