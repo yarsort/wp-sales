@@ -462,7 +462,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
             child: Card(
               elevation: 3,
               child: ListTile(
-                tileColor: Colors.cyan[50],
+                //tileColor: Colors.cyan[50],
                 onTap: () {},
                 title: Flexible(child: Text(item.namePartner)),
                 subtitle: Column(
