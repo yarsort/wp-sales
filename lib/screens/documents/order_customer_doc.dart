@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/documents/add_item_order_customer.dart';
+import 'package:wp_sales/screens/documents/order_customer_add_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -113,6 +113,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     },
   ];
 
+
   @override
   Widget build(BuildContext context) {
     textFieldSumController.text = '0.00';
@@ -177,6 +178,34 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
+  }
+
+  void showExitDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: const Text('Записать документ?'),
+            children: <Widget>[
+              SimpleDialogOption(
+                child: const Text('Закрыть'),
+                onPressed: () {
+                  Navigator.of(context).pop('Закрыть');
+                },
+              ),
+              SimpleDialogOption(
+                child: const Text('Записать'),
+                onPressed: () {
+                  Navigator.of(context).pop('Записать');
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  saveDocument() {
+
   }
 
   listItemsOrder() {
@@ -250,6 +279,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
     return Column(
       children: [
+        /// Organization
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
@@ -407,7 +437,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           ),
         ),
 
-        /// Sum of documents
+        /// Sum of document
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
@@ -440,7 +470,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           child: Divider(),
         ),
 
-        /// Sending
+        /// Sending date to partner
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
@@ -491,7 +521,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           ),
         ),
 
-        /// Paying
+        /// Paying of partner
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
@@ -569,7 +599,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 height: 40,
                 width: (MediaQuery.of(context).size.width - 49) / 2,
                 child: ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      var result = saveDocument();
+                      debugPrint(result);
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [

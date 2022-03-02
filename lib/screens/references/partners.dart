@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/partner.dart';
@@ -39,7 +37,7 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
       'balance': 3580.59,
       'balanceForPayment': 1550.0,
       'phone': '(098)8547870',
-      'address': 'П.Сагайдачного 32, дом 12',
+      'address': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
       'schedulePayment': 7,
     },
     {
@@ -68,8 +66,6 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
     },
   ];
 
-  // final duplicateItems =
-  //     List<String>.generate(20, (i) => "Тестовый  партнер №$i");
   var tempItems = <Partner>[];
   var items = <Partner>[];
 
@@ -109,7 +105,10 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
   }
 
   void filterSearchResults(String query) {
+    /// Уберем пробелы
+    query = query.trim();
 
+    /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
         items.clear();
@@ -119,12 +118,23 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
     }
 
     List<Partner> dummySearchList = <Partner>[];
-
     dummySearchList.addAll(items);
+
     if (query.isNotEmpty) {
+
       List<Partner> dummyListData = <Partner>[];
+
       for (var item in dummySearchList) {
+        /// Поиск по имени партнера
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+        /// Поиск по адресу
+        if (item.address.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+        /// Поиск по номеру телефона
+        if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
       }
@@ -207,7 +217,7 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
                         Row(
                           children: [
                             Expanded(
-                              flex: 6,
+                              flex: 5,
                               child: Column(
                                 children: [
                                   Row(
@@ -217,11 +227,12 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
                                       Text(item.phone),
                                     ],
                                   ),
+                                  const SizedBox(height: 5),
                                   Row(
                                     children: [
                                       const Icon(Icons.home, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(item.address),
+                                      Flexible(child: Text(item.address)),
                                     ],
                                   )
                                 ],

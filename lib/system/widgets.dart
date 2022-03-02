@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/screens/documents/list_order_customer.dart';
+import 'package:wp_sales/screens/documents/order_customer_doc_list.dart';
 import 'package:wp_sales/screens/references/partners.dart';
 
 class MainDrawer extends StatelessWidget {

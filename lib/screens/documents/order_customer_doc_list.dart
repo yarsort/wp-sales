@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/documents/items_order_customer.dart';
+import 'package:wp_sales/screens/documents/order_customer_doc.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -49,7 +49,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
       'uidOrganization': '',
       'uidPartner': '',
-      'namePartner': 'ТОВ Сертон',
+      'namePartner': 'ТОВ Сертон Сертон Сертон Сертон Сертон Сертон Сертон',
       'uidContract': '',
       'nameContract': 'г. Винница, ул. Винниченка 24',
       'uidPrice': '',
@@ -100,7 +100,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'DDY-215',
+      'numberFrom1C': '',
       'countItems': 10,
     },
     {
@@ -132,7 +132,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
-      'nameContract': 'Магазин "Красуня", г. Винница, ул. С. Долгрукого 50',
+      'nameContract': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
       'uidPrice': '',
       'sum': '250.00',
       'dateSending': '2022-07-21 19:00:00',
@@ -140,7 +140,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'sendYesTo1C': 0,
       'sendNoTo1C': 0,
       'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'НД-РА-0103-014',
+      'numberFrom1C': '',
       'countItems': 8,
     },
     {
@@ -396,7 +396,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: const [
                         Icon(Icons.update, color: Colors.white),
                         SizedBox(width: 14),
-                        Text('Заполнить список')
+                        Text('Заполнить')
                       ],
                     )),
               ),
@@ -464,7 +464,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
               child: ListTile(
                 //tileColor: Colors.cyan[50],
                 onTap: () {},
-                title: Flexible(child: Text(item.namePartner)),
+                title: Text(item.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -473,13 +473,13 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(child: Text(item.nameContract)),
+                        Flexible(flex: 1, child: Text(item.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
                     Row(children: [
                       Expanded(
-                          flex: 6,
+                          flex: 3,
                           child: Column(
                             children: [
                               Row(
@@ -524,27 +524,6 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                           ))
                     ]),
                   ],
-                ),
-                trailing: PopupMenuButton(
-                  itemBuilder: (context) {
-                    return [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Text('Редактировать'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'send',
-                        child: Text('Отправить'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Удалить'),
-                      )
-                    ];
-                  },
-                  onSelected: (String value) {
-                    print('You Click on po up menu item');
-                  },
                 ),
               ),
             ),
@@ -571,13 +550,13 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
         itemBuilder: (context, index) {
           final item = listSendOrdersCustomer[index];
           return Padding(
-            padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
                 tileColor: Colors.lightGreen[50],
                 onTap: () {},
-                title: Flexible(child: Text(item.namePartner)),
+                title: Text(item.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -586,7 +565,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(child: Text(item.nameContract)),
+                        Flexible(flex: 1, child: Text(item.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -611,18 +590,10 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   Text(shortDateToString(item.dateSending)),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.more_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(item.dateSendingTo1C)),
-                                ],
-                              )
                             ],
                           )),
                       Expanded(
-                          flex: 2,
+                          flex: 3,
                           child: Column(
                             children: [
                               Row(
@@ -641,42 +612,47 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   Text(item.countItems.toString() + ' поз'),
                                 ],
                               ),
+                            ],
+                          ))
+                    ]),
+                    const SizedBox(height: 5),
+                    Row(children: [
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.more_time,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(item.dateSendingTo1C)),
+                                ],
+                              )
+                            ],
+                          )),
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
                               Row(
                                 children: [
                                   item.numberFrom1C != ''
                                       ? const Icon(Icons.repeat_one,
-                                          color: Colors.green, size: 20)
+                                      color: Colors.green, size: 20)
                                       : const Icon(Icons.repeat_one,
-                                          color: Colors.blue, size: 20),
+                                      color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(item.numberFrom1C),
+                                  item.numberFrom1C != ''
+                                      ? Text(item.numberFrom1C) :
+                                      const Text('Нет данных!',
+                                        style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],
                           ))
                     ]),
                   ],
-                ),
-                trailing: PopupMenuButton(
-                  itemBuilder: (context) {
-                    return [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Text('Редактировать'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'send',
-                        child: Text('Отправить'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Удалить'),
-                      )
-                    ];
-                  },
-                  onSelected: (String value) {
-                    print('You Click on po up menu item');
-                  },
                 ),
               ),
             ),
@@ -709,7 +685,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
               child: ListTile(
                 tileColor: Colors.deepOrange[50],
                 onTap: () {},
-                title: Flexible(child: Text(item.namePartner)),
+                title: Text(item.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -718,13 +694,13 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(child: Text(item.nameContract)),
+                        Flexible(flex: 1, child: Text(item.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
                     Row(children: [
                       Expanded(
-                          flex: 6,
+                          flex: 3,
                           child: Column(
                             children: [
                               Row(
@@ -769,27 +745,6 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                           ))
                     ]),
                   ],
-                ),
-                trailing: PopupMenuButton(
-                  itemBuilder: (context) {
-                    return [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Text('Редактировать'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'send',
-                        child: Text('Отправить'),
-                      ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Удалить'),
-                      )
-                    ];
-                  },
-                  onSelected: (String value) {
-                    print('You Click on po up menu item');
-                  },
                 ),
               ),
             ),
