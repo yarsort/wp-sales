@@ -14,57 +14,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
   /// Поле ввода: Поиск партнеров
   TextEditingController textFieldSearchController = TextEditingController();
 
-  /// Тестовые данные
-  final messageList = [
-    {
-      'id': 1,
-      'isGroup': true,
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'name': 'ФОП Сергеев Алексей',
-      'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
-      'balance': 6408.10,
-      'balanceForPayment': 0.0,
-      'phone': '0988547870',
-      'address': 'П.Сагайдачного 32, дом 12',
-      'schedulePayment': 0,
-    },
-    {
-      'id': 1,
-      'isGroup': false,
-      'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
-      'name': 'ТОВ "Амагама"',
-      'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'balance': 3580.59,
-      'balanceForPayment': 1550.0,
-      'phone': '(098)8547870',
-      'address': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
-      'schedulePayment': 7,
-    },
-    {
-      'id': 1,
-      'isGroup': false,
-      'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
-      'name': 'ТОВ "Промприбор"',
-      'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'balance': 564.0,
-      'balanceForPayment': 150.0,
-      'phone': '0988547870',
-      'address': 'П.Сагайдачного 32, дом 12',
-      'schedulePayment': 30,
-    },
-    {
-      'id': 1,
-      'isGroup': false,
-      'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
-      'name': 'ТОВ "Агротрейдинг"',
-      'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'balance': 195600.0,
-      'balanceForPayment': 3600.0,
-      'phone': '0988547870',
-      'address': 'П.Сагайдачного 32, дом 12',
-      'schedulePayment': 10,
-    },
-  ];
+
 
   List<Partner> tempItems = [];
   List<Partner> listPartners = [];
@@ -114,7 +64,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
     tempItems.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
+    for (var message in listDataPartners) {
       Partner newPartner = Partner.fromJson(message);
       listPartners.add(newPartner);
       tempItems.add(newPartner); // Как шаблон

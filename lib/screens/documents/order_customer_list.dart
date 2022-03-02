@@ -43,137 +43,6 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
   /// Панель параметров отбора
   bool expandedExpansionTile = false;
 
-  /// Тестовые данные
-  final messageList = [
-    {
-      'id': 1,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
-      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
-      'uidPartner': '',
-      'namePartner': 'ТОВ Сертон Сертон Сертон Сертон Сертон Сертон Сертон',
-      'uidContract': '',
-      'nameContract': 'г. Винница, ул. Винниченка 24',
-      'uidPrice': '',
-      'sum': '2150.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'КР-ШТ-0103-012',
-      'countItems': 10,
-    },
-    {
-      'id': 2,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
-      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
-      'uidPartner': '',
-      'namePartner': 'ФОП Великов Сергій',
-      'uidContract': '',
-      'nameContract':
-          'Магазин "На Володарського", г. Днепр, ул. Тараса Шевченка 130Б',
-      'uidPrice': '',
-      'sum': '10050.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'ЛД-ШТ-0103-024',
-      'countItems': 1259,
-    },
-    {
-      'id': 3,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
-      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
-      'uidPartner': '',
-      'namePartner': 'ФОП Сергієнко Володимир',
-      'uidContract': '',
-      'nameContract': 'г. Винница, ул. Шевченка 30',
-      'uidPrice': '',
-      'sum': '1050.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': '',
-      'countItems': 10,
-    },
-    {
-      'id': 4,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
-      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'nameContract': 'г. Винница, ул. С. Долгрукого 50',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'ЛД-ШТ-0103-024',
-      'countItems': 9,
-    },
-    {
-      'id': 5,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
-      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'nameContract': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': '',
-      'countItems': 8,
-    },
-    {
-      'id': 6,
-      'isDeleted': 0,
-      'date': '2022-07-20 20:00:00',
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
-      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
-      'uidPartner': '',
-      'namePartner': 'ФОП Терманов Дмитро',
-      'uidContract': '',
-      'nameContract': 'Магазин "Дитячий світ", г. Винница, ул. д. Вороного 100',
-      'uidPrice': '',
-      'sum': '250.00',
-      'dateSending': '2022-07-21 19:00:00',
-      'datePaying': '2022-07-22 14:00:00',
-      'sendYesTo1C': 0,
-      'sendNoTo1C': 0,
-      'dateSendingTo1C': '2022-07-21 19:00:00',
-      'numberFrom1C': 'ЛД-ШТ-0103-025',
-      'countItems': 15,
-    }
-  ];
-
   @override
   void initState() {
     loadNewDocuments();
@@ -260,7 +129,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
     listNewOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
+    for (var message in listDataOrderCustomer) {
       OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
       listNewOrdersCustomer.add(newOrderCustomer);
     }
@@ -274,7 +143,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
     listSendOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
+    for (var message in listDataOrderCustomer) {
       OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
       listSendOrdersCustomer.add(newOrderCustomer);
     }
@@ -288,7 +157,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
     listTrashOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
+    for (var message in listDataOrderCustomer) {
       OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
       listTrashOrdersCustomer.add(newOrderCustomer);
     }

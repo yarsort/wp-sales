@@ -68,54 +68,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   TextEditingController textFieldDateSendingTo1CController =
       TextEditingController();
 
-  /// Тестовые данные
-  final tempItemsOrders = [
-    {
-      'id': 1,
-      'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'name': 'Подовжувач 2 гнізда 5м без з/з LILA 720-0205-203 Lezard',
-      'uidUnit': '',
-      'nameUnit': 'шт.',
-      'count': 3.0,
-      'price': 63.67,
-      'discount': 0.0,
-      'sum': 191.01
-    },
-    {
-      'id': 2,
-      'uid': '03704c3a-025e-4d5b-93f9-9213a338e807',
-      'name': 'Лампа світл G45 9W E27 4200K LED GLOB Lezard',
-      'uidUnit': '',
-      'nameUnit': 'шт.',
-      'count': 3.0,
-      'price': 63.67,
-      'discount': 0.0,
-      'sum': 191.01
-    },
-    {
-      'id': 3,
-      'uid': '03704c3a-025e-4d5b-73f9-9213a338e807',
-      'name': 'Прожектор 50W 6400K чорний IP65 230V LL-8050 Feron',
-      'uidUnit': '',
-      'nameUnit': 'шт.',
-      'count': 5.0,
-      'price': 261.52,
-      'discount': 0.0,
-      'sum': 1307.60
-    },
-    {
-      'id': 4,
-      'uid': '03704c3a-025e-4d5b-83f9-9213a338e807',
-      'name': 'СІП 2х16 кабель',
-      'uidUnit': '',
-      'nameUnit': 'м.п.',
-      'count': 11.0,
-      'price': 18.4,
-      'discount': 0.0,
-      'sum': 1202.4
-    },
-  ];
-
   @override
   void initState() {
     setState(() {
@@ -257,7 +209,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     itemsOrder.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in tempItemsOrders) {
+    for (var message in listDataOrderCustomerItems) {
       ItemOrderCustomer newItemOrderCustomer =
           ItemOrderCustomer.fromJson(message);
       itemsOrder.add(newItemOrderCustomer);

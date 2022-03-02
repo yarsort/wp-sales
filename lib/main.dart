@@ -1,7 +1,6 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'system/widgets.dart';
-import 'screens/references/partner_list.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,12 +13,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'WP Sales',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       //home: const HomePage(),
-      home: const ScreenPartnerList(),
+      home: const ScreenHomePage(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -36,14 +36,19 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class ScreenHomePage extends StatefulWidget {
+  const ScreenHomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ScreenHomePage> createState() => _ScreenHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ScreenHomePageState extends State<ScreenHomePage> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +61,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Text('You have pushed the button this many times:',),
-            Text('You have pushed the button this many times:',),
+
           ],
         ),
       ),
@@ -68,4 +72,6 @@ class _HomePageState extends State<HomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+
 }

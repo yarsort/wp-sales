@@ -78,7 +78,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             tabs: [
               Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
               Tab(icon: Icon(Icons.filter_2), text: 'Документы'),
-              Tab(icon: Icon(Icons.filter_none), text: 'Служебные'),
+              Tab(icon: Icon(Icons.filter_3), text: 'Служебные'),
             ],
           ),
         ),
@@ -236,7 +236,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'Баланс партнера (к оплате)',
+              labelText: 'Баланс партнера (просроченный по оплате)',
             ),
           ),
         ),
