@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/screens/documents/order_customer_doc_list.dart';
-import 'package:wp_sales/screens/references/partners.dart';
+import 'package:wp_sales/screens/documents/order_customer_list.dart';
+import 'package:wp_sales/screens/references/partner_list.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({Key? key}) : super(key: key);
@@ -42,7 +42,7 @@ class MainDrawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const ScreenCustomers()));
+                        builder: (context) => const ScreenPartnerList()));
               }
           ),
           const Divider(indent: 10, endIndent: 10),

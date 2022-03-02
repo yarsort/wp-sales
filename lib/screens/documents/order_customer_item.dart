@@ -5,7 +5,10 @@ import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenItemOrderCustomer extends StatefulWidget {
-  const ScreenItemOrderCustomer({Key? key}) : super(key: key);
+  final OrderCustomer orderCustomer;
+
+  const ScreenItemOrderCustomer({Key? key, required this.orderCustomer})
+      : super(key: key);
 
   @override
   _ScreenItemOrderCustomerState createState() =>
@@ -20,7 +23,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   List<ItemOrderCustomer> itemsOrder = [];
 
   /// Поле ввода: Организация
-  TextEditingController textFieldOrganisationController =
+  TextEditingController textFieldOrganizationController =
       TextEditingController();
 
   /// Поле ввода: Партнер
@@ -113,12 +116,35 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     },
   ];
 
+  @override
+  void initState() {
+    setState(() {
+      countItems = widget.orderCustomer.countItems;
+      textFieldOrganizationController.text = widget.orderCustomer.nameOrganization;
+      textFieldPartnerController.text = widget.orderCustomer.namePartner;
+      textFieldContractController.text = widget.orderCustomer.nameContract;
+      textFieldPriceController.text = widget.orderCustomer.namePrice;
+      textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
+      textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
+      textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
+
+      textFieldDateSendingController.text = shortDateToString(widget.orderCustomer.dateSending);
+      textFieldDatePayingController.text = shortDateToString(widget.orderCustomer.datePaying);
+      textFieldCommentController.text = widget.orderCustomer.comment;
+
+      // Технические данные
+      sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
+      sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
+      textFieldDateSendingTo1CController.text = shortDateToString(widget.orderCustomer.dateSendingTo1C);
+      textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
+
+    });
+
+    return super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    textFieldSumController.text = '0.00';
-    textFieldCurrencyController.text = 'грн';
-
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -136,8 +162,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.list),     text: 'Товары'),
-              Tab(icon: Icon(Icons.tune),     text: 'Служебные'),
+              Tab(icon: Icon(Icons.list), text: 'Товары'),
+              Tab(icon: Icon(Icons.tune), text: 'Служебные'),
             ],
           ),
         ),
@@ -166,7 +192,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddItemOrderCustomer(itemOrderCustomer: itemsOrder),
+                builder: (context) =>
+                    AddItemOrderCustomer(itemOrderCustomer: itemsOrder),
               ),
             );
           },
@@ -176,6 +203,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             style: TextStyle(fontSize: 30),
           ),
         ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+    );
+  }
+
+  showMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:Text(textMessage),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -205,7 +241,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   }
 
   saveDocument() {
+    return true;
+  }
 
+  deleteDocument() {
+    return true;
+  }
+
+  eraseDocument() {
+    return true;
   }
 
   listItemsOrder() {
@@ -227,8 +271,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         itemBuilder: (context, index) {
           final item = itemsOrder[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 0,
-            ),
+            padding: const EdgeInsets.fromLTRB(10,5,10,0),
             child: Card(
               elevation: 2,
               child: ListTile(
@@ -239,11 +282,17 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(flex: 1,child: Text(doubleThreeToString(item.count))),
-                        Expanded(flex: 1,child: Text(item.nameUnit)),
-                        Expanded(flex: 1,child: Text(doubleToString(item.price))),
-                        Expanded(flex: 1,child: Text(doubleToString(item.discount))),
-                        Expanded(flex: 1,child: Text(doubleToString(item.sum))),
+                        Expanded(
+                            flex: 1,
+                            child: Text(doubleThreeToString(item.count))),
+                        Expanded(flex: 1, child: Text(item.nameUnit)),
+                        Expanded(
+                            flex: 1, child: Text(doubleToString(item.price))),
+                        Expanded(
+                            flex: 1,
+                            child: Text(doubleToString(item.discount))),
+                        Expanded(
+                            flex: 1, child: Text(doubleToString(item.sum))),
                       ],
                     ),
                   ],
@@ -283,7 +332,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            controller: textFieldOrganisationController,
+            controller: textFieldOrganizationController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
@@ -601,7 +650,12 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 child: ElevatedButton(
                     onPressed: () async {
                       var result = saveDocument();
-                      debugPrint(result);
+                      if (result) {
+                        showMessage('Запись сохранена!');
+                        Navigator.of(context).pop();
+                      } else {
+                        return;
+                      }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -624,7 +678,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 child: ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () async {},
+                    onPressed: () async {
+                      var result = deleteDocument();
+                      if (result) {
+                        showMessage('Запись помечена на удаление!');
+                        Navigator.of(context).pop();
+                      } else {
+                        return;
+                      }
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
@@ -644,7 +706,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   listServiceOrder() {
     return Column(
       children: [
-        /// Sending to 1C
+        /// Date sending to 1C
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
@@ -661,29 +723,49 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           ),
         ),
 
+        /// Number sending to 1C
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            controller: textFieldNumberFrom1CController,
+            readOnly: true,
+            textInputAction: TextInputAction.continueAction,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Номер документа в 1С',
+            ),
+          ),
+        ),
+
         /// Sending to 1C
         Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: sendYesTo1C,
-                  onChanged: (value) {
-                    setState(() {
-                      /// Если нельзя отправлять в 1С, то скажем об этом
-                      if (sendNoTo1C) {
-                        const snackBar = SnackBar(
-                          content: Text('Ошибка! Установлен флаг: Не отправлять в 1С!'),);
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        sendYesTo1C = false;
-                      } else {
-                        sendYesTo1C = !sendYesTo1C;
-                      }
-                    });
-                  },),
-                const Text('Отправлено в учетную систему'),
-              ],
-            ),
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: Row(
+            children: [
+              Checkbox(
+                value: sendYesTo1C,
+                onChanged: (value) {
+                  setState(() {
+                    /// Если нельзя отправлять в 1С, то скажем об этом
+                    if (sendNoTo1C) {
+                      const snackBar = SnackBar(
+                        content: Text(
+                            'Ошибка! Установлен флаг: Не отправлять в 1С!'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      sendYesTo1C = false;
+                    } else {
+                      sendYesTo1C = !sendYesTo1C;
+                    }
+                  });
+                },
+              ),
+              const Text('Отправлено в учетную систему'),
+            ],
+          ),
         ),
 
         /// No Sending to 1C
@@ -698,14 +780,16 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     /// Если нельзя отправлять в 1С, то скажем об этом
                     if (sendYesTo1C) {
                       const snackBar = SnackBar(
-                        content: Text('Ошибка! Заказ уже отправлен в 1С!'),);
+                        content: Text('Ошибка! Заказ уже отправлен в 1С!'),
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                       sendNoTo1C = false;
                     } else {
                       sendNoTo1C = !sendNoTo1C;
                     }
                   });
-                },),
+                },
+              ),
               const Text('Не отправлять в учетную систему'),
             ],
           ),

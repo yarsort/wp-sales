@@ -1,16 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/screens/references/partner_item.dart';
 
-class ScreenCustomers extends StatefulWidget {
-  const ScreenCustomers({Key? key}) : super(key: key);
+class ScreenPartnerList extends StatefulWidget {
+  const ScreenPartnerList({Key? key}) : super(key: key);
 
   @override
-  _ScreenCustomersState createState() => _ScreenCustomersState();
+  _ScreenPartnerListState createState() => _ScreenPartnerListState();
 }
 
-class _ScreenCustomersState extends State<ScreenCustomers> {
+class _ScreenPartnerListState extends State<ScreenPartnerList> {
   /// Поле ввода: Поиск партнеров
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -66,8 +66,8 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
     },
   ];
 
-  var tempItems = <Partner>[];
-  var items = <Partner>[];
+  List<Partner> tempItems = [];
+  List<Partner> listPartners = [];
 
   @override
   void initState() {
@@ -82,43 +82,61 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
         centerTitle: true,
         title: const Text('Партнеры'),
       ),
+      //drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),
           listViewItems(),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          var newPartnerItem = Partner();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ScreenPartnerItem(partnerItem: newPartnerItem),
+            ),
+          );
+        },
+        tooltip: 'Добавить партнера',
+        child: const Text(
+          "+",
+          style: TextStyle(fontSize: 30),
+        ),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    items.clear();
+    listPartners.clear();
     tempItems.clear();
 
     // Получение и запись списка заказов покупателей
     for (var message in messageList) {
       Partner newPartner = Partner.fromJson(message);
-      items.add(newPartner);
+      listPartners.add(newPartner);
       tempItems.add(newPartner); // Как шаблон
     }
   }
 
   void filterSearchResults(String query) {
+
     /// Уберем пробелы
     query = query.trim();
 
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        items.clear();
-        items.addAll(tempItems);
+        listPartners.clear();
+        listPartners.addAll(tempItems);
       });
       return;
     }
 
     List<Partner> dummySearchList = <Partner>[];
-    dummySearchList.addAll(items);
+    dummySearchList.addAll(listPartners);
 
     if (query.isNotEmpty) {
 
@@ -139,14 +157,14 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
         }
       }
       setState(() {
-        items.clear();
-        items.addAll(dummyListData);
+        listPartners.clear();
+        listPartners.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        items.clear();
-        items.addAll(tempItems);
+        listPartners.clear();
+        listPartners.addAll(tempItems);
       });
     }
   }
@@ -201,16 +219,23 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: items.length,
+          itemCount: listPartners.length,
           itemBuilder: (context, index) {
-            var item = items[index];
+            var partnerItem = listPartners[index];
             return Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Card(
                 elevation: 2,
                   child: ListTile(
-                    onTap: () {},
-                    title: Text(item.name),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenPartnerItem(partnerItem: partnerItem),
+                        ),
+                      );
+                    },
+                    title: Text(partnerItem.name),
                     subtitle: Column(
                       children: [
                         const Divider(),
@@ -224,7 +249,7 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
                                     children: [
                                       const Icon(Icons.phone, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(item.phone),
+                                      Text(partnerItem.phone),
                                     ],
                                   ),
                                   const SizedBox(height: 5),
@@ -232,7 +257,7 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
                                     children: [
                                       const Icon(Icons.home, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(item.address)),
+                                      Flexible(child: Text(partnerItem.address)),
                                     ],
                                   )
                                 ],
@@ -246,21 +271,21 @@ class _ScreenCustomersState extends State<ScreenCustomers> {
                                     children: [
                                       const Icon(Icons.price_change, color: Colors.green, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(doubleToString(item.balance)),
+                                      Text(doubleToString(partnerItem.balance)),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       const Icon(Icons.price_change, color: Colors.red, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(doubleToString(item.balanceForPayment)),
+                                      Text(doubleToString(partnerItem.balanceForPayment)),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       const Icon(Icons.schedule, color: Colors.blue,size: 20),
                                       const SizedBox(width: 5),
-                                      Text(item.schedulePayment.toString()),
+                                      Text(partnerItem.schedulePayment.toString()),
                                     ],
                                   ),
                                 ],

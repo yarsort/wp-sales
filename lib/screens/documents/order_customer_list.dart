@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/documents/order_customer_doc.dart';
+import 'package:wp_sales/screens/documents/order_customer_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -40,6 +40,9 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
   /// Поле ввода: Договор или торговая точка
   TextEditingController textFieldContractController = TextEditingController();
 
+  /// Панель параметров отбора
+  bool expandedExpansionTile = false;
+
   /// Тестовые данные
   final messageList = [
     {
@@ -47,7 +50,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
+      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
+      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
       'uidPartner': '',
       'namePartner': 'ТОВ Сертон Сертон Сертон Сертон Сертон Сертон Сертон',
       'uidContract': '',
@@ -67,7 +71,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
+      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
+      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
       'uidPartner': '',
       'namePartner': 'ФОП Великов Сергій',
       'uidContract': '',
@@ -88,7 +93,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
+      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
+      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
       'uidPartner': '',
       'namePartner': 'ФОП Сергієнко Володимир',
       'uidContract': '',
@@ -108,7 +114,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
+      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
+      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
@@ -128,7 +135,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
+      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
+      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
@@ -148,7 +156,8 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'isDeleted': 0,
       'date': '2022-07-20 20:00:00',
       'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-      'uidOrganization': '',
+      'uidOrganization': '03704c3a-025e-4d5b-d3f9-9213a338e807',
+      'nameOrganization': 'ТОВ "ДистрибьютЦентр"',
       'uidPartner': '',
       'namePartner': 'ФОП Терманов Дмитро',
       'uidContract': '',
@@ -164,6 +173,14 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
       'countItems': 15,
     }
   ];
+
+  @override
+  void initState() {
+    loadNewDocuments();
+    loadSendDocuments();
+    loadTrashDocuments();
+    return super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,10 +237,11 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
+            var newOrderCustomer = OrderCustomer();
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ScreenItemOrderCustomer(),
+                builder: (context) => ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
               ),
             );
           },
@@ -237,16 +255,54 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
     );
   }
 
-  loadNewDocuments() {}
+  loadNewDocuments() {
+    // Очистка списка заказов покупателя
+    listNewOrdersCustomer.clear();
 
-  loadSendDocuments() {}
+    // Получение и запись списка заказов покупателей
+    for (var message in messageList) {
+      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
+      listNewOrdersCustomer.add(newOrderCustomer);
+    }
 
-  loadTrashDocuments() {}
+    // Количество документов в списке
+    countNewDocuments = listNewOrdersCustomer.length;
+  }
+
+  loadSendDocuments() {
+    // Очистка списка заказов покупателя
+    listSendOrdersCustomer.clear();
+
+    // Получение и запись списка заказов покупателей
+    for (var message in messageList) {
+      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
+      listSendOrdersCustomer.add(newOrderCustomer);
+    }
+
+    // Количество документов в списке
+    countSendDocuments = listSendOrdersCustomer.length;
+  }
+
+  loadTrashDocuments() {
+    // Очистка списка заказов покупателя
+    listTrashOrdersCustomer.clear();
+
+    // Получение и запись списка заказов покупателей
+    for (var message in messageList) {
+      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
+      listTrashOrdersCustomer.add(newOrderCustomer);
+    }
+
+    // Количество документов в списке
+    countTrashDocuments = listTrashOrdersCustomer.length;
+  }
 
   listParameters() {
     var validatePeriod = false;
 
     return ExpansionTile(
+      key: const Key('ExpansionTileParameters'),
+      initiallyExpanded: expandedExpansionTile,
       title: const Text('Параметры отбора'),
       children: [
         /// Period
@@ -378,18 +434,20 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                 child: ElevatedButton(
                     onPressed: () async {
                       if (textFieldPeriodController.text.isEmpty) {
+                        expandedExpansionTile = false;
                         setState(() {
                           validatePeriod = true;
                         });
                         return;
                       } else {
+                        expandedExpansionTile = false;
                         setState(() {
                           validatePeriod = false;
                         });
                       }
                       await loadNewDocuments();
                       await loadSendDocuments();
-                      //await loadTrashDocuments();
+                      await loadTrashDocuments();
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -422,7 +480,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       }
                       await loadNewDocuments();
                       await loadSendDocuments();
-                      //await loadTrashDocuments();
+                      await loadTrashDocuments();
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -441,30 +499,26 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
   }
 
   yesNewDocuments() {
-    // Очистка списка заказов покупателя
-    listNewOrdersCustomer.clear();
-
-    // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listNewOrdersCustomer.add(newOrderCustomer);
-    }
-
-    // Количество документов в списке
-    countNewDocuments = listNewOrdersCustomer.length;
 
     return ColumnBuilder(
         itemCount: countNewDocuments,
         itemBuilder: (context, index) {
-          final item = listNewOrdersCustomer[index];
+          final orderCustomer = listNewOrdersCustomer[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
                 //tileColor: Colors.cyan[50],
-                onTap: () {},
-                title: Text(item.namePartner),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                    ),
+                  );
+                },
+                title: Text(orderCustomer.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -473,7 +527,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(item.nameContract)),
+                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -487,7 +541,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.date)),
+                                  Text(shortDateToString(orderCustomer.date)),
                                 ],
                               ),
                               Row(
@@ -495,7 +549,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.dateSending)),
+                                  Text(shortDateToString(orderCustomer.dateSending)),
                                 ],
                               )
                             ],
@@ -509,7 +563,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(item.sum) + ' грн'),
+                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
                                 ],
                               ),
                               Row(
@@ -517,7 +571,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(item.countItems.toString() + ' поз'),
+                                  Text(orderCustomer.countItems.toString() + ' поз'),
                                 ],
                               )
                             ],
@@ -532,31 +586,26 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
   }
 
   yesSendDocuments() {
-    // Очистка списка заказов покупателя
-    listSendOrdersCustomer.clear();
-
-    // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listSendOrdersCustomer.add(newOrderCustomer);
-    }
-
-    // Количество документов в списке
-    countSendDocuments = listSendOrdersCustomer.length;
-
     // Отображение списка заказов покупателя
     return ColumnBuilder(
         itemCount: countSendDocuments,
         itemBuilder: (context, index) {
-          final item = listSendOrdersCustomer[index];
+          final orderCustomer = listSendOrdersCustomer[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
                 tileColor: Colors.lightGreen[50],
-                onTap: () {},
-                title: Text(item.namePartner),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                    ),
+                  );
+                },
+                title: Text(orderCustomer.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -565,7 +614,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(item.nameContract)),
+                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -579,7 +628,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.date)),
+                                  Text(shortDateToString(orderCustomer.date)),
                                 ],
                               ),
                               Row(
@@ -587,7 +636,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.dateSending)),
+                                  Text(shortDateToString(orderCustomer.dateSending)),
                                 ],
                               ),
                             ],
@@ -601,7 +650,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(item.sum) + ' грн'),
+                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
                                 ],
                               ),
                               Row(
@@ -609,7 +658,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(item.countItems.toString() + ' поз'),
+                                  Text(orderCustomer.countItems.toString() + ' поз'),
                                 ],
                               ),
                             ],
@@ -626,7 +675,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.more_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.dateSendingTo1C)),
+                                  Text(shortDateToString(orderCustomer.dateSendingTo1C)),
                                 ],
                               )
                             ],
@@ -637,14 +686,14 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                             children: [
                               Row(
                                 children: [
-                                  item.numberFrom1C != ''
+                                  orderCustomer.numberFrom1C != ''
                                       ? const Icon(Icons.repeat_one,
                                       color: Colors.green, size: 20)
                                       : const Icon(Icons.repeat_one,
                                       color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  item.numberFrom1C != ''
-                                      ? Text(item.numberFrom1C) :
+                                  orderCustomer.numberFrom1C != ''
+                                      ? Text(orderCustomer.numberFrom1C) :
                                       const Text('Нет данных!',
                                         style: TextStyle(color: Colors.red)),
                                 ],
@@ -661,31 +710,26 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
   }
 
   yesTrashDocuments() {
-    // Очистка списка заказов покупателя
-    listTrashOrdersCustomer.clear();
-
-    // Получение и запись списка заказов покупателей
-    for (var message in messageList) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listTrashOrdersCustomer.add(newOrderCustomer);
-    }
-
-    // Количество документов в списке
-    countTrashDocuments = listTrashOrdersCustomer.length;
-
     // Отображение списка заказов покупателя
     return ColumnBuilder(
         itemCount: countTrashDocuments,
         itemBuilder: (context, index) {
-          final item = listTrashOrdersCustomer[index];
+          final orderCustomer = listTrashOrdersCustomer[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
                 tileColor: Colors.deepOrange[50],
-                onTap: () {},
-                title: Text(item.namePartner),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                    ),
+                  );
+                },
+                title: Text(orderCustomer.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -694,7 +738,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(item.nameContract)),
+                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -708,7 +752,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.date)),
+                                  Text(shortDateToString(orderCustomer.date)),
                                 ],
                               ),
                               Row(
@@ -716,7 +760,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(item.dateSending)),
+                                  Text(shortDateToString(orderCustomer.dateSending)),
                                 ],
                               )
                             ],
@@ -730,7 +774,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(item.sum) + ' грн'),
+                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
                                 ],
                               ),
                               Row(
@@ -738,7 +782,7 @@ class _ScreenListOrderCustomerState extends State<ScreenListOrderCustomer> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(item.countItems.toString() + ' поз'),
+                                  Text(orderCustomer.countItems.toString() + ' поз'),
                                 ],
                               )
                             ],

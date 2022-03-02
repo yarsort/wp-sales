@@ -10,12 +10,19 @@ class OrderCustomer {
   DateTime date = DateTime.now(); // Дата создания заказа
   String uid = '';              // UID для 1С и связи с ТЧ
   String uidOrganization = '';  // Ссылка на организацию
+  String nameOrganization = ''; // Имя организации
   String uidPartner = '';       // Ссылка на контрагента
-  String namePartner = '';       // Имя контрагента
+  String namePartner = '';      // Имя контрагента
   String uidContract = '';      // Ссылка на договор контрагента
-  String nameContract = '';       // Имя контрагента
+  String nameContract = '';     // Имя контрагента
   String uidPrice = '';         // Ссылка на тип цены номенклатуры продажи контрагенту
+  String namePrice = '';        // Наименование типа цены номенклатуры
+  String uidWarehouse = '';     // Ссылка на склад
+  String nameWarehouse = '';    // Наименование склада
+  String uidCurrency = '';      // Ссылка на валюту заказа
+  String nameCurrency = '';     // Наименование валюты заказа
   double sum = 0.0;             // Сумма документа
+  String comment = '';          // Комментарий заказа
   DateTime dateSending = DateTime(1900, 1, 1);      // Дата планируемой отгрузки заказа
   DateTime datePaying = DateTime(1900, 1, 1);       // Дата планируемой оплаты заказа
   int sendYesTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
@@ -24,48 +31,34 @@ class OrderCustomer {
   String numberFrom1C = '';
   int countItems = 0;           // Количество товаров
 
-//<editor-fold desc="Data Methods">
-
-  OrderCustomer({
-    required this.id,
-    required this.isDeleted,
-    required this.date,
-    required this.uid,
-    required this.uidOrganization,
-    required this.uidPartner,
-    required this.namePartner,
-    required this.uidContract,
-    required this.nameContract,
-    required this.uidPrice,
-    required this.sum,
-    required this.dateSending,
-    required this.datePaying,
-    required this.sendYesTo1C,
-    required this.sendNoTo1C,
-    required this.dateSendingTo1C,
-    required this.numberFrom1C,
-    required this.countItems,
-  });
+  OrderCustomer();
 
   OrderCustomer.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    isDeleted = json['isDeleted'];
+    id = json['id'] ?? 0;
+    isDeleted = json['isDeleted'] ?? 0;
     date = DateTime.parse(json['date']);
-    uid = json['uid'];
-    uidOrganization = json['uidOrganization'];
-    uidPartner = json['uidPartner'];
-    namePartner = json['namePartner'];
-    uidContract = json['uidContract'];
-    nameContract = json['nameContract'];
-    uidPrice = json['uidPrice'];
+    uid = json['uid'] ?? '';
+    uidOrganization = json['uidOrganization'] ?? '';
+    nameOrganization = json['nameOrganization'] ?? '';
+    uidPartner = json['uidPartner'] ?? '';
+    namePartner = json['namePartner'] ?? '';
+    uidContract = json['uidContract'] ?? '';
+    nameContract = json['nameContract'] ?? '';
+    uidPrice = json['uidPrice'] ?? '';
+    namePrice = json['namePrice'] ?? '';
+    uidWarehouse = json['uidWarehouse'] ?? '';
+    nameWarehouse = json['nameWarehouse'] ?? '';
+    uidCurrency = json['uidCurrency'] ?? '';
+    nameCurrency = json['nameCurrency'] ?? '';
     sum = double.parse(json['sum']);
+    comment = json['comment'] ?? '';
     dateSending = DateTime.parse(json['dateSending']);
     datePaying = DateTime.parse(json['datePaying']);
-    sendYesTo1C = json['sendYesTo1C'];
-    sendNoTo1C = json['sendNoTo1C'];
+    sendYesTo1C = json['sendYesTo1C'] ?? 0;
+    sendNoTo1C = json['sendNoTo1C'] ?? 0;
     dateSendingTo1C = DateTime.parse(json['dateSendingTo1C']);
-    numberFrom1C = json['numberFrom1C'];
-    countItems = json['countItems'];
+    numberFrom1C = json['numberFrom1C'] ?? '';
+    countItems = json['countItems'] ?? 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -80,7 +73,10 @@ class OrderCustomer {
     data['uidContract'] = uidContract;
     data['nameContract'] = nameContract;
     data['uidPrice'] = uidPrice;
+    data['uidCurrency'] = uidCurrency;
+    data['nameCurrency'] = nameCurrency;
     data['sum'] = sum.toString();
+    data['comment'] = comment;
     data['dateSending'] = dateSending.toIso8601String();
     data['datePaying'] = datePaying.toIso8601String();
     data['sendYesTo1C'] = sendYesTo1C;

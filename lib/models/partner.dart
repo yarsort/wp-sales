@@ -8,12 +8,14 @@ class Partner {
   int id = 0;                     // Инкремент
   bool isGroup = false;           // Пометка удаления
   String uid = '';                // UID для 1С и связи с ТЧ
+  String code = '';               // Код для 1С
   String name = '';               // Имя партнера
   String uidParent = '';          // Ссылка на группу
   double balance = 0.0;           // Баланс
   double balanceForPayment = 0.0; // Баланс к оплате
   String phone = '';              // Контакты
   String address = '';            // Адрес
+  String comment = '';            // Коммментарий
   int schedulePayment = 0;        // Отсрочка платежа
 
   //int sendNoTo1C = 0;  // Булево: "Отправлено в 1С" - для фильтрации в списках
@@ -21,30 +23,21 @@ class Partner {
 
 //<editor-fold desc="Data Methods">
 
-  Partner({
-    required this.id,
-    required this.isGroup,
-    required this.uid,
-    required this.name,
-    required this.uidParent,
-    required this.balance,
-    required this.balanceForPayment,
-    required this.phone,
-    required this.address,
-    required this.schedulePayment,
-  });
+  Partner();
 
   Partner.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    isGroup = json['isGroup'];
-    uid = json['uid'];
-    name = json['name'];
-    uidParent = json['uidParent'];
-    balance = json['balance'];
-    balanceForPayment = json['balanceForPayment'];
-    phone = json['phone'];
-    address = json['address'];
-    schedulePayment = json['schedulePayment'];
+    id = json['id'] ?? 0;
+    isGroup = json['isGroup'] ?? false;
+    uid = json['uid'] ?? '';
+    code = json['code'] ?? '';
+    name = json['name'] ?? '';
+    uidParent = json['uidParent'] ?? '';
+    balance = json['balance'] ?? 0.0;
+    balanceForPayment = json['balanceForPayment'] ?? 0.0;
+    phone = json['phone'] ?? '';
+    address = json['address'] ?? '';
+    comment = json['comment'] ?? '';
+    schedulePayment = json['schedulePayment'] ?? 0; // Отсрочка платежа в днях (int)
   }
 
   Map<String, dynamic> toJson() {
@@ -52,12 +45,14 @@ class Partner {
     data['id'] = id;
     data['isGroup'] = isGroup.toString();
     data['uid'] = uid;
+    data['code'] = code;
     data['name'] = name;
     data['uidParent'] = uidParent;
     data['balance'] = balance.toString();
     data['balanceForPayment'] = balanceForPayment.toString();
     data['phone'] = phone;
     data['address'] = address;
+    data['comment'] = comment;
     data['schedulePayment'] = schedulePayment;
     return data;
   }

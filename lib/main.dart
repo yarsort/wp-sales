@@ -1,7 +1,7 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'system/widgets.dart';
-import 'screens/documents/order_customer_doc_list.dart';
+import 'screens/references/partner_list.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: const HomePage(),
-      home: const ScreenListOrderCustomer(),
+      home: const ScreenPartnerList(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

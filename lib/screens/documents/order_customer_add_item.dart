@@ -40,6 +40,15 @@ class _AddItemOrderCustomerState extends State<AddItemOrderCustomer> {
     );
   }
 
+  showMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void filterSearchResults(String query) {
     List<String> dummySearchList = <String>[];
     dummySearchList.addAll(duplicateItems);
