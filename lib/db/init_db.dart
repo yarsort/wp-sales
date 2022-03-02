@@ -1,6 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wp_sales/db/dbOrderCustomer.dart';
 import 'package:wp_sales/models/order_customer.dart';
 
 class WPSalesDatabase {
@@ -32,23 +31,24 @@ class WPSalesDatabase {
 
     /// Справочник "Номенклатура"
     await db.execute('''
-    CREATE TABLE $tableDocOrderCustomer (    
-      ${DocOrderCustomerFields.id} $idType, 
-      ${DocOrderCustomerFields.isDeleted} $integerType,
-      ${DocOrderCustomerFields.date} $textType,
-      ${DocOrderCustomerFields.uid} $textType,
-      ${DocOrderCustomerFields.uidOrganization} $textType,
-      ${DocOrderCustomerFields.uidPartner} $textType,
-      ${DocOrderCustomerFields.namePartner} $textType,
-      ${DocOrderCustomerFields.uidContract} $textType,  
-      ${DocOrderCustomerFields.uidPrice} $textType,
-      ${DocOrderCustomerFields.sum} $realType,
-      ${DocOrderCustomerFields.dateSending} $textType,
-      ${DocOrderCustomerFields.datePaying} $textType
-      ${DocOrderCustomerFields.sendYesTo1C} $integerType
-      ${DocOrderCustomerFields.sendNoTo1C} $integerType
-      ${DocOrderCustomerFields.dateSendingTo1C} $textType
-      ${DocOrderCustomerFields.numberFrom1C} $textType
+    CREATE TABLE $tableOrderCustomer (    
+      ${OrderCustomerFields.id} $idType, 
+      ${OrderCustomerFields.isDeleted} $integerType,
+      ${OrderCustomerFields.date} $textType,
+      ${OrderCustomerFields.uid} $textType,
+      ${OrderCustomerFields.uidOrganization} $textType,
+      ${OrderCustomerFields.uidPartner} $textType,
+      ${OrderCustomerFields.namePartner} $textType,
+      ${OrderCustomerFields.uidContract} $textType,
+      ${OrderCustomerFields.nameContract} $textType,  
+      ${OrderCustomerFields.uidPrice} $textType,
+      ${OrderCustomerFields.sum} $realType,
+      ${OrderCustomerFields.dateSending} $textType,
+      ${OrderCustomerFields.datePaying} $textType
+      ${OrderCustomerFields.sendYesTo1C} $integerType
+      ${OrderCustomerFields.sendNoTo1C} $integerType
+      ${OrderCustomerFields.dateSendingTo1C} $textType
+      ${OrderCustomerFields.numberFrom1C} $textType
       )
     ''');
   }
@@ -56,7 +56,7 @@ class WPSalesDatabase {
   Future<OrderCustomer> create(OrderCustomer orderCustomer) async {
     final db = await instance.database;
 
-    final id = await db.insert(tableDocOrderCustomer, orderCustomer.toJson());
+    final id = await db.insert(tableOrderCustomer, orderCustomer.toJson());
     orderCustomer.id = id;
     return orderCustomer;
   }
@@ -65,9 +65,9 @@ class WPSalesDatabase {
     final db = await instance.database;
 
     final maps = await db.query(
-      tableDocOrderCustomer,
-      columns: DocOrderCustomerFields.values,
-      where: '${DocOrderCustomerFields.id} = ?',
+      tableOrderCustomer,
+      columns: OrderCustomerFields.values,
+      where: '${OrderCustomerFields.id} = ?',
       whereArgs: [id],
     );
 
@@ -81,8 +81,8 @@ class WPSalesDatabase {
   Future<List<OrderCustomer>> readAll() async {
     final db = await instance.database;
 
-    const orderBy = '${DocOrderCustomerFields.date} ASC';
-    final result = await db.query(tableDocOrderCustomer, orderBy: orderBy);
+    const orderBy = '${OrderCustomerFields.date} ASC';
+    final result = await db.query(tableOrderCustomer, orderBy: orderBy);
 
     return result.map((json) => OrderCustomer.fromJson(json)).toList();
   }
@@ -91,9 +91,9 @@ class WPSalesDatabase {
     final db = await instance.database;
 
     return db.update(
-      tableDocOrderCustomer,
+      tableOrderCustomer,
       orderCustomer.toJson(),
-      where: '${DocOrderCustomerFields.id} = ?',
+      where: '${OrderCustomerFields.id} = ?',
       whereArgs: [orderCustomer.id],
     );
   }
@@ -102,8 +102,8 @@ class WPSalesDatabase {
     final db = await instance.database;
 
     return await db.delete(
-      tableDocOrderCustomer,
-      where: '${DocOrderCustomerFields.id} = ?',
+      tableOrderCustomer,
+      where: '${OrderCustomerFields.id} = ?',
       whereArgs: [id],
     );
   }
