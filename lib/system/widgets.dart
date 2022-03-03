@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/screens/documents/incoming_cash_order_list.dart';
-import 'package:wp_sales/screens/documents/order_customer_list.dart';
+import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
+import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
+import 'package:wp_sales/screens/references/contracts/contract_list.dart';
 import 'package:wp_sales/screens/references/organizations/organization_list.dart';
 import 'package:wp_sales/screens/references/partners/partner_list.dart';
 import 'package:wp_sales/screens/settings/about.dart';
@@ -88,6 +89,15 @@ class MainDrawer extends StatelessWidget {
                           MaterialPageRoute(
                               builder: (context) => const ScreenPartnerList()));
                     }),
+                ListTile(
+                    title: const Text("Договоры партнеров"),
+                    leading: const Icon(Icons.people),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ScreenContractList()));
+                    }),
                 listTileTitle('Служебные'),
                 ListTile(
                     title: const Text("Настройки"),
@@ -125,7 +135,7 @@ class MainDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.end,
               children: const [
-                Text('TM Yarsoft. Версия: 1.0.0', style: TextStyle(color: Colors.blue),),
+                Text('TM Yarsoft. Версия: 1.0.0', style: TextStyle(color: Colors.grey),),
               ],
             ),
           )
@@ -201,6 +211,57 @@ class ColumnBuilder extends StatelessWidget {
     return Column(
       children: List.generate(itemCount, (index) => itemBuilder(context, index))
           .toList(),
+    );
+  }
+}
+
+class TextFieldWithText extends StatelessWidget {
+  final TextEditingController textEditingController;
+  final String textLabel;
+  final IconData onPressedEditIcon;
+  final VoidCallback  onPressedEdit;
+  final VoidCallback  onPressedDelete;
+
+  const TextFieldWithText({
+    Key? key,
+    required this.textLabel,
+    required this.textEditingController,
+    required this.onPressedEditIcon,
+    required this.onPressedEdit,
+    required this.onPressedDelete
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+      child: TextField(
+        readOnly:  true,
+        controller: textEditingController,
+        textInputAction: TextInputAction.continueAction,
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(
+            color: Colors.blueGrey,
+          ),
+          labelText: textLabel,
+          suffixIcon: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: onPressedEdit,
+                icon: Icon(onPressedEditIcon, color: Colors.blue),
+              ),
+              IconButton(
+                onPressed: onPressedDelete,
+                icon: const Icon(Icons.delete, color: Colors.red),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

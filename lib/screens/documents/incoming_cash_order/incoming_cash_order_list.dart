@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/documents/order_customer_item.dart';
+import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 

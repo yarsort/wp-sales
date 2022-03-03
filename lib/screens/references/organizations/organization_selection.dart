@@ -32,7 +32,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Партнеры'),
+        title: const Text('Организации'),
       ),
       //drawer: const MainDrawer(),
       body: Column(
@@ -65,8 +65,8 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     listOrganizations.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataPartners) {
+    // Получение и запись списка
+    for (var message in listDataOrganizations) {
       Organization newOrganization = Organization.fromJson(message);
       listOrganizations.add(newOrganization);
       tempItems.add(newOrganization); // Как шаблон
@@ -173,7 +173,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
           shrinkWrap: true,
           itemCount: listOrganizations.length,
           itemBuilder: (context, index) {
-            var partnerItem = listOrganizations[index];
+            var organizationItem = listOrganizations[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(
@@ -181,12 +181,12 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidPartner = partnerItem.uid;
-                        widget.orderCustomer.namePartner = partnerItem.name;
+                        widget.orderCustomer.uidOrganization = organizationItem.uid;
+                        widget.orderCustomer.nameOrganization = organizationItem.name;
                       });
                       Navigator.pop(context);
                     },
-                    title: Text(partnerItem.name),
+                    title: Text(organizationItem.name),
                     subtitle: Column(
                       children: [
                         const Divider(),
@@ -200,7 +200,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                                     children: [
                                       const Icon(Icons.phone, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(partnerItem.phone),
+                                      Text(organizationItem.phone),
                                     ],
                                   ),
                                   const SizedBox(height: 5),
@@ -208,7 +208,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                                     children: [
                                       const Icon(Icons.home, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(partnerItem.address)),
+                                      Flexible(child: Text(organizationItem.address)),
                                     ],
                                   )
                                 ],

@@ -12,7 +12,7 @@ class ScreenPartnerList extends StatefulWidget {
 }
 
 class _ScreenPartnerListState extends State<ScreenPartnerList> {
-  /// Поле ввода: Поиск партнеров
+  /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
   List<Partner> tempItems = [];
@@ -223,6 +223,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                       Text(doubleToString(partnerItem.balance)),
                                     ],
                                   ),
+                                  const SizedBox(height: 5),
                                   Row(
                                     children: [
                                       const Icon(Icons.price_change, color: Colors.red, size: 20),
@@ -230,6 +231,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                       Text(doubleToString(partnerItem.balanceForPayment)),
                                     ],
                                   ),
+                                  const SizedBox(height: 5),
                                   Row(
                                     children: [
                                       const Icon(Icons.schedule, color: Colors.blue,size: 20),

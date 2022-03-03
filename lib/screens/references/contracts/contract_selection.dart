@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/organization.dart';
+import 'package:wp_sales/models/contract.dart';
+import 'package:wp_sales/models/order_customer.dart';
+import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
-import 'package:wp_sales/screens/references/organizations/organization_item.dart';
+import 'package:wp_sales/screens/references/partners/partner_item.dart';
 
-class ScreenOrganizationList extends StatefulWidget {
-  const ScreenOrganizationList({Key? key}) : super(key: key);
+class ScreenContractSelection extends StatefulWidget {
+
+  final OrderCustomer orderCustomer;
+
+  const ScreenContractSelection({Key? key, required this.orderCustomer}) : super(key: key);
 
   @override
-  _ScreenOrganizationListState createState() => _ScreenOrganizationListState();
+  _ScreenContractSelectionState createState() => _ScreenContractSelectionState();
 }
 
-class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
+class _ScreenContractSelectionState extends State<ScreenContractSelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Organization> tempItems = [];
-  List<Organization> listOrganizations = [];
+  List<Contract> tempItems = [];
+  List<Contract> listContracts = [];
 
   @override
   void initState() {
@@ -29,9 +33,9 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Организации'),
+        title: const Text('Договоры партнера'),
       ),
-      drawer: const MainDrawer(),
+      //drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),
@@ -40,15 +44,15 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newItem = Organization();
+          var newPartnerItem = Partner();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
+              builder: (context) => ScreenPartnerItem(partnerItem: newPartnerItem),
             ),
           );
         },
-        tooltip: 'Добавить организацию',
+        tooltip: 'Добавить договор',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -59,14 +63,14 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    listOrganizations.clear();
+    listContracts.clear();
     tempItems.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in listDataOrganizations) {
-      Organization newItem = Organization.fromJson(message);
-      listOrganizations.add(newItem);
-      tempItems.add(newItem); // Как шаблон
+    for (var message in listDataContracts) {
+      Contract newContract = Contract.fromJson(message);
+      listContracts.add(newContract);
+      tempItems.add(newContract); // Как шаблон
     }
   }
 
@@ -78,21 +82,21 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listContracts.clear();
+        listContracts.addAll(tempItems);
       });
       return;
     }
 
-    List<Organization> dummySearchList = <Organization>[];
-    dummySearchList.addAll(listOrganizations);
+    List<Contract> dummySearchList = <Contract>[];
+    dummySearchList.addAll(listContracts);
 
     if (query.isNotEmpty) {
 
-      List<Organization> dummyListData = <Organization>[];
+      List<Contract> dummyListData = <Contract>[];
 
       for (var item in dummySearchList) {
-        /// Поиск по имени
+        /// Поиск по имени партнера
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
@@ -106,14 +110,14 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         }
       }
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(dummyListData);
+        listContracts.clear();
+        listContracts.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listContracts.clear();
+        listContracts.addAll(tempItems);
       });
     }
   }
@@ -168,23 +172,22 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listOrganizations.length,
+          itemCount: listContracts.length,
           itemBuilder: (context, index) {
-            var organizationItem = listOrganizations[index];
+            var contractItem = listContracts[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScreenOrganizationItem(organizationItem: organizationItem),
-                        ),
-                      );
+                      setState(() {
+                        widget.orderCustomer.uidContract = contractItem.uid;
+                        widget.orderCustomer.nameContract = contractItem.name;
+                      });
+                      Navigator.pop(context);
                     },
-                    title: Text(organizationItem.name),
+                    title: Text(contractItem.name),
                     subtitle: Column(
                       children: [
                         const Divider(),
@@ -198,7 +201,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                                     children: [
                                       const Icon(Icons.phone, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(organizationItem.phone),
+                                      Text(contractItem.phone),
                                     ],
                                   ),
                                   const SizedBox(height: 5),
@@ -206,9 +209,37 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                                     children: [
                                       const Icon(Icons.home, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(organizationItem.address)),
+                                      Flexible(child: Text(contractItem.address)),
                                     ],
                                   )
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change, color: Colors.green, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(doubleToString(contractItem.balance)),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change, color: Colors.red, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(doubleToString(contractItem.balanceForPayment)),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.schedule, color: Colors.blue,size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(contractItem.schedulePayment.toString()),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -217,8 +248,8 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                       ],
                     ),
                   ),
-                ) 
-              );            
+                )
+            );
           },
         ),
       ),

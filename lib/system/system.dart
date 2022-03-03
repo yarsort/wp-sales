@@ -198,7 +198,7 @@ final listDataOrderCustomerItems = [
 final listDataPartners = [
   {
     'id': 1,
-    'isGroup': true,
+    'isGroup': false,
     'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ФОП Сергеев Алексей',
     'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -209,7 +209,7 @@ final listDataPartners = [
     'schedulePayment': 0,
   },
   {
-    'id': 1,
+    'id': 2,
     'isGroup': false,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ТОВ "Амагама"',
@@ -221,7 +221,7 @@ final listDataPartners = [
     'schedulePayment': 7,
   },
   {
-    'id': 1,
+    'id': 3,
     'isGroup': false,
     'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ТОВ "Промприбор"',
@@ -233,7 +233,7 @@ final listDataPartners = [
     'schedulePayment': 30,
   },
   {
-    'id': 1,
+    'id': 4,
     'isGroup': false,
     'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ТОВ "Агротрейдинг"',
@@ -247,41 +247,83 @@ final listDataPartners = [
 ];
 
 /// Тестовые данные
-final listDataOrganizations = [
+final listDataContracts = [
   {
     'id': 1,
     'isGroup': true,
     'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Договор поставки',
+    'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'balance': 6408.10,
+    'balanceForPayment': 0.0,
+    'phone': '0988547870',
+    'address': 'П.Сагайдачного 32, дом 12',
+    'schedulePayment': 0,
+    'namePartner': 'ФОП Сергеев Алексей',
+    'uidPartner': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+  {
+    'id': 2,
+    'isGroup': false,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Договор с магазином "Красуня"',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'balance': 3580.59,
+    'balanceForPayment': 1550.0,
+    'phone': '(098)8547870',
+    'address': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
+    'schedulePayment': 7,
+    'namePartner': 'ТОВ "Амагама"',
+    'uidPartner': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+  {
+    'id': 3,
+    'isGroup': false,
+    'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Договор поставки товаров',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'balance': 564.0,
+    'balanceForPayment': 150.0,
+    'phone': '0988547870',
+    'address': 'П.Сагайдачного 32, дом 12',
+    'schedulePayment': 30,
+    'namePartner': 'ТОВ "Промприбор"',
+    'uidPartner': '23704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+  {
+    'id': 4,
+    'isGroup': false,
+    'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Основной договор с покупателем',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'balance': 195600.0,
+    'balanceForPayment': 3600.0,
+    'phone': '0988547870',
+    'address': 'П.Сагайдачного 32, дом 12',
+    'schedulePayment': 10,
+    'namePartner': 'ТОВ "Агротрейдинг"',
+    'uidPartner': '33704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+];
+
+/// Тестовые данные
+final listDataOrganizations = [
+  {
+    'id': 1,
+    'isGroup': false,
+    'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ФОП Сергеев Алексей',
     'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'phone': '0988547870',
-    'address': 'П.Сагайдачного 32, дом 12',
+    'address': 'г. Винница, ул. С. Долгорукого 50',
   },
   {
-    'id': 1,
+    'id': 2,
     'isGroup': false,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
-    'name': 'ТОВ "Амагама"',
+    'name': 'ФОП Никоров Алексей',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'phone': '(098)8547870',
-    'address': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
-  },
-  {
-    'id': 1,
-    'isGroup': false,
-    'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
-    'name': 'ТОВ "Промприбор"',
-    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-    'phone': '0988547870',
-    'address': 'П.Сагайдачного 32, дом 12',
-  },
-  {
-    'id': 1,
-    'isGroup': false,
-    'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
-    'name': 'ТОВ "Агротрейдинг"',
-    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
-    'phone': '0988547870',
-    'address': 'П.Сагайдачного 32, дом 12',
+    'address': 'г. Винница, ул. С. Долгорукого 50',
   },
 ];

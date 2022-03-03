@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/documents/order_customer_item.dart';
+import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -379,13 +379,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               elevation: 3,
               child: ListTile(
                 //tileColor: Colors.cyan[50],
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
+                  setState(() {
+                    loadNewDocuments();
+                  });
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -413,6 +416,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   Text(shortDateToString(orderCustomer.date)),
                                 ],
                               ),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
                                   const Icon(Icons.history_toggle_off,
@@ -435,6 +439,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   Text(doubleToString(orderCustomer.sum) + ' грн'),
                                 ],
                               ),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
                                   const Icon(Icons.format_list_numbered_rtl,
@@ -465,14 +470,19 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             child: Card(
               elevation: 3,
               child: ListTile(
-                tileColor: Colors.lightGreen[50],
-                onTap: () {
-                  Navigator.push(
+                tileColor: orderCustomer.numberFrom1C != ''
+                    ? Colors.lightGreen[50] :
+                    Colors.deepOrange[50],
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
+                  setState(() {
+                    loadSendDocuments();
+                  });
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -500,6 +510,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   Text(shortDateToString(orderCustomer.date)),
                                 ],
                               ),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
                                   const Icon(Icons.history_toggle_off,
@@ -522,6 +533,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   Text(doubleToString(orderCustomer.sum) + ' грн'),
                                 ],
                               ),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
                                   const Icon(Icons.format_list_numbered_rtl,
@@ -590,13 +602,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               elevation: 3,
               child: ListTile(
                 tileColor: Colors.deepOrange[50],
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
+                  setState(() {
+                    loadTrashDocuments();
+                  });
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -624,6 +639,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   Text(shortDateToString(orderCustomer.date)),
                                 ],
                               ),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
                                   const Icon(Icons.history_toggle_off,
@@ -646,6 +662,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   Text(doubleToString(orderCustomer.sum) + ' грн'),
                                 ],
                               ),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
                                   const Icon(Icons.format_list_numbered_rtl,
