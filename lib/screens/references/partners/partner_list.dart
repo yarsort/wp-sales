@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/screens/references/partner_item.dart';
+import 'package:wp_sales/system/widgets.dart';
+import 'package:wp_sales/screens/references/partners/partner_item.dart';
 
 class ScreenPartnerList extends StatefulWidget {
   const ScreenPartnerList({Key? key}) : super(key: key);
@@ -13,8 +14,6 @@ class ScreenPartnerList extends StatefulWidget {
 class _ScreenPartnerListState extends State<ScreenPartnerList> {
   /// Поле ввода: Поиск партнеров
   TextEditingController textFieldSearchController = TextEditingController();
-
-
 
   List<Partner> tempItems = [];
   List<Partner> listPartners = [];
@@ -32,7 +31,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
         centerTitle: true,
         title: const Text('Партнеры'),
       ),
-      //drawer: const MainDrawer(),
+      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),
@@ -41,11 +40,11 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newPartnerItem = Partner();
+          var newItem = Partner();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenPartnerItem(partnerItem: newPartnerItem),
+              builder: (context) => ScreenPartnerItem(partnerItem: newItem),
             ),
           );
         },

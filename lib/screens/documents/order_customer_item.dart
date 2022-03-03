@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer_selection.dart';
+import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -16,6 +17,7 @@ class ScreenItemOrderCustomer extends StatefulWidget {
 }
 
 class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
+
   /// Количество строк товаров в заказе
   int countItems = 0;
 
@@ -70,28 +72,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   @override
   void initState() {
-    setState(() {
-      countItems = widget.orderCustomer.countItems;
-      textFieldOrganizationController.text = widget.orderCustomer.nameOrganization;
-      textFieldPartnerController.text = widget.orderCustomer.namePartner;
-      textFieldContractController.text = widget.orderCustomer.nameContract;
-      textFieldPriceController.text = widget.orderCustomer.namePrice;
-      textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
-      textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
-      textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
-
-      textFieldDateSendingController.text = shortDateToString(widget.orderCustomer.dateSending);
-      textFieldDatePayingController.text = shortDateToString(widget.orderCustomer.datePaying);
-      textFieldCommentController.text = widget.orderCustomer.comment;
-
-      // Технические данные
-      sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
-      sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
-      textFieldDateSendingTo1CController.text = shortDateToString(widget.orderCustomer.dateSendingTo1C);
-      textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
-
-    });
-
+    updateHeader();
     return super.initState();
   }
 
@@ -157,6 +138,29 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
+  }
+
+  updateHeader() {
+    setState(() {
+      countItems = widget.orderCustomer.countItems;
+      textFieldOrganizationController.text = widget.orderCustomer.nameOrganization;
+      textFieldPartnerController.text = widget.orderCustomer.namePartner;
+      textFieldContractController.text = widget.orderCustomer.nameContract;
+      textFieldPriceController.text = widget.orderCustomer.namePrice;
+      textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
+      textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
+      textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
+
+      textFieldDateSendingController.text = shortDateToString(widget.orderCustomer.dateSending);
+      textFieldDatePayingController.text = shortDateToString(widget.orderCustomer.datePaying);
+      textFieldCommentController.text = widget.orderCustomer.comment;
+
+      // Технические данные
+      sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
+      sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
+      textFieldDateSendingTo1CController.text = shortDateToString(widget.orderCustomer.dateSendingTo1C);
+      textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
+    });
   }
 
   showMessage(String textMessage) {
@@ -299,7 +303,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+
+                    },
                     icon: const Icon(Icons.people, color: Colors.blue),
                   ),
                   IconButton(
@@ -330,7 +336,29 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      var result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ScreenPartnerSelection(
+                                  orderCustomer: widget.orderCustomer)));
+                      updateHeader();
+
+                      // Если изменили партнера, изменим его догово и валюту
+                      if (result != null) {
+                        if (result) {
+                          widget.orderCustomer.nameContract = '';
+                          widget.orderCustomer.uidContract = '';
+                          widget.orderCustomer.namePrice = '';
+                          widget.orderCustomer.uidPrice = '';
+                          widget.orderCustomer.nameCurrency = '';
+                          widget.orderCustomer.uidCurrency = '';
+
+                          textFieldContractController.text = '';
+                          textFieldPriceController.text = '';
+                        }
+                      }
+                    },
                     icon: const Icon(Icons.people, color: Colors.blue),
                   ),
                   IconButton(

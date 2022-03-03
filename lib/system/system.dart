@@ -245,3 +245,43 @@ final listDataPartners = [
     'schedulePayment': 10,
   },
 ];
+
+/// Тестовые данные
+final listDataOrganizations = [
+  {
+    'id': 1,
+    'isGroup': true,
+    'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'ФОП Сергеев Алексей',
+    'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'phone': '0988547870',
+    'address': 'П.Сагайдачного 32, дом 12',
+  },
+  {
+    'id': 1,
+    'isGroup': false,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'ТОВ "Амагама"',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'phone': '(098)8547870',
+    'address': 'Магазин "Красуня", г. Винница, ул. С. Долгорукого 50',
+  },
+  {
+    'id': 1,
+    'isGroup': false,
+    'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'ТОВ "Промприбор"',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'phone': '0988547870',
+    'address': 'П.Сагайдачного 32, дом 12',
+  },
+  {
+    'id': 1,
+    'isGroup': false,
+    'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'ТОВ "Агротрейдинг"',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'phone': '0988547870',
+    'address': 'П.Сагайдачного 32, дом 12',
+  },
+];

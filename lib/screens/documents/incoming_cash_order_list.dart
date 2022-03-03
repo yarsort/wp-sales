@@ -4,21 +4,21 @@ import 'package:wp_sales/screens/documents/order_customer_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
-class ScreenOrderCustomerList extends StatefulWidget {
-  const ScreenOrderCustomerList({Key? key}) : super(key: key);
+class ScreenIncomingCashOrderList extends StatefulWidget {
+  const ScreenIncomingCashOrderList({Key? key}) : super(key: key);
 
   @override
-  _ScreenOrderCustomerListState createState() =>
-      _ScreenOrderCustomerListState();
+  _ScreenIncomingCashOrderListState createState() =>
+      _ScreenIncomingCashOrderListState();
 }
 
-class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
+class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderList> {
   int countNewDocuments = 0;
   int countSendDocuments = 0;
   int countTrashDocuments = 0;
 
   DateTime startPeriodOrders =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime finishPeriodOrders = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
@@ -58,7 +58,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Заказы покупателей'),
+          title: const Text('ПКО (оплаты)'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
@@ -197,7 +197,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       var _datePick = await showDateRangePicker(
                         context: context,
                         initialDateRange:
-                            DateTimeRange(start: firstDate, end: lastDate),
+                        DateTimeRange(start: firstDate, end: lastDate),
                         helpText: 'Выберите период',
                         firstDate: DateTime(2021, 1, 1),
                         lastDate: lastDate,
@@ -563,8 +563,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const SizedBox(width: 5),
                                   orderCustomer.numberFrom1C != ''
                                       ? Text(orderCustomer.numberFrom1C) :
-                                      const Text('Нет данных!',
-                                        style: TextStyle(color: Colors.red)),
+                                  const Text('Нет данных!',
+                                      style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],

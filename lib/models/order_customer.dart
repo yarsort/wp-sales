@@ -2,7 +2,8 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableOrderCustomer   = 'tableDocOrderCustomer';
+const String tableOrderCustomer   = 'tableOrderCustomer';
+const String tableItemsOrderCustomer   = 'tableItemsOrderCustomer';
 
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
@@ -86,43 +87,6 @@ class OrderCustomer {
     data['numberFrom1C'] = numberFrom1C;
     data['countItems'] = countItems;
     return data;
-  }
-
-  List<String> getNameColumnForDB() {
-    final List<String> values = [
-      'id',
-      'isDeleted',
-      'date',
-      'uid',
-      'uidOrganization',
-      'nameOrganization',
-      'uidPartner',
-      'namePartner',
-      'uidContract',
-      'nameContract',
-      'uidPrice',
-      'namePrice',
-      'uidWarehouse',
-      'nameWarehouse',
-      'uidCurrency',
-      'nameCurrency',
-      'sum',
-      'comment',
-      'dateSending',
-      'datePaying',
-      'sendYesTo1C',
-      'sendNoTo1C',
-      'dateSendingTo1C',
-      'numberFrom1C',
-      'countItems',
-    ];
-
-    return values;
-  }
-
-  getNameTableForDB() {
-    const String nameTable   = 'tableDocOrderCustomer';
-    return nameTable;
   }
 }
 
@@ -236,4 +200,31 @@ class ItemOrderCustomer {
     data['sum'] = sum;
     return data;
   }
+}
+
+/// Поля для базы данных
+class ItemOrderCustomerFields {
+  static final List<String> values = [
+    id,
+    uid,
+    name,
+    uidUnit,
+    nameUnit,
+    count,
+    price,
+    discount,
+    sum,
+  ];
+
+  /// Описание названий реквизитов таблицы ДБ в виде строк
+  static const String id = 'id';// Инкремент
+  static const String uid = 'uid'; // Ссылка на заказ покупателя
+  static const String name = 'name'; // Имя товара
+  static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.
+  static const String nameUnit = 'nameUnit';
+  static const String count = 'count';
+  static const String price = 'price';
+  static const String discount = 'discount';
+  static const String sum = 'sum';
+
 }
