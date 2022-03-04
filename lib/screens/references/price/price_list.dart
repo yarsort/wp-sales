@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/organization.dart';
+import 'package:wp_sales/models/price.dart';
+import 'package:wp_sales/screens/references/price/price_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
-import 'package:wp_sales/screens/references/organizations/organization_item.dart';
 
-class ScreenOrganizationList extends StatefulWidget {
-  const ScreenOrganizationList({Key? key}) : super(key: key);
+class ScreenPriceList extends StatefulWidget {
+  const ScreenPriceList({Key? key}) : super(key: key);
 
   @override
-  _ScreenOrganizationListState createState() => _ScreenOrganizationListState();
+  _ScreenPriceListState createState() => _ScreenPriceListState();
 }
 
-class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
+class _ScreenPriceListState extends State<ScreenPriceList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Organization> tempItems = [];
-  List<Organization> listOrganizations = [];
+  List<Price> tempItems = [];
+  List<Price> listPrices = [];
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Организации'),
+        title: const Text('Тип цены'),
       ),
       drawer: const MainDrawer(),
       body: Column(
@@ -40,15 +40,15 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newItem = Organization();
+          var newItem = Price();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
+              builder: (context) => ScreenPriceItem(priceItem: newItem),
             ),
           );
         },
-        tooltip: 'Добавить организацию',
+        tooltip: 'Добавить тип цены',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -59,13 +59,13 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    listOrganizations.clear();
+    listPrices.clear();
     tempItems.clear();
 
     // Получение и запись списка заказов покупателей
     for (var message in listDataOrganizations) {
-      Organization newItem = Organization.fromJson(message);
-      listOrganizations.add(newItem);
+      Price newItem = Price.fromJson(message);
+      listPrices.add(newItem);
       tempItems.add(newItem); // Как шаблон
     }
   }
@@ -78,42 +78,42 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listPrices.clear();
+        listPrices.addAll(tempItems);
       });
       return;
     }
 
-    List<Organization> dummySearchList = <Organization>[];
-    dummySearchList.addAll(listOrganizations);
+    List<Price> dummySearchList = <Price>[];
+    dummySearchList.addAll(listPrices);
 
     if (query.isNotEmpty) {
 
-      List<Organization> dummyListData = <Organization>[];
+      List<Price> dummyListData = <Price>[];
 
       for (var item in dummySearchList) {
         /// Поиск по имени
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-        /// Поиск по адресу
-        if (item.address.toLowerCase().contains(query.toLowerCase())) {
-          dummyListData.add(item);
-        }
-        /// Поиск по номеру телефона
-        if (item.phone.toLowerCase().contains(query.toLowerCase())) {
-          dummyListData.add(item);
-        }
+        // /// Поиск по адресу
+        // if (item.address.toLowerCase().contains(query.toLowerCase())) {
+        //   dummyListData.add(item);
+        // }
+        // /// Поиск по номеру телефона
+        // if (item.phone.toLowerCase().contains(query.toLowerCase())) {
+        //   dummyListData.add(item);
+        // }
       }
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(dummyListData);
+        listPrices.clear();
+        listPrices.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listPrices.clear();
+        listPrices.addAll(tempItems);
       });
     }
   }
@@ -169,9 +169,9 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listOrganizations.length,
+          itemCount: listPrices.length,
           itemBuilder: (context, index) {
-            var organizationItem = listOrganizations[index];
+            var priceItem = listPrices[index];
             return Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Card(
@@ -181,42 +181,11 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenOrganizationItem(organizationItem: organizationItem),
+                          builder: (context) => ScreenPriceItem(priceItem: priceItem),
                         ),
                       );
                     },
-                    title: Text(organizationItem.name),
-                    subtitle: Column(
-                      children: [
-                        const Divider(),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(organizationItem.phone),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(child: Text(organizationItem.address)),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    title: Text(priceItem.name),
                   ),
                 ) 
               );            

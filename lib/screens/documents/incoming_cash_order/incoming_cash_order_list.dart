@@ -59,22 +59,11 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
         appBar: AppBar(
           centerTitle: true,
           title: const Text('ПКО (оплаты)'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.filter_list,
-                    size: 26.0,
-                  ),
-                )),
-          ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.filter_1), text: 'Новые'),
-              Tab(icon: Icon(Icons.filter_2), text: 'Отправленые'),
-              Tab(icon: Icon(Icons.filter_none), text: 'Корзина'),
+              Tab(text: 'Новые'),
+              Tab(text: 'Отправленые'),
+              Tab(text: 'Корзина'),
             ],
           ),
         ),
@@ -238,7 +227,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                 color: Colors.blueGrey,
               ),
               labelText: 'Партнер',
-              errorText: validatePeriod ? 'Вы не указали партнера!' : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
@@ -270,9 +258,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                 color: Colors.blueGrey,
               ),
               labelText: 'Договор (торговая точка)',
-              errorText: validatePeriod
-                  ? 'Вы не указали договор (торговую точку)!'
-                  : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
@@ -356,7 +341,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       children: const [
                         Icon(Icons.delete, color: Colors.white),
                         SizedBox(width: 14),
-                        Text('Очистить отбор'),
+                        Text('Очистить'),
                       ],
                     )),
               ),

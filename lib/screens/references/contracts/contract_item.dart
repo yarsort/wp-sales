@@ -37,7 +37,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   @override
   void initState() {
     setState(() {
-      textFieldPartnerController.text = widget.contractItem.name;
+      textFieldPartnerController.text = widget.contractItem.namePartner;
       textFieldNameController.text = widget.contractItem.name;
       textFieldPhoneController.text = widget.contractItem.phone;
       textFieldAddressController.text = widget.contractItem.address;
@@ -120,11 +120,12 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             controller: textFieldPartnerController,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'Наименование',
+              labelText: 'Партнер',
             ),
           ),
         ),
@@ -136,6 +137,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             controller: textFieldNameController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -164,6 +166,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             controller: textFieldPhoneController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -192,6 +195,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             controller: textFieldAddressController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -226,6 +230,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             controller: textFieldCommentController,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
@@ -302,6 +307,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
@@ -319,6 +325,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,

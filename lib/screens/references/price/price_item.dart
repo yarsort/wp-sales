@@ -1,33 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/partner.dart';
-import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/models/price.dart';
 
-class ScreenPartnerItem extends StatefulWidget {
-  final Partner partnerItem;
+class ScreenPriceItem extends StatefulWidget {
+  final Price priceItem;
 
-  const ScreenPartnerItem({Key? key, required this.partnerItem})
+  const ScreenPriceItem({Key? key, required this.priceItem})
       : super(key: key);
 
   @override
-  _ScreenPartnerItemState createState() => _ScreenPartnerItemState();
+  _ScreenPriceItemState createState() => _ScreenPriceItemState();
 }
 
-class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
+class _ScreenPriceItemState extends State<ScreenPriceItem> {
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
-
-  /// Поле ввода: Phone
-  TextEditingController textFieldPhoneController = TextEditingController();
-
-  /// Поле ввода: Address
-  TextEditingController textFieldAddressController = TextEditingController();
-
-  /// Поле ввода: Balance
-  TextEditingController textFieldBalanceController = TextEditingController();
-
-  /// Поле ввода: BalanceForPayment
-  TextEditingController textFieldBalanceForPaymentController = TextEditingController();
 
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
@@ -41,16 +28,12 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   @override
   void initState() {
     setState(() {
-      textFieldNameController.text = widget.partnerItem.name;
-      textFieldPhoneController.text = widget.partnerItem.phone;
-      textFieldAddressController.text = widget.partnerItem.address;
-      textFieldBalanceController.text = doubleToString(widget.partnerItem.balance);
-      textFieldBalanceForPaymentController.text = doubleToString(widget.partnerItem.balanceForPayment);
-      textFieldCommentController.text = widget.partnerItem.comment;
+      textFieldNameController.text = widget.priceItem.name;
+      textFieldCommentController.text = widget.priceItem.comment;
 
       // Технические данные
-      textFieldUIDController.text = widget.partnerItem.uid;
-      textFieldCodeController.text = widget.partnerItem.code;
+      textFieldUIDController.text = widget.priceItem.uid;
+      textFieldCodeController.text = widget.priceItem.code;
     });
     return super.initState();
   }
@@ -58,11 +41,11 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Партнер'),
+          title: const Text('Тип цены'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
@@ -77,7 +60,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.filter_2), text: 'Документы'),
               Tab(icon: Icon(Icons.filter_3), text: 'Служебные'),
             ],
           ),
@@ -89,12 +71,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listHeaderOrder(),
-              ],
-            ),
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                listDocuments(),
               ],
             ),
             ListView(
@@ -130,7 +106,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             controller: textFieldNameController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -152,106 +127,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           ),
         ),
 
-        /// Phone
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldPhoneController,
-            textInputAction: TextInputAction.continueAction,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Телефон',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldPhoneController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        /// Address
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldAddressController,
-            textInputAction: TextInputAction.continueAction,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Адрес партнера',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldAddressController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        /// Balance
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldBalanceController,
-            readOnly: true,
-            textInputAction: TextInputAction.continueAction,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Баланс партнера',
-            ),
-          ),
-        ),
-
-        /// Balance for payment
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldBalanceForPaymentController,
-            readOnly: true,
-            textInputAction: TextInputAction.continueAction,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Баланс партнера (просроченный по оплате)',
-            ),
-          ),
-        ),
-
-        /// Divider
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-          child: Divider(),
-        ),
-
         /// Comment
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -259,7 +134,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             controller: textFieldCommentController,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
@@ -275,7 +149,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              /// Записать документ
+              /// Записать запись
               SizedBox(
                 height: 40,
                 width: (MediaQuery.of(context).size.width - 49) / 2,
@@ -325,10 +199,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     );
   }
 
-  listDocuments() {
-    return Container();
-  }
-
   listService() {
     return Column(
       children: [
@@ -340,12 +210,11 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'UID партнера в 1С',
+              labelText: 'UID записи в 1С',
             ),
           ),
         ),
@@ -358,7 +227,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,

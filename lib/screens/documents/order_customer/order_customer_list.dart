@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
+import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
+import 'package:wp_sales/screens/references/partners/partner_selection.dart';
+import 'package:wp_sales/system/exchange.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -16,6 +19,11 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   int countNewDocuments = 0;
   int countSendDocuments = 0;
   int countTrashDocuments = 0;
+
+  String uidPartner = '';
+  String uidContract = '';
+  OrderCustomer newOrderCustomer =
+      OrderCustomer(); // Шаблонный объект для отборов
 
   DateTime startPeriodOrders =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -59,24 +67,42 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Заказы покупателей'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.filter_list,
-                    size: 26.0,
-                  ),
-                )),
-          ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.filter_1), text: 'Новые'),
-              Tab(icon: Icon(Icons.filter_2), text: 'Отправленые'),
-              Tab(icon: Icon(Icons.filter_none), text: 'Корзина'),
+              Tab(text: 'Новые'),
+              Tab(text: 'Отправлено'),
+              Tab(text: 'Корзина'),
             ],
           ),
+          actions: [
+            PopupMenuButton<int>(
+              onSelected: (item) {
+                // Создание нового заказа
+                if (item == 0) {
+                  var newOrderCustomer = OrderCustomer();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenItemOrderCustomer(
+                          orderCustomer: newOrderCustomer),
+                    ),
+                  );
+                }
+                if (item == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ScreenExchangeData(),
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<int>(value: 0, child: Text('Добавить')),
+                const PopupMenuItem<int>(value: 1, child: Text('Отправить')),
+              ],
+            ),
+          ],
         ),
         drawer: const MainDrawer(),
         body: TabBarView(
@@ -104,22 +130,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            var newOrderCustomer = OrderCustomer();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
-              ),
-            );
-          },
-          tooltip: '+',
-          child: const Text(
-            "+",
-            style: TextStyle(fontSize: 30),
-          ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
   }
@@ -167,7 +177,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   }
 
   listParameters() {
-    var validatePeriod = false;
 
     return ExpansionTile(
       key: const Key('ExpansionTileParameters'),
@@ -182,12 +191,12 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
               ),
               labelText: 'Период',
-              errorText: validatePeriod ? 'Вы не указали период!' : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min, //
@@ -205,7 +214,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
                       if (_datePick != null) {
                         setState(() {
-                          validatePeriod = false;
                           textPeriod = shortDateToString(_datePick.start) +
                               ' - ' +
                               shortDateToString(_datePick.end);
@@ -233,22 +241,37 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
               ),
               labelText: 'Партнер',
-              errorText: validatePeriod ? 'Вы не указали партнера!' : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ScreenPartnerSelection(
+                                  orderCustomer: newOrderCustomer)));
+                      setState(() {
+                        textFieldPartnerController.text = newOrderCustomer.namePartner;
+                      });
+                    },
                     icon: const Icon(Icons.people, color: Colors.blue),
                   ),
                   IconButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      setState(() {
+                        textFieldPartnerController.text = '';
+                        newOrderCustomer.uidPartner = '';
+                        newOrderCustomer.namePartner = '';
+                      });
+                    },
                     icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                 ],
@@ -261,28 +284,40 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
-            controller: textFieldPartnerController,
+            controller: textFieldContractController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
               ),
               labelText: 'Договор (торговая точка)',
-              errorText: validatePeriod
-                  ? 'Вы не указали договор (торговую точку)!'
-                  : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ScreenContractSelection(
+                                  orderCustomer: newOrderCustomer)));
+                      setState(() {
+                        textFieldContractController.text = newOrderCustomer.nameContract;
+                      });
+                    },
                     icon: const Icon(Icons.recent_actors, color: Colors.blue),
                   ),
                   IconButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      setState(() {
+                        textFieldContractController.text = '';
+                        newOrderCustomer.uidContract = '';
+                        newOrderCustomer.nameContract = '';
+                      });
+                    },
                     icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                 ],
@@ -302,18 +337,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 width: (MediaQuery.of(context).size.width - 49) / 2,
                 child: ElevatedButton(
                     onPressed: () async {
-                      if (textFieldPeriodController.text.isEmpty) {
-                        expandedExpansionTile = false;
-                        setState(() {
-                          validatePeriod = true;
-                        });
-                        return;
-                      } else {
-                        expandedExpansionTile = false;
-                        setState(() {
-                          validatePeriod = false;
-                        });
-                      }
                       await loadNewDocuments();
                       await loadSendDocuments();
                       await loadTrashDocuments();
@@ -337,16 +360,17 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red)),
                     onPressed: () async {
-                      if (textFieldPeriodController.text.isEmpty) {
-                        setState(() {
-                          validatePeriod = true;
-                        });
-                        return;
-                      } else {
-                        setState(() {
-                          validatePeriod = false;
-                        });
-                      }
+                      setState(() {
+                        textFieldPartnerController.text = '';
+                        textFieldContractController.text = '';
+                        textFieldPeriodController.text = '';
+
+                        newOrderCustomer.uidPartner = '';
+                        newOrderCustomer.namePartner = '';
+                        newOrderCustomer.uidContract = '';
+                        newOrderCustomer.nameContract = '';
+                      });
+
                       await loadNewDocuments();
                       await loadSendDocuments();
                       await loadTrashDocuments();
@@ -356,7 +380,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       children: const [
                         Icon(Icons.delete, color: Colors.white),
                         SizedBox(width: 14),
-                        Text('Очистить отбор'),
+                        Text('Очистить'),
                       ],
                     )),
               ),
@@ -368,7 +392,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   }
 
   yesNewDocuments() {
-
     return ColumnBuilder(
         itemCount: countNewDocuments,
         itemBuilder: (context, index) {
@@ -383,7 +406,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      builder: (context) =>
+                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
                   setState(() {
@@ -399,7 +423,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
+                        Flexible(
+                            flex: 1, child: Text(orderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -422,7 +447,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
+                                  Text(shortDateToString(
+                                      orderCustomer.dateSending)),
                                 ],
                               )
                             ],
@@ -436,7 +462,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
+                                  Text(doubleToString(orderCustomer.sum) +
+                                      ' грн'),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -445,7 +472,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() + ' поз'),
+                                  Text(orderCustomer.countItems.toString() +
+                                      ' поз'),
                                 ],
                               )
                             ],
@@ -471,13 +499,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               elevation: 3,
               child: ListTile(
                 tileColor: orderCustomer.numberFrom1C != ''
-                    ? Colors.lightGreen[50] :
-                    Colors.deepOrange[50],
+                    ? Colors.lightGreen[50]
+                    : Colors.deepOrange[50],
                 onTap: () async {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      builder: (context) =>
+                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
                   setState(() {
@@ -493,7 +522,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
+                        Flexible(
+                            flex: 1, child: Text(orderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -516,7 +546,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
+                                  Text(shortDateToString(
+                                      orderCustomer.dateSending)),
                                 ],
                               ),
                             ],
@@ -530,7 +561,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
+                                  Text(doubleToString(orderCustomer.sum) +
+                                      ' грн'),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -539,7 +571,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() + ' поз'),
+                                  Text(orderCustomer.countItems.toString() +
+                                      ' поз'),
                                 ],
                               ),
                             ],
@@ -556,7 +589,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.more_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSendingTo1C)),
+                                  Text(shortDateToString(
+                                      orderCustomer.dateSendingTo1C)),
                                 ],
                               )
                             ],
@@ -569,14 +603,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 children: [
                                   orderCustomer.numberFrom1C != ''
                                       ? const Icon(Icons.repeat_one,
-                                      color: Colors.green, size: 20)
+                                          color: Colors.green, size: 20)
                                       : const Icon(Icons.repeat_one,
-                                      color: Colors.red, size: 20),
+                                          color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
                                   orderCustomer.numberFrom1C != ''
-                                      ? Text(orderCustomer.numberFrom1C) :
-                                      const Text('Нет данных!',
-                                        style: TextStyle(color: Colors.red)),
+                                      ? Text(orderCustomer.numberFrom1C)
+                                      : const Text('Нет данных!',
+                                          style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],
@@ -606,7 +640,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      builder: (context) =>
+                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
                   setState(() {
@@ -622,7 +657,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
+                        Flexible(
+                            flex: 1, child: Text(orderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -645,7 +681,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
+                                  Text(shortDateToString(
+                                      orderCustomer.dateSending)),
                                 ],
                               )
                             ],
@@ -659,7 +696,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
+                                  Text(doubleToString(orderCustomer.sum) +
+                                      ' грн'),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -668,7 +706,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() + ' поз'),
+                                  Text(orderCustomer.countItems.toString() +
+                                      ' поз'),
                                 ],
                               )
                             ],

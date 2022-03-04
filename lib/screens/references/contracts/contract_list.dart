@@ -130,6 +130,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
         controller: textFieldSearchController,
         textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
             color: Colors.blueGrey,
@@ -191,7 +192,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
                         Row(
                           children: [
                             Expanded(
-                              flex: 5,
+                              flex: 4,
                               child: Column(
                                 children: [
                                   const SizedBox(height: 5),

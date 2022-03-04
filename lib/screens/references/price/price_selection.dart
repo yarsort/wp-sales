@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/organization.dart';
-import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
+import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
+import 'package:wp_sales/system/system.dart';
 
-class ScreenOrganizationList extends StatefulWidget {
-  const ScreenOrganizationList({Key? key}) : super(key: key);
+class ScreenPriceSelection extends StatefulWidget {
+
+  final OrderCustomer orderCustomer;
+
+  const ScreenPriceSelection({Key? key, required this.orderCustomer}) : super(key: key);
 
   @override
-  _ScreenOrganizationListState createState() => _ScreenOrganizationListState();
+  _ScreenPriceSelectionState createState() => _ScreenPriceSelectionState();
 }
 
-class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
+class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Organization> tempItems = [];
-  List<Organization> listOrganizations = [];
+  List<Price> tempItems = [];
+  List<Price> listPrice = [];
 
   @override
   void initState() {
@@ -31,7 +35,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         centerTitle: true,
         title: const Text('Организации'),
       ),
-      drawer: const MainDrawer(),
+      //drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),
@@ -59,14 +63,14 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    listOrganizations.clear();
+    listPrice.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
+    // Получение и запись списка
     for (var message in listDataOrganizations) {
-      Organization newItem = Organization.fromJson(message);
-      listOrganizations.add(newItem);
-      tempItems.add(newItem); // Как шаблон
+      Price newPrice = Price.fromJson(message);
+      listPrice.add(newPrice);
+      tempItems.add(newPrice); // Как шаблон
     }
   }
 
@@ -78,42 +82,34 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listPrice.clear();
+        listPrice.addAll(tempItems);
       });
       return;
     }
 
-    List<Organization> dummySearchList = <Organization>[];
-    dummySearchList.addAll(listOrganizations);
+    List<Price> dummySearchList = <Price>[];
+    dummySearchList.addAll(listPrice);
 
     if (query.isNotEmpty) {
 
-      List<Organization> dummyListData = <Organization>[];
+      List<Price> dummyListData = <Price>[];
 
       for (var item in dummySearchList) {
         /// Поиск по имени
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-        /// Поиск по адресу
-        if (item.address.toLowerCase().contains(query.toLowerCase())) {
-          dummyListData.add(item);
-        }
-        /// Поиск по номеру телефона
-        if (item.phone.toLowerCase().contains(query.toLowerCase())) {
-          dummyListData.add(item);
-        }
       }
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(dummyListData);
+        listPrice.clear();
+        listPrice.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listPrice.clear();
+        listPrice.addAll(tempItems);
       });
     }
   }
@@ -130,7 +126,6 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         controller: textFieldSearchController,
         textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
             color: Colors.blueGrey,
@@ -169,57 +164,25 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listOrganizations.length,
+          itemCount: listPrice.length,
           itemBuilder: (context, index) {
-            var organizationItem = listOrganizations[index];
+            var priceItem = listPrice[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScreenOrganizationItem(organizationItem: organizationItem),
-                        ),
-                      );
+                      setState(() {
+                        widget.orderCustomer.uidPrice = priceItem.uid;
+                        widget.orderCustomer.namePrice = priceItem.name;
+                      });
+                      Navigator.pop(context);
                     },
-                    title: Text(organizationItem.name),
-                    subtitle: Column(
-                      children: [
-                        const Divider(),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(organizationItem.phone),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(child: Text(organizationItem.address)),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    title: Text(priceItem.name),
                   ),
-                ) 
-              );            
+                )
+            );
           },
         ),
       ),

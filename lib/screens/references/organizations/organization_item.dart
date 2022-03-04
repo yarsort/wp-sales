@@ -114,6 +114,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
             controller: textFieldNameController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -142,6 +143,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
             controller: textFieldPhoneController,
             textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -168,8 +170,8 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldAddressController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
@@ -191,19 +193,13 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
           ),
         ),
 
-        /// Divider
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-          child: Divider(),
-        ),
-
         /// Comment
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldCommentController,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
@@ -284,6 +280,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
@@ -301,6 +298,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
             readOnly: true,
             textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,

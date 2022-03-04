@@ -4,6 +4,7 @@ import 'package:wp_sales/screens/documents/order_customer/order_customer_list.da
 import 'package:wp_sales/screens/references/contracts/contract_list.dart';
 import 'package:wp_sales/screens/references/organizations/organization_list.dart';
 import 'package:wp_sales/screens/references/partners/partner_list.dart';
+import 'package:wp_sales/screens/references/price/price_list.dart';
 import 'package:wp_sales/screens/settings/about.dart';
 import 'package:wp_sales/screens/settings/help.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
@@ -57,7 +58,7 @@ class MainDrawer extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const ScreenOrderCustomerList()));
+                              const ScreenOrderCustomerList()));
                     }),
                 ListTile(
                     title: const Text("ПКО (оплаты)"),
@@ -68,7 +69,7 @@ class MainDrawer extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const ScreenIncomingCashOrderList()));
+                              const ScreenIncomingCashOrderList()));
                     }),
                 listTileTitle('Справочники'),
                 ListTile(
@@ -78,7 +79,8 @@ class MainDrawer extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ScreenOrganizationList()));
+                              builder: (
+                                  context) => const ScreenOrganizationList()));
                     }),
                 ListTile(
                     title: const Text("Партнеры"),
@@ -96,7 +98,18 @@ class MainDrawer extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ScreenContractList()));
+                              builder: (
+                                  context) => const ScreenContractList()));
+                    }),
+                ListTile(
+                    title: const Text("Типы цен"),
+                    leading: const Icon(Icons.people),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (
+                                  context) => const ScreenPriceList()));
                     }),
                 listTileTitle('Служебные'),
                 ListTile(
@@ -135,7 +148,8 @@ class MainDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.end,
               children: const [
-                Text('TM Yarsoft. Версия: 1.0.0', style: TextStyle(color: Colors.grey),),
+                Text('TM Yarsoft. Версия: 1.0.0',
+                  style: TextStyle(color: Colors.grey),),
               ],
             ),
           )
@@ -177,8 +191,8 @@ Widget listTileTitle(String title) {
             height: 1,
             decoration: const BoxDecoration(
                 border: Border(
-              top: BorderSide(color: Colors.black12, width: 1.0),
-            )),
+                  top: BorderSide(color: Colors.black12, width: 1.0),
+                )),
           ),
         )
       ],
@@ -218,47 +232,63 @@ class ColumnBuilder extends StatelessWidget {
 class TextFieldWithText extends StatelessWidget {
   final TextEditingController textEditingController;
   final String textLabel;
-  final IconData onPressedEditIcon;
-  final VoidCallback  onPressedEdit;
-  final VoidCallback  onPressedDelete;
+  final IconData? onPressedEditIcon;
+  final IconData? onPressedDeleteIcon;
+  final VoidCallback onPressedEdit;
+  final VoidCallback onPressedDelete;
 
   const TextFieldWithText({
     Key? key,
     required this.textLabel,
     required this.textEditingController,
     required this.onPressedEditIcon,
+    required this.onPressedDeleteIcon,
     required this.onPressedEdit,
     required this.onPressedDelete
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-      child: TextField(
-        readOnly:  true,
-        controller: textEditingController,
-        textInputAction: TextInputAction.continueAction,
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(),
-          labelStyle: const TextStyle(
-            color: Colors.blueGrey,
-          ),
-          labelText: textLabel,
-          suffixIcon: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: onPressedEdit,
-                icon: Icon(onPressedEditIcon, color: Colors.blue),
-              ),
-              IconButton(
-                onPressed: onPressedDelete,
-                icon: const Icon(Icons.delete, color: Colors.red),
-              ),
-            ],
+      child: IntrinsicHeight(
+        child: TextField(
+          keyboardType: TextInputType.text,
+          readOnly: true,
+          controller: textEditingController,
+          textInputAction: TextInputAction.continueAction,
+          decoration: InputDecoration(
+            isDense: true,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 2,
+              minHeight: 2,
+            ),
+            contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+            border: const OutlineInputBorder(),
+            labelStyle: const TextStyle(
+              color: Colors.blueGrey,
+            ),
+            labelText: textLabel,
+            suffixIcon: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  padding: const EdgeInsets.fromLTRB(10, 1, 1, 1),
+                  onPressed: onPressedEdit,
+                  icon: onPressedEditIcon != null ? Icon(
+                      onPressedEditIcon, color: Colors.blue) : Icon(
+                      onPressedEditIcon, color: Colors.white),
+                ),
+                IconButton(
+                  onPressed: onPressedDelete,
+                  icon: onPressedDeleteIcon != null ? Icon(
+                      onPressedDeleteIcon, color: Colors.red) : Icon(
+                      onPressedDeleteIcon, color: Colors.white),
+                  //icon: const Icon(Icons.delete, color: Colors.red),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -19,6 +19,7 @@ class ScreenItemOrderCustomer extends StatefulWidget {
 }
 
 class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
+
   /// Количество строк товаров в заказе
   int countItems = 0;
 
@@ -27,7 +28,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Поле ввода: Организация
   TextEditingController textFieldOrganizationController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Партнер
   TextEditingController textFieldPartnerController = TextEditingController();
@@ -49,7 +50,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Поле ввода: Дата отгрузки (отправки)
   TextEditingController textFieldDateSendingController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Дата оплаты
   TextEditingController textFieldDatePayingController = TextEditingController();
@@ -59,7 +60,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Поле ввода: Номер документа в 1С
   TextEditingController textFieldNumberFrom1CController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Отправлено в 1С
   bool sendYesTo1C = false;
@@ -69,7 +70,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Поле ввода: Дата отпрваки в 1С
   TextEditingController textFieldDateSendingTo1CController =
-  TextEditingController();
+      TextEditingController();
 
   @override
   void initState() {
@@ -84,20 +85,28 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Заказ покупателя'),
+          title: const Text('Заказ'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(Icons.filter_list, size: 26.0),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AddItemOrderCustomer(itemOrderCustomer: itemsOrder),
+                      ),
+                    );
+                  },
+                  child: const Icon(Icons.add, size: 26.0),
                 )),
           ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.list), text: 'Товары'),
-              Tab(icon: Icon(Icons.tune), text: 'Служебные'),
+              Tab(text: 'Главная'),
+              Tab(text: 'Товары'),
+              Tab(text: 'Служебные'),
             ],
           ),
         ),
@@ -121,22 +130,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AddItemOrderCustomer(itemOrderCustomer: itemsOrder),
-              ),
-            );
-          },
-          tooltip: '+',
-          child: const Text(
-            "+",
-            style: TextStyle(fontSize: 30),
-          ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
   }
@@ -247,7 +240,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     // Получение и запись списка заказов покупателей
     for (var message in listDataOrderCustomerItems) {
       ItemOrderCustomer newItemOrderCustomer =
-      ItemOrderCustomer.fromJson(message);
+          ItemOrderCustomer.fromJson(message);
       itemsOrder.add(newItemOrderCustomer);
     }
 
@@ -312,25 +305,23 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   }
 
   listHeaderOrder() {
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
         children: [
-
           /// Organization
           TextFieldWithText(
               textLabel: 'Организация',
               textEditingController: textFieldOrganizationController,
               onPressedEditIcon: Icons.person,
+              onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () {},
               onPressedEdit: () async {
                 var result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            ScreenOrganizationSelection(
-                                orderCustomer: widget.orderCustomer)));
+                        builder: (context) => ScreenOrganizationSelection(
+                            orderCustomer: widget.orderCustomer)));
                 // Если изменили партнера, изменим его договор и валюту
                 if (result != null) {
                   if (result) {
@@ -350,6 +341,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               textLabel: 'Партнер',
               textEditingController: textFieldPartnerController,
               onPressedEditIcon: Icons.people,
+              onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.orderCustomer.namePartner = '';
                 widget.orderCustomer.uidPartner = '';
@@ -359,9 +351,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 var result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            ScreenPartnerSelection(
-                                orderCustomer: widget.orderCustomer)));
+                        builder: (context) => ScreenPartnerSelection(
+                            orderCustomer: widget.orderCustomer)));
                 // Если изменили партнера, изменим его договор и валюту
                 if (result != null) {
                   if (result) {
@@ -381,6 +372,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               textLabel: 'Договор (торговая точка)',
               textEditingController: textFieldContractController,
               onPressedEditIcon: Icons.recent_actors,
+              onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
@@ -390,9 +382,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 var result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            ScreenContractSelection(
-                                orderCustomer: widget.orderCustomer)));
+                        builder: (context) => ScreenContractSelection(
+                            orderCustomer: widget.orderCustomer)));
                 // Если изменили партнера, изменим его договор и валюту
                 if (result != null) {
                   if (result) {
@@ -410,6 +401,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               textLabel: 'Тип цены продажи',
               textEditingController: textFieldPriceController,
               onPressedEditIcon: Icons.request_quote,
+              onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.orderCustomer.nameWarehouse = '';
                 widget.orderCustomer.uidWarehouse = '';
@@ -422,6 +414,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               textLabel: 'Склад отгрузки',
               textEditingController: textFieldWarehouseController,
               onPressedEditIcon: Icons.gite,
+              onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
@@ -430,31 +423,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEdit: () async {}),
 
           /// Sum of document
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldSumController,
-              readOnly: true,
-              textInputAction: TextInputAction.continueAction,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelStyle: const TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Сумма документа',
-                suffixIcon: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      textFieldCurrencyController.text,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          TextFieldWithText(
+              textLabel: 'Сумма документа',
+              textEditingController: textFieldSumController,
+              onPressedEditIcon: null,
+              onPressedDeleteIcon: null,
+              onPressedDelete: () async {},
+              onPressedEdit: () async {}),
 
           /// Divider
           const Padding(
@@ -462,115 +437,71 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             child: Divider(),
           ),
 
-          /// Sending date to partner
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldDateSendingController,
-              readOnly: true,
-              textInputAction: TextInputAction.continueAction,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelStyle: const TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Дата отгрузки',
-                suffixIcon: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min, //
-                  children: [
-                    IconButton(
-                      onPressed: () async {
-                        DateTime selectedDate = DateTime.now();
-                        var _datePick = await showDatePicker(
-                          context: context,
-                          helpText: 'Выберите дату отгрузки',
-                          firstDate: DateTime(2021, 1, 1),
-                          lastDate: DateTime(2101),
-                          initialDate: selectedDate,
-                        );
+          /// Date sending to partner
+          TextFieldWithText(
+              textLabel: 'Дата отгрузки (планируемая)',
+              textEditingController: textFieldDateSendingController,
+              onPressedEditIcon: Icons.date_range,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                setState(() {
+                  textFieldDateSendingController.text = '';
+                });
+              },
+              onPressedEdit: () async {
+                DateTime selectedDate = DateTime.now();
+                var _datePick = await showDatePicker(
+                  context: context,
+                  helpText: 'Выберите дату отгрузки',
+                  firstDate: DateTime(2021, 1, 1),
+                  lastDate: DateTime(2101),
+                  initialDate: selectedDate,
+                );
+                if (_datePick != null) {
+                  setState(() {
+                    textFieldDateSendingController.text =
+                        shortDateToString(_datePick);
+                  });
+                }
+              }),
 
-                        if (_datePick != null) {
-                          setState(() {
-                            textFieldDateSendingController.text =
-                                shortDateToString(_datePick);
-                          });
-                        }
-                      },
-                      icon: const Icon(Icons.date_range, color: Colors.blue),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        setState(() {
-                          textFieldDateSendingController.text = '';
-                        });
-                      },
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          /// Paying of partner
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldDatePayingController,
-              readOnly: true,
-              textInputAction: TextInputAction.continueAction,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelStyle: const TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Дата оплаты',
-                suffixIcon: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min, //
-                  children: [
-                    IconButton(
-                      onPressed: () async {
-                        DateTime selectedDate = DateTime.now();
-                        var _datePick = await showDatePicker(
-                          context: context,
-                          helpText: 'Выберите дату оплаты',
-                          firstDate: DateTime(2021, 1, 1),
-                          lastDate: DateTime(2101),
-                          initialDate: selectedDate,
-                        );
-
-                        if (_datePick != null) {
-                          setState(() {
-                            textFieldDatePayingController.text =
-                                shortDateToString(_datePick);
-                          });
-                        }
-                      },
-                      icon: const Icon(Icons.date_range, color: Colors.blue),
-                    ),
-                    IconButton(
-                      onPressed: () async {
-                        setState(() {
-                          textFieldDatePayingController.text = '';
-                        });
-                      },
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          /// Date paying to partner
+          TextFieldWithText(
+              textLabel: 'Дата оплаты (планируемая)',
+              textEditingController: textFieldDatePayingController,
+              onPressedEditIcon: Icons.date_range,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                setState(() {
+                  textFieldDatePayingController.text = '';
+                });
+              },
+              onPressedEdit: () async {
+                DateTime selectedDate = DateTime.now();
+                var _datePick = await showDatePicker(
+                  context: context,
+                  helpText: 'Выберите дату оплаты',
+                  firstDate: DateTime(2021, 1, 1),
+                  lastDate: DateTime(2101),
+                  initialDate: selectedDate,
+                );
+                if (_datePick != null) {
+                  setState(() {
+                    textFieldDatePayingController.text =
+                        shortDateToString(_datePick);
+                  });
+                }
+              }),
 
           /// Comment
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
+              maxLines: 3,
+              keyboardType: TextInputType.text,
               controller: textFieldCommentController,
-              textInputAction: TextInputAction.continueAction,
               decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -586,14 +517,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-
                 /// Записать документ
                 SizedBox(
                   height: 40,
-                  width: (MediaQuery
-                      .of(context)
-                      .size
-                      .width - 49) / 2,
+                  width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
                         var result = saveDocument();
@@ -619,13 +546,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 /// Удалить документ
                 SizedBox(
                   height: 40,
-                  width: (MediaQuery
-                      .of(context)
-                      .size
-                      .width - 35) / 2,
+                  width: (MediaQuery.of(context).size.width - 35) / 2,
                   child: ElevatedButton(
                       style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.red)),
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         Navigator.of(context).pop(true);
                       },
@@ -651,7 +576,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
         children: [
-
           /// Date sending to 1C
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
@@ -660,6 +584,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               readOnly: true,
               textInputAction: TextInputAction.continueAction,
               decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -677,6 +602,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               readOnly: true,
               textInputAction: TextInputAction.continueAction,
               decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -688,7 +614,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
           /// Sending to 1C
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
             child: Row(
               children: [
                 Checkbox(
@@ -716,7 +642,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
           /// No Sending to 1C
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
             child: Row(
               children: [
                 Checkbox(
