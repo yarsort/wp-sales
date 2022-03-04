@@ -1,15 +1,15 @@
 # wp_sales
 
-Workplace Sales
+Workplace Sales feat WP-Sales
 
-## Getting Started
+## Рабочее место для менеджера продаж
 
-This project is a starting point for a Flutter application.
+Проект написан на чистом Flutter и Dart.
 
-A few resources to get you started if this is your first Flutter project:
+Мы создаем бесплатное кроссплатформенное приложение, которое позволит создавать заказы покупателя и
+загружать их в учетные системы, например 1С:Предприятие.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Все вопросы и пожелания пишите на: yarsort@gmail.com
 
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
