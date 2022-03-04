@@ -2,7 +2,7 @@
 
 Workplace Sales feat WP-Sales
 
-![изображение](https://user-images.githubusercontent.com/54131603/156795414-beb45765-b1b3-4724-9a8b-1dabc6216a41.png)
+![изображение](https://user-images.githubusercontent.com/54131603/156795587-82fd9e6d-6f43-45e0-b8dc-e1186e4f4445.png)
 
 ## Рабочее место для менеджера продаж
 
