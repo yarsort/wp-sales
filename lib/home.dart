@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenHomePage extends StatefulWidget {
@@ -13,6 +14,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    DatabaseHelper.instance.close();
+    super.dispose();
   }
 
   @override

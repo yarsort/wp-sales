@@ -7,26 +7,28 @@ import 'package:wp_sales/models/organization.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/models/price.dart';
 
-final DB instance = DB._init();
+final DatabaseHelper instance = DatabaseHelper._init();
 
-class DB {
+class DatabaseHelper {
+
+  static final DatabaseHelper instance = DatabaseHelper._init();
 
   static Database? _database;
 
-  DB._init();
+  DatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
 
-    _database = await _initDB('WPSalesDatabase.db');
+    _database = await _initDB('WPSalesDatabase_temp1.db');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    print('Каталог базы: '+path.toString());
+    return await openDatabase(path, version: 2, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -68,9 +70,9 @@ class DB {
 
     /// Документ.ЗаказПокупателя - ТЧ "Товары" (№1)
     await db.execute('''
-    CREATE TABLE $tableOrderCustomer (    
+    CREATE TABLE $tableItemsOrderCustomer (    
       ${ItemOrderCustomerFields.id} $idType,
-      ${ItemOrderCustomerFields.idOrderCustomer} $idType,      
+      ${ItemOrderCustomerFields.idOrderCustomer} $integerType,      
       ${ItemOrderCustomerFields.uid} $textType,
       ${ItemOrderCustomerFields.name} $textType,      
       ${ItemOrderCustomerFields.uidUnit} $textType,
@@ -86,7 +88,7 @@ class DB {
     await db.execute('''
     CREATE TABLE $tableOrganization (    
       ${ItemOrganizationFields.id} $idType,
-      ${ItemOrganizationFields.isGroup} $idType,      
+      ${ItemOrganizationFields.isGroup} $integerType,      
       ${ItemOrganizationFields.uid} $textType,
       ${ItemOrganizationFields.code} $textType,      
       ${ItemOrganizationFields.name} $textType,
@@ -101,7 +103,7 @@ class DB {
     await db.execute('''
     CREATE TABLE $tablePartner (    
       ${ItemPartnerFields.id} $idType,
-      ${ItemPartnerFields.isGroup} $idType,      
+      ${ItemPartnerFields.isGroup} $integerType,      
       ${ItemPartnerFields.uid} $textType,
       ${ItemPartnerFields.code} $textType,      
       ${ItemPartnerFields.name} $textType,
@@ -119,7 +121,7 @@ class DB {
     await db.execute('''
     CREATE TABLE $tableContract (
       ${ItemContractFields.id} $idType,
-      ${ItemContractFields.isGroup} $idType,
+      ${ItemContractFields.isGroup} $integerType,
       ${ItemContractFields.uid} $textType,
       ${ItemContractFields.code} $textType,
       ${ItemContractFields.name} $textType,
@@ -143,7 +145,7 @@ class DB {
     await db.execute('''
     CREATE TABLE $tablePrice (    
       ${ItemPriceFields.id} $idType,
-      ${ItemPriceFields.isGroup} $idType,      
+      ${ItemPriceFields.isGroup} $integerType,      
       ${ItemPriceFields.uid} $textType,
       ${ItemPriceFields.code} $textType,      
       ${ItemPriceFields.name} $textType,
@@ -156,7 +158,7 @@ class DB {
     await db.execute('''
     CREATE TABLE $tableCurrency (    
       ${ItemCurrencyFields.id} $idType,
-      ${ItemCurrencyFields.isGroup} $idType,      
+      ${ItemCurrencyFields.isGroup} $integerType,      
       ${ItemCurrencyFields.uid} $textType,
       ${ItemCurrencyFields.code} $textType,      
       ${ItemCurrencyFields.name} $textType,
@@ -170,9 +172,6 @@ class DB {
     final db = await instance.database;
     db.close();
   }
-}
-
-class DBOrderCustomer {
 
   Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer) async {
     final db = await instance.database;
@@ -197,11 +196,15 @@ class DBOrderCustomer {
     }
   }
 
-  Future<List<OrderCustomer>> readAllOrderCustomer() async {
+  Future<List<OrderCustomer>> readAllNewOrderCustomer() async {
     final db = await instance.database;
 
     const orderBy = '${OrderCustomerFields.date} ASC';
-    final result = await db.query(tableOrderCustomer, orderBy: orderBy);
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [0],
+        orderBy: orderBy);
 
     return result.map((json) => OrderCustomer.fromJson(json)).toList();
   }

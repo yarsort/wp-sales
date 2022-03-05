@@ -36,7 +36,7 @@ class OrderCustomer {
   OrderCustomer();
 
   OrderCustomer.fromJson(Map<String, dynamic> json) {
-    id = json['id'] ?? 0;
+    id = json['id'];
     status = json['status'] ?? 0;
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
@@ -52,7 +52,7 @@ class OrderCustomer {
     nameWarehouse = json['nameWarehouse'] ?? '';
     uidCurrency = json['uidCurrency'] ?? '';
     nameCurrency = json['nameCurrency'] ?? '';
-    sum = double.parse(json['sum']);
+    sum = json["sum"] ?? 0.0;
     comment = json['comment'] ?? '';
     dateSending = DateTime.parse(json['dateSending']);
     datePaying = DateTime.parse(json['datePaying']);
@@ -65,19 +65,25 @@ class OrderCustomer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
+    if (id != 0) {
+      data['id'] = id;
+    }
     data['status'] = status;
     data['date'] = date.toIso8601String();
     data['uid'] = uid;
     data['uidOrganization'] = uidOrganization;
+    data['nameOrganization'] = nameOrganization;
     data['uidPartner'] = uidPartner;
     data['namePartner'] = namePartner;
     data['uidContract'] = uidContract;
     data['nameContract'] = nameContract;
     data['uidPrice'] = uidPrice;
+    data['namePrice'] = namePrice;
+    data['nameWarehouse'] = nameWarehouse;
+    data['uidWarehouse'] = uidWarehouse;
     data['uidCurrency'] = uidCurrency;
     data['nameCurrency'] = nameCurrency;
-    data['sum'] = sum.toString();
+    data['sum'] = sum;
     data['comment'] = comment;
     data['dateSending'] = dateSending.toIso8601String();
     data['datePaying'] = datePaying.toIso8601String();
@@ -85,7 +91,7 @@ class OrderCustomer {
     data['sendNoTo1C'] = sendNoTo1C;
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
-    data['countItems'] = countItems;
+    data['countItems'] = countItems.toString();
     return data;
   }
 }
@@ -126,7 +132,7 @@ class OrderCustomerFields {
   static const String date = 'date';// Дата создания заказа
   static const String uid = 'uid';// UID для 1С и связи с ТЧ
   static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
-  static const String nameOrganization = 'uidOrganization';// Имя организации
+  static const String nameOrganization = 'nameOrganization';// Имя организации
   static const String uidPartner = 'uidPartner';// Ссылка на контрагента
   static const String namePartner = 'namePartner';// Имя контрагента
   static const String uidContract = 'uidContract';// Ссылка на договор контрагента
@@ -140,10 +146,10 @@ class OrderCustomerFields {
   static const String sum = 'sum';// Сумма документа
   static const String comment = 'comment';// Комментарий
   static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
-  static const String datePaying = 'dateSending';// Дата планируемой оплаты заказа
+  static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
   static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
   static const String sendNoTo1C = 'sendNoTo1C';  // Булево: "Отправлено в 1С" - для фильтрации в списках
-  static const String dateSendingTo1C = 'sendNoTo1C'; // Дата отправки заказа в 1С из мобильного устройства
+  static const String dateSendingTo1C = 'dateSendingTo1C'; // Дата отправки заказа в 1С из мобильного устройства
   static const String numberFrom1C = 'numberFrom1C';
   static const String countItems = 'countItems';
 

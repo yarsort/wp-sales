@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -56,11 +57,13 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     loadNewDocuments();
     loadSendDocuments();
     loadTrashDocuments();
+
     return super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -111,21 +114,21 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countNewDocuments == 1 ? noDocuments() : yesNewDocuments(),
+                countNewDocuments == 0 ? noDocuments() : yesNewDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countSendDocuments == 1 ? noDocuments() : yesSendDocuments(),
+                //countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countTrashDocuments == 1 ? noDocuments() : yesTrashDocuments(),
+                //countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
               ],
             ),
           ],
@@ -134,18 +137,25 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     );
   }
 
-  loadNewDocuments() {
+  loadNewDocuments() async {
     // Очистка списка заказов покупателя
     listNewOrdersCustomer.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomer) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listNewOrdersCustomer.add(newOrderCustomer);
+    listNewOrdersCustomer = await DatabaseHelper.instance.readAllNewOrderCustomer();
+
+    if (listNewOrdersCustomer.isNotEmpty) {
+      debugPrint('Список документов из базы данных заполнен!');
+    } else {
+      // // Получение и запись списка заказов покупателей
+      // for (var message in listDataOrderCustomer) {
+      //   OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
+      //   listNewOrdersCustomer.add(newOrderCustomer);
+      // }
     }
 
     // Количество документов в списке
     countNewDocuments = listNewOrdersCustomer.length;
+    debugPrint('Количество документов: '+countNewDocuments.toString());
   }
 
   loadSendDocuments() {
@@ -153,10 +163,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     listSendOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomer) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listSendOrdersCustomer.add(newOrderCustomer);
-    }
+    //for (var message in listDataOrderCustomer) {
+    //  OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
+    //  listSendOrdersCustomer.add(newOrderCustomer);
+    //}
 
     // Количество документов в списке
     countSendDocuments = listSendOrdersCustomer.length;
@@ -167,10 +177,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     listTrashOrdersCustomer.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomer) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listTrashOrdersCustomer.add(newOrderCustomer);
-    }
+    //for (var message in listDataOrderCustomer) {
+    //  OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
+    //  listTrashOrdersCustomer.add(newOrderCustomer);
+    //}
 
     // Количество документов в списке
     countTrashDocuments = listTrashOrdersCustomer.length;

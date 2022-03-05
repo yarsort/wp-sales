@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -221,11 +224,24 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         });
   }
 
-  saveDocument() {
-    return true;
+  saveDocument() async {
+    try {
+      if (widget.orderCustomer.id != 0) {
+        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer);
+        return true;
+      } else {
+        await DatabaseHelper.instance.createOrderCustomer(widget.orderCustomer);
+        return true;
+      }
+    } on Exception catch (error) {
+      print('Ошибка записи документа');
+      print(error.toString());
+      return false;
+    }
   }
 
-  deleteDocument() {
+  deleteDocument() async {
+    await DatabaseHelper.instance.deleteOrderCustomer(widget.orderCustomer.id);
     return true;
   }
 
@@ -523,7 +539,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        var result = saveDocument();
+                        var result = await saveDocument();
                         if (result) {
                           showMessage('Запись сохранена!');
                           Navigator.of(context).pop(true);
