@@ -2,6 +2,8 @@
 
 Workplace Sales feat WP-Sales
 
+![изображение](https://user-images.githubusercontent.com/54131603/156795587-82fd9e6d-6f43-45e0-b8dc-e1186e4f4445.png)
+
 ## Рабочее место для менеджера продаж
 
 Проект написан на чистом Flutter и Dart.
@@ -14,3 +16,4 @@ Workplace Sales feat WP-Sales
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
