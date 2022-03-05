@@ -2,7 +2,7 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableCurrency   = 'tableCurrency';
+const String tableCurrency   = '_ReferenceCurrency';
 
 /// Справочник.Валюта
 class Currency {
@@ -25,6 +25,8 @@ class Currency {
     code = json['code'] ?? '';
     name = json['name'] ?? '';
     uidParent = json['uidParent'] ?? '';
+    course = json['comment'] ?? 0.0;
+    multiplicity = json['multiplicity'] ?? 0.0;
     comment = json['comment'] ?? '';
   }
 
@@ -36,7 +38,36 @@ class Currency {
     data['code'] = code;
     data['name'] = name;
     data['uidParent'] = uidParent;
+    data['course'] = course.toString();
+    data['multiplicity'] = multiplicity.toString();
     data['comment'] = comment;
     return data;
   }
+}
+
+/// Поля для базы данных
+class ItemCurrencyFields {
+  static final List<String> values = [
+    id,
+    isGroup,
+    uid,
+    code,
+    name,
+    uidParent,
+    course,
+    multiplicity,
+    comment,
+  ];
+
+  /// Описание названий реквизитов таблицы ДБ в виде строк
+  static const String id = 'id';// Инкремент
+  static const String isGroup = 'isGroup'; // Каталог в иерархии
+  static const String uid = 'uid';
+  static const String code = 'code';
+  static const String name = 'name';
+  static const String uidParent = 'uidParent';
+  static const String course = 'course';
+  static const String multiplicity = 'multiplicity';
+  static const String comment = 'comment';
+
 }

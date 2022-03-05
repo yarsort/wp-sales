@@ -2,7 +2,7 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableOrganization   = 'tableOrganization';
+const String tableOrganization   = '_ReferenceOrganization';
 
 /// Справочник.Организации
 class Organization {
@@ -15,11 +15,6 @@ class Organization {
   String phone = '';              // Контакты
   String address = '';            // Адрес
   String comment = '';            // Коммментарий
-
-  //int sendNoTo1C = 0;  // Булево: "Отправлено в 1С" - для фильтрации в списках
-  //DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки заказа в 1С из мобильного устройства
-
-//<editor-fold desc="Data Methods">
 
   Organization();
 
@@ -48,4 +43,31 @@ class Organization {
     data['comment'] = comment;
     return data;
   }
+}
+
+/// Поля для базы данных
+class ItemOrganizationFields {
+  static final List<String> values = [
+    id,
+    isGroup,
+    uid,
+    code,
+    name,
+    uidParent,
+    phone,
+    address,
+    comment,
+  ];
+
+  /// Описание названий реквизитов таблицы ДБ в виде строк
+  static const String id = 'id';// Инкремент
+  static const String isGroup = 'isGroup'; // Каталог в иерархии
+  static const String uid = 'uid';
+  static const String code = 'code';
+  static const String name = 'name';
+  static const String uidParent = 'uidParent';
+  static const String phone = 'phone';
+  static const String address = 'address';
+  static const String comment = 'comment';
+
 }

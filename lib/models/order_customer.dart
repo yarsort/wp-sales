@@ -2,13 +2,13 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableOrderCustomer   = 'tableOrderCustomer';
-const String tableItemsOrderCustomer   = 'tableItemsOrderCustomer';
+const String tableOrderCustomer   = '_DocumentOrderCustomer';
+const String tableItemsOrderCustomer   = '_DocumentOrderCustomer_VT1'; // Товары
 
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
   int id = 0;                   // Инкремент
-  int isDeleted = 0;            // Пометка удаления
+  int status = 0;               // 0 - новый, 1 - отправлено, 2 - удален
   DateTime date = DateTime.now(); // Дата создания заказа
   String uid = '';              // UID для 1С и связи с ТЧ
   String uidOrganization = '';  // Ссылка на организацию
@@ -37,7 +37,7 @@ class OrderCustomer {
 
   OrderCustomer.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
-    isDeleted = json['isDeleted'] ?? 0;
+    status = json['status'] ?? 0;
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
@@ -66,7 +66,7 @@ class OrderCustomer {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['isDeleted'] = isDeleted.toString();
+    data['status'] = status;
     data['date'] = date.toIso8601String();
     data['uid'] = uid;
     data['uidOrganization'] = uidOrganization;
@@ -94,7 +94,7 @@ class OrderCustomer {
 class OrderCustomerFields {
   static final List<String> values = [
     id,
-    isDeleted,
+    status,
     date,
     uid,
     uidOrganization,
@@ -122,7 +122,7 @@ class OrderCustomerFields {
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id';// Инкремент
-  static const String isDeleted = 'isDeleted';// Пометка удаления
+  static const String status = 'status';// 0 - новый, 1 - отправлено, 2 - удален
   static const String date = 'date';// Дата создания заказа
   static const String uid = 'uid';// UID для 1С и связи с ТЧ
   static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
@@ -206,6 +206,7 @@ class ItemOrderCustomer {
 class ItemOrderCustomerFields {
   static final List<String> values = [
     id,
+    idOrderCustomer,
     uid,
     name,
     uidUnit,
@@ -218,6 +219,7 @@ class ItemOrderCustomerFields {
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id';// Инкремент
+  static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на Заказ покупателя
   static const String uid = 'uid'; // Ссылка на заказ покупателя
   static const String name = 'name'; // Имя товара
   static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.

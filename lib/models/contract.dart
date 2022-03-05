@@ -2,7 +2,7 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableContract   = 'tableContract';
+const String tableContract   = '_ReferenceContract';
 
 /// Справочник.Договоры партнера
 class Contract {
@@ -70,4 +70,48 @@ class Contract {
     data['schedulePayment'] = schedulePayment;
     return data;
   }
+}
+
+/// Поля для базы данных
+class ItemContractFields {
+  static final List<String> values = [
+    id,                // Инкремент
+    isGroup,           // Пометка удаления
+    uid,               // UID для 1С и связи с ТЧ
+    code,              // Код для 1С
+    name,              // Имя партнера
+    uidParent,         // Ссылка на группу
+    balance,           // Баланс
+    balanceForPayment, // Баланс к оплате
+    phone,             // Контакты
+    address,           // Адрес
+    comment,           // Коммментарий
+    namePartner,       // Имя партнера
+    uidPartner,        // Ссылка на партнера
+    uidPrice,          // Ссылка тип цены
+    namePrice,         // Имя типа цены
+    uidCurrency,       // Ссылка валюты
+    nameCurrency,      // Имя валюты
+    schedulePayment,   // Отсрочка платежа
+  ];
+
+  /// Описание названий реквизитов таблицы ДБ в виде строк
+  static const String id = 'id';
+  static const String isGroup = 'isGroup';
+  static const String uid = 'uid';
+  static const String code = 'code';
+  static const String name = 'name';
+  static const String uidParent = 'uidParent';
+  static const String balance = 'balance';
+  static const String balanceForPayment = 'balanceForPayment';
+  static const String phone = 'phone';
+  static const String address = 'address';
+  static const String comment = 'comment';
+  static const String namePartner = 'namePartner';
+  static const String uidPartner = 'uidPartner';
+  static const String uidPrice = 'uidPrice';
+  static const String namePrice = 'namePrice';
+  static const String uidCurrency = 'uidCurrency';
+  static const String nameCurrency = 'nameCurrency';
+  static const String schedulePayment = 'schedulePayment';
 }

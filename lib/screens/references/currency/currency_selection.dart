@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/screens/references/price/price_item.dart';
+import 'package:wp_sales/models/order_customer.dart';
+import 'package:wp_sales/models/currency.dart';
+import 'package:wp_sales/screens/references/currency/currency_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
-class ScreenPriceList extends StatefulWidget {
-  const ScreenPriceList({Key? key}) : super(key: key);
+class ScreenCurrencySelection extends StatefulWidget {
+
+  final OrderCustomer orderCustomer;
+
+  const ScreenCurrencySelection({Key? key, required this.orderCustomer}) : super(key: key);
 
   @override
-  _ScreenPriceListState createState() => _ScreenPriceListState();
+  _ScreenCurrencySelectionState createState() => _ScreenCurrencySelectionState();
 }
 
-class _ScreenPriceListState extends State<ScreenPriceList> {
+class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Price> tempItems = [];
-  List<Price> listPrices = [];
+  List<Currency> tempItems = [];
+  List<Currency> listPrice = [];
 
   @override
   void initState() {
@@ -29,9 +32,9 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Тип цены'),
+        title: const Text('Валюты'),
       ),
-      drawer: const MainDrawer(),
+      //drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),
@@ -40,15 +43,15 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newItem = Price();
+          var newItem = Currency();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenPriceItem(priceItem: newItem),
+              builder: (context) => ScreenCurrencyItem(currencyItem: newItem),
             ),
           );
         },
-        tooltip: 'Добавить тип цены',
+        tooltip: 'Добавить валюту',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -59,14 +62,14 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    listPrices.clear();
+    listPrice.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataPrice) {
-      Price newItem = Price.fromJson(message);
-      listPrices.add(newItem);
-      tempItems.add(newItem); // Как шаблон
+    // Получение и запись списка
+    for (var message in listDataOrganizations) {
+      Currency newPrice = Currency.fromJson(message);
+      listPrice.add(newPrice);
+      tempItems.add(newPrice); // Как шаблон
     }
   }
 
@@ -78,42 +81,34 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listPrices.clear();
-        listPrices.addAll(tempItems);
+        listPrice.clear();
+        listPrice.addAll(tempItems);
       });
       return;
     }
 
-    List<Price> dummySearchList = <Price>[];
-    dummySearchList.addAll(listPrices);
+    List<Currency> dummySearchList = <Currency>[];
+    dummySearchList.addAll(listPrice);
 
     if (query.isNotEmpty) {
 
-      List<Price> dummyListData = <Price>[];
+      List<Currency> dummyListData = <Currency>[];
 
       for (var item in dummySearchList) {
         /// Поиск по имени
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-        // /// Поиск по адресу
-        // if (item.address.toLowerCase().contains(query.toLowerCase())) {
-        //   dummyListData.add(item);
-        // }
-        // /// Поиск по номеру телефона
-        // if (item.phone.toLowerCase().contains(query.toLowerCase())) {
-        //   dummyListData.add(item);
-        // }
       }
       setState(() {
-        listPrices.clear();
-        listPrices.addAll(dummyListData);
+        listPrice.clear();
+        listPrice.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listPrices.clear();
-        listPrices.addAll(tempItems);
+        listPrice.clear();
+        listPrice.addAll(tempItems);
       });
     }
   }
@@ -130,7 +125,6 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
         controller: textFieldSearchController,
         textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
             color: Colors.blueGrey,
@@ -169,26 +163,25 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listPrices.length,
+          itemCount: listPrice.length,
           itemBuilder: (context, index) {
-            var priceItem = listPrices[index];
+            var priceItem = listPrice[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScreenPriceItem(priceItem: priceItem),
-                        ),
-                      );
+                      setState(() {
+                        widget.orderCustomer.uidPrice = priceItem.uid;
+                        widget.orderCustomer.namePrice = priceItem.name;
+                      });
+                      Navigator.pop(context);
                     },
                     title: Text(priceItem.name),
                   ),
-                ) 
-              );            
+                )
+            );
           },
         ),
       ),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/organization.dart';
 import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/screens/references/organizations/organization_item.dart';
+import 'package:wp_sales/screens/references/price/price_item.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenPriceSelection extends StatefulWidget {
@@ -44,15 +43,15 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newItem = Organization();
+          var newItem = Price();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
+              builder: (context) => ScreenPriceItem(priceItem: newItem),
             ),
           );
         },
-        tooltip: 'Добавить организацию',
+        tooltip: 'Добавить тип цены',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),

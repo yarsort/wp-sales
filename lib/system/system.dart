@@ -327,3 +327,39 @@ final listDataOrganizations = [
     'address': 'г. Винница, ул. С. Долгорукого 50',
   },
 ];
+
+/// Тестовые данные
+final listDataPrice = [
+  {
+    'id': 1,
+    'isGroup': false,
+    'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Продажная',
+    'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+  {
+    'id': 2,
+    'isGroup': false,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Оптовая',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+];
+
+/// Тестовые данные
+final listDataCurrency = [
+  {
+    'id': 1,
+    'isGroup': false,
+    'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'грн',
+    'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+  {
+    'id': 2,
+    'isGroup': false,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'usd',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+];
