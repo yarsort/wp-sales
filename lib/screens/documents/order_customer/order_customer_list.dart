@@ -79,7 +79,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
           ),
           actions: [
             PopupMenuButton<int>(
-              onSelected: (item) {
+              onSelected: (item) async {
                 // Создание нового заказа
                 if (item == 0) {
                   var newOrderCustomer = OrderCustomer();
@@ -99,10 +99,15 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                     ),
                   );
                 }
+                if (item == 2) {
+                  await loadNewDocuments();
+                  setState(() {});
+                }
               },
               itemBuilder: (context) => [
                 const PopupMenuItem<int>(value: 0, child: Text('Добавить')),
                 const PopupMenuItem<int>(value: 1, child: Text('Отправить')),
+                const PopupMenuItem<int>(value: 2, child: Text('Обновить')),
               ],
             ),
           ],
@@ -114,7 +119,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countNewDocuments == 0 ? noDocuments() : yesNewDocuments(),
+                yesNewDocuments(),
               ],
             ),
             ListView(

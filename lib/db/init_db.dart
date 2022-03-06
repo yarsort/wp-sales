@@ -27,7 +27,6 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    print('Каталог базы: '+path.toString());
     return await openDatabase(path, version: 2, onCreate: _createDB);
   }
 
@@ -173,40 +172,324 @@ class DatabaseHelper {
     db.close();
   }
 
-  Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer) async {
+
+  /// ***********************************
+  /// Справочник.Организации
+  /// ***********************************
+  Future<Organization> createOrganization(Organization organization) async {
     final db = await instance.database;
-    final id = await db.insert(tableOrderCustomer, orderCustomer.toJson());
-    orderCustomer.id = id;
-    return orderCustomer;
+    final id = await db.insert(tableOrganization, organization.toJson());
+    organization.id = id;
+    return organization;
   }
 
-  Future<OrderCustomer> readOrderCustomer(int id) async {
+  Future<int> updateOrganization(Organization organization) async {
+    final db = await instance.database;
+    return db.update(
+      tableOrganization,
+      organization.toJson(),
+      where: '${ItemOrganizationFields.id} = ?',
+      whereArgs: [organization.id],
+    );
+  }
+
+  Future<int> deleteOrganization(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableOrganization,
+      where: '${ItemOrganizationFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Organization> readOrganization(int id) async {
     final db = await instance.database;
     final maps = await db.query(
-      tableOrderCustomer,
-      columns: OrderCustomerFields.values,
-      where: '${OrderCustomerFields.id} = ?',
+      tableOrganization,
+      columns: ItemOrganizationFields.values,
+      where: '${ItemOrganizationFields.id} = ?',
       whereArgs: [id],
     );
 
     if (maps.isNotEmpty) {
-      return OrderCustomer.fromJson(maps.first);
+      return Organization.fromJson(maps.first);
     } else {
       throw Exception('Запись с ID: $id не обнаружена!');
     }
   }
 
-  Future<List<OrderCustomer>> readAllNewOrderCustomer() async {
+  Future<List<Organization>> readAllOrganization() async {
     final db = await instance.database;
 
-    const orderBy = '${OrderCustomerFields.date} ASC';
+    const orderBy = '${ItemOrganizationFields.name} ASC';
     final result = await db.query(
-        tableOrderCustomer,
-        where: '${OrderCustomerFields.status} = ?',
-        whereArgs: [0],
+        tableOrganization,
         orderBy: orderBy);
 
-    return result.map((json) => OrderCustomer.fromJson(json)).toList();
+    return result.map((json) => Organization.fromJson(json)).toList();
+  }
+
+  Future<int> getCountOrganization() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableOrganization"));
+    return result ?? 0;
+  }
+
+
+  /// ***********************************
+  /// Справочник.Партнеры
+  /// ***********************************
+  Future<Partner> createPartner(Partner partner) async {
+    final db = await instance.database;
+    final id = await db.insert(tablePartner, partner.toJson());
+    partner.id = id;
+    return partner;
+  }
+
+  Future<int> updatePartner(Partner partner) async {
+    final db = await instance.database;
+    return db.update(
+      tablePartner,
+      partner.toJson(),
+      where: '${ItemPartnerFields.id} = ?',
+      whereArgs: [partner.id],
+    );
+  }
+
+  Future<int> deletePartner(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tablePartner,
+      where: '${ItemPartnerFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Partner> readPartner(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tablePartner,
+      columns: ItemPartnerFields.values,
+      where: '${ItemPartnerFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Partner.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Partner>> readAllPartners() async {
+    final db = await instance.database;
+
+    const orderBy = '${ItemPartnerFields.name} ASC';
+    final result = await db.query(
+        tablePartner,
+        orderBy: orderBy);
+
+    return result.map((json) => Partner.fromJson(json)).toList();
+  }
+
+  Future<int> getCountPartner() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tablePartner"));
+    return result ?? 0;
+  }
+
+
+  /// ***********************************
+  /// Справочник.ДоговорыКонтрагентов (партнеров)
+  /// ***********************************
+  Future<Contract> createContract(Contract contract) async {
+    final db = await instance.database;
+    final id = await db.insert(tableContract, contract.toJson());
+    contract.id = id;
+    return contract;
+  }
+
+  Future<int> updateContract(Contract contract) async {
+    final db = await instance.database;
+    return db.update(
+      tableContract,
+      contract.toJson(),
+      where: '${ItemContractFields.id} = ?',
+      whereArgs: [contract.id],
+    );
+  }
+
+  Future<int> deleteContract(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableContract,
+      where: '${ItemContractFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Contract> readContract(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableContract,
+      columns: ItemContractFields.values,
+      where: '${ItemContractFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Contract.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Contract>> readAllContracts() async {
+    final db = await instance.database;
+    const orderBy = '${ItemContractFields.name} ASC';
+    final result = await db.query(
+        tableContract,
+        orderBy: orderBy);
+    return result.map((json) => Contract.fromJson(json)).toList();
+  }
+
+  Future<int> getCountContract() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableContract"));
+    return result ?? 0;
+  }
+
+
+  /// ***********************************
+  /// Справочник.ТипыЦен
+  /// ***********************************
+  Future<Price> createPrice(Price price) async {
+    final db = await instance.database;
+    final id = await db.insert(tablePrice, price.toJson());
+    price.id = id;
+    return price;
+  }
+
+  Future<int> updatePrice(Price price) async {
+    final db = await instance.database;
+    return db.update(
+      tablePrice,
+      price.toJson(),
+      where: '${ItemPriceFields.id} = ?',
+      whereArgs: [price.id],
+    );
+  }
+
+  Future<int> deletePrice(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tablePrice,
+      where: '${ItemPriceFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Price> readPrice(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tablePrice,
+      columns: ItemPriceFields.values,
+      where: '${ItemPriceFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Price.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Price>> readAllPrices() async {
+    final db = await instance.database;
+    const orderBy = '${ItemPriceFields.name} ASC';
+    final result = await db.query(
+        tablePrice,
+        orderBy: orderBy);
+    return result.map((json) => Price.fromJson(json)).toList();
+  }
+
+  Future<int> getCountPrice() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tablePrice"));
+    return result ?? 0;
+  }
+
+
+  /// ***********************************
+  /// Справочник.Валюты
+  /// ***********************************
+  Future<Currency> createCurrency(Currency currency) async {
+    final db = await instance.database;
+    final id = await db.insert(tableCurrency, currency.toJson());
+    currency.id = id;
+    return currency;
+  }
+
+  Future<int> updateCurrency(Currency price) async {
+    final db = await instance.database;
+    return db.update(
+      tableCurrency,
+      price.toJson(),
+      where: '${ItemCurrencyFields.id} = ?',
+      whereArgs: [price.id],
+    );
+  }
+
+  Future<int> deleteCurrency(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableCurrency,
+      where: '${ItemCurrencyFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Currency> readCurrency(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableCurrency,
+      columns: ItemCurrencyFields.values,
+      where: '${ItemCurrencyFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Currency.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Currency>> readAllCurrency() async {
+    final db = await instance.database;
+    const orderBy = '${ItemCurrencyFields.name} ASC';
+    final result = await db.query(
+        tableCurrency,
+        orderBy: orderBy);
+    return result.map((json) => Currency.fromJson(json)).toList();
+  }
+
+  Future<int> getCountCurrency() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableCurrency"));
+    return result ?? 0;
+  }
+
+
+  /// ***********************************
+  /// Документы.ЗаказПокупателя
+  /// ***********************************
+  Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer) async {
+    final db = await instance.database;
+    final id = await db.insert(tableOrderCustomer, orderCustomer.toJson());
+    orderCustomer.id = id;
+    return orderCustomer;
   }
 
   Future<int> updateOrderCustomer(OrderCustomer orderCustomer) async {
@@ -227,6 +510,91 @@ class DatabaseHelper {
       where: '${OrderCustomerFields.id} = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<OrderCustomer> readOrderCustomer(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableOrderCustomer,
+      columns: OrderCustomerFields.values,
+      where: '${OrderCustomerFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return OrderCustomer.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<OrderCustomer>> readAllNewOrderCustomer() async {
+    final db = await instance.database;
+    const orderBy = '${OrderCustomerFields.date} ASC';
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [0],
+        orderBy: orderBy);
+
+    return result.map((json) => OrderCustomer.fromJson(json)).toList();
+  }
+
+  Future<List<OrderCustomer>> readAllSendOrderCustomer() async {
+    final db = await instance.database;
+    const orderBy = '${OrderCustomerFields.date} ASC';
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [1],
+        orderBy: orderBy);
+
+    return result.map((json) => OrderCustomer.fromJson(json)).toList();
+  }
+
+  Future<List<OrderCustomer>> readAllTrashOrderCustomer() async {
+    final db = await instance.database;
+    const orderBy = '${OrderCustomerFields.date} ASC';
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [2],
+        orderBy: orderBy);
+
+    return result.map((json) => OrderCustomer.fromJson(json)).toList();
+  }
+
+  Future<int> getCountOrderCustomer() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableOrderCustomer"));
+    return result ?? 0;
+  }
+
+  Future<int> getCountNewOrderCustomer() async {
+    final db = await instance.database;
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [0]);
+    return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
+  }
+
+  Future<int> getCountSendOrderCustomer() async {
+    final db = await instance.database;
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [1]);
+    return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
+  }
+
+  Future<int> getCountTrashOrderCustomer() async {
+    final db = await instance.database;
+    final result = await db.query(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [2]);
+    return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
   }
 
 }
