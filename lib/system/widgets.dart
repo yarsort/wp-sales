@@ -150,7 +150,7 @@ class MainDrawer extends StatelessWidget {
                         }),
                 ]),
                 ListTile(
-                    title: const Text("Про автора"),
+                    title: const Text("О программе"),
                     leading: const Icon(Icons.info),
                     onTap: () {
                       Navigator.push(
