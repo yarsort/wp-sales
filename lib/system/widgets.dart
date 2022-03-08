@@ -6,6 +6,8 @@ import 'package:wp_sales/screens/references/currency/currency_list.dart';
 import 'package:wp_sales/screens/references/organizations/organization_list.dart';
 import 'package:wp_sales/screens/references/partners/partner_list.dart';
 import 'package:wp_sales/screens/references/price/price_list.dart';
+import 'package:wp_sales/screens/references/product/product_list.dart';
+import 'package:wp_sales/screens/references/warehouses/warehouse_list.dart';
 import 'package:wp_sales/screens/settings/about.dart';
 import 'package:wp_sales/screens/settings/help.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
@@ -52,78 +54,98 @@ class MainDrawer extends StatelessWidget {
                 listTileTitle('Документы'),
                 ListTile(
                     title: const Text("Заказы покупателей"),
-                    leading: const Icon(Icons.shopping_basket),
+                    leading: const Icon(Icons.shopping_basket, color: Colors.blue,),
                     trailing: countNotification(0),
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ScreenOrderCustomerList()));
+                          MaterialPageRoute(builder: (BuildContext context) => const ScreenOrderCustomerList()),
+                          ModalRoute.withName('/')
+                      );
                     }),
                 ListTile(
                     title: const Text("ПКО (оплаты)"),
-                    leading: const Icon(Icons.payment),
+                    leading: const Icon(Icons.payment, color: Colors.blue,),
                     trailing: countNotification(156),
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ScreenIncomingCashOrderList()));
+                          MaterialPageRoute(builder: (BuildContext context) => const ScreenIncomingCashOrderList()),
+                          ModalRoute.withName('/')
+                      );
                     }),
                 ExpansionTile(
                   title: const Text('Справочники'),
                   children: [
                     ListTile(
                         title: const Text("Организации"),
-                        leading: const Icon(Icons.people),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ScreenOrganizationList()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenOrganizationList()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                     ListTile(
                         title: const Text("Партнеры"),
-                        leading: const Icon(Icons.people),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ScreenPartnerList()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenPartnerList()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                     ListTile(
                         title: const Text("Договоры партнеров"),
-                        leading: const Icon(Icons.people),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ScreenContractList()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenContractList()),
+                              ModalRoute.withName('/')
+                          );
+                        }),
+                    ListTile(
+                        title: const Text("Товары"),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenProductList()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                     ListTile(
                         title: const Text("Типы цен"),
-                        leading: const Icon(Icons.people),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ScreenPriceList()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenPriceList()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                     ListTile(
                         title: const Text("Валюты"),
-                        leading: const Icon(Icons.people),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                  const ScreenCurrencyList()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenCurrencyList()),
+                              ModalRoute.withName('/')
+                          );
+                        }),
+                    ListTile(
+                        title: const Text("Склады"),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenWarehouseList()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                   ],
                 ),
@@ -132,31 +154,34 @@ class MainDrawer extends StatelessWidget {
                     children: [
                     ListTile(
                         title: const Text("Настройки"),
-                        leading: const Icon(Icons.settings),
+                        leading: const Icon(Icons.settings, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => const ScreenSettings()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenSettings()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                     ListTile(
                         title: const Text("Справка"),
-                        leading: const Icon(Icons.help),
+                        leading: const Icon(Icons.help, color: Colors.blue,),
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushAndRemoveUntil(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => const ScreenHelp()));
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenHelp()),
+                              ModalRoute.withName('/')
+                          );
                         }),
                 ]),
                 ListTile(
                     title: const Text("О программе"),
-                    leading: const Icon(Icons.info),
+                    leading: const Icon(Icons.info, color: Colors.blue,),
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const ScreenAbout()));
+                          MaterialPageRoute(builder: (BuildContext context) => const ScreenAbout()),
+                          ModalRoute.withName('/')
+                      );
                     }),
               ],
             ),
@@ -185,7 +210,7 @@ class MainDrawer extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
-        color: Colors.blue,
+        color: Colors.red,
       ),
       child: Text(
         countNotification.toString(),
@@ -244,9 +269,9 @@ class ColumnBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(itemCount, (index) => itemBuilder(context, index))
-          .toList(),
-    );
+        children: List.generate(itemCount, (index) => itemBuilder(context, index))
+            .toList(),
+      );
   }
 }
 

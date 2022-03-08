@@ -169,7 +169,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
           child: TextField(
             controller: textFieldPeriodController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
+            
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
@@ -220,7 +220,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
           child: TextField(
             controller: textFieldPartnerController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
+            
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
@@ -251,7 +251,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
           child: TextField(
             controller: textFieldPartnerController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
+            
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(

@@ -39,14 +39,15 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           var newItem = Price();
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ScreenPriceItem(priceItem: newItem),
             ),
           );
+          setState(() {});
         },
         tooltip: 'Добавить тип цены',
         child: const Text(
@@ -128,7 +129,6 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
@@ -177,13 +177,16 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
               child: Card(
                 elevation: 2,
                   child: ListTile(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ScreenPriceItem(priceItem: priceItem),
                         ),
                       );
+                      setState(() {
+                        renewItem();
+                      });
                     },
                     title: Text(priceItem.name),
                   ),

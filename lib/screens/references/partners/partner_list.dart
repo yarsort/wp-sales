@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -40,14 +39,15 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           var newItem = Partner();
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ScreenPartnerItem(partnerItem: newItem),
             ),
           );
+          setState(() {});
         },
         tooltip: 'Добавить партнера',
         child: const Text(
@@ -129,7 +129,6 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
@@ -177,100 +176,79 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Card(
                 elevation: 2,
-                  child: Slidable(
-                    endActionPane: ActionPane(
-                      motion: const ScrollMotion(),
-                      dismissible: DismissiblePane(onDismissed: () {}),
-                      children: [
-                        SlidableAction(
-                          // An action can be bigger than the others.
-                          //flex: 2,
-                          onPressed: (context) {},
-                          backgroundColor: const Color(0xFF7BC043),
-                          foregroundColor: Colors.white,
-                          icon: Icons.edit,
-                          label: null,
+                  child: ListTile(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenPartnerItem(partnerItem: partnerItem),
                         ),
-                        SlidableAction(
-                          onPressed:  (context) {},
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete,
-                          label: null,
+                      );
+                      setState(() {
+                        renewItem();
+                      });
+                    },
+                    title: Text(partnerItem.name),
+                    subtitle: Column(
+                      children: [
+                        const Divider(),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(partnerItem.phone),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.home, color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Flexible(child: Text(partnerItem.address)),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change, color: Colors.green, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(doubleToString(partnerItem.balance)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change, color: Colors.red, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(doubleToString(partnerItem.balanceForPayment)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.schedule, color: Colors.blue,size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(partnerItem.schedulePayment.toString()),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                    child: ListTile(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ScreenPartnerItem(partnerItem: partnerItem),
-                          ),
-                        );
-                      },
-                      title: Text(partnerItem.name),
-                      subtitle: Column(
-                        children: [
-                          const Divider(),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 4,
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.phone, color: Colors.blue, size: 20),
-                                        const SizedBox(width: 5),
-                                        Text(partnerItem.phone),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.home, color: Colors.blue, size: 20),
-                                        const SizedBox(width: 5),
-                                        Flexible(child: Text(partnerItem.address)),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.price_change, color: Colors.green, size: 20),
-                                        const SizedBox(width: 5),
-                                        Text(doubleToString(partnerItem.balance)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.price_change, color: Colors.red, size: 20),
-                                        const SizedBox(width: 5),
-                                        Text(doubleToString(partnerItem.balanceForPayment)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.schedule, color: Colors.blue,size: 20),
-                                        const SizedBox(width: 5),
-                                        Text(partnerItem.schedulePayment.toString()),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ) 

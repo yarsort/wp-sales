@@ -2,12 +2,12 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableOrganization   = '_ReferenceOrganization';
+const String tableWarehouse   = '_ReferenceWarehouse';
 
-/// Справочник.Организации
-class Organization {
+/// Справочник.Склады
+class Warehouse {
   int id = 0;                     // Инкремент
-  int isGroup = 0;               // Пометка удаления
+  int isGroup = 0;           // Пометка удаления
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя партнера
@@ -16,9 +16,9 @@ class Organization {
   String address = '';            // Адрес
   String comment = '';            // Коммментарий
 
-  Organization();
+  Warehouse();
 
-  Organization.fromJson(Map<String, dynamic> json) {
+  Warehouse.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
     isGroup = 0;
     uid = json['uid'] ?? '';
@@ -48,7 +48,7 @@ class Organization {
 }
 
 /// Поля для базы данных
-class ItemOrganizationFields {
+class ItemWarehouseFields {
   static final List<String> values = [
     id,
     isGroup,

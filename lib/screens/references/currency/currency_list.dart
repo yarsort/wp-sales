@@ -39,14 +39,15 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           var newItem = Currency();
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ScreenCurrencyItem(currencyItem: newItem),
             ),
           );
+          setState(() {});
         },
         tooltip: 'Добавить валюту',
         child: const Text(
@@ -96,14 +97,6 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-        // /// Поиск по адресу
-        // if (item.address.toLowerCase().contains(query.toLowerCase())) {
-        //   dummyListData.add(item);
-        // }
-        // /// Поиск по номеру телефона
-        // if (item.phone.toLowerCase().contains(query.toLowerCase())) {
-        //   dummyListData.add(item);
-        // }
       }
       setState(() {
         listCurrency.clear();
@@ -128,7 +121,6 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
@@ -177,13 +169,16 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
               child: Card(
                 elevation: 2,
                   child: ListTile(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ScreenCurrencyItem(currencyItem: currencyItem),
                         ),
                       );
+                      setState(() {
+                        renewItem();
+                      });
                     },
                     title: Text(currencyItem.name),
                   ),

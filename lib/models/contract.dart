@@ -7,7 +7,7 @@ const String tableContract   = '_ReferenceContract';
 /// Справочник.Договоры партнера
 class Contract {
   int id = 0;                     // Инкремент
-  bool isGroup = false;           // Пометка удаления
+  int isGroup = 0;                // Пометка удаления
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя партнера
@@ -29,7 +29,7 @@ class Contract {
 
   Contract.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
-    isGroup = json['isGroup'] ?? false;
+    isGroup = 0;
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
@@ -50,8 +50,10 @@ class Contract {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['isGroup'] = isGroup.toString();
+    if (id != 0) {
+      data['id'] = id;
+    }
+    data['isGroup'] = isGroup;
     data['uid'] = uid;
     data['code'] = code;
     data['name'] = name;

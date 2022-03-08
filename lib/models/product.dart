@@ -2,31 +2,35 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableOrganization   = '_ReferenceOrganization';
+const String tableProduct   = '_ReferenceProduct';
 
-/// Справочник.Организации
-class Organization {
+/// Справочник.Товары
+class Product {
   int id = 0;                     // Инкремент
-  int isGroup = 0;               // Пометка удаления
+  int isGroup = 0;                // Пометка удаления
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
-  String name = '';               // Имя партнера
+  String name = '';               // Имя
+  String vendorCode = '';         // Артикул товара в 1С
   String uidParent = '';          // Ссылка на группу
-  String phone = '';              // Контакты
-  String address = '';            // Адрес
+  String uidUnit = '';            // Ссылка на единицу измерения
+  String nameUnit = '';           // Имя ед. изм.
+  String barcode = '';            // Имя ед. изм.
   String comment = '';            // Коммментарий
 
-  Organization();
+  Product();
 
-  Organization.fromJson(Map<String, dynamic> json) {
+  Product.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
     isGroup = 0;
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
+    vendorCode = json['vendorCode'] ?? '';
     uidParent = json['uidParent'] ?? '';
-    phone = json['phone'] ?? '';
-    address = json['address'] ?? '';
+    uidUnit = json['uidUnit'] ?? '';
+    nameUnit = json['nameUnit'] ?? '';
+    barcode = json['barcode'] ?? '';
     comment = json['comment'] ?? '';
   }
 
@@ -39,25 +43,29 @@ class Organization {
     data['uid'] = uid;
     data['code'] = code;
     data['name'] = name;
+    data['vendorCode'] = vendorCode;
     data['uidParent'] = uidParent;
-    data['phone'] = phone;
-    data['address'] = address;
+    data['uidUnit'] = uidUnit;
+    data['nameUnit'] = nameUnit;
+    data['barcode'] = barcode;
     data['comment'] = comment;
     return data;
   }
 }
 
 /// Поля для базы данных
-class ItemOrganizationFields {
+class ItemProductFields {
   static final List<String> values = [
     id,
     isGroup,
     uid,
     code,
     name,
+    vendorCode,
     uidParent,
-    phone,
-    address,
+    uidUnit,
+    nameUnit,
+    barcode,
     comment,
   ];
 
@@ -67,9 +75,10 @@ class ItemOrganizationFields {
   static const String uid = 'uid';
   static const String code = 'code';
   static const String name = 'name';
+  static const String vendorCode = 'vendorCode';
   static const String uidParent = 'uidParent';
-  static const String phone = 'phone';
-  static const String address = 'address';
+  static const String uidUnit = 'uidUnit';
+  static const String nameUnit = 'nameUnit';
+  static const String barcode = 'barcode';
   static const String comment = 'comment';
-
 }

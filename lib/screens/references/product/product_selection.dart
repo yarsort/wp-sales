@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/currency.dart';
-import 'package:wp_sales/screens/references/currency/currency_item.dart';
+import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/screens/references/product/product_item.dart';
 import 'package:wp_sales/system/system.dart';
 
-class ScreenCurrencySelection extends StatefulWidget {
+class ScreenProductSelection extends StatefulWidget {
 
   final OrderCustomer orderCustomer;
 
-  const ScreenCurrencySelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenProductSelection({Key? key, required this.orderCustomer}) : super(key: key);
 
   @override
-  _ScreenCurrencySelectionState createState() => _ScreenCurrencySelectionState();
+  _ScreenProductSelectionState createState() => _ScreenProductSelectionState();
 }
 
-class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
+class _ScreenProductSelectionState extends State<ScreenProductSelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Currency> tempItems = [];
-  List<Currency> listPrice = [];
+  List<Product> tempItems = [];
+  List<Product> listProduct = [];
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Валюты'),
+        title: const Text('Подбор товаров'),
       ),
       //drawer: const MainDrawer(),
       body: Column(
@@ -43,15 +43,15 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newItem = Currency();
+          var newItem = Product();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenCurrencyItem(currencyItem: newItem),
+              builder: (context) => ScreenProductItem(productItem: newItem),
             ),
           );
         },
-        tooltip: 'Добавить валюту',
+        tooltip: 'Добавить товар',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -62,14 +62,14 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    listPrice.clear();
+    listProduct.clear();
     tempItems.clear();
 
     // Получение и запись списка
     for (var message in listDataOrganizations) {
-      Currency newPrice = Currency.fromJson(message);
-      listPrice.add(newPrice);
-      tempItems.add(newPrice); // Как шаблон
+      Product newProduct = Product.fromJson(message);
+      listProduct.add(newProduct);
+      tempItems.add(newProduct); // Как шаблон
     }
   }
 
@@ -81,18 +81,18 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listPrice.clear();
-        listPrice.addAll(tempItems);
+        listProduct.clear();
+        listProduct.addAll(tempItems);
       });
       return;
     }
 
-    List<Currency> dummySearchList = <Currency>[];
-    dummySearchList.addAll(listPrice);
+    List<Product> dummySearchList = <Product>[];
+    dummySearchList.addAll(listProduct);
 
     if (query.isNotEmpty) {
 
-      List<Currency> dummyListData = <Currency>[];
+      List<Product> dummyListData = <Product>[];
 
       for (var item in dummySearchList) {
         /// Поиск по имени
@@ -101,14 +101,14 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
         }
       }
       setState(() {
-        listPrice.clear();
-        listPrice.addAll(dummyListData);
+        listProduct.clear();
+        listProduct.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listPrice.clear();
-        listPrice.addAll(tempItems);
+        listProduct.clear();
+        listProduct.addAll(tempItems);
       });
     }
   }
@@ -163,22 +163,22 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listPrice.length,
+          itemCount: listProduct.length,
           itemBuilder: (context, index) {
-            var priceItem = listPrice[index];
+            var productItem = listProduct[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(
                   elevation: 2,
                   child: ListTile(
                     onTap: () {
-                      setState(() {
-                        widget.orderCustomer.uidPrice = priceItem.uid;
-                        widget.orderCustomer.namePrice = priceItem.name;
-                      });
-                      Navigator.pop(context);
+                      // setState(() {
+                      //   widget.orderCustomer.uid = productItem.uid;
+                      //   widget.orderCustomer.nameProduct = productItem.name;
+                      // });
+                      //Navigator.pop(context);
                     },
-                    title: Text(priceItem.name),
+                    title: Text(productItem.name),
                   ),
                 )
             );

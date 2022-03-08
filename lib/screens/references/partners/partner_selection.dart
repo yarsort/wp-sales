@@ -131,7 +131,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
+        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(

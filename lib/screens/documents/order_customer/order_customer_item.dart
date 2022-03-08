@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
@@ -77,8 +75,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   @override
   void initState() {
+    super.initState();
     updateHeader();
-    return super.initState();
   }
 
   @override
@@ -224,7 +222,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         });
   }
 
-  saveDocument() async {
+  saveItem() async {
     try {
       if (widget.orderCustomer.id != 0) {
         await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer);
@@ -234,18 +232,32 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         return true;
       }
     } on Exception catch (error) {
-      print('Ошибка записи документа');
-      print(error.toString());
+      debugPrint('Ошибка записи!');
+      debugPrint(error.toString());
       return false;
     }
   }
 
-  deleteDocument() async {
-    await DatabaseHelper.instance.deleteOrderCustomer(widget.orderCustomer.id);
-    return true;
+  deleteItem() async {
+    try {
+      if (widget.orderCustomer.id != 0) {
+        /// Установим статус записи: 3 - пометка удаления
+        widget.orderCustomer.status = 3;
+
+        /// Обновим объект в базе данных
+        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer);
+        return true;
+      } else {
+        return true; // Значит, что запись вообще не была записана!
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка отправки в корзину!');
+      debugPrint(error.toString());
+      return false;
+    }
   }
 
-  eraseDocument() {
+  eraseItem() {
     return true;
   }
 
@@ -419,8 +431,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.request_quote,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                widget.orderCustomer.nameWarehouse = '';
-                widget.orderCustomer.uidWarehouse = '';
+                widget.orderCustomer.namePrice = '';
+                widget.orderCustomer.uidPrice = '';
                 await updateHeader();
               },
               onPressedEdit: () async {}),
@@ -432,8 +444,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.gite,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                widget.orderCustomer.namePrice = '';
-                widget.orderCustomer.uidPrice = '';
+                widget.orderCustomer.nameWarehouse = '';
+                widget.orderCustomer.uidWarehouse = '';
                 await updateHeader();
               },
               onPressedEdit: () async {}),
@@ -462,6 +474,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 setState(() {
                   textFieldDateSendingController.text = '';
+                  widget.orderCustomer.dateSending = DateTime(1900, 1, 1);
                 });
               },
               onPressedEdit: () async {
@@ -477,6 +490,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   setState(() {
                     textFieldDateSendingController.text =
                         shortDateToString(_datePick);
+                    widget.orderCustomer.dateSending = _datePick;
                   });
                 }
               }),
@@ -490,6 +504,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 setState(() {
                   textFieldDatePayingController.text = '';
+                  widget.orderCustomer.datePaying = DateTime(1900, 1, 1);
                 });
               },
               onPressedEdit: () async {
@@ -505,6 +520,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   setState(() {
                     textFieldDatePayingController.text =
                         shortDateToString(_datePick);
+                    widget.orderCustomer.datePaying = _datePick;
                   });
                 }
               }),
@@ -539,7 +555,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        var result = await saveDocument();
+                        var result = await saveItem();
                         if (result) {
                           showMessage('Запись сохранена!');
                           Navigator.of(context).pop(true);
@@ -568,14 +584,18 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           backgroundColor:
                               MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
-                        Navigator.of(context).pop(true);
+                        var result = await deleteItem();
+                        if (result) {
+                          showMessage('Запись отправлена в корзину!');
+                          Navigator.of(context).pop(true);
+                        }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
                           Icon(Icons.delete, color: Colors.white),
                           SizedBox(width: 14),
-                          Text('Отмена'),
+                          Text('В корзину'),
                         ],
                       )),
                 ),
@@ -598,7 +618,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             child: TextField(
               controller: textFieldDateSendingTo1CController,
               readOnly: true,
-              textInputAction: TextInputAction.continueAction,
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
@@ -616,7 +635,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             child: TextField(
               controller: textFieldNumberFrom1CController,
               readOnly: true,
-              textInputAction: TextInputAction.continueAction,
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),

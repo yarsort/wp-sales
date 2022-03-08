@@ -11,6 +11,11 @@ doubleThreeToString(double sum) {
 }
 
 shortDateToString(DateTime date) {
+  // Проверка на пустую дату
+  if (date == DateTime(1900, 1, 1)) {
+    return '';
+  }
+  // Отформатируем дату
   var f = DateFormat('dd.MM.yyyy');
   return (f.format(date).toString());
 }
@@ -198,7 +203,7 @@ final listDataOrderCustomerItems = [
 final listDataPartners = [
   {
     'id': 1,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ФОП Сергеев Алексей',
     'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -210,7 +215,7 @@ final listDataPartners = [
   },
   {
     'id': 2,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ТОВ "Амагама"',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -222,7 +227,7 @@ final listDataPartners = [
   },
   {
     'id': 3,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ТОВ "Промприбор"',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -234,7 +239,7 @@ final listDataPartners = [
   },
   {
     'id': 4,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ТОВ "Агротрейдинг"',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -264,7 +269,7 @@ final listDataContracts = [
   },
   {
     'id': 2,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'Договор с магазином "Красуня"',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -278,7 +283,7 @@ final listDataContracts = [
   },
   {
     'id': 3,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '23704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'Договор поставки товаров',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -292,7 +297,7 @@ final listDataContracts = [
   },
   {
     'id': 4,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '33704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'Основной договор с покупателем',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -310,7 +315,7 @@ final listDataContracts = [
 final listDataOrganizations = [
   {
     'id': 1,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ФОП Сергеев Алексей',
     'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -319,7 +324,7 @@ final listDataOrganizations = [
   },
   {
     'id': 2,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'ФОП Никоров Алексей',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -329,17 +334,39 @@ final listDataOrganizations = [
 ];
 
 /// Тестовые данные
+final listDataWarehouses = [
+  {
+    'id': 1,
+    'isGroup': 0,
+    'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Основной склад',
+    'uidParent': '13714c3a-025e-4d5b-b3f9-9213a338e807',
+    'phone': '0988547870',
+    'address': 'г. Винница, ул. С. Тимофеева 50',
+  },
+  {
+    'id': 2,
+    'isGroup': 0,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Оптовый склад',
+    'uidParent': '03704c3a-025e-4d5b-b3a9-9213a338e807',
+    'phone': '(098)8547870',
+    'address': 'г. Винница, ул. С. Степанова 10А',
+  },
+];
+
+/// Тестовые данные
 final listDataPrice = [
   {
     'id': 1,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'Продажная',
     'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
   },
   {
     'id': 2,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'Оптовая',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
@@ -350,16 +377,68 @@ final listDataPrice = [
 final listDataCurrency = [
   {
     'id': 1,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '03704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'грн',
     'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
   },
   {
     'id': 2,
-    'isGroup': false,
+    'isGroup': 0,
     'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
     'name': 'usd',
     'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+];
+
+/// Тестовые данные
+final listDataProduct = [
+  {
+    'id': 1,
+    'isGroup': 0,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'code': 'UA0001231',
+    'name': 'Лампа 25W Е27 A55 Philips',
+    'vendorCode': 'STL1254',
+    'uidParent': '',
+    'uidUnit': '23704c3a-025e-4d5b-b3f9-9213a338e807',
+    'nameUnit': 'шт',
+    'barcode': '8711500354501',
+  },
+  {
+    'id': 2,
+    'isGroup': 0,
+    'uid': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+    'code': 'UA0001231',
+    'name': 'Лампа 25W Е27 A55 Philips',
+    'vendorCode': 'S1458',
+    'uidParent': '',
+    'uidUnit': '23704c3a-025e-4d5b-b3f9-9213a338e807',
+    'nameUnit': 'шт',
+    'barcode': '8711500354501',
+  },
+  {
+    'id': 3,
+    'isGroup': 0,
+    'uid': '63704c3a-025e-4d5b-b3f9-9213a338e807',
+    'code': 'UA0005831',
+    'name': 'Подовжувач 3 гнізда 2м без з/з Horoz 200-302-303',
+    'vendorCode': '200-302-303',
+    'uidParent': '',
+    'uidUnit': '53704c3a-025e-4d5b-b3f9-9213a338e807',
+    'nameUnit': 'м',
+    'barcode': '8699490900086',
+  },
+  {
+    'id': 4,
+    'isGroup': 0,
+    'uid': '83704c3a-025e-4d5b-b3f9-9213a338e807',
+    'code': 'UA0005831',
+    'name': 'Колодка 6 гнізд з/з VI-KO LEYLAC',
+    'vendorCode': '200-302-303',
+    'uidParent': '',
+    'uidUnit': '73704c3a-025e-4d5b-b3f9-9213a338e807',
+    'nameUnit': 'м',
+    'barcode': '8691136830832',
   },
 ];

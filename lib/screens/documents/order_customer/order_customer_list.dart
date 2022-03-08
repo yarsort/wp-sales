@@ -17,12 +17,11 @@ class ScreenOrderCustomerList extends StatefulWidget {
 }
 
 class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
-  bool _loading = false;
-
   /// Поля ввода: Поиск
   TextEditingController textFieldNewSearchController = TextEditingController();
   TextEditingController textFieldSendSearchController = TextEditingController();
-  TextEditingController textFieldTrashSearchController = TextEditingController();
+  TextEditingController textFieldTrashSearchController =
+      TextEditingController();
 
   /// Видимость панелей отбора документов
   bool visibleListNewParameters = false;
@@ -60,35 +59,35 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   /// Поле ввода: Период
   TextEditingController textFieldNewPeriodController = TextEditingController();
   TextEditingController textFieldSendPeriodController = TextEditingController();
-  TextEditingController textFieldTrashPeriodController = TextEditingController();
+  TextEditingController textFieldTrashPeriodController =
+      TextEditingController();
 
   /// Поле ввода: Партнер
   TextEditingController textFieldNewPartnerController = TextEditingController();
-  TextEditingController textFieldSendPartnerController = TextEditingController();
-  TextEditingController textFieldTrashPartnerController = TextEditingController();
+  TextEditingController textFieldSendPartnerController =
+      TextEditingController();
+  TextEditingController textFieldTrashPartnerController =
+      TextEditingController();
 
   /// Поле ввода: Договор или торговая точка
-  TextEditingController textFieldNewContractController = TextEditingController();
-  TextEditingController textFieldSendContractController = TextEditingController();
-  TextEditingController textFieldTrashContractController = TextEditingController();
+  TextEditingController textFieldNewContractController =
+      TextEditingController();
+  TextEditingController textFieldSendContractController =
+      TextEditingController();
+  TextEditingController textFieldTrashContractController =
+      TextEditingController();
 
   @override
   void initState() {
-    if (!_loading) {
-      setState(() {
-        _loading = true;
-      });
-
-      loadNewDocuments();
-      loadSendDocuments();
-      loadTrashDocuments();
-
-      setState(() {
-        _loading = false;
-      });
-    }
-
     super.initState();
+    loadData();
+  }
+
+  void loadData() async {
+    await loadNewDocuments();
+    await loadSendDocuments();
+    await loadTrashDocuments();
+    setState(() {});
   }
 
   @override
@@ -122,15 +121,18 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   setState(() {});
                 }
                 if (item == 1) {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const ScreenExchangeData(),
                     ),
                   );
+                  setState(() {});
                 }
                 if (item == 2) {
                   await loadNewDocuments();
+                  await loadSendDocuments();
+                  await loadTrashDocuments();
                   setState(() {});
                 }
               },
@@ -175,23 +177,21 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   loadNewDocuments() async {
     // Очистка списка заказов покупателя
     listNewOrdersCustomer.clear();
+    countNewDocuments = 0;
 
     listNewOrdersCustomer =
         await DatabaseHelper.instance.readAllNewOrderCustomer();
 
     // Количество документов в списке
     countNewDocuments = listNewOrdersCustomer.length;
-    debugPrint('Количество документов: ' + countNewDocuments.toString());
 
-    // Если загрузка завершена!
-    if (!_loading) {
-      setState(() {});
-    }
+    debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
 
   loadSendDocuments() async {
     // Очистка списка заказов покупателя
     listSendOrdersCustomer.clear();
+    countSendDocuments = 0;
 
     listSendOrdersCustomer =
         await DatabaseHelper.instance.readAllSendOrderCustomer();
@@ -199,15 +199,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Количество документов в списке
     countSendDocuments = listSendOrdersCustomer.length;
 
-    // Если загрузка завершена!
-    if (!_loading) {
-      setState(() {});
-    }
+    debugPrint(
+        'Количество отправленных документов: ' + countSendDocuments.toString());
   }
 
   loadTrashDocuments() async {
     // Очистка списка заказов покупателя
     listTrashOrdersCustomer.clear();
+    countTrashDocuments = 0;
 
     listTrashOrdersCustomer =
         await DatabaseHelper.instance.readAllTrashOrderCustomer();
@@ -215,10 +214,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Количество документов в списке
     countTrashDocuments = listTrashOrdersCustomer.length;
 
-    // Если загрузка завершена!
-    if (!_loading) {
-      setState(() {});
-    }
+    debugPrint(
+        'Количество удаленных документов: ' + countSendDocuments.toString());
   }
 
   listNewParameters() {
@@ -244,6 +241,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 children: [
                   IconButton(
                     onPressed: () async {
+                      setState(() {
+                        visibleListNewParameters = !visibleListNewParameters;
+                      });
                       var value = textFieldNewSearchController.text;
                       //filterSearchResults(value);
                     },
@@ -281,7 +281,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 child: TextField(
                   controller: textFieldNewPeriodController,
                   readOnly: true,
-                  textInputAction: TextInputAction.continueAction,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     border: const OutlineInputBorder(),
@@ -333,7 +332,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 child: TextField(
                   controller: textFieldNewPartnerController,
                   readOnly: true,
-                  textInputAction: TextInputAction.continueAction,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     border: const OutlineInputBorder(),
@@ -437,9 +435,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       child: ElevatedButton(
                           onPressed: () async {
                             await loadNewDocuments();
-                            await loadSendDocuments();
-                            await loadTrashDocuments();
-
                             setState(() {
                               visibleListNewParameters = false;
                             });
@@ -464,6 +459,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
+                            await loadNewDocuments();
                             setState(() {
                               textFieldNewPartnerController.text = '';
                               textFieldNewContractController.text = '';
@@ -476,10 +472,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
                               visibleListNewParameters = false;
                             });
-
-                            await loadNewDocuments();
-                            await loadSendDocuments();
-                            await loadTrashDocuments();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -525,6 +517,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 children: [
                   IconButton(
                     onPressed: () async {
+                      setState(() {
+                        visibleListSendParameters = !visibleListSendParameters;
+                      });
                       var value = textFieldSendSearchController.text;
                       //filterSearchResults(value);
                     },
@@ -562,7 +557,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 child: TextField(
                   controller: textFieldSendPeriodController,
                   readOnly: true,
-                  textInputAction: TextInputAction.continueAction,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     border: const OutlineInputBorder(),
@@ -596,7 +590,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             }
                           },
                           icon:
-                          const Icon(Icons.date_range, color: Colors.blue),
+                              const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {},
@@ -614,7 +608,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 child: TextField(
                   controller: textFieldSendPartnerController,
                   readOnly: true,
-                  textInputAction: TextInputAction.continueAction,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     border: const OutlineInputBorder(),
@@ -717,10 +710,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadNewDocuments();
                             await loadSendDocuments();
-                            await loadTrashDocuments();
-
                             setState(() {
                               visibleListSendParameters = false;
                             });
@@ -743,8 +733,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
+                            await loadSendDocuments();
                             setState(() {
                               textFieldSendPartnerController.text = '';
                               textFieldSendContractController.text = '';
@@ -757,10 +748,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
                               visibleListSendParameters = false;
                             });
-
-                            await loadNewDocuments();
-                            await loadSendDocuments();
-                            await loadTrashDocuments();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -806,6 +793,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 children: [
                   IconButton(
                     onPressed: () async {
+                      setState(() {
+                        visibleListTrashParameters =
+                            !visibleListTrashParameters;
+                      });
                       var value = textFieldTrashSearchController.text;
                       //filterSearchResults(value);
                     },
@@ -814,7 +805,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   IconButton(
                     onPressed: () async {
                       setState(() {
-                        visibleListTrashParameters = !visibleListTrashParameters;
+                        visibleListTrashParameters =
+                            !visibleListTrashParameters;
                       });
                     },
                     icon: visibleListTrashParameters
@@ -843,7 +835,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 child: TextField(
                   controller: textFieldTrashPeriodController,
                   readOnly: true,
-                  textInputAction: TextInputAction.continueAction,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     border: const OutlineInputBorder(),
@@ -872,12 +863,13 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                     shortDateToString(_datePick.start) +
                                         ' - ' +
                                         shortDateToString(_datePick.end);
-                                textFieldTrashPeriodController.text = textPeriod;
+                                textFieldTrashPeriodController.text =
+                                    textPeriod;
                               });
                             }
                           },
                           icon:
-                          const Icon(Icons.date_range, color: Colors.blue),
+                              const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {},
@@ -895,7 +887,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 child: TextField(
                   controller: textFieldTrashPartnerController,
                   readOnly: true,
-                  textInputAction: TextInputAction.continueAction,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                     border: const OutlineInputBorder(),
@@ -998,10 +989,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadNewDocuments();
-                            await loadSendDocuments();
                             await loadTrashDocuments();
-
                             setState(() {
                               visibleListTrashParameters = false;
                             });
@@ -1024,8 +1012,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
+                            await loadTrashDocuments();
                             setState(() {
                               textFieldTrashPartnerController.text = '';
                               textFieldTrashContractController.text = '';
@@ -1038,10 +1027,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
                               visibleListTrashParameters = false;
                             });
-
-                            await loadNewDocuments();
-                            await loadSendDocuments();
-                            await loadTrashDocuments();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1083,9 +1068,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
-                  setState(() {
-                    loadNewDocuments();
-                  });
+                  setState(() {});
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -1182,9 +1165,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
-                  setState(() {
-                    loadSendDocuments();
-                  });
+                  setState(() {});
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -1317,9 +1298,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
-                  setState(() {
-                    loadTrashDocuments();
-                  });
+                  setState(() {});
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -1392,21 +1371,5 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ),
           );
         });
-  }
-
-  noDocuments() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: const [
-          Text(
-            'Заказов не обнаружено!',
-            style: TextStyle(fontSize: 25, color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
   }
 }

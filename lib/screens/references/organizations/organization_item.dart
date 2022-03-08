@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/organization.dart';
 
 class ScreenOrganizationItem extends StatefulWidget {
@@ -67,8 +68,8 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
           ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.filter_3), text: 'Служебные'),
+              Tab(text: 'Главная'),
+              Tab(text: 'Служебные'),
             ],
           ),
         ),
@@ -94,6 +95,39 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
     );
   }
 
+  saveItem() async {
+    try {
+      if (widget.organizationItem.id != 0) {
+        await DatabaseHelper.instance.updateOrganization(widget.organizationItem);
+        return true;
+      } else {
+        await DatabaseHelper.instance.createOrganization(widget.organizationItem);
+        return true;
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка записи!');
+      debugPrint(error.toString());
+      return false;
+    }
+  }
+
+  deleteItem() async {
+    try {
+      if (widget.organizationItem.id != 0) {
+
+        /// Обновим объект в базе данных
+        await DatabaseHelper.instance.deleteOrganization(widget.organizationItem.id);
+        return true;
+      } else {
+        return true; // Значит, что запись вообще не была записана!
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка удаления!');
+      debugPrint(error.toString());
+      return false;
+    }
+  }
+
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -111,8 +145,10 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.organizationItem.name = textFieldNameController.text;
+            },
             controller: textFieldNameController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
@@ -140,8 +176,10 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.organizationItem.phone = textFieldPhoneController.text;
+            },
             controller: textFieldPhoneController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
@@ -169,6 +207,9 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.organizationItem.address = textFieldAddressController.text;
+            },
             controller: textFieldAddressController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -197,6 +238,9 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.organizationItem.comment = textFieldCommentController.text;
+            },
             controller: textFieldCommentController,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -209,7 +253,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
           ),
         ),
 
-        /// Buttons
+        /// Buttons Записать / Отменить
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
           child: Row(
@@ -221,8 +265,11 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
                 width: (MediaQuery.of(context).size.width - 49) / 2,
                 child: ElevatedButton(
                     onPressed: () async {
-                      showMessage('Запись сохранена!');
-                      Navigator.of(context).pop();
+                      var result = await saveItem();
+                      if (result) {
+                        showMessage('Запись сохранена!');
+                        Navigator.of(context).pop(true);
+                      }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -246,13 +293,12 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red)),
                     onPressed: () async {
-                      showMessage('Изменение отменено!');
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(true);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.delete, color: Colors.white),
+                        Icon(Icons.undo, color: Colors.white),
                         SizedBox(width: 14),
                         Text('Отменить'),
                       ],
@@ -261,6 +307,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
             ],
           ),
         ),
+
       ],
     );
   }
@@ -278,7 +325,6 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
           child: TextField(
             controller: textFieldUIDController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -292,11 +338,10 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
 
         /// Поле ввода: Code
         Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldCodeController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -305,6 +350,39 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
               ),
               labelText: 'Код в 1С',
             ),
+          ),
+        ),
+
+        /// Buttons Удалить
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// Удалить запись
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 28),
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                    onPressed: () async {
+                      var result = await deleteItem();
+                      if (result) {
+                        showMessage('Запись удалена!');
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.delete, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Удалить'),
+                      ],
+                    )),
+              ),
+            ],
           ),
         ),
       ],

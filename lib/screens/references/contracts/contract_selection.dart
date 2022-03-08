@@ -132,7 +132,7 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
+        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(

@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/currency.dart';
+import 'package:wp_sales/models/product.dart';
 
-class ScreenCurrencyItem extends StatefulWidget {
-  final Currency currencyItem;
+class ScreenProductItem extends StatefulWidget {
+  final Product productItem;
 
-  const ScreenCurrencyItem({Key? key, required this.currencyItem})
+  const ScreenProductItem({Key? key, required this.productItem})
       : super(key: key);
 
   @override
-  _ScreenCurrencyItemState createState() => _ScreenCurrencyItemState();
+  _ScreenProductItemState createState() => _ScreenProductItemState();
 }
 
-class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
+class _ScreenProductItemState extends State<ScreenProductItem> {
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
+
+  /// Поле ввода: VendorCode
+  TextEditingController textFieldVendorCodeController = TextEditingController();
+
+  /// Поле ввода: NameUnit
+  TextEditingController textFieldNameUnitController = TextEditingController();
+
+  /// Поле ввода: Barcode
+  TextEditingController textFieldBarcodeController = TextEditingController();
 
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
@@ -29,12 +38,15 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
   @override
   void initState() {
     setState(() {
-      textFieldNameController.text = widget.currencyItem.name;
-      textFieldCommentController.text = widget.currencyItem.comment;
+      textFieldNameController.text = widget.productItem.name;
+      textFieldVendorCodeController.text = widget.productItem.vendorCode;
+      textFieldNameUnitController.text = widget.productItem.nameUnit;
+      textFieldBarcodeController.text = widget.productItem.barcode;
+      textFieldCommentController.text = widget.productItem.comment;
 
       // Технические данные
-      textFieldUIDController.text = widget.currencyItem.uid;
-      textFieldCodeController.text = widget.currencyItem.code;
+      textFieldUIDController.text = widget.productItem.uid;
+      textFieldCodeController.text = widget.productItem.code;
     });
     return super.initState();
   }
@@ -46,7 +58,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Валюты'),
+          title: const Text('Товар'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
@@ -89,11 +101,11 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   saveItem() async {
     try {
-      if (widget.currencyItem.id != 0) {
-        await DatabaseHelper.instance.updateCurrency(widget.currencyItem);
+      if (widget.productItem.id != 0) {
+        await DatabaseHelper.instance.updateProduct(widget.productItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createCurrency(widget.currencyItem);
+        await DatabaseHelper.instance.createProduct(widget.productItem);
         return true;
       }
     } on Exception catch (error) {
@@ -105,10 +117,10 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   deleteItem() async {
     try {
-      if (widget.currencyItem.id != 0) {
+      if (widget.productItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteCurrency(widget.currencyItem.id);
+        await DatabaseHelper.instance.deleteProduct(widget.productItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -137,9 +149,6 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (value) {
-              widget.currencyItem.name = textFieldNameController.text;
-            },
             controller: textFieldNameController,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
@@ -163,13 +172,91 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
           ),
         ),
 
+        /// VendorCode
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            controller: textFieldVendorCodeController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Артикул',
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      textFieldVendorCodeController.text = '';
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// NameUnit
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            controller: textFieldNameUnitController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Единица измерения',
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      textFieldNameUnitController.text = '';
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        /// Barcode
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            controller: textFieldBarcodeController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Штрихкод',
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      textFieldBarcodeController.text = '';
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
         /// Comment
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
-            onChanged: (value) {
-              widget.currencyItem.comment = textFieldCommentController.text;
-            },
             controller: textFieldCommentController,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
@@ -226,7 +313,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
-                        Icon(Icons.undo, color: Colors.white),
+                        Icon(Icons.delete, color: Colors.white),
                         SizedBox(width: 14),
                         Text('Отменить'),
                       ],
@@ -235,6 +322,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             ],
           ),
         ),
+
 
       ],
     );
@@ -249,7 +337,6 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
           child: TextField(
             controller: textFieldUIDController,
             readOnly: true,
-            
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
@@ -266,7 +353,6 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
           child: TextField(
             controller: textFieldCodeController,
             readOnly: true,
-            
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelStyle: TextStyle(

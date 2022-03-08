@@ -1,5 +1,6 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/home.dart';
 import 'package:flutter/services.dart';
 
@@ -16,6 +17,10 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  void dispose() {
+    DatabaseHelper.instance.close();
+  }
 
   @override
   Widget build(BuildContext context) {

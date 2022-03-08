@@ -6,6 +6,8 @@ import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/organization.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/models/price.dart';
+import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/models/warehouse.dart';
 
 final DatabaseHelper instance = DatabaseHelper._init();
 
@@ -18,8 +20,14 @@ class DatabaseHelper {
   DatabaseHelper._init();
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
-
+    if (_database != null) {
+      if (_database!.isOpen) {
+        return _database!;
+      } else {
+        _database = await _initDB('WPSalesDatabase_temp1.db');
+        return _database!;
+      }
+    }
     _database = await _initDB('WPSalesDatabase_temp1.db');
     return _database!;
   }
@@ -169,13 +177,11 @@ class DatabaseHelper {
 
   Future close() async {
     final db = await instance.database;
+    _database = null;
     db.close();
   }
 
-
-  /// ***********************************
   /// Справочник.Организации
-  /// ***********************************
   Future<Organization> createOrganization(Organization organization) async {
     final db = await instance.database;
     final id = await db.insert(tableOrganization, organization.toJson());
@@ -235,10 +241,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
-
-  /// ***********************************
   /// Справочник.Партнеры
-  /// ***********************************
   Future<Partner> createPartner(Partner partner) async {
     final db = await instance.database;
     final id = await db.insert(tablePartner, partner.toJson());
@@ -298,10 +301,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
-
-  /// ***********************************
   /// Справочник.ДоговорыКонтрагентов (партнеров)
-  /// ***********************************
   Future<Contract> createContract(Contract contract) async {
     final db = await instance.database;
     final id = await db.insert(tableContract, contract.toJson());
@@ -359,10 +359,65 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+  /// Справочник.Товары
+  Future<Product> createProduct(Product product) async {
+    final db = await instance.database;
+    final id = await db.insert(tableProduct, product.toJson());
+    product.id = id;
+    return product;
+  }
 
-  /// ***********************************
+  Future<int> updateProduct(Product product) async {
+    final db = await instance.database;
+    return db.update(
+      tableProduct,
+      product.toJson(),
+      where: '${ItemProductFields.id} = ?',
+      whereArgs: [product.id],
+    );
+  }
+
+  Future<int> deleteProduct(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableProduct,
+      where: '${ItemProductFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Product> readProduct(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableProduct,
+      columns: ItemProductFields.values,
+      where: '${ItemProductFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Product.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Product>> readAllProducts() async {
+    final db = await instance.database;
+    const orderBy = '${ItemProductFields.name} ASC';
+    final result = await db.query(
+        tableProduct,
+        orderBy: orderBy);
+    return result.map((json) => Product.fromJson(json)).toList();
+  }
+
+  Future<int> getCountProduct() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableProduct"));
+    return result ?? 0;
+  }
+
   /// Справочник.ТипыЦен
-  /// ***********************************
   Future<Price> createPrice(Price price) async {
     final db = await instance.database;
     final id = await db.insert(tablePrice, price.toJson());
@@ -420,10 +475,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
-
-  /// ***********************************
   /// Справочник.Валюты
-  /// ***********************************
   Future<Currency> createCurrency(Currency currency) async {
     final db = await instance.database;
     final id = await db.insert(tableCurrency, currency.toJson());
@@ -481,10 +533,65 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+  /// Справочник.Склады
+  Future<Warehouse> createWarehouse(Warehouse warehouse) async {
+    final db = await instance.database;
+    final id = await db.insert(tableWarehouse, warehouse.toJson());
+    warehouse.id = id;
+    return warehouse;
+  }
 
-  /// ***********************************
+  Future<int> updateWarehouse(Warehouse warehouse) async {
+    final db = await instance.database;
+    return db.update(
+      tableWarehouse,
+      warehouse.toJson(),
+      where: '${ItemWarehouseFields.id} = ?',
+      whereArgs: [warehouse.id],
+    );
+  }
+
+  Future<int> deleteWarehouse(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableWarehouse,
+      where: '${ItemWarehouseFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Warehouse> readWarehouse(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableWarehouse,
+      columns: ItemWarehouseFields.values,
+      where: '${ItemWarehouseFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Warehouse.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Warehouse>> readAllWarehouse() async {
+    final db = await instance.database;
+    const orderBy = '${ItemWarehouseFields.name} ASC';
+    final result = await db.query(
+        tableWarehouse,
+        orderBy: orderBy);
+    return result.map((json) => Warehouse.fromJson(json)).toList();
+  }
+
+  Future<int> getCountWarehouse() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableWarehouse"));
+    return result ?? 0;
+  }
+
   /// Документы.ЗаказПокупателя
-  /// ***********************************
   Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer) async {
     final db = await instance.database;
     final id = await db.insert(tableOrderCustomer, orderCustomer.toJson());
@@ -530,6 +637,9 @@ class DatabaseHelper {
 
   Future<List<OrderCustomer>> readAllNewOrderCustomer() async {
     final db = await instance.database;
+    if (!db.isOpen) {
+      DatabaseHelper._init();
+    }
     const orderBy = '${OrderCustomerFields.date} ASC';
     final result = await db.query(
         tableOrderCustomer,

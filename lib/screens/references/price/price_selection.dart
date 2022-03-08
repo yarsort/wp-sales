@@ -123,7 +123,7 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
+        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(

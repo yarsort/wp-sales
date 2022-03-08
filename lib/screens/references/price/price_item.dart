@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/price.dart';
 
 class ScreenPriceItem extends StatefulWidget {
@@ -59,8 +60,8 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
           ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.filter_3), text: 'Служебные'),
+              Tab(text: 'Главная'),
+              Tab(text: 'Служебные'),
             ],
           ),
         ),
@@ -86,6 +87,39 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
     );
   }
 
+  saveItem() async {
+    try {
+      if (widget.priceItem.id != 0) {
+        await DatabaseHelper.instance.updatePrice(widget.priceItem);
+        return true;
+      } else {
+        await DatabaseHelper.instance.createPrice(widget.priceItem);
+        return true;
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка записи!');
+      debugPrint(error.toString());
+      return false;
+    }
+  }
+
+  deleteItem() async {
+    try {
+      if (widget.priceItem.id != 0) {
+
+        /// Обновим объект в базе данных
+        await DatabaseHelper.instance.deletePrice(widget.priceItem.id);
+        return true;
+      } else {
+        return true; // Значит, что запись вообще не была записана!
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка удаления!');
+      debugPrint(error.toString());
+      return false;
+    }
+  }
+
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -104,7 +138,6 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
             controller: textFieldNameController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
@@ -132,7 +165,6 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldCommentController,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
@@ -143,7 +175,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
           ),
         ),
 
-        /// Buttons
+        /// Buttons Записать / Отменить
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
           child: Row(
@@ -155,8 +187,11 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
                 width: (MediaQuery.of(context).size.width - 49) / 2,
                 child: ElevatedButton(
                     onPressed: () async {
-                      showMessage('Запись сохранена!');
-                      Navigator.of(context).pop();
+                      var result = await saveItem();
+                      if (result) {
+                        showMessage('Запись сохранена!');
+                        Navigator.of(context).pop(true);
+                      }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -180,8 +215,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red)),
                     onPressed: () async {
-                      showMessage('Изменение отменено!');
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(true);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -195,6 +229,8 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
             ],
           ),
         ),
+
+
       ],
     );
   }
@@ -208,7 +244,6 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
           child: TextField(
             controller: textFieldUIDController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
@@ -221,11 +256,10 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
 
         /// Поле ввода: Code
         Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldCodeController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
@@ -233,6 +267,39 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
               ),
               labelText: 'Код в 1С',
             ),
+          ),
+        ),
+
+        /// Buttons Удалить
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// Удалить запись
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 28),
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                    onPressed: () async {
+                      var result = await deleteItem();
+                      if (result) {
+                        showMessage('Запись удалена!');
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.delete, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Удалить'),
+                      ],
+                    )),
+              ),
+            ],
           ),
         ),
       ],

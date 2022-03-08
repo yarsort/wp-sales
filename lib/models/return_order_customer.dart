@@ -2,15 +2,16 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableOrderCustomer   = '_DocumentOrderCustomer';
-const String tableItemsOrderCustomer   = '_DocumentOrderCustomer_VT1'; // Товары
+const String tableReturnOrderCustomer   = '_DocumentReturnOrderCustomer';
+const String tableItemsReturnOrderCustomer   = '_DocumentReturnOrderCustomer_VT1'; // Товары
 
-/// Документы.ЗаказПокупателя
-class OrderCustomer {
+/// Документы.ВозвратЗаказПокупателя
+class ReturnOrderCustomer {
   int id = 0;                   // Инкремент
   int status = 0;               // 0 - новый, 1 - отправлено, 2 - удален
-  DateTime date = DateTime.now(); // Дата создания заказа
+  DateTime date = DateTime.now(); // Дата создания возврата заказа
   String uid = '';              // UID для 1С и связи с ТЧ
+  String uidOrderCustomer = ''; // UID заказа покупателя, по которому возврат
   String uidOrganization = '';  // Ссылка на организацию
   String nameOrganization = ''; // Имя организации
   String uidPartner = '';       // Ссылка на контрагента
@@ -33,13 +34,14 @@ class OrderCustomer {
   String numberFrom1C = '';
   int countItems = 0;           // Количество товаров
 
-  OrderCustomer();
+  ReturnOrderCustomer();
 
-  OrderCustomer.fromJson(Map<String, dynamic> json) {
+  ReturnOrderCustomer.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     status = json['status'] ?? 0;
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
+    uidOrderCustomer = json['uidOrderCustomer'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
     nameOrganization = json['nameOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
@@ -71,6 +73,7 @@ class OrderCustomer {
     data['status'] = status;
     data['date'] = date.toIso8601String();
     data['uid'] = uid;
+    data['uidOrderCustomer'] = uidOrderCustomer;
     data['uidOrganization'] = uidOrganization;
     data['nameOrganization'] = nameOrganization;
     data['uidPartner'] = uidPartner;
@@ -97,12 +100,13 @@ class OrderCustomer {
 }
 
 /// Поля для базы данных
-class OrderCustomerFields {
+class ReturnOrderCustomerFields {
   static final List<String> values = [
     id,
     status,
     date,
     uid,
+    uidOrderCustomer,
     uidOrganization,
     nameOrganization,
     uidPartner,
@@ -131,6 +135,7 @@ class OrderCustomerFields {
   static const String status = 'status';// 0 - новый, 1 - отправлено, 2 - удален
   static const String date = 'date';// Дата создания заказа
   static const String uid = 'uid';// UID для 1С и связи с ТЧ
+  static const String uidOrderCustomer = 'uidOrderCustomer';// UID для 1С и заказа покупателя
   static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
   static const String nameOrganization = 'nameOrganization';// Имя организации
   static const String uidPartner = 'uidPartner';// Ссылка на контрагента
@@ -156,7 +161,7 @@ class OrderCustomerFields {
 }
 
 /// ТЧ Товары, Документы.ЗаказПокупателя
-class ItemOrderCustomer {
+class ItemReturnOrderCustomer {
   int id = 0;                   // Инкремент
   String uid = '';              // UID для 1С и связи с ТЧ
   String name = '';             // Название товара
@@ -169,7 +174,7 @@ class ItemOrderCustomer {
 
 //<editor-fold desc="Data Methods">
 
-  ItemOrderCustomer({
+  ItemReturnOrderCustomer({
     required this.id,
     required this.uid,
     required this.name,
@@ -181,7 +186,7 @@ class ItemOrderCustomer {
     required this.sum,
   });
 
-  ItemOrderCustomer.fromJson(Map<String, dynamic> json) {
+  ItemReturnOrderCustomer.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     uid = json['uid'];
     name = json['name'];
@@ -209,7 +214,7 @@ class ItemOrderCustomer {
 }
 
 /// Поля для базы данных
-class ItemOrderCustomerFields {
+class ItemReturnOrderCustomerFields {
   static final List<String> values = [
     id,
     idOrderCustomer,
@@ -226,7 +231,7 @@ class ItemOrderCustomerFields {
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id';// Инкремент
   static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на Заказ покупателя
-  static const String uid = 'uid'; // Ссылка на товар
+  static const String uid = 'uid'; // Ссылка на заказ покупателя
   static const String name = 'name'; // Имя товара
   static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.
   static const String nameUnit = 'nameUnit';

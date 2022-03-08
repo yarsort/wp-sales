@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
 
@@ -76,9 +77,9 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           ],
           bottom: const TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.filter_1), text: 'Главная'),
-              Tab(icon: Icon(Icons.filter_2), text: 'Документы'),
-              Tab(icon: Icon(Icons.filter_3), text: 'Служебные'),
+              Tab(text: 'Главная'),
+              Tab(text: 'Документы'),
+              Tab(text: 'Служебные'),
             ],
           ),
         ),
@@ -110,6 +111,39 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     );
   }
 
+  saveItem() async {
+    try {
+      if (widget.partnerItem.id != 0) {
+        await DatabaseHelper.instance.updatePartner(widget.partnerItem);
+        return true;
+      } else {
+        await DatabaseHelper.instance.createPartner(widget.partnerItem);
+        return true;
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка записи!');
+      debugPrint(error.toString());
+      return false;
+    }
+  }
+
+  deleteItem() async {
+    try {
+      if (widget.partnerItem.id != 0) {
+
+        /// Обновим объект в базе данных
+        await DatabaseHelper.instance.deleteCurrency(widget.partnerItem.id);
+        return true;
+      } else {
+        return true; // Значит, что запись вообще не была записана!
+      }
+    } on Exception catch (error) {
+      debugPrint('Ошибка удаления!');
+      debugPrint(error.toString());
+      return false;
+    }
+  }
+
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -128,7 +162,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
             controller: textFieldNameController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
@@ -157,7 +190,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldPhoneController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
@@ -186,7 +218,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldAddressController,
-            textInputAction: TextInputAction.continueAction,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
@@ -216,7 +247,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           child: TextField(
             controller: textFieldBalanceController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -234,7 +264,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           child: TextField(
             controller: textFieldBalanceForPaymentController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -257,7 +286,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldCommentController,
-            textInputAction: TextInputAction.continueAction,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -269,58 +297,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           ),
         ),
 
-        /// Buttons
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// Записать документ
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 49) / 2,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      showMessage('Запись сохранена!');
-                      Navigator.of(context).pop();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.update, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Записать')
-                      ],
-                    )),
-              ),
-
-              const SizedBox(
-                width: 14,
-              ),
-
-              /// Отменить запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 35) / 2,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () async {
-                      showMessage('Изменение отменено!');
-                      Navigator.of(context).pop();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Отменить'),
-                      ],
-                    )),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -338,7 +314,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           child: TextField(
             controller: textFieldUIDController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
+            
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -352,11 +328,11 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
         /// Поле ввода: Code
         Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
             controller: textFieldCodeController,
             readOnly: true,
-            textInputAction: TextInputAction.continueAction,
+            
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: OutlineInputBorder(),
@@ -365,6 +341,39 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               ),
               labelText: 'Код в 1С',
             ),
+          ),
+        ),
+
+        /// Buttons Удалить
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// Удалить запись
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 28),
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                    onPressed: () async {
+                      var result = await deleteItem();
+                      if (result) {
+                        showMessage('Запись удалена!');
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.delete, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Удалить'),
+                      ],
+                    )),
+              ),
+            ],
           ),
         ),
       ],

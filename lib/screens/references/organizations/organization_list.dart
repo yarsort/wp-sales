@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/organization.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
 
@@ -20,8 +20,8 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -39,14 +39,15 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           var newItem = Organization();
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
             ),
           );
+          setState(() {});
         },
         tooltip: 'Добавить организацию',
         child: const Text(
@@ -57,17 +58,16 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listOrganizations.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataOrganizations) {
-      Organization newItem = Organization.fromJson(message);
-      listOrganizations.add(newItem);
-      tempItems.add(newItem); // Как шаблон
-    }
+    listOrganizations =
+        await DatabaseHelper.instance.readAllOrganization();
+    tempItems.addAll(listOrganizations);
+
+    setState(() {});
   }
 
   void filterSearchResults(String query) {
@@ -128,7 +128,6 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        textInputAction: TextInputAction.continueAction,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
@@ -177,13 +176,16 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
               child: Card(
                 elevation: 2,
                   child: ListTile(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ScreenOrganizationItem(organizationItem: organizationItem),
                         ),
                       );
+                      setState(() {
+                        renewItem();
+                      });
                     },
                     title: Text(organizationItem.name),
                     subtitle: Column(

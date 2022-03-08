@@ -79,7 +79,7 @@ class _AddItemOrderCustomerState extends State<AddItemOrderCustomer> {
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
         child: TextField(
           controller: textFieldSearchController,
-          textInputAction: TextInputAction.continueAction,
+          
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelStyle: const TextStyle(

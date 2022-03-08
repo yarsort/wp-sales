@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/contract.dart';
-import 'package:wp_sales/screens/references/contracts/contract_item.dart';
+import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
-class ScreenContractList extends StatefulWidget {
-  const ScreenContractList({Key? key}) : super(key: key);
+class ScreenWarehouseList extends StatefulWidget {
+  const ScreenWarehouseList({Key? key}) : super(key: key);
 
   @override
-  _ScreenContractListState createState() => _ScreenContractListState();
+  _ScreenWarehouseListState createState() => _ScreenWarehouseListState();
 }
 
-class _ScreenContractListState extends State<ScreenContractList> {
+class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Contract> tempItems = [];
-  List<Contract> listContracts = [];
+  List<Warehouse> tempItems = [];
+  List<Warehouse> listWarehouses = [];
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Договоры партнеров'),
+        title: const Text('Склады'),
       ),
       drawer: const MainDrawer(),
       body: Column(
@@ -40,16 +40,16 @@ class _ScreenContractListState extends State<ScreenContractList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          var newItem = Contract();
+          var newItem = Warehouse();
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenContractItem(contractItem: newItem),
+              builder: (context) => ScreenWarehouseItem(warehouseItem: newItem),
             ),
           );
           setState(() {});
         },
-        tooltip: 'Добавить договор',
+        tooltip: 'Добавить склад',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -60,61 +60,61 @@ class _ScreenContractListState extends State<ScreenContractList> {
 
   void renewItem() {
     // Очистка списка заказов покупателя
-    listContracts.clear();
+    listWarehouses.clear();
     tempItems.clear();
 
     // Получение и запись списка заказов покупателей
-    for (var message in listDataContracts) {
-      Contract newContract = Contract.fromJson(message);
-      listContracts.add(newContract);
-      tempItems.add(newContract); // Как шаблон
+    for (var message in listDataWarehouses) {
+      Warehouse newItem = Warehouse.fromJson(message);
+      listWarehouses.add(newItem);
+      tempItems.add(newItem); // Как шаблон
     }
   }
 
   void filterSearchResults(String query) {
+
     /// Уберем пробелы
     query = query.trim();
 
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listContracts.clear();
-        listContracts.addAll(tempItems);
+        listWarehouses.clear();
+        listWarehouses.addAll(tempItems);
       });
       return;
     }
 
-    List<Contract> dummySearchList = <Contract>[];
-    dummySearchList.addAll(listContracts);
+    List<Warehouse> dummySearchList = <Warehouse>[];
+    dummySearchList.addAll(listWarehouses);
 
     if (query.isNotEmpty) {
-      List<Contract> dummyListData = <Contract>[];
+
+      List<Warehouse> dummyListData = <Warehouse>[];
 
       for (var item in dummySearchList) {
-        /// Поиск по имени партнера
+        /// Поиск по имени
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-
         /// Поиск по адресу
         if (item.address.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
-
         /// Поиск по номеру телефона
         if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
       }
       setState(() {
-        listContracts.clear();
-        listContracts.addAll(dummyListData);
+        listWarehouses.clear();
+        listWarehouses.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listContracts.clear();
-        listContracts.addAll(tempItems);
+        listWarehouses.clear();
+        listWarehouses.addAll(tempItems);
       });
     }
   }
@@ -169,27 +169,26 @@ class _ScreenContractListState extends State<ScreenContractList> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listContracts.length,
+          itemCount: listWarehouses.length,
           itemBuilder: (context, index) {
-            var contractItem = listContracts[index];
+            var warehouseItem = listWarehouses[index];
             return Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Card(
-                  elevation: 2,
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Card(
+                elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ScreenContractItem(contractItem: contractItem),
+                          builder: (context) => ScreenWarehouseItem(warehouseItem: warehouseItem),
                         ),
                       );
                       setState(() {
                         renewItem();
                       });
                     },
-                    title: Text(contractItem.name),
+                    title: Text(warehouseItem.name),
                     subtitle: Column(
                       children: [
                         const Divider(),
@@ -199,72 +198,21 @@ class _ScreenContractListState extends State<ScreenContractList> {
                               flex: 4,
                               child: Column(
                                 children: [
-                                  const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.person,
-                                          color: Colors.blue, size: 20),
+                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(
-                                          child:
-                                              Text(contractItem.namePartner)),
+                                      Text(warehouseItem.phone),
                                     ],
                                   ),
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.phone,
-                                          color: Colors.blue, size: 20),
+                                      const Icon(Icons.home, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(contractItem.phone),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.home,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(
-                                          child: Text(contractItem.address)),
+                                      Flexible(child: Text(warehouseItem.address)),
                                     ],
                                   )
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.price_change,
-                                          color: Colors.green, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                          doubleToString(contractItem.balance)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.price_change,
-                                          color: Colors.red, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(doubleToString(
-                                          contractItem.balanceForPayment)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.schedule,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(contractItem.schedulePayment
-                                          .toString()),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),
@@ -273,7 +221,8 @@ class _ScreenContractListState extends State<ScreenContractList> {
                       ],
                     ),
                   ),
-                ));
+                ) 
+              );            
           },
         ),
       ),
