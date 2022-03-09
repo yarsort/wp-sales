@@ -156,20 +156,24 @@ class MainDrawer extends StatelessWidget {
                         title: const Text("Настройки"),
                         leading: const Icon(Icons.settings, color: Colors.blue,),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenSettings()),
-                              ModalRoute.withName('/')
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                              const ScreenSettings(),
+                            ),
                           );
                         }),
                     ListTile(
                         title: const Text("Справка"),
                         leading: const Icon(Icons.help, color: Colors.blue,),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenHelp()),
-                              ModalRoute.withName('/')
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                              const ScreenHelp(),
+                            ),
                           );
                         }),
                 ]),
@@ -177,10 +181,12 @@ class MainDrawer extends StatelessWidget {
                     title: const Text("О программе"),
                     leading: const Icon(Icons.info, color: Colors.blue,),
                     onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (BuildContext context) => const ScreenAbout()),
-                          ModalRoute.withName('/')
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                          const ScreenAbout(),
+                        ),
                       );
                     }),
               ],

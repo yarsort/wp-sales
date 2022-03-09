@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wp_sales/home.dart';
 
 class ScreenSettings extends StatefulWidget {
   const ScreenSettings({Key? key}) : super(key: key);
@@ -8,6 +10,7 @@ class ScreenSettings extends StatefulWidget {
 }
 
 class _ScreenSettingsState extends State<ScreenSettings> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool deniedEditSettings = false; // Запретить изменять настройки
   bool deniedEditTypePrice = false; // Запретить изменять тип цены в документах
@@ -32,10 +35,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   @override
   void initState() {
-    useFTPExchange = true;
-    enabledTextFieldFTPExchange = true;
-
     super.initState();
+    fillSettings();
   }
 
   @override
@@ -50,8 +51,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
-                  onTap: () {
-
+                  onTap: () {                    
+                    saveSettings();                    
+                    Navigator.of(context).pop();
                   },
                   child: const Icon(Icons.save, size: 26.0),
                 )),
@@ -90,6 +92,62 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     );
   }
 
+  showMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  fillSettings() async {
+    final SharedPreferences prefs = await _prefs;
+    setState(() {
+      useFTPExchange = prefs.getBool('settings_useFTPExchange')!;
+      enabledTextFieldWebExchange = useFTPExchange;
+
+      textFieldFTPServerController.text = prefs.getString('settings_FTPServer')!;
+      textFieldFTPPortController.text = prefs.getString('settings_FTPPort')!;
+      textFieldFTPUserController.text = prefs.getString('settings_FTPUser')!;
+      textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')!;
+      textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')!;
+
+      useWebExchange = prefs.getBool('settings_useWebExchange')!;
+      enabledTextFieldFTPExchange = useFTPExchange;
+      textFieldWEBServerController.text = prefs.getString('settings_WEBServer')!;
+
+      deniedEditSettings = prefs.getBool('settings_deniedEditSettings')!;
+      deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')!;
+      deniedEditPrice = prefs.getBool('settings_deniedEditPrice')!;
+      deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
+    });
+  }
+
+  saveSettings() async {
+    final SharedPreferences prefs = await _prefs;
+
+    /// Common settings
+    prefs.setBool('settings_deniedEditSettings', deniedEditSettings);
+    prefs.setBool('settings_deniedEditTypePrice', deniedEditTypePrice);
+    prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
+    prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
+
+    /// FTP
+    prefs.setBool('settings_useFTPExchange', useFTPExchange);
+    prefs.setString('settings_FTPServer', textFieldFTPServerController.text);
+    prefs.setString('settings_FTPPort', textFieldFTPPortController.text);
+    prefs.setString('settings_FTPUser', textFieldFTPUserController.text);
+    prefs.setString('settings_FTPPassword', textFieldFTPPasswordController.text);
+    prefs.setString('settings_FTPWorkCatalog', textFieldFTPWorkCatalogController.text);
+
+    /// Web-service
+    prefs.setBool('settings_useWebExchange', useWebExchange);
+    prefs.setString('settings_WEBServer', textFieldWEBServerController.text);
+
+    showMessage('Настройки сохранены!');
+  }
+
   listSettingsMain() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
@@ -105,6 +163,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditSettings = !deniedEditSettings;
+                      
                     });
                   },
                 ),
@@ -122,6 +181,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditTypePrice = !deniedEditTypePrice;
+                      
                     });
                   },
                 ),
@@ -139,6 +199,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditPrice = !deniedEditPrice;
+                      
                     });
                   },
                 ),
@@ -156,6 +217,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditDiscount = !deniedEditDiscount;
+                      
                     });
                   },
                 ),
@@ -222,6 +284,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                      IconButton(
                         onPressed: () {
                           textFieldFTPUserController.text = '';
+                          
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -237,6 +300,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
+                onChanged: (value) {
+                  
+                },
                 enabled: enabledTextFieldFTPExchange,
                 keyboardType: TextInputType.number,
                 controller: textFieldFTPPortController,
@@ -259,6 +325,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPPortController.text = '';
+                          
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -274,6 +341,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
+                onChanged: (value) {
+                  
+                },
                 enabled: enabledTextFieldFTPExchange,
                 keyboardType: TextInputType.text,
                 controller: textFieldFTPUserController,
@@ -296,6 +366,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPUserController.text = '';
+                          
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -311,6 +382,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
+                onChanged: (value) {
+                  
+                },
                 enabled: enabledTextFieldFTPExchange,
                 obscureText: true,
                 autocorrect: false,
@@ -336,6 +410,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPPasswordController.text = '';
+                          
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -363,6 +438,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
                       useFTPExchange = !useWebExchange;
                       enabledTextFieldFTPExchange = !useWebExchange;
+
+                      
                     });
                   },
                 ),
@@ -375,6 +452,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
+                onChanged: (value) {
+                  
+                },
                 enabled: enabledTextFieldWebExchange,
                 keyboardType: TextInputType.text,
                 controller: textFieldWEBServerController,
@@ -397,6 +477,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldWEBServerController.text = '';
+                          
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),

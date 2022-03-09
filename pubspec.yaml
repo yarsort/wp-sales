@@ -31,10 +31,10 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  uuid: ^3.0.6
+  uuid: ^3.0.6 # Для генерации UUID
   intl: ^0.17.0
-  sqflite: ^2.0.2
-  flutter_slidable: ^1.2.0
+  sqflite: ^2.0.2 # Для хранения данных больших объемов
+  shared_preferences: ^2.0.13 # Для хранения настроек
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
