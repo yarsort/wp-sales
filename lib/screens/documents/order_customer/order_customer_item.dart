@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/price.dart';
@@ -147,6 +148,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   updateHeader() {
     setState(() {
+      if (widget.orderCustomer.uid == '') {
+        widget.orderCustomer.uid = const Uuid().v4();
+      }
+
       countItems = widget.orderCustomer.countItems;
       textFieldOrganizationController.text =
           widget.orderCustomer.nameOrganization;
