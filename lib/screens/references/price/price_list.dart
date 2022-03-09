@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -20,8 +21,8 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -47,7 +48,9 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
               builder: (context) => ScreenPriceItem(priceItem: newItem),
             ),
           );
-          setState(() {});
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить тип цены',
         child: const Text(
@@ -58,17 +61,23 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listPrices.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataPrice) {
-      Price newItem = Price.fromJson(message);
-      listPrices.add(newItem);
-      tempItems.add(newItem); // Как шаблон
-    }
+    listPrices =
+        await DatabaseHelper.instance.readAllPrices();
+    tempItems.addAll(listPrices);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataPrice) {
+    //   Price newItem = Price.fromJson(message);
+    //   listPrices.add(newItem);
+    //   tempItems.add(newItem); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

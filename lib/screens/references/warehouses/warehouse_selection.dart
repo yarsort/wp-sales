@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/organization.dart';
-import 'package:wp_sales/screens/references/organizations/organization_item.dart';
+import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 import 'package:wp_sales/system/system.dart';
 
-class ScreenOrganizationSelection extends StatefulWidget {
+class ScreenWarehouseSelection extends StatefulWidget {
 
   final OrderCustomer orderCustomer;
 
-  const ScreenOrganizationSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenWarehouseSelection({Key? key, required this.orderCustomer}) : super(key: key);
 
   @override
-  _ScreenOrganizationSelectionState createState() => _ScreenOrganizationSelectionState();
+  _ScreenWarehouseSelectionState createState() => _ScreenWarehouseSelectionState();
 }
 
-class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelection> {
+class _ScreenWarehouseSelectionState extends State<ScreenWarehouseSelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  List<Organization> tempItems = [];
-  List<Organization> listOrganizations = [];
+  List<Warehouse> tempItems = [];
+  List<Warehouse> listWarehouses = [];
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -32,7 +33,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Организации'),
+        title: const Text('Склады'),
       ),
       //drawer: const MainDrawer(),
       body: Column(
@@ -43,15 +44,15 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newItem = Organization();
+          var newItem = Warehouse();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
+              builder: (context) => ScreenWarehouseItem(warehouseItem: newItem),
             ),
           );
         },
-        tooltip: 'Добавить организацию',
+        tooltip: 'Добавить склад',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -60,17 +61,23 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
-    listOrganizations.clear();
+    listWarehouses.clear();
     tempItems.clear();
 
-    // Получение и запись списка
-    for (var message in listDataOrganizations) {
-      Organization newOrganization = Organization.fromJson(message);
-      listOrganizations.add(newOrganization);
-      tempItems.add(newOrganization); // Как шаблон
-    }
+    listWarehouses =
+        await DatabaseHelper.instance.readAllWarehouse();
+    tempItems.addAll(listWarehouses);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataWarehouses) {
+    //   Warehouse newItem = Warehouse.fromJson(message);
+    //   listWarehouses.add(newItem);
+    //   tempItems.add(newItem); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {
@@ -81,18 +88,18 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listWarehouses.clear();
+        listWarehouses.addAll(tempItems);
       });
       return;
     }
 
-    List<Organization> dummySearchList = <Organization>[];
-    dummySearchList.addAll(listOrganizations);
+    List<Warehouse> dummySearchList = <Warehouse>[];
+    dummySearchList.addAll(listWarehouses);
 
     if (query.isNotEmpty) {
 
-      List<Organization> dummyListData = <Organization>[];
+      List<Warehouse> dummyListData = <Warehouse>[];
 
       for (var item in dummySearchList) {
         /// Поиск по имени
@@ -109,14 +116,14 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
         }
       }
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(dummyListData);
+        listWarehouses.clear();
+        listWarehouses.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listOrganizations.clear();
-        listOrganizations.addAll(tempItems);
+        listWarehouses.clear();
+        listWarehouses.addAll(tempItems);
       });
     }
   }
@@ -171,9 +178,9 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listOrganizations.length,
+          itemCount: listWarehouses.length,
           itemBuilder: (context, index) {
-            var organizationItem = listOrganizations[index];
+            var organizationItem = listWarehouses[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(
@@ -181,8 +188,8 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidOrganization = organizationItem.uid;
-                        widget.orderCustomer.nameOrganization = organizationItem.name;
+                        widget.orderCustomer.uidWarehouse = organizationItem.uid;
+                        widget.orderCustomer.nameWarehouse = organizationItem.name;
                       });
                       Navigator.pop(context);
                     },

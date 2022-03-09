@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/currency.dart';
 
@@ -28,15 +29,8 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   @override
   void initState() {
-    setState(() {
-      textFieldNameController.text = widget.currencyItem.name;
-      textFieldCommentController.text = widget.currencyItem.comment;
-
-      // Технические данные
-      textFieldUIDController.text = widget.currencyItem.uid;
-      textFieldCodeController.text = widget.currencyItem.code;
-    });
-    return super.initState();
+    super.initState();
+    renewItem();
   }
 
   @override
@@ -85,6 +79,22 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
       ),
     );
+  }
+
+  renewItem() async {
+
+    if (widget.currencyItem.uid == '') {
+      widget.currencyItem.uid = const Uuid().v4();
+    }
+
+    textFieldNameController.text = widget.currencyItem.name;
+    textFieldCommentController.text = widget.currencyItem.comment;
+
+    // Технические данные
+    textFieldUIDController.text = widget.currencyItem.uid;
+    textFieldCodeController.text = widget.currencyItem.code;
+
+    setState(() {});
   }
 
   saveItem() async {

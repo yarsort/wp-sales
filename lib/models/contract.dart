@@ -58,8 +58,8 @@ class Contract {
     data['code'] = code;
     data['name'] = name;
     data['uidParent'] = uidParent;
-    data['balance'] = balance.toString();
-    data['balanceForPayment'] = balanceForPayment.toString();
+    data['balance'] = balance;
+    data['balanceForPayment'] = balanceForPayment;
     data['phone'] = phone;
     data['address'] = address;
     data['comment'] = comment;

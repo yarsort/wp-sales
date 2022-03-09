@@ -118,6 +118,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           orderCustomer: newOrderCustomer),
                     ),
                   );
+                  await loadNewDocuments();
                   setState(() {});
                 }
                 if (item == 1) {

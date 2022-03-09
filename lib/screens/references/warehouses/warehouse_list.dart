@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/warehouse.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -20,8 +21,8 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -47,7 +48,9 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
               builder: (context) => ScreenWarehouseItem(warehouseItem: newItem),
             ),
           );
-          setState(() {});
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить склад',
         child: const Text(
@@ -58,17 +61,23 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listWarehouses.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataWarehouses) {
-      Warehouse newItem = Warehouse.fromJson(message);
-      listWarehouses.add(newItem);
-      tempItems.add(newItem); // Как шаблон
-    }
+    listWarehouses =
+        await DatabaseHelper.instance.readAllWarehouse();
+    tempItems.addAll(listWarehouses);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataWarehouses) {
+    //   Warehouse newItem = Warehouse.fromJson(message);
+    //   listWarehouses.add(newItem);
+    //   tempItems.add(newItem); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

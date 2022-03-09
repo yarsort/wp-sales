@@ -12,7 +12,6 @@ import 'package:wp_sales/models/warehouse.dart';
 final DatabaseHelper instance = DatabaseHelper._init();
 
 class DatabaseHelper {
-
   static final DatabaseHelper instance = DatabaseHelper._init();
 
   static Database? _database;
@@ -24,18 +23,18 @@ class DatabaseHelper {
       if (_database!.isOpen) {
         return _database!;
       } else {
-        _database = await _initDB('WPSalesDatabase_temp1.db');
+        _database = await _initDB('WPSalesDatabase1.db');
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDatabase_temp1.db');
+    _database = await _initDB('WPSalesDatabase1.db');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 2, onCreate: _createDB);
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -115,8 +114,8 @@ class DatabaseHelper {
       ${ItemPartnerFields.code} $textType,      
       ${ItemPartnerFields.name} $textType,
       ${ItemPartnerFields.uidParent} $textType,
-      ${ItemPartnerFields.balance} $integerType,
-      ${ItemPartnerFields.balanceForPayment} $integerType,      
+      ${ItemPartnerFields.balance} $realType,
+      ${ItemPartnerFields.balanceForPayment} $realType,      
       ${ItemPartnerFields.phone} $textType,
       ${ItemPartnerFields.address} $textType,
       ${ItemPartnerFields.comment} $textType,
@@ -133,8 +132,8 @@ class DatabaseHelper {
       ${ItemContractFields.code} $textType,
       ${ItemContractFields.name} $textType,
       ${ItemContractFields.uidParent} $textType,
-      ${ItemContractFields.balance} $integerType,
-      ${ItemContractFields.balanceForPayment} $integerType,
+      ${ItemContractFields.balance} $realType,
+      ${ItemContractFields.balanceForPayment} $realType,
       ${ItemContractFields.phone} $textType,
       ${ItemContractFields.address} $textType,
       ${ItemContractFields.comment} $textType,
@@ -171,6 +170,38 @@ class DatabaseHelper {
       ${ItemCurrencyFields.name} $textType,
       ${ItemCurrencyFields.uidParent} $textType,
       ${ItemCurrencyFields.comment} $textType            
+      )
+    ''');
+
+    /// Справочник.Склады
+    await db.execute('''
+    CREATE TABLE $tableWarehouse (    
+      ${ItemWarehouseFields.id} $idType,
+      ${ItemWarehouseFields.isGroup} $integerType,      
+      ${ItemWarehouseFields.uid} $textType,
+      ${ItemWarehouseFields.code} $textType,      
+      ${ItemWarehouseFields.name} $textType,
+      ${ItemWarehouseFields.uidParent} $textType,
+      ${ItemWarehouseFields.phone} $textType,
+      ${ItemWarehouseFields.address} $textType,      
+      ${ItemWarehouseFields.comment} $textType            
+      )
+    ''');
+
+    /// Справочник.Товары
+    await db.execute('''
+    CREATE TABLE $tableProduct (    
+      ${ItemProductFields.id} $idType,
+      ${ItemProductFields.isGroup} $integerType,      
+      ${ItemProductFields.uid} $textType,
+      ${ItemProductFields.code} $textType,      
+      ${ItemProductFields.name} $textType,
+      ${ItemProductFields.vendorCode} $textType,
+      ${ItemProductFields.uidParent} $textType,
+      ${ItemProductFields.uidUnit} $textType,
+      ${ItemProductFields.nameUnit} $textType,
+      ${ItemProductFields.barcode} $textType,      
+      ${ItemProductFields.comment} $textType            
       )
     ''');
   }
@@ -228,16 +259,15 @@ class DatabaseHelper {
     final db = await instance.database;
 
     const orderBy = '${ItemOrganizationFields.name} ASC';
-    final result = await db.query(
-        tableOrganization,
-        orderBy: orderBy);
+    final result = await db.query(tableOrganization, orderBy: orderBy);
 
     return result.map((json) => Organization.fromJson(json)).toList();
   }
 
   Future<int> getCountOrganization() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableOrganization"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableOrganization"));
     return result ?? 0;
   }
 
@@ -288,16 +318,15 @@ class DatabaseHelper {
     final db = await instance.database;
 
     const orderBy = '${ItemPartnerFields.name} ASC';
-    final result = await db.query(
-        tablePartner,
-        orderBy: orderBy);
+    final result = await db.query(tablePartner, orderBy: orderBy);
 
     return result.map((json) => Partner.fromJson(json)).toList();
   }
 
   Future<int> getCountPartner() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tablePartner"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tablePartner"));
     return result ?? 0;
   }
 
@@ -347,15 +376,14 @@ class DatabaseHelper {
   Future<List<Contract>> readAllContracts() async {
     final db = await instance.database;
     const orderBy = '${ItemContractFields.name} ASC';
-    final result = await db.query(
-        tableContract,
-        orderBy: orderBy);
+    final result = await db.query(tableContract, orderBy: orderBy);
     return result.map((json) => Contract.fromJson(json)).toList();
   }
 
   Future<int> getCountContract() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableContract"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableContract"));
     return result ?? 0;
   }
 
@@ -405,15 +433,14 @@ class DatabaseHelper {
   Future<List<Product>> readAllProducts() async {
     final db = await instance.database;
     const orderBy = '${ItemProductFields.name} ASC';
-    final result = await db.query(
-        tableProduct,
-        orderBy: orderBy);
+    final result = await db.query(tableProduct, orderBy: orderBy);
     return result.map((json) => Product.fromJson(json)).toList();
   }
 
   Future<int> getCountProduct() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableProduct"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableProduct"));
     return result ?? 0;
   }
 
@@ -460,18 +487,33 @@ class DatabaseHelper {
     }
   }
 
+  Future<Price> readPriceByUID(String uid) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tablePrice,
+      columns: ItemPriceFields.values,
+      where: '${ItemPriceFields.uid} = ?',
+      whereArgs: [uid],
+    );
+
+    if (maps.isNotEmpty) {
+      return Price.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с UID: $uid не обнаружена!');
+    }
+  }
+
   Future<List<Price>> readAllPrices() async {
     final db = await instance.database;
     const orderBy = '${ItemPriceFields.name} ASC';
-    final result = await db.query(
-        tablePrice,
-        orderBy: orderBy);
+    final result = await db.query(tablePrice, orderBy: orderBy);
     return result.map((json) => Price.fromJson(json)).toList();
   }
 
   Future<int> getCountPrice() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tablePrice"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tablePrice"));
     return result ?? 0;
   }
 
@@ -521,15 +563,14 @@ class DatabaseHelper {
   Future<List<Currency>> readAllCurrency() async {
     final db = await instance.database;
     const orderBy = '${ItemCurrencyFields.name} ASC';
-    final result = await db.query(
-        tableCurrency,
-        orderBy: orderBy);
+    final result = await db.query(tableCurrency, orderBy: orderBy);
     return result.map((json) => Currency.fromJson(json)).toList();
   }
 
   Future<int> getCountCurrency() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableCurrency"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableCurrency"));
     return result ?? 0;
   }
 
@@ -576,18 +617,33 @@ class DatabaseHelper {
     }
   }
 
+  Future<Warehouse> readWarehouseByUID(String uid) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableWarehouse,
+      columns: ItemWarehouseFields.values,
+      where: '${ItemWarehouseFields.uid} = ?',
+      whereArgs: [uid],
+    );
+
+    if (maps.isNotEmpty) {
+      return Warehouse.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с UID: $uid не обнаружена!');
+    }
+  }
+
   Future<List<Warehouse>> readAllWarehouse() async {
     final db = await instance.database;
     const orderBy = '${ItemWarehouseFields.name} ASC';
-    final result = await db.query(
-        tableWarehouse,
-        orderBy: orderBy);
+    final result = await db.query(tableWarehouse, orderBy: orderBy);
     return result.map((json) => Warehouse.fromJson(json)).toList();
   }
 
   Future<int> getCountWarehouse() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableWarehouse"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableWarehouse"));
     return result ?? 0;
   }
 
@@ -611,12 +667,23 @@ class DatabaseHelper {
 
   Future<int> deleteOrderCustomer(int id) async {
     final db = await instance.database;
-
-    return await db.delete(
-      tableOrderCustomer,
-      where: '${OrderCustomerFields.id} = ?',
-      whereArgs: [id],
-    );
+    try {
+      db.transaction((txn) async {
+        txn.delete(
+          tableOrderCustomer,
+          where: '${OrderCustomerFields.id} = ?',
+          whereArgs: [id],
+        );
+        txn.delete(
+          tableItemsOrderCustomer,
+          where: '${ItemOrderCustomerFields.id} = ?',
+          whereArgs: [id],
+        );
+      });
+      return 1;
+    } catch (e) {
+      return 0;
+    }
   }
 
   Future<OrderCustomer> readOrderCustomer(int id) async {
@@ -641,8 +708,7 @@ class DatabaseHelper {
       DatabaseHelper._init();
     }
     const orderBy = '${OrderCustomerFields.date} ASC';
-    final result = await db.query(
-        tableOrderCustomer,
+    final result = await db.query(tableOrderCustomer,
         where: '${OrderCustomerFields.status} = ?',
         whereArgs: [0],
         orderBy: orderBy);
@@ -653,8 +719,7 @@ class DatabaseHelper {
   Future<List<OrderCustomer>> readAllSendOrderCustomer() async {
     final db = await instance.database;
     const orderBy = '${OrderCustomerFields.date} ASC';
-    final result = await db.query(
-        tableOrderCustomer,
+    final result = await db.query(tableOrderCustomer,
         where: '${OrderCustomerFields.status} = ?',
         whereArgs: [1],
         orderBy: orderBy);
@@ -665,8 +730,7 @@ class DatabaseHelper {
   Future<List<OrderCustomer>> readAllTrashOrderCustomer() async {
     final db = await instance.database;
     const orderBy = '${OrderCustomerFields.date} ASC';
-    final result = await db.query(
-        tableOrderCustomer,
+    final result = await db.query(tableOrderCustomer,
         where: '${OrderCustomerFields.status} = ?',
         whereArgs: [2],
         orderBy: orderBy);
@@ -676,35 +740,29 @@ class DatabaseHelper {
 
   Future<int> getCountOrderCustomer() async {
     final db = await instance.database;
-    var result = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT (*) FROM $tableOrderCustomer"));
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableOrderCustomer"));
     return result ?? 0;
   }
 
   Future<int> getCountNewOrderCustomer() async {
     final db = await instance.database;
-    final result = await db.query(
-        tableOrderCustomer,
-        where: '${OrderCustomerFields.status} = ?',
-        whereArgs: [0]);
+    final result = await db.query(tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?', whereArgs: [0]);
     return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
   }
 
   Future<int> getCountSendOrderCustomer() async {
     final db = await instance.database;
-    final result = await db.query(
-        tableOrderCustomer,
-        where: '${OrderCustomerFields.status} = ?',
-        whereArgs: [1]);
+    final result = await db.query(tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?', whereArgs: [1]);
     return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
   }
 
   Future<int> getCountTrashOrderCustomer() async {
     final db = await instance.database;
-    final result = await db.query(
-        tableOrderCustomer,
-        where: '${OrderCustomerFields.status} = ?',
-        whereArgs: [2]);
+    final result = await db.query(tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?', whereArgs: [2]);
     return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
   }
-
 }

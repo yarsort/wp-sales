@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/home.dart';
 
 class ScreenSettings extends StatefulWidget {
   const ScreenSettings({Key? key}) : super(key: key);

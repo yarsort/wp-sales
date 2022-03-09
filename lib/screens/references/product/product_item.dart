@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/product.dart';
 
@@ -37,18 +38,8 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
 
   @override
   void initState() {
-    setState(() {
-      textFieldNameController.text = widget.productItem.name;
-      textFieldVendorCodeController.text = widget.productItem.vendorCode;
-      textFieldNameUnitController.text = widget.productItem.nameUnit;
-      textFieldBarcodeController.text = widget.productItem.barcode;
-      textFieldCommentController.text = widget.productItem.comment;
-
-      // Технические данные
-      textFieldUIDController.text = widget.productItem.uid;
-      textFieldCodeController.text = widget.productItem.code;
-    });
-    return super.initState();
+    super.initState();
+    renewItem();
   }
 
   @override
@@ -97,6 +88,25 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
 
       ),
     );
+  }
+
+  renewItem() {
+
+    textFieldNameController.text = widget.productItem.name;
+    textFieldVendorCodeController.text = widget.productItem.vendorCode;
+    textFieldNameUnitController.text = widget.productItem.nameUnit;
+    textFieldBarcodeController.text = widget.productItem.barcode;
+    textFieldCommentController.text = widget.productItem.comment;
+
+    // Технические данные
+    textFieldUIDController.text = widget.productItem.uid;
+    textFieldCodeController.text = widget.productItem.code;
+
+    if (widget.productItem.uid == '') {
+      widget.productItem.uid == const Uuid().v4();
+    }
+
+    setState(() {});
   }
 
   saveItem() async {

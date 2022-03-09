@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/contract.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/partner.dart';
@@ -61,17 +62,23 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listContracts.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataContracts) {
-      Contract newContract = Contract.fromJson(message);
-      listContracts.add(newContract);
-      tempItems.add(newContract); // Как шаблон
-    }
+    listContracts =
+        await DatabaseHelper.instance.readAllContracts();
+    tempItems.addAll(listContracts);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataContracts) {
+    //   Contract newContract = Contract.fromJson(message);
+    //   listContracts.add(newContract);
+    //   tempItems.add(newContract); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/contract.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -47,7 +48,9 @@ class _ScreenContractListState extends State<ScreenContractList> {
               builder: (context) => ScreenContractItem(contractItem: newItem),
             ),
           );
-          setState(() {});
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить договор',
         child: const Text(
@@ -58,17 +61,23 @@ class _ScreenContractListState extends State<ScreenContractList> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listContracts.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataContracts) {
-      Contract newContract = Contract.fromJson(message);
-      listContracts.add(newContract);
-      tempItems.add(newContract); // Как шаблон
-    }
+    listContracts =
+    await DatabaseHelper.instance.readAllContracts();
+    tempItems.addAll(listContracts);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataContracts) {
+    //   Contract newContract = Contract.fromJson(message);
+    //   listContracts.add(newContract);
+    //   tempItems.add(newContract); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

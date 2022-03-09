@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/warehouse.dart';
 
@@ -34,17 +35,8 @@ class _ScreenWarehouseItemState extends State<ScreenWarehouseItem> {
 
   @override
   void initState() {
-    setState(() {
-      textFieldNameController.text = widget.warehouseItem.name;
-      textFieldPhoneController.text = widget.warehouseItem.phone;
-      textFieldAddressController.text = widget.warehouseItem.address;
-      textFieldCommentController.text = widget.warehouseItem.comment;
-
-      // Технические данные
-      textFieldUIDController.text = widget.warehouseItem.uid;
-      textFieldCodeController.text = widget.warehouseItem.code;
-    });
-    return super.initState();
+    super.initState();
+    renewItem();
   }
 
   @override
@@ -93,6 +85,24 @@ class _ScreenWarehouseItemState extends State<ScreenWarehouseItem> {
 
       ),
     );
+  }
+
+  renewItem() async {
+
+    if (widget.warehouseItem.uid == '') {
+      widget.warehouseItem.uid = const Uuid().v4();
+    }
+
+    textFieldNameController.text = widget.warehouseItem.name;
+    textFieldPhoneController.text = widget.warehouseItem.phone;
+    textFieldAddressController.text = widget.warehouseItem.address;
+    textFieldCommentController.text = widget.warehouseItem.comment;
+
+    // Технические данные
+    textFieldUIDController.text = widget.warehouseItem.uid;
+    textFieldCodeController.text = widget.warehouseItem.code;
+
+    setState(() {});
   }
 
   saveItem() async {

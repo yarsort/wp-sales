@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/screens/documents/order_customer/order_customer_selection.dart';
+import 'package:wp_sales/models/price.dart';
+import 'package:wp_sales/models/warehouse.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
+import 'package:wp_sales/screens/references/price/price_selection.dart';
+import 'package:wp_sales/screens/references/product/product_selection.dart';
+import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -20,7 +24,6 @@ class ScreenItemOrderCustomer extends StatefulWidget {
 }
 
 class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
-
   /// Количество строк товаров в заказе
   int countItems = 0;
 
@@ -91,12 +94,19 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    Warehouse warehouse = await DatabaseHelper.instance
+                        .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
+                    Price price = await DatabaseHelper.instance
+                        .readPriceByUID(widget.orderCustomer.uidPrice);
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            AddItemOrderCustomer(itemOrderCustomer: itemsOrder),
+                        builder: (context) => ScreenProductSelection(
+                            listItemDoc: itemsOrder,
+                            warehouse: warehouse,
+                            price: price),
                       ),
                     );
                   },
@@ -222,7 +232,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         });
   }
 
-  saveItem() async {
+  saveDoc() async {
     try {
       if (widget.orderCustomer.id != 0) {
         await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer);
@@ -238,7 +248,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     }
   }
 
-  deleteItem() async {
+  deleteDoc() async {
     try {
       if (widget.orderCustomer.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
@@ -257,7 +267,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     }
   }
 
-  eraseItem() {
+  eraseDoc() {
     return true;
   }
 
@@ -435,7 +445,21 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 widget.orderCustomer.uidPrice = '';
                 await updateHeader();
               },
-              onPressedEdit: () async {}),
+              onPressedEdit: () async {
+                var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenPriceSelection(
+                            orderCustomer: widget.orderCustomer)));
+                // Если изменили партнера, изменим его договор и валюту
+                if (result != null) {
+                  if (result) {
+                    widget.orderCustomer.namePrice = '';
+                    widget.orderCustomer.uidPrice = '';
+                  }
+                }
+                updateHeader();
+              }),
 
           /// Warehouse
           TextFieldWithText(
@@ -448,7 +472,21 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 widget.orderCustomer.uidWarehouse = '';
                 await updateHeader();
               },
-              onPressedEdit: () async {}),
+              onPressedEdit: () async {
+                var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenWarehouseSelection(
+                            orderCustomer: widget.orderCustomer)));
+                // Если изменили партнера, изменим его договор и валюту
+                if (result != null) {
+                  if (result) {
+                    widget.orderCustomer.nameWarehouse = '';
+                    widget.orderCustomer.uidWarehouse = '';
+                  }
+                }
+                updateHeader();
+              }),
 
           /// Sum of document
           TextFieldWithText(
@@ -555,7 +593,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        var result = await saveItem();
+                        var result = await saveDoc();
                         if (result) {
                           showMessage('Запись сохранена!');
                           Navigator.of(context).pop(true);
@@ -584,7 +622,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           backgroundColor:
                               MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
-                        var result = await deleteItem();
+                        var result = await deleteDoc();
                         if (result) {
                           showMessage('Запись отправлена в корзину!');
                           Navigator.of(context).pop(true);

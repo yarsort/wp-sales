@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/organization.dart';
 
@@ -34,17 +35,8 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
 
   @override
   void initState() {
-    setState(() {
-      textFieldNameController.text = widget.organizationItem.name;
-      textFieldPhoneController.text = widget.organizationItem.phone;
-      textFieldAddressController.text = widget.organizationItem.address;
-      textFieldCommentController.text = widget.organizationItem.comment;
-
-      // Технические данные
-      textFieldUIDController.text = widget.organizationItem.uid;
-      textFieldCodeController.text = widget.organizationItem.code;
-    });
-    return super.initState();
+    super.initState();
+    renewItem();
   }
 
   @override
@@ -93,6 +85,24 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
 
       ),
     );
+  }
+
+  renewItem() async {
+
+    if (widget.organizationItem.uid == '') {
+      widget.organizationItem.uid = const Uuid().v4();
+    }
+
+    textFieldNameController.text = widget.organizationItem.name;
+    textFieldPhoneController.text = widget.organizationItem.phone;
+    textFieldAddressController.text = widget.organizationItem.address;
+    textFieldCommentController.text = widget.organizationItem.comment;
+
+    // Технические данные
+    textFieldUIDController.text = widget.organizationItem.uid;
+    textFieldCodeController.text = widget.organizationItem.code;
+
+    setState(() {});
   }
 
   saveItem() async {

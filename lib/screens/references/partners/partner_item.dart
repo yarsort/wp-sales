@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
@@ -41,7 +42,16 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
   @override
   void initState() {
-    setState(() {
+    super.initState();
+    renewItem();
+  }
+
+  renewItem() async {
+
+      if (widget.partnerItem.uid == '') {
+        widget.partnerItem.uid = const Uuid().v4();
+      }
+
       textFieldNameController.text = widget.partnerItem.name;
       textFieldPhoneController.text = widget.partnerItem.phone;
       textFieldAddressController.text = widget.partnerItem.address;
@@ -52,8 +62,8 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       // Технические данные
       textFieldUIDController.text = widget.partnerItem.uid;
       textFieldCodeController.text = widget.partnerItem.code;
-    });
-    return super.initState();
+
+      setState(() {});
   }
 
   @override
@@ -90,6 +100,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listHeaderOrder(),
+
               ],
             ),
             ListView(
@@ -297,6 +308,60 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           ),
         ),
 
+        /// Buttons Записать / Отменить
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// Записать запись
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 49) / 2,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      var result = await saveItem();
+                      if (result) {
+                        showMessage('Запись сохранена!');
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.update, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Записать')
+                      ],
+                    )),
+              ),
+
+              const SizedBox(
+                width: 14,
+              ),
+
+              /// Отменить запись
+              SizedBox(
+                height: 40,
+                width: (MediaQuery.of(context).size.width - 35) / 2,
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.red)),
+                    onPressed: () async {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.undo, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Отменить'),
+                      ],
+                    )),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

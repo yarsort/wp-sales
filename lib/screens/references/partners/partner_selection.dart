@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
@@ -23,8 +24,8 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -60,17 +61,23 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listPartners.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataPartners) {
-      Partner newPartner = Partner.fromJson(message);
-      listPartners.add(newPartner);
-      tempItems.add(newPartner); // Как шаблон
-    }
+    listPartners =
+    await DatabaseHelper.instance.readAllPartners();
+    tempItems.addAll(listPartners);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataPartners) {
+    //   Partner newPartner = Partner.fromJson(message);
+    //   listPartners.add(newPartner);
+    //   tempItems.add(newPartner); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

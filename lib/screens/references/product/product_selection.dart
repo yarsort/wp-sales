@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/order_customer.dart';
+import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/models/product.dart';
-import 'package:wp_sales/screens/references/product/product_item.dart';
-import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/models/warehouse.dart';
 
 class ScreenProductSelection extends StatefulWidget {
 
-  final OrderCustomer orderCustomer;
+  final List? listItemDoc;
+  final Price? price;
+  final Warehouse? warehouse;
 
-  const ScreenProductSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenProductSelection({Key? key, this.listItemDoc, this.price, this.warehouse}) : super(key: key);
 
   @override
   _ScreenProductSelectionState createState() => _ScreenProductSelectionState();
@@ -16,64 +18,74 @@ class ScreenProductSelection extends StatefulWidget {
 
 class _ScreenProductSelectionState extends State<ScreenProductSelection> {
   /// Поле ввода: Поиск
-  TextEditingController textFieldSearchController = TextEditingController();
+  TextEditingController textFieldSearchCatalogController = TextEditingController();
+  TextEditingController textFieldSearchBoughtController = TextEditingController();
+  TextEditingController textFieldSearchRecommendController = TextEditingController();
 
   List<Product> tempItems = [];
-  List<Product> listProduct = [];
+  List<Product> listProducts = [];
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Подбор товаров'),
-      ),
-      //drawer: const MainDrawer(),
-      body: Column(
-        children: [
-          searchTextField(),
-          listViewItems(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          var newItem = Product();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ScreenProductItem(productItem: newItem),
-            ),
-          );
-        },
-        tooltip: 'Добавить товар',
-        child: const Text(
-          "+",
-          style: TextStyle(fontSize: 30),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('Заказы покупателей'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Каталог'),
+              Tab(text: 'Купленные'),
+              Tab(text: 'Рекомендации'),
+            ],
+          ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        body: TabBarView(
+          children: [
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                searchTextFieldCatalog(),
+                listViewCatalog(),
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: const [
+
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: const [
+
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
-    listProduct.clear();
+    listProducts.clear();
     tempItems.clear();
 
-    // Получение и запись списка
-    for (var message in listDataOrganizations) {
-      Product newProduct = Product.fromJson(message);
-      listProduct.add(newProduct);
-      tempItems.add(newProduct); // Как шаблон
-    }
+    listProducts =
+        await DatabaseHelper.instance.readAllProducts();
+
+    tempItems.addAll(listProducts);
   }
 
-  void filterSearchResults(String query) {
+  void filterSearchCatalogResults(String query) {
 
     /// Уберем пробелы
     query = query.trim();
@@ -81,14 +93,14 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listProduct.clear();
-        listProduct.addAll(tempItems);
+        listProducts.clear();
+        listProducts.addAll(tempItems);
       });
       return;
     }
 
     List<Product> dummySearchList = <Product>[];
-    dummySearchList.addAll(listProduct);
+    dummySearchList.addAll(listProducts);
 
     if (query.isNotEmpty) {
 
@@ -101,28 +113,28 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
         }
       }
       setState(() {
-        listProduct.clear();
-        listProduct.addAll(dummyListData);
+        listProducts.clear();
+        listProducts.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listProduct.clear();
-        listProduct.addAll(tempItems);
+        listProducts.clear();
+        listProducts.addAll(tempItems);
       });
     }
   }
 
-  searchTextField() {
+  searchTextFieldCatalog() {
     var validateSearch = false;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
         onChanged: (String value) {
-          filterSearchResults(value);
+          filterSearchCatalogResults(value);
         },
-        controller: textFieldSearchController,
+        controller: textFieldSearchCatalogController,
         
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
@@ -137,16 +149,16 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
             children: [
               IconButton(
                 onPressed: () async {
-                  var value = textFieldSearchController.text;
-                  filterSearchResults(value);
+                  var value = textFieldSearchCatalogController.text;
+                  filterSearchCatalogResults(value);
                 },
                 icon: const Icon(Icons.search, color: Colors.blue),
               ),
               IconButton(
                 onPressed: () async {
-                  textFieldSearchController.text = '';
-                  var value = textFieldSearchController.text;
-                  filterSearchResults(value);
+                  textFieldSearchCatalogController.text = '';
+                  var value = textFieldSearchCatalogController.text;
+                  filterSearchCatalogResults(value);
                 },
                 icon: const Icon(Icons.delete, color: Colors.red),
               ),
@@ -157,15 +169,15 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
     );
   }
 
-  listViewItems() {
+  listViewCatalog() {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listProduct.length,
+          itemCount: listProducts.length,
           itemBuilder: (context, index) {
-            var productItem = listProduct[index];
+            var productItem = listProducts[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(

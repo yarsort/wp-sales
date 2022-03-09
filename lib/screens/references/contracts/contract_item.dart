@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/contract.dart';
 
@@ -37,17 +38,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
   @override
   void initState() {
-    setState(() {
-      textFieldPartnerController.text = widget.contractItem.namePartner;
-      textFieldNameController.text = widget.contractItem.name;
-      textFieldPhoneController.text = widget.contractItem.phone;
-      textFieldAddressController.text = widget.contractItem.address;
-      textFieldCommentController.text = widget.contractItem.comment;
-
-      // Технические данные
-      textFieldUIDController.text = widget.contractItem.uid;
-      textFieldCodeController.text = widget.contractItem.code;
-    });
+    renewItem();
     return super.initState();
   }
 
@@ -97,6 +88,24 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
       ),
     );
+  }
+
+  renewItem() async {
+    if (widget.contractItem.uid == '') {
+      widget.contractItem.uid = const Uuid().v4();
+    }
+
+    textFieldPartnerController.text = widget.contractItem.namePartner;
+    textFieldNameController.text = widget.contractItem.name;
+    textFieldPhoneController.text = widget.contractItem.phone;
+    textFieldAddressController.text = widget.contractItem.address;
+    textFieldCommentController.text = widget.contractItem.comment;
+
+    // Технические данные
+    textFieldUIDController.text = widget.contractItem.uid;
+    textFieldCodeController.text = widget.contractItem.code;
+
+    setState(() {});
   }
 
   saveItem() async {

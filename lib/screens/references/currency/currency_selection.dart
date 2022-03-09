@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
@@ -19,12 +20,12 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
   TextEditingController textFieldSearchController = TextEditingController();
 
   List<Currency> tempItems = [];
-  List<Currency> listPrice = [];
+  List<Currency> listCurrency = [];
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -60,17 +61,23 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
-    listPrice.clear();
+    listCurrency.clear();
     tempItems.clear();
 
-    // Получение и запись списка
-    for (var message in listDataOrganizations) {
-      Currency newPrice = Currency.fromJson(message);
-      listPrice.add(newPrice);
-      tempItems.add(newPrice); // Как шаблон
-    }
+    listCurrency =
+        await DatabaseHelper.instance.readAllCurrency();
+    tempItems.addAll(listCurrency);
+
+    setState(() {});
+
+    // // Получение и запись списка
+    // for (var message in listDataOrganizations) {
+    //   Currency newPrice = Currency.fromJson(message);
+    //   listPrice.add(newPrice);
+    //   tempItems.add(newPrice); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {
@@ -81,14 +88,14 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
     /// Искать можно только при наличии 3 и более символов
     if (query.length < 3) {
       setState(() {
-        listPrice.clear();
-        listPrice.addAll(tempItems);
+        listCurrency.clear();
+        listCurrency.addAll(tempItems);
       });
       return;
     }
 
     List<Currency> dummySearchList = <Currency>[];
-    dummySearchList.addAll(listPrice);
+    dummySearchList.addAll(listCurrency);
 
     if (query.isNotEmpty) {
 
@@ -101,14 +108,14 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
         }
       }
       setState(() {
-        listPrice.clear();
-        listPrice.addAll(dummyListData);
+        listCurrency.clear();
+        listCurrency.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        listPrice.clear();
-        listPrice.addAll(tempItems);
+        listCurrency.clear();
+        listCurrency.addAll(tempItems);
       });
     }
   }
@@ -163,9 +170,9 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: listPrice.length,
+          itemCount: listCurrency.length,
           itemBuilder: (context, index) {
-            var priceItem = listPrice[index];
+            var priceItem = listCurrency[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(

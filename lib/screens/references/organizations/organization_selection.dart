@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/organization.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
@@ -60,17 +61,23 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listOrganizations.clear();
     tempItems.clear();
 
-    // Получение и запись списка
-    for (var message in listDataOrganizations) {
-      Organization newOrganization = Organization.fromJson(message);
-      listOrganizations.add(newOrganization);
-      tempItems.add(newOrganization); // Как шаблон
-    }
+    listOrganizations =
+        await DatabaseHelper.instance.readAllOrganization();
+    tempItems.addAll(listOrganizations);
+
+    setState(() {});
+
+    // // Получение и запись списка
+    // for (var message in listDataOrganizations) {
+    //   Organization newOrganization = Organization.fromJson(message);
+    //   listOrganizations.add(newOrganization);
+    //   tempItems.add(newOrganization); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

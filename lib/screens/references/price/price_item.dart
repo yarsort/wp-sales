@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/price.dart';
 
@@ -28,15 +29,8 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
 
   @override
   void initState() {
-    setState(() {
-      textFieldNameController.text = widget.priceItem.name;
-      textFieldCommentController.text = widget.priceItem.comment;
-
-      // Технические данные
-      textFieldUIDController.text = widget.priceItem.uid;
-      textFieldCodeController.text = widget.priceItem.code;
-    });
-    return super.initState();
+    super.initState();
+    renewItem();
   }
 
   @override
@@ -85,6 +79,22 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
 
       ),
     );
+  }
+
+  renewItem() async {
+
+    if (widget.priceItem.uid == '') {
+      widget.priceItem.uid = const Uuid().v4();
+    }
+
+    textFieldNameController.text = widget.priceItem.name;
+    textFieldCommentController.text = widget.priceItem.comment;
+
+    // Технические данные
+    textFieldUIDController.text = widget.priceItem.uid;
+    textFieldCodeController.text = widget.priceItem.code;
+
+    setState(() {});
   }
 
   saveItem() async {

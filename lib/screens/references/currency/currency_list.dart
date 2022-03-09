@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -20,8 +21,8 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -47,7 +48,9 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
               builder: (context) => ScreenCurrencyItem(currencyItem: newItem),
             ),
           );
-          setState(() {});
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить валюту',
         child: const Text(
@@ -58,17 +61,23 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listCurrency.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataCurrency) {
-      Currency newItem = Currency.fromJson(message);
-      listCurrency.add(newItem);
-      tempItems.add(newItem); // Как шаблон
-    }
+    listCurrency =
+        await DatabaseHelper.instance.readAllCurrency();
+    tempItems.addAll(listCurrency);
+
+    setState(() {});
+
+    // // Получение и запись списка заказов покупателей
+    // for (var message in listDataCurrency) {
+    //   Currency newItem = Currency.fromJson(message);
+    //   listCurrency.add(newItem);
+    //   tempItems.add(newItem); // Как шаблон
+    // }
   }
 
   void filterSearchResults(String query) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
 import 'package:wp_sales/screens/references/contracts/contract_list.dart';
@@ -12,8 +13,35 @@ import 'package:wp_sales/screens/settings/about.dart';
 import 'package:wp_sales/screens/settings/help.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends StatefulWidget {
   const MainDrawer({Key? key}) : super(key: key);
+
+  @override
+  State<MainDrawer> createState() => _MainDrawerState();
+}
+
+class _MainDrawerState extends State<MainDrawer> {
+  int countOrderCustomer = 0;
+
+  int countProduct = 0;
+
+  int countOrganization = 0;
+
+  int countPartner = 0;
+
+  int countContract = 0;
+
+  int countCurrency = 0;
+
+  int countPrice = 0;
+
+  int countWarehouse = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    renewItem();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +83,7 @@ class MainDrawer extends StatelessWidget {
                 ListTile(
                     title: const Text("Заказы покупателей"),
                     leading: const Icon(Icons.shopping_basket, color: Colors.blue,),
-                    trailing: countNotification(0),
+                    trailing: countNotification(countOrderCustomer),
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -66,7 +94,7 @@ class MainDrawer extends StatelessWidget {
                 ListTile(
                     title: const Text("ПКО (оплаты)"),
                     leading: const Icon(Icons.payment, color: Colors.blue,),
-                    trailing: countNotification(156),
+                    trailing: countNotification(0),
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -80,6 +108,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Организации"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countOrganization),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -90,6 +119,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Партнеры"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countPartner),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -100,6 +130,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Договоры партнеров"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countContract),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -110,6 +141,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Товары"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countProduct),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -120,6 +152,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Типы цен"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countPrice),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -130,6 +163,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Валюты"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countCurrency),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -140,6 +174,7 @@ class MainDrawer extends StatelessWidget {
                     ListTile(
                         title: const Text("Склады"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countWarehouse),
                         onTap: () {
                           Navigator.pushAndRemoveUntil(
                               context,
@@ -208,6 +243,19 @@ class MainDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  renewItem() async {
+    countOrderCustomer = await DatabaseHelper.instance.getCountSendOrderCustomer();
+    countProduct = await DatabaseHelper.instance.getCountProduct();
+    countOrganization = await DatabaseHelper.instance.getCountOrganization();
+    countPartner = await DatabaseHelper.instance.getCountPartner();
+    countContract = await DatabaseHelper.instance.getCountContract();
+    countCurrency = await DatabaseHelper.instance.getCountCurrency();
+    countPrice = await DatabaseHelper.instance.getCountPrice();
+    countWarehouse = await DatabaseHelper.instance.getCountWarehouse();
+
+    setState(() {});
   }
 
   countNotification(int countNotification) {

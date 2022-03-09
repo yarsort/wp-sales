@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/product.dart';
 import 'package:wp_sales/screens/references/product/product_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -20,8 +21,8 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -47,7 +48,9 @@ class _ScreenProductListState extends State<ScreenProductList> {
               builder: (context) => ScreenProductItem(productItem: newItem),
             ),
           );
-          setState(() {});
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить товар',
         child: const Text(
@@ -58,17 +61,15 @@ class _ScreenProductListState extends State<ScreenProductList> {
     );
   }
 
-  void renewItem() {
+  void renewItem() async {
     // Очистка списка заказов покупателя
     listProducts.clear();
     tempItems.clear();
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataProduct) {
-      Product newItem = Product.fromJson(message);
-      listProducts.add(newItem);
-      tempItems.add(newItem); // Как шаблон
-    }
+    listProducts =
+    await DatabaseHelper.instance.readAllProducts();
+
+    tempItems.addAll(listProducts);
   }
 
   void filterSearchResults(String query) {

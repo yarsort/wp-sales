@@ -47,7 +47,9 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
               builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
             ),
           );
-          setState(() {});
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить организацию',
         child: const Text(
