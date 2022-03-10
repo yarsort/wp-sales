@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/currency.dart';
+import 'package:wp_sales/models/unit.dart';
 import 'package:wp_sales/system/system.dart';
 
-class ScreenCurrencyItem extends StatefulWidget {
-  final Currency currencyItem;
+class ScreenUnitItem extends StatefulWidget {
+  final Unit unitItem;
 
-  const ScreenCurrencyItem({Key? key, required this.currencyItem})
+  const ScreenUnitItem({Key? key, required this.unitItem})
       : super(key: key);
 
   @override
-  _ScreenCurrencyItemState createState() => _ScreenCurrencyItemState();
+  _ScreenUnitItemState createState() => _ScreenUnitItemState();
 }
 
-class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
+class _ScreenUnitItemState extends State<ScreenUnitItem> {
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
-
-  /// Поле ввода: Course
-  TextEditingController textFieldCourseController = TextEditingController();
 
   /// Поле ввода: Multiplicity
   TextEditingController textFieldMultiplicityController = TextEditingController();
@@ -47,7 +44,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Валюты'),
+          title: const Text('Единица измерения'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
@@ -89,35 +86,40 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
   }
 
   renewItem() async {
-    if (widget.currencyItem.uid == '') {
-      widget.currencyItem.uid = const Uuid().v4();
+    if (widget.unitItem.uid == '') {
+      widget.unitItem.uid = const Uuid().v4();
     }
 
-    textFieldNameController.text = widget.currencyItem.name;
-    textFieldCommentController.text = widget.currencyItem.comment;
+    if (widget.unitItem.multiplicity == 0.0) {
+      widget.unitItem.multiplicity = 1.0;
+    }
 
-    textFieldCourseController.text = doubleThreeToString(widget.currencyItem.course);
-    textFieldMultiplicityController.text = doubleThreeToString(widget.currencyItem.multiplicity);
+    textFieldNameController.text = widget.unitItem.name;
+    textFieldCommentController.text = widget.unitItem.comment;
+    textFieldMultiplicityController.text = doubleThreeToString(widget.unitItem.multiplicity);
 
     // Технические данные
-    textFieldUIDController.text = widget.currencyItem.uid;
-    textFieldCodeController.text = widget.currencyItem.code;
+    textFieldUIDController.text = widget.unitItem.uid;
+    textFieldCodeController.text = widget.unitItem.code;
 
     setState(() {});
   }
 
   saveItem() async {
     try {
-      widget.currencyItem.name = textFieldNameController.text;
-      widget.currencyItem.comment = textFieldCommentController.text;
-      widget.currencyItem.course = double.parse(textFieldCourseController.text);
-      widget.currencyItem.multiplicity = double.parse(textFieldMultiplicityController.text);
+      widget.unitItem.name = textFieldNameController.text;
+      widget.unitItem.comment = textFieldCommentController.text;
+      widget.unitItem.multiplicity = double.parse(textFieldMultiplicityController.text);
 
-      if (widget.currencyItem.id != 0) {
-        await DatabaseHelper.instance.updateCurrency(widget.currencyItem);
+      if (widget.unitItem.multiplicity == 0.0) {
+        widget.unitItem.multiplicity = 1.0;
+      }
+
+      if (widget.unitItem.id != 0) {
+        await DatabaseHelper.instance.updateUnit(widget.unitItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createCurrency(widget.currencyItem);
+        await DatabaseHelper.instance.createUnit(widget.unitItem);
         return true;
       }
     } on Exception catch (error) {
@@ -129,10 +131,10 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   deleteItem() async {
     try {
-      if (widget.currencyItem.id != 0) {
+      if (widget.unitItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteCurrency(widget.currencyItem.id);
+        await DatabaseHelper.instance.deleteUnit(widget.unitItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -155,7 +157,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   listHeaderOrder() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
       child: Column(
         children: [
           /// Name
@@ -163,7 +165,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
             child: TextField(
               onChanged: (value) {
-                widget.currencyItem.name = textFieldNameController.text;
+                widget.unitItem.name = textFieldNameController.text;
               },
               controller: textFieldNameController,
               decoration: InputDecoration(
@@ -188,23 +190,6 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             ),
           ),
 
-          /// Course
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              keyboardType: TextInputType.number,
-              controller: textFieldCourseController,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Курс валюты',
-              ),
-            ),
-          ),
-
           /// Multiplicity
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -217,7 +202,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'Кратность валюты',
+                labelText: 'Кратность',
               ),
             ),
           ),
@@ -299,7 +284,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   listService() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
       child: Column(
         children: [
           /// Поле ввода: UID

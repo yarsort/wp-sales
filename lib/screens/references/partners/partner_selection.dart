@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/contract.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/system/system.dart';
@@ -7,9 +8,10 @@ import 'package:wp_sales/screens/references/partners/partner_item.dart';
 
 class ScreenPartnerSelection extends StatefulWidget {
 
-  final OrderCustomer orderCustomer;
+  final OrderCustomer? orderCustomer;
+  final Contract? contract;
 
-  const ScreenPartnerSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenPartnerSelection({Key? key, required this.orderCustomer, this.contract}) : super(key: key);
 
   @override
   _ScreenPartnerSelectionState createState() => _ScreenPartnerSelectionState();
@@ -188,8 +190,14 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidPartner = partnerItem.uid;
-                        widget.orderCustomer.namePartner = partnerItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidPartner = partnerItem.uid;
+                          widget.orderCustomer?.namePartner = partnerItem.name;
+                        }
+                        if (widget.contract != null) {
+                          widget.contract?.uidPartner = partnerItem.uid;
+                          widget.contract?.namePartner = partnerItem.name;
+                        }
                       });
                       Navigator.pop(context);
                     },

@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/models/product.dart';
 import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/system/system.dart';
 
 class ScreenProductSelection extends StatefulWidget {
+  List<ItemOrderCustomer> listItemDoc = [];
+  Price price = Price();
+  Warehouse warehouse = Warehouse();
 
-  final List? listItemDoc;
-  final Price? price;
-  final Warehouse? warehouse;
-
-  const ScreenProductSelection({Key? key, this.listItemDoc, this.price, this.warehouse}) : super(key: key);
+  ScreenProductSelection(
+      {Key? key,
+      required this.listItemDoc,
+      required this.price,
+      required this.warehouse})
+      : super(key: key);
 
   @override
   _ScreenProductSelectionState createState() => _ScreenProductSelectionState();
@@ -18,9 +25,12 @@ class ScreenProductSelection extends StatefulWidget {
 
 class _ScreenProductSelectionState extends State<ScreenProductSelection> {
   /// Поле ввода: Поиск
-  TextEditingController textFieldSearchCatalogController = TextEditingController();
-  TextEditingController textFieldSearchBoughtController = TextEditingController();
-  TextEditingController textFieldSearchRecommendController = TextEditingController();
+  TextEditingController textFieldSearchCatalogController =
+      TextEditingController();
+  TextEditingController textFieldSearchBoughtController =
+      TextEditingController();
+  TextEditingController textFieldSearchRecommendController =
+      TextEditingController();
 
   List<Product> tempItems = [];
   List<Product> listProducts = [];
@@ -38,7 +48,7 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Заказы покупателей'),
+          title: const Text('Подбор товаров'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Каталог'),
@@ -58,15 +68,11 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
-              children: const [
-
-              ],
+              children: const [],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
-              children: const [
-
-              ],
+              children: const [],
             ),
           ],
         ),
@@ -79,14 +85,14 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
     listProducts.clear();
     tempItems.clear();
 
-    listProducts =
-        await DatabaseHelper.instance.readAllProducts();
+    listProducts = await DatabaseHelper.instance.readAllProducts();
 
     tempItems.addAll(listProducts);
+
+    setState(() {});
   }
 
   void filterSearchCatalogResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -103,7 +109,6 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
     dummySearchList.addAll(listProducts);
 
     if (query.isNotEmpty) {
-
       List<Product> dummyListData = <Product>[];
 
       for (var item in dummySearchList) {
@@ -135,7 +140,6 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
           filterSearchCatalogResults(value);
         },
         controller: textFieldSearchCatalogController,
-        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -170,32 +174,344 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
   }
 
   listViewCatalog() {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: listProducts.length,
-          itemBuilder: (context, index) {
-            var productItem = listProducts[index];
-            return Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Card(
-                  elevation: 2,
-                  child: ListTile(
-                    onTap: () {
-                      // setState(() {
-                      //   widget.orderCustomer.uid = productItem.uid;
-                      //   widget.orderCustomer.nameProduct = productItem.name;
-                      // });
-                      //Navigator.pop(context);
-                    },
-                    title: Text(productItem.name),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: listProducts.length,
+        itemBuilder: (context, index) {
+          double price = 123.56;
+          double countOnWarehouses = 561.0;
+
+          var productItem = listProducts[index];
+          return Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  onTap: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        TextEditingController textFieldNameBottomController =
+                            TextEditingController();
+
+                        TextEditingController textFieldCountBottomController =
+                            TextEditingController();
+
+                        TextEditingController textFieldPriceBottomController =
+                            TextEditingController();
+
+                        TextEditingController
+                            textFieldWarehouseBottomController =
+                            TextEditingController();
+
+                        textFieldNameBottomController.text = productItem.name;
+
+                        textFieldPriceBottomController.text =
+                            doubleToString(price);
+
+                        textFieldWarehouseBottomController.text =
+                            doubleThreeToString(countOnWarehouses);
+
+                        double countToForm = 1.0;
+                        for (var itemList in widget.listItemDoc) {
+                          if(itemList.uid == productItem.uid) {
+                            countToForm = itemList.count;
+                            break;
+                          }
+                        }
+
+                        textFieldCountBottomController.text =
+                              doubleThreeToString(countToForm);
+
+                        return SizedBox(
+                          //height: 600,
+                          child: Center(
+                            child: Column(
+                              children: [
+                                /// Name
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(14, 14, 14, 0),
+                                  child: TextField(
+                                    readOnly: true,
+                                    controller: textFieldNameBottomController,
+                                    decoration: const InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.fromLTRB(14, 5, 14, 5),
+                                      border: OutlineInputBorder(),
+                                      labelStyle: TextStyle(
+                                        color: Colors.blueGrey,
+                                      ),
+                                      labelText: 'Товар',
+                                    ),
+                                  ),
+                                ),
+
+                                /// Price & CountOnWarehouse
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(14, 14, 14, 0),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width:
+                                            (MediaQuery.of(context).size.width -
+                                                    49) /
+                                                2,
+                                        child: TextField(
+                                          readOnly: true,
+                                          controller:
+                                              textFieldPriceBottomController,
+                                          decoration: const InputDecoration(
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                14, 5, 14, 5),
+                                            border: OutlineInputBorder(),
+                                            labelStyle: TextStyle(
+                                              color: Colors.blueGrey,
+                                            ),
+                                            labelText: 'Цена',
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      SizedBox(
+                                        width:
+                                            (MediaQuery.of(context).size.width -
+                                                    49) /
+                                                2,
+                                        child: TextField(
+                                          readOnly: true,
+                                          controller:
+                                              textFieldWarehouseBottomController,
+                                          decoration: const InputDecoration(
+                                            contentPadding: EdgeInsets.fromLTRB(
+                                                14, 5, 14, 5),
+                                            border: OutlineInputBorder(),
+                                            labelStyle: TextStyle(
+                                              color: Colors.blueGrey,
+                                            ),
+                                            labelText: 'Остаток',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// Count
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(14, 14, 14, 0),
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: textFieldCountBottomController,
+                                    decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.fromLTRB(
+                                          14, 5, 14, 5),
+                                      border: const OutlineInputBorder(),
+                                      labelStyle: const TextStyle(
+                                        color: Colors.blueGrey,
+                                      ),
+                                      labelText: 'Количество',
+                                      suffixIcon: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            onPressed: () async {
+                                              double tempCount = 0.0;
+                                              try {
+                                                tempCount = tempCount +
+                                                    double.parse(
+                                                        textFieldCountBottomController
+                                                            .text);
+                                                tempCount++;
+                                              } on Exception catch (_) {
+                                                tempCount = 1.0;
+                                              }
+
+                                              /// Если обнулили, то ставим единицу
+                                              if (tempCount == 0) {
+                                                tempCount = 1.0;
+                                              }
+                                              textFieldCountBottomController
+                                                      .text =
+                                                  doubleThreeToString(
+                                                      tempCount);
+                                            },
+                                            icon: const Icon(Icons.add,
+                                                color: Colors.blue),
+                                          ),
+                                          IconButton(
+                                            onPressed: () async {
+                                              double tempCount = 0.0;
+                                              try {
+                                                tempCount = tempCount +
+                                                    double.parse(
+                                                        textFieldCountBottomController
+                                                            .text);
+                                                tempCount--;
+                                              } on Exception catch (_) {
+                                                tempCount = 1.0;
+                                              }
+
+                                              /// Если обнулили, то ставим единицу
+                                              if (tempCount == 0) {
+                                                tempCount = 1.0;
+                                              }
+
+                                              textFieldCountBottomController
+                                                      .text =
+                                                  doubleThreeToString(
+                                                      tempCount);
+                                            },
+                                            icon: const Icon(Icons.remove,
+                                                color: Colors.red),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                /// Divider
+                                const Padding(
+                                  padding: EdgeInsets.fromLTRB(14, 7, 14, 0),
+                                  child: Divider(),
+                                ),
+
+                                /// Buttons
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(14, 7, 14, 0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      /// Добавить товар
+                                      SizedBox(
+                                        height: 50,
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                28,
+                                        child: ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                /// Количество товара на форме
+                                                var tempCountItem = double.parse(
+                                                    textFieldCountBottomController
+                                                        .text);
+                                                if (tempCountItem == 0) {
+                                                  Navigator.pop(context);
+                                                  return;
+                                                }
+
+                                                bool addNewItem = true;
+
+                                                for (var itemList in widget.listItemDoc) {
+                                                  if(itemList.uid == productItem.uid) {
+                                                    itemList.count =
+                                                        tempCountItem;
+                                                    itemList.sum =
+                                                        itemList.count *
+                                                            itemList.price;
+
+                                                    /// Не надо добавлять новую строку
+                                                    addNewItem = false;
+                                                    break;
+                                                  }
+                                                }
+
+                                                if (addNewItem) {
+                                                  /// Добавим новую строку заказа
+                                                  ItemOrderCustomer itemList =
+                                                      ItemOrderCustomer(
+                                                          id: 0,
+                                                          idOrderCustomer: 0,
+                                                          name:
+                                                              productItem.name,
+                                                          uid: productItem.uid,
+                                                          price: price,
+                                                          count: tempCountItem,
+                                                          discount: 0,
+                                                          nameUnit: productItem
+                                                              .nameUnit,
+                                                          uidUnit: productItem
+                                                              .uidUnit,
+                                                          sum: tempCountItem *
+                                                              price);
+
+                                                  widget.listItemDoc
+                                                      .add(itemList);
+                                                }
+                                              });
+                                              Navigator.pop(context);
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: const [
+                                                Icon(Icons.add,
+                                                    color: Colors.white),
+                                                SizedBox(width: 14),
+                                                Text('Добавить')
+                                              ],
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  title: Text(productItem.name),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.price_change,
+                                    color: Colors.red, size: 20),
+                                const SizedBox(width: 5),
+                                Text(
+                                  doubleToString(price),
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.account_balance,
+                                    color: Colors.blue, size: 20),
+                                const SizedBox(width: 5),
+                                Text(doubleThreeToString(countOnWarehouses) +
+                                    ' ' +
+                                    productItem.nameUnit),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
                   ),
-                )
-            );
-          },
-        ),
+                ),
+              ));
+        },
       ),
     );
   }

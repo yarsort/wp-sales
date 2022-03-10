@@ -104,6 +104,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     }),
                 ExpansionTile(
                   title: const Text('Справочники'),
+                  initiallyExpanded: true,
                   children: [
                     ListTile(
                         title: const Text("Организации"),

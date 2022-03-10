@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/contract.dart';
 import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/partner.dart';
+import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/screens/references/partners/partner_item.dart';
 
 class ScreenContractSelection extends StatefulWidget {
 
@@ -45,11 +44,11 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          var newPartnerItem = Partner();
+          var newContractItem = Contract();
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenPartnerItem(partnerItem: newPartnerItem),
+              builder: (context) => ScreenContractItem(contractItem: newContractItem),
             ),
           );
         },

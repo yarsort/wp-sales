@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/screens/references/unit/unit_selection.dart';
+import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductItem extends StatefulWidget {
   final Product productItem;
@@ -157,194 +159,188 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
 
   listHeaderOrder() {
 
-    return Column(
-      children: [
-        /// Name
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            controller: textFieldNameController,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Наименование',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldNameController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        /// VendorCode
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            controller: textFieldVendorCodeController,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Артикул',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldVendorCodeController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
+      child: Column(
+        children: [
+          /// Name
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: TextField(
+              controller: textFieldNameController,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Наименование',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldNameController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// NameUnit
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            onChanged: (value) {
-              widget.productItem.nameUnit = textFieldNameUnitController.text;
-            },
-            controller: textFieldNameUnitController,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Единица измерения',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldNameUnitController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+          /// VendorCode
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            child: TextField(
+              controller: textFieldVendorCodeController,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Артикул',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldVendorCodeController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// Barcode
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            onChanged: (value) {
-              widget.productItem.vendorCode = textFieldVendorCodeController.text;
-            },
-            controller: textFieldBarcodeController,
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Штрихкод',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldBarcodeController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+          /// Unit
+          TextFieldWithText(
+              textLabel: 'Единица измерения',
+              textEditingController: textFieldNameUnitController,
+              onPressedEditIcon: Icons.dashboard_customize,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                widget.productItem.nameUnit = '';
+                widget.productItem.uidUnit = '';
+                textFieldNameUnitController.text = '';
+              },
+              onPressedEdit: () async {
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenUnitSelection(
+                          productItem: widget.productItem)));
+
+                textFieldNameUnitController.text = widget.productItem.nameUnit;
+
+                setState(() {});
+              }),
+
+          /// Barcode
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: TextField(
+              keyboardType: TextInputType.number,
+              controller: textFieldBarcodeController,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Штрихкод',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldBarcodeController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// Comment
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldCommentController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Comment
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldCommentController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Комментарий',
               ),
-              labelText: 'Комментарий',
             ),
           ),
-        ),
 
-        /// Buttons Записать / Отменить
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// Записать запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 49) / 2,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      var result = await saveItem();
-                      if (result) {
-                        showMessage('Запись сохранена!');
+          /// Buttons Записать / Отменить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Записать запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 49) / 2,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        var result = await saveItem();
+                        if (result) {
+                          showMessage('Запись сохранена!');
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.update, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Записать')
+                        ],
+                      )),
+                ),
+
+                const SizedBox(
+                  width: 14,
+                ),
+
+                /// Отменить запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 35) / 2,
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
                         Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.update, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Записать')
-                      ],
-                    )),
-              ),
-
-              const SizedBox(
-                width: 14,
-              ),
-
-              /// Отменить запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 35) / 2,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () async {
-                      Navigator.of(context).pop(true);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Отменить'),
-                      ],
-                    )),
-              ),
-            ],
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.delete, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Отменить'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
           ),
-        ),
 
 
-      ],
+        ],
+      ),
     );
   }
 

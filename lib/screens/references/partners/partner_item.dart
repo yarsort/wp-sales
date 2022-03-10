@@ -31,6 +31,9 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   /// Поле ввода: BalanceForPayment
   TextEditingController textFieldBalanceForPaymentController = TextEditingController();
 
+  /// Поле ввода: SchedulePayment
+  TextEditingController textFieldSchedulePaymentController = TextEditingController();
+
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
 
@@ -39,6 +42,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
   /// Поле ввода: Code
   TextEditingController textFieldCodeController = TextEditingController();
+
 
   @override
   void initState() {
@@ -56,6 +60,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       textFieldAddressController.text = widget.partnerItem.address;
       textFieldBalanceController.text = doubleToString(widget.partnerItem.balance);
       textFieldBalanceForPaymentController.text = doubleToString(widget.partnerItem.balanceForPayment);
+      textFieldSchedulePaymentController.text = widget.partnerItem.schedulePayment.toString();
       textFieldCommentController.text = widget.partnerItem.comment;
 
       // Технические данные
@@ -123,6 +128,12 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
   saveItem() async {
     try {
+      widget.partnerItem.name = textFieldNameController.text;
+      widget.partnerItem.phone = textFieldPhoneController.text;
+      widget.partnerItem.address = textFieldAddressController.text;
+      widget.partnerItem.schedulePayment = int.parse(textFieldSchedulePaymentController.text);
+      widget.partnerItem.comment = textFieldCommentController.text;
+
       if (widget.partnerItem.id != 0) {
         await DatabaseHelper.instance.updatePartner(widget.partnerItem);
         return true;
@@ -163,294 +174,320 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   }
 
   listHeaderOrder() {
-    return Column(
-      children: [
-        /// Name
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            onChanged: (value) {
-              widget.partnerItem.name = textFieldNameController.text;
-            },
-            controller: textFieldNameController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Наименование',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldNameController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        /// Phone
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            onChanged: (value) {
-              widget.partnerItem.phone = textFieldPhoneController.text;
-            },
-            controller: textFieldPhoneController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Телефон',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldPhoneController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
+        children: [
+          /// Name
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: TextField(
+              onChanged: (value) {
+                widget.partnerItem.name = textFieldNameController.text;
+              },
+              controller: textFieldNameController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Наименование',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldNameController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// Address
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            onChanged: (value) {
-              widget.partnerItem.address = textFieldAddressController.text;
-            },
-            controller: textFieldAddressController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Адрес партнера',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldAddressController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+          /// Phone
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              onChanged: (value) {
+                widget.partnerItem.phone = textFieldPhoneController.text;
+              },
+              controller: textFieldPhoneController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Телефон',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldPhoneController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// Balance
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldBalanceController,
-            readOnly: true,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Address
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              onChanged: (value) {
+                widget.partnerItem.address = textFieldAddressController.text;
+              },
+              controller: textFieldAddressController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Адрес партнера',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldAddressController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
-              labelText: 'Баланс партнера',
             ),
           ),
-        ),
 
-        /// Balance for payment
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldBalanceForPaymentController,
-            readOnly: true,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Balance
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldBalanceController,
+              readOnly: true,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Баланс партнера',
               ),
-              labelText: 'Баланс партнера (просроченный по оплате)',
             ),
           ),
-        ),
 
-        /// Divider
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-          child: Divider(),
-        ),
-
-        /// Comment
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            onChanged: (value) {
-              widget.partnerItem.comment = textFieldCommentController.text;
-            },
-            controller: textFieldCommentController,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Balance for payment
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldBalanceForPaymentController,
+              readOnly: true,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Баланс партнера (просроченный по оплате)',
               ),
-              labelText: 'Комментарий',
             ),
           ),
-        ),
 
-        /// Buttons Записать / Отменить
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// Записать запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 49) / 2,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      var result = await saveItem();
-                      if (result) {
-                        showMessage('Запись сохранена!');
+          ///
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldSchedulePaymentController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Отсрочка платежа (дней)',
+              ),
+            ),
+          ),
+
+          /// Divider
+          const Padding(
+            padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+            child: Divider(),
+          ),
+
+          /// Comment
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              onChanged: (value) {
+                widget.partnerItem.comment = textFieldCommentController.text;
+              },
+              controller: textFieldCommentController,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Комментарий',
+              ),
+            ),
+          ),
+
+          /// Buttons Записать / Отменить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Записать запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 49) / 2,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        var result = await saveItem();
+                        if (result) {
+                          showMessage('Запись сохранена!');
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.update, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Записать')
+                        ],
+                      )),
+                ),
+
+                const SizedBox(
+                  width: 14,
+                ),
+
+                /// Отменить запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 35) / 2,
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
                         Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.update, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Записать')
-                      ],
-                    )),
-              ),
-
-              const SizedBox(
-                width: 14,
-              ),
-
-              /// Отменить запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 35) / 2,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () async {
-                      Navigator.of(context).pop(true);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.undo, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Отменить'),
-                      ],
-                    )),
-              ),
-            ],
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.undo, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Отменить'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   listDocuments() {
-    return Container();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Container(),
+    );
   }
 
   listService() {
-    return Column(
-      children: [
-        /// Поле ввода: UID
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            controller: textFieldUIDController,
-            readOnly: true,
-            
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
+        children: [
+          /// Поле ввода: UID
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: TextField(
+              controller: textFieldUIDController,
+              readOnly: true,
+
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'UID партнера в 1С',
               ),
-              labelText: 'UID партнера в 1С',
             ),
           ),
-        ),
 
-        /// Поле ввода: Code
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldCodeController,
-            readOnly: true,
-            
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Поле ввода: Code
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldCodeController,
+              readOnly: true,
+
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Код в 1С',
               ),
-              labelText: 'Код в 1С',
             ),
           ),
-        ),
 
-        /// Buttons Удалить
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// Удалить запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 28),
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.grey)),
-                    onPressed: () async {
-                      var result = await deleteItem();
-                      if (result) {
-                        showMessage('Запись удалена!');
-                        Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Удалить'),
-                      ],
-                    )),
-              ),
-            ],
+          /// Buttons Удалить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Удалить запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 28),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                      onPressed: () async {
+                        var result = await deleteItem();
+                        if (result) {
+                          showMessage('Запись удалена!');
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.delete, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Удалить'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

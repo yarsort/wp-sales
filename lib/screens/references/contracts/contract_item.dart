@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/contract.dart';
+import 'package:wp_sales/screens/references/partners/partner_selection.dart';
+import 'package:wp_sales/system/widgets.dart';
 
 class ScreenContractItem extends StatefulWidget {
   final Contract contractItem;
@@ -110,6 +112,11 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
   saveItem() async {
     try {
+      widget.contractItem.name = textFieldNameController.text;
+      widget.contractItem.phone = textFieldPhoneController.text;
+      widget.contractItem.address = textFieldAddressController.text;
+      widget.contractItem.comment = textFieldCommentController.text;
+
       if (widget.contractItem.id != 0) {
         await DatabaseHelper.instance.updateContract(widget.contractItem);
         return true;
@@ -151,264 +158,275 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   }
 
   listHeaderOrder() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
+        children: [
 
-    return Column(
-      children: [
+          /// Partner
+          TextFieldWithText(
+              textLabel: 'Партнер',
+              textEditingController: textFieldPartnerController,
+              onPressedEditIcon: Icons.people,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                widget.contractItem.namePartner = '';
+                widget.contractItem.uidPartner = '';
+                textFieldPartnerController.text = '';
+              },
+              onPressedEdit: () async {
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenPartnerSelection(
+                            contract: widget.contractItem, orderCustomer: null,)));
 
-        /// Partner
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            readOnly: true,
-            controller: textFieldPartnerController,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Партнер',
-            ),
-          ),
-        ),
+                textFieldPartnerController.text = widget.contractItem.namePartner;
 
-        /// Name
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            controller: textFieldNameController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Наименование',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldNameController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+                setState(() {});
+              }),
 
-        /// Phone
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldPhoneController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Телефон',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldPhoneController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+          /// Name
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: TextField(
+              controller: textFieldNameController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Наименование',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldNameController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// Address
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldAddressController,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Адрес партнера',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {
-                      textFieldAddressController.text = '';
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
+          /// Phone
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldPhoneController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Телефон',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldPhoneController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
 
-        /// Divider
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-          child: Divider(),
-        ),
-
-        /// Comment
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldCommentController,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Address
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldAddressController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: const OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Адрес партнера',
+                suffixIcon: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        textFieldAddressController.text = '';
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
-              labelText: 'Комментарий',
             ),
           ),
-        ),
 
-        /// Buttons Записать / Отменить
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// Записать запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 49) / 2,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      var result = await saveItem();
-                      if (result) {
-                        showMessage('Запись сохранена!');
+          /// Divider
+          const Padding(
+            padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+            child: Divider(),
+          ),
+
+          /// Comment
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldCommentController,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Комментарий',
+              ),
+            ),
+          ),
+
+          /// Buttons Записать / Отменить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Записать запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 49) / 2,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        var result = await saveItem();
+                        if (result) {
+                          showMessage('Запись сохранена!');
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.update, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Записать')
+                        ],
+                      )),
+                ),
+
+                const SizedBox(
+                  width: 14,
+                ),
+
+                /// Удалить запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 35) / 2,
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
                         Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.update, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Записать')
-                      ],
-                    )),
-              ),
-
-              const SizedBox(
-                width: 14,
-              ),
-
-              /// Удалить запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 35) / 2,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () async {
-                      Navigator.of(context).pop(true);
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Отменить'),
-                      ],
-                    )),
-              ),
-            ],
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.delete, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Отменить'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
           ),
-        ),
 
-      ],
+        ],
+      ),
     );
   }
 
   listService() {
-    return Column(
-      children: [
-        /// Поле ввода: UID
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: TextField(
-            controller: textFieldUIDController,
-            readOnly: true,
-            
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
+        children: [
+          /// Поле ввода: UID
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: TextField(
+              controller: textFieldUIDController,
+              readOnly: true,
+
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'UID партнера в 1С',
               ),
-              labelText: 'UID партнера в 1С',
             ),
           ),
-        ),
 
-        /// Поле ввода: Code
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldCodeController,
-            readOnly: true,
-            
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              border: OutlineInputBorder(),
-              labelStyle: TextStyle(
-                color: Colors.blueGrey,
+          /// Поле ввода: Code
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldCodeController,
+              readOnly: true,
+
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Код в 1С',
               ),
-              labelText: 'Код в 1С',
             ),
           ),
-        ),
 
-        /// Buttons Удалить
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              /// Удалить запись
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 28),
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.grey)),
-                    onPressed: () async {
-                      var result = await deleteItem();
-                      if (result) {
-                        showMessage('Запись удалена!');
-                        Navigator.of(context).pop(true);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Удалить'),
-                      ],
-                    )),
-              ),
-            ],
+          /// Buttons Удалить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Удалить запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 28),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                      onPressed: () async {
+                        var result = await deleteItem();
+                        if (result) {
+                          showMessage('Запись удалена!');
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.delete, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Удалить'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

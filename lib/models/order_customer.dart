@@ -158,12 +158,13 @@ class OrderCustomerFields {
 /// ТЧ Товары, Документы.ЗаказПокупателя
 class ItemOrderCustomer {
   int id = 0;                   // Инкремент
+  int idOrderCustomer = 0;      // ID владельца ТЧ (документ)
   String uid = '';              // UID для 1С и связи с ТЧ
   String name = '';             // Название товара
   String uidUnit = '';          // Ссылка на единицу измерения товарв
   String nameUnit = '';         // Название единицы измерения
   double count = 0.0;           // Количество товара
-  double price = 0.0;           // Цена товарв
+  double price = 0.0;           // Цена товара
   double discount = 0.0;        // Скидка/наценка на товар
   double sum = 0.0;             // Сумма товаров
 
@@ -171,6 +172,7 @@ class ItemOrderCustomer {
 
   ItemOrderCustomer({
     required this.id,
+    required this.idOrderCustomer,
     required this.uid,
     required this.name,
     required this.uidUnit,
@@ -183,6 +185,7 @@ class ItemOrderCustomer {
 
   ItemOrderCustomer.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    idOrderCustomer = json['idOrderCustomer'];
     uid = json['uid'];
     name = json['name'];
     uidUnit = json['uidUnit'];
@@ -195,7 +198,10 @@ class ItemOrderCustomer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
+    if (id != 0) {
+      data['id'] = id;
+    }
+    data['idOrderCustomer'] = idOrderCustomer;
     data['uid'] = uid;
     data['name'] = name;
     data['uidUnit'] = uidUnit;

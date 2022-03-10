@@ -28,14 +28,14 @@ class DatabaseHelper {
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDatabase1.db');
+    _database = await _initDB('WPSalesDatabase3.db');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(path, version: 3, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -75,6 +75,8 @@ class DatabaseHelper {
       )
     ''');
 
+    await db.execute("DROP TABLE IF EXISTS $tableItemsOrderCustomer");
+
     /// Документ.ЗаказПокупателя - ТЧ "Товары" (№1)
     await db.execute('''
     CREATE TABLE $tableItemsOrderCustomer (    
@@ -84,10 +86,10 @@ class DatabaseHelper {
       ${ItemOrderCustomerFields.name} $textType,      
       ${ItemOrderCustomerFields.uidUnit} $textType,
       ${ItemOrderCustomerFields.nameUnit} $textType,
-      ${ItemOrderCustomerFields.count} $integerType,
-      ${ItemOrderCustomerFields.price} $integerType,
-      ${ItemOrderCustomerFields.discount} $integerType,
-      ${ItemOrderCustomerFields.sum} $integerType      
+      ${ItemOrderCustomerFields.count} $realType,
+      ${ItemOrderCustomerFields.price} $realType,
+      ${ItemOrderCustomerFields.discount} $realType,
+      ${ItemOrderCustomerFields.sum} $realType      
       )
     ''');
 
@@ -176,7 +178,7 @@ class DatabaseHelper {
       )
     ''');
 
-    /// Справочник.Валюты
+    /// Справочник.ЕдиницыИзмерения
     await db.execute('''
     CREATE TABLE $tableUnit(    
       ${ItemUnitFields.id} $idType,
@@ -184,7 +186,7 @@ class DatabaseHelper {
       ${ItemUnitFields.uid} $textType,
       ${ItemUnitFields.code} $textType,      
       ${ItemUnitFields.name} $textType,
-      ${ItemUnitFields.uidParent} $textType,
+      ${ItemUnitFields.uidParent} $textType,      
       ${ItemUnitFields.multiplicity} $realType,
       ${ItemUnitFields.comment} $textType            
       )
@@ -591,6 +593,63 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+  /// Справочник.ЕдиницыИзмерений
+  Future<Unit> createUnit(Unit unit) async {
+    final db = await instance.database;
+    final id = await db.insert(tableUnit, unit.toJson());
+    unit.id = id;
+    return unit;
+  }
+
+  Future<int> updateUnit(Unit unit) async {
+    final db = await instance.database;
+    return db.update(
+      tableUnit,
+      unit.toJson(),
+      where: '${ItemUnitFields.id} = ?',
+      whereArgs: [unit.id],
+    );
+  }
+
+  Future<int> deleteUnit(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableUnit,
+      where: '${ItemUnitFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<Unit> readUnit(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableUnit,
+      columns: ItemUnitFields.values,
+      where: '${ItemUnitFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Unit.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с ID: $id не обнаружена!');
+    }
+  }
+
+  Future<List<Unit>> readAllUnit() async {
+    final db = await instance.database;
+    const orderBy = '${ItemUnitFields.name} ASC';
+    final result = await db.query(tableUnit, orderBy: orderBy);
+    return result.map((json) => Unit.fromJson(json)).toList();
+  }
+
+  Future<int> getCountUnit() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableUnit"));
+    return result ?? 0;
+  }
+
   /// Справочник.Склады
   Future<Warehouse> createWarehouse(Warehouse warehouse) async {
     final db = await instance.database;
@@ -665,21 +724,55 @@ class DatabaseHelper {
   }
 
   /// Документы.ЗаказПокупателя
-  Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer) async {
+  Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
     final db = await instance.database;
-    final id = await db.insert(tableOrderCustomer, orderCustomer.toJson());
-    orderCustomer.id = id;
-    return orderCustomer;
+    try {
+      db.transaction((txn) async {
+        orderCustomer.id = await txn.insert(tableOrderCustomer, orderCustomer.toJson());
+
+        /// Запись ТЧ "Товары"
+        for (var itemOrderCustomer in itemsOrderCustomer) {
+          itemOrderCustomer.idOrderCustomer = orderCustomer.id;
+          txn.insert(tableItemsOrderCustomer, itemOrderCustomer.toJson());
+        }
+      });
+      return orderCustomer;
+    } catch (e) {
+      throw Exception('Ошибка записи объекта!');
+    }
   }
 
-  Future<int> updateOrderCustomer(OrderCustomer orderCustomer) async {
+  Future<int> updateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
     final db = await instance.database;
-    return db.update(
-      tableOrderCustomer,
-      orderCustomer.toJson(),
-      where: '${OrderCustomerFields.id} = ?',
-      whereArgs: [orderCustomer.id],
-    );
+    int intOperation = 0; 
+    try {
+      db.transaction((txn) async {
+        intOperation = intOperation + await txn.update(
+          tableOrderCustomer,
+          orderCustomer.toJson(),
+          where: '${OrderCustomerFields.id} = ?',
+          whereArgs: [orderCustomer.id],
+        );
+
+        /// Очистка ТЧ "Товары"
+        txn.delete(
+          tableItemsOrderCustomer,
+          where: '${ItemOrderCustomerFields.idOrderCustomer} = ?',
+          whereArgs: [orderCustomer.id],
+        );
+        intOperation = intOperation + 1;
+
+        /// Добавление ТЧ "Товары"
+        for (var itemOrderCustomer in itemsOrderCustomer) {
+          itemOrderCustomer.idOrderCustomer = orderCustomer.id;
+          txn.insert(tableItemsOrderCustomer, itemOrderCustomer.toJson());
+          intOperation = intOperation + 1;
+        }
+      });
+      return intOperation;
+    } catch (e) {
+      throw Exception('Ошибка записи объекта!');
+    }
   }
 
   Future<int> deleteOrderCustomer(int id) async {
@@ -699,7 +792,7 @@ class DatabaseHelper {
       });
       return 1;
     } catch (e) {
-      return 0;
+      throw Exception('Ошибка удаления объекта с ID: $id!');
     }
   }
 
@@ -717,6 +810,20 @@ class DatabaseHelper {
     } else {
       throw Exception('Запись с ID: $id не обнаружена!');
     }
+  }
+
+  Future<List<ItemOrderCustomer>> readItemsOrderCustomer(int idOrderCustomer) async {
+    final db = await instance.database;
+    if (!db.isOpen) {
+      DatabaseHelper._init();
+    }
+    const orderBy = '${ItemOrderCustomerFields.name} ASC';
+    final result = await db.query(tableItemsOrderCustomer,
+        where: '${ItemOrderCustomerFields.idOrderCustomer} = ?',
+        whereArgs: [idOrderCustomer],
+        orderBy: orderBy);
+
+    return result.map((json) => ItemOrderCustomer.fromJson(json)).toList();
   }
 
   Future<List<OrderCustomer>> readAllNewOrderCustomer() async {

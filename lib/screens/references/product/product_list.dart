@@ -62,7 +62,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
   }
 
   void renewItem() async {
-    // Очистка списка заказов покупателя
+    // Очистка списка
     listProducts.clear();
     tempItems.clear();
 
@@ -70,6 +70,8 @@ class _ScreenProductListState extends State<ScreenProductList> {
     await DatabaseHelper.instance.readAllProducts();
 
     tempItems.addAll(listProducts);
+
+    setState(() {});
   }
 
   void filterSearchResults(String query) {

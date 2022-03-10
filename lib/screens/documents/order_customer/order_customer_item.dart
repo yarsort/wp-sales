@@ -27,6 +27,7 @@ class ScreenItemOrderCustomer extends StatefulWidget {
 class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   /// Количество строк товаров в заказе
   int countItems = 0;
+  bool firstOpen = true;
 
   /// Позиции товаров в заказе
   List<ItemOrderCustomer> itemsOrder = [];
@@ -63,6 +64,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   /// Поле ввода: Комментарий
   TextEditingController textFieldCommentController = TextEditingController();
 
+  /// Поле ввода: UUID
+  TextEditingController textFieldUUIDController =
+  TextEditingController();
+
   /// Поле ввода: Номер документа в 1С
   TextEditingController textFieldNumberFrom1CController =
       TextEditingController();
@@ -81,6 +86,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   void initState() {
     super.initState();
     updateHeader();
+    renewItems();
   }
 
   @override
@@ -97,11 +103,12 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 child: GestureDetector(
                   onTap: () async {
                     Warehouse warehouse = await DatabaseHelper.instance
-                        .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
+                          .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
+
                     Price price = await DatabaseHelper.instance
                         .readPriceByUID(widget.orderCustomer.uidPrice);
 
-                    Navigator.push(
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ScreenProductSelection(
@@ -110,6 +117,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                             price: price),
                       ),
                     );
+                    renewItems();
                   },
                   child: const Icon(Icons.add, size: 26.0),
                 )),
@@ -169,11 +177,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       textFieldCommentController.text = widget.orderCustomer.comment;
 
       // Технические данные
+      textFieldUUIDController.text = widget.orderCustomer.uid;
       sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
       sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
       textFieldDateSendingTo1CController.text =
           shortDateToString(widget.orderCustomer.dateSendingTo1C);
       textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
+
 
       // Проверка Организации
       if ((textFieldPartnerController.text.trim() == '') ||
@@ -237,13 +247,36 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         });
   }
 
+  renewItems() async {
+
+    countItems = 0;
+
+    if (firstOpen) {
+      itemsOrder.clear();
+
+      if (widget.orderCustomer.id != 0) {
+        itemsOrder = await DatabaseHelper.instance
+            .readItemsOrderCustomer(widget.orderCustomer.id);
+      }
+      firstOpen = false;
+    }
+
+    // Количество документов в списке
+    countItems = itemsOrder.length;
+    widget.orderCustomer.countItems = countItems;
+
+    debugPrint('Количество товаров: ' + countItems.toString());
+
+    setState(() {});
+  }
+
   saveDoc() async {
     try {
       if (widget.orderCustomer.id != 0) {
-        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer);
+        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       } else {
-        await DatabaseHelper.instance.createOrderCustomer(widget.orderCustomer);
+        await DatabaseHelper.instance.createOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       }
     } on Exception catch (error) {
@@ -260,7 +293,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         widget.orderCustomer.status = 3;
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer);
+        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -275,78 +308,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   eraseDoc() {
     return true;
   }
-
-  listItemsOrder() {
-    // Очистка списка заказов покупателя
-    itemsOrder.clear();
-
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomerItems) {
-      ItemOrderCustomer newItemOrderCustomer =
-          ItemOrderCustomer.fromJson(message);
-      itemsOrder.add(newItemOrderCustomer);
-    }
-
-    // Количество документов в списке
-    countItems = itemsOrder.length;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-      child: ColumnBuilder(
-          itemCount: countItems,
-          itemBuilder: (context, index) {
-            final item = itemsOrder[index];
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-              child: Card(
-                elevation: 2,
-                child: ListTile(
-                  title: Text(item.name),
-                  subtitle: Column(
-                    children: [
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                              flex: 1,
-                              child: Text(doubleThreeToString(item.count))),
-                          Expanded(flex: 1, child: Text(item.nameUnit)),
-                          Expanded(
-                              flex: 1, child: Text(doubleToString(item.price))),
-                          Expanded(
-                              flex: 1,
-                              child: Text(doubleToString(item.discount))),
-                          Expanded(
-                              flex: 1, child: Text(doubleToString(item.sum))),
-                        ],
-                      ),
-                    ],
-                  ),
-                  trailing: PopupMenuButton(
-                    itemBuilder: (context) {
-                      return [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Text('Редактировать'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Удалить'),
-                        )
-                      ];
-                    },
-                    onSelected: (String value) {
-                      debugPrint('You Click on po up menu item');
-                    },
-                  ),
-                ),
-              ),
-            );
-          }),
-    );
-  }
-
   listHeaderOrder() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
@@ -625,7 +586,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                          MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         var result = await deleteDoc();
                         if (result) {
@@ -650,14 +611,69 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
+  listItemsOrder() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: ColumnBuilder(
+          itemCount: countItems,
+          itemBuilder: (context, index) {
+            final item = itemsOrder[index];
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  title: Text(item.name),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                              flex: 1,
+                              child: Text(doubleThreeToString(item.count))),
+                          Expanded(flex: 1, child: Text(item.nameUnit)),
+                          Expanded(
+                              flex: 1, child: Text(doubleToString(item.price))),
+                          Expanded(
+                              flex: 1, child: Text(doubleToString(item.sum))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
   listServiceOrder() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
         children: [
+          /// UUID
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldUUIDController,
+              readOnly: true,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'UUID',
+              ),
+            ),
+          ),
+
           /// Date sending to 1C
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
               controller: textFieldDateSendingTo1CController,
               readOnly: true,
@@ -674,7 +690,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
           /// Number sending to 1C
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
               controller: textFieldNumberFrom1CController,
               readOnly: true,

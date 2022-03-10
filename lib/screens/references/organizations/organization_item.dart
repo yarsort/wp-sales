@@ -106,6 +106,12 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
 
   saveItem() async {
     try {
+
+      widget.organizationItem.name = textFieldNameController.text;
+      widget.organizationItem.phone = textFieldPhoneController.text;
+      widget.organizationItem.address = textFieldAddressController.text;
+      widget.organizationItem.comment = textFieldCommentController.text;
+
       if (widget.organizationItem.id != 0) {
         await DatabaseHelper.instance.updateOrganization(widget.organizationItem);
         return true;
@@ -159,9 +165,6 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (value) {
-              widget.organizationItem.name = textFieldNameController.text;
-            },
             controller: textFieldNameController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -218,9 +221,6 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
-            onChanged: (value) {
-              widget.organizationItem.address = textFieldAddressController.text;
-            },
             controller: textFieldAddressController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -249,9 +249,6 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
-            onChanged: (value) {
-              widget.organizationItem.comment = textFieldCommentController.text;
-            },
             controller: textFieldCommentController,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
