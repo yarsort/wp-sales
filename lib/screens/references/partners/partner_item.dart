@@ -305,23 +305,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             ),
           ),
 
-          ///
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldSchedulePaymentController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Отсрочка платежа (дней)',
-              ),
-            ),
-          ),
-
           /// Divider
           const Padding(
             padding: EdgeInsets.fromLTRB(14, 0, 14, 0),

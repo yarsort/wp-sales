@@ -42,14 +42,17 @@ class _ScreenUnitSelectionState extends State<ScreenUnitSelection> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           var newItem = Unit();
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ScreenUnitItem(unitItem: newItem),
             ),
           );
+          setState(() {
+            renewItem();
+          });
         },
         tooltip: 'Добавить валюту',
         child: const Text(

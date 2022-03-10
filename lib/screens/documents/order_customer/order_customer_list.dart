@@ -159,6 +159,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listSendParameters(),
+                yesSendDocuments()
                 //countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
               ],
             ),
@@ -166,6 +167,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listTrashParameters(),
+                yesTrashDocuments()
                 //countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
               ],
             ),
@@ -216,7 +218,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     countTrashDocuments = listTrashOrdersCustomer.length;
 
     debugPrint(
-        'Количество удаленных документов: ' + countSendDocuments.toString());
+        'Количество удаленных документов: ' + countTrashDocuments.toString());
   }
 
   listNewParameters() {
@@ -1069,7 +1071,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
-                  setState(() {});
+                 loadData();
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -1166,7 +1168,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
-                  setState(() {});
+                  loadData();
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(
@@ -1299,7 +1301,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           ScreenItemOrderCustomer(orderCustomer: orderCustomer),
                     ),
                   );
-                  setState(() {});
+                  loadData();
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(

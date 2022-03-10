@@ -65,8 +65,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   TextEditingController textFieldCommentController = TextEditingController();
 
   /// Поле ввода: UUID
-  TextEditingController textFieldUUIDController =
-  TextEditingController();
+  TextEditingController textFieldUUIDController = TextEditingController();
 
   /// Поле ввода: Номер документа в 1С
   TextEditingController textFieldNumberFrom1CController =
@@ -91,64 +90,107 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('Заказ'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () async {
-                    Warehouse warehouse = await DatabaseHelper.instance
-                          .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
+    return WillPopScope(
+      onWillPop: () async {
+        final value = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: const Text('Сохранить документ?'),
+                actions: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            var result = await saveDoc();
+                            if (result) {
+                              showMessage('Запись сохранена!');
+                              Navigator.of(context).pop(true);
+                            }
+                          },
+                          child: const SizedBox(
+                              width: 60, child: Center(child: Text('Да')))),
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            Navigator.of(context).pop(true);
+                          },
+                          child: const SizedBox(
+                            width: 60,
+                            child: Center(child: Text('Нет')),
+                          )),
+                    ],
+                  ),
+                ],
+              );
+            });
+        return value == true;
+      },
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: const Text('Заказ'),
+            actions: [
+              Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    onTap: () async {
+                      Warehouse warehouse = await DatabaseHelper.instance
+                          .readWarehouseByUID(
+                              widget.orderCustomer.uidWarehouse);
 
-                    Price price = await DatabaseHelper.instance
-                        .readPriceByUID(widget.orderCustomer.uidPrice);
+                      Price price = await DatabaseHelper.instance
+                          .readPriceByUID(widget.orderCustomer.uidPrice);
 
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ScreenProductSelection(
-                            listItemDoc: itemsOrder,
-                            warehouse: warehouse,
-                            price: price),
-                      ),
-                    );
-                    renewItems();
-                  },
-                  child: const Icon(Icons.add, size: 26.0),
-                )),
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Главная'),
-              Tab(text: 'Товары'),
-              Tab(text: 'Служебные'),
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenProductSelection(
+                              listItemDoc: itemsOrder,
+                              warehouse: warehouse,
+                              price: price),
+                        ),
+                      );
+                      renewItems();
+                    },
+                    child: const Icon(Icons.add, size: 26.0),
+                  )),
+            ],
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Главная'),
+                Tab(text: 'Товары'),
+                Tab(text: 'Служебные'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listHeaderOrder(),
+                ],
+              ),
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listItemsOrder(),
+                ],
+              ),
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listServiceOrder(),
+                ],
+              ),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                listHeaderOrder(),
-              ],
-            ),
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                listItemsOrder(),
-              ],
-            ),
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [listServiceOrder()],
-            ),
-          ],
         ),
       ),
     );
@@ -183,7 +225,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       textFieldDateSendingTo1CController.text =
           shortDateToString(widget.orderCustomer.dateSendingTo1C);
       textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
-
 
       // Проверка Организации
       if ((textFieldPartnerController.text.trim() == '') ||
@@ -223,32 +264,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
-  void showExitDialog(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return SimpleDialog(
-            title: const Text('Записать документ?'),
-            children: <Widget>[
-              SimpleDialogOption(
-                child: const Text('Закрыть'),
-                onPressed: () {
-                  Navigator.of(context).pop('Закрыть');
-                },
-              ),
-              SimpleDialogOption(
-                child: const Text('Записать'),
-                onPressed: () {
-                  Navigator.of(context).pop('Записать');
-                },
-              ),
-            ],
-          );
-        });
-  }
-
   renewItems() async {
-
     countItems = 0;
 
     if (firstOpen) {
@@ -272,11 +288,19 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   saveDoc() async {
     try {
+      /// Сумма товаров в заказе
+      OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
+
+      /// Количество товаров в заказе
+      OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+
       if (widget.orderCustomer.id != 0) {
-        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer, itemsOrder);
+        await DatabaseHelper.instance
+            .updateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       } else {
-        await DatabaseHelper.instance.createOrderCustomer(widget.orderCustomer, itemsOrder);
+        await DatabaseHelper.instance
+            .createOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       }
     } on Exception catch (error) {
@@ -293,7 +317,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         widget.orderCustomer.status = 3;
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.updateOrderCustomer(widget.orderCustomer, itemsOrder);
+        await DatabaseHelper.instance
+            .updateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -308,6 +333,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   eraseDoc() {
     return true;
   }
+
   listHeaderOrder() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
@@ -397,7 +423,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     widget.orderCustomer.uidCurrency = '';
                   }
                 }
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Price
@@ -568,7 +594,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.update, color: Colors.white),
+                          Icon(Icons.save, color: Colors.white),
                           SizedBox(width: 14),
                           Text('Записать')
                         ],
@@ -586,7 +612,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.all(Colors.red)),
+                              MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         var result = await deleteDoc();
                         if (result) {
@@ -721,11 +747,31 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                               'Ошибка! Установлен флаг: Не отправлять в 1С!'),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                        /// Снятие флага на повторную отправку в учетную систему
                         sendYesTo1C = false;
+
                       } else {
+                        /// Флаг отметки на отправку
                         sendYesTo1C = !sendYesTo1C;
                       }
+
+                      if (!sendYesTo1C) {
+                        /// Отметим статус заказа как неотправленный
+                        widget.orderCustomer.status = 1;
+
+                        /// Очистка даты отправки заказа вручную
+                        textFieldDateSendingTo1CController.text = '';
+                      } else {
+                        /// Отметим статус заказа как отправленный
+                        widget.orderCustomer.status = 2;
+
+                        /// Фиксация даты отправки заказа вручную
+                        textFieldDateSendingTo1CController.text =
+                            shortDateToString(DateTime.now());
+                      }
                     });
+
                   },
                 ),
                 const Text('Отправлено в учетную систему'),

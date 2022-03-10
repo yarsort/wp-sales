@@ -244,14 +244,6 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                       Text(doubleToString(partnerItem.balanceForPayment)),
                                     ],
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.schedule, color: Colors.blue,size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(partnerItem.schedulePayment.toString()),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),

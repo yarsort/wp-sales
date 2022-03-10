@@ -8,7 +8,7 @@ const String tableItemsOrderCustomer   = '_DocumentOrderCustomer_VT1'; // Тов
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
   int id = 0;                   // Инкремент
-  int status = 0;               // 0 - новый, 1 - отправлено, 2 - удален
+  int status = 1;               // 0 - новый, 1 - отправлено, 2 - удален
   DateTime date = DateTime.now(); // Дата создания заказа
   String uid = '';              // UID для 1С и связи с ТЧ
   String uidOrganization = '';  // Ссылка на организацию
@@ -61,6 +61,21 @@ class OrderCustomer {
     dateSendingTo1C = DateTime.parse(json['dateSendingTo1C']);
     numberFrom1C = json['numberFrom1C'] ?? '';
     countItems = json['countItems'] ?? 0;
+  }
+
+
+  allSum (OrderCustomer orderCustomer, List<ItemOrderCustomer> items) {
+    /// Сумма документв
+    double allSum = 0.0;
+    for (var item in items) {
+      allSum = allSum + item.sum;
+    }
+    orderCustomer.sum = allSum;
+  }
+
+  allCount (OrderCustomer orderCustomer, List<ItemOrderCustomer> items) {
+    /// Количество строк товаров документв
+    orderCustomer.countItems = items.length;
   }
 
   Map<String, dynamic> toJson() {

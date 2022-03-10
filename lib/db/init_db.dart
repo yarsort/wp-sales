@@ -831,18 +831,7 @@ class DatabaseHelper {
     if (!db.isOpen) {
       DatabaseHelper._init();
     }
-    const orderBy = '${OrderCustomerFields.date} ASC';
-    final result = await db.query(tableOrderCustomer,
-        where: '${OrderCustomerFields.status} = ?',
-        whereArgs: [0],
-        orderBy: orderBy);
-
-    return result.map((json) => OrderCustomer.fromJson(json)).toList();
-  }
-
-  Future<List<OrderCustomer>> readAllSendOrderCustomer() async {
-    final db = await instance.database;
-    const orderBy = '${OrderCustomerFields.date} ASC';
+    String orderBy = '${OrderCustomerFields.date} ASC';
     final result = await db.query(tableOrderCustomer,
         where: '${OrderCustomerFields.status} = ?',
         whereArgs: [1],
@@ -851,12 +840,23 @@ class DatabaseHelper {
     return result.map((json) => OrderCustomer.fromJson(json)).toList();
   }
 
-  Future<List<OrderCustomer>> readAllTrashOrderCustomer() async {
+  Future<List<OrderCustomer>> readAllSendOrderCustomer() async {
     final db = await instance.database;
-    const orderBy = '${OrderCustomerFields.date} ASC';
+    String orderBy = '${OrderCustomerFields.date} ASC';
     final result = await db.query(tableOrderCustomer,
         where: '${OrderCustomerFields.status} = ?',
         whereArgs: [2],
+        orderBy: orderBy);
+
+    return result.map((json) => OrderCustomer.fromJson(json)).toList();
+  }
+
+  Future<List<OrderCustomer>> readAllTrashOrderCustomer() async {
+    final db = await instance.database;
+    String orderBy = '${OrderCustomerFields.date} ASC';
+    final result = await db.query(tableOrderCustomer,
+        where: '${OrderCustomerFields.status} = ?',
+        whereArgs: [3],
         orderBy: orderBy);
 
     return result.map((json) => OrderCustomer.fromJson(json)).toList();

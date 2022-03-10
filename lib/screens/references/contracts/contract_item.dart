@@ -29,6 +29,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   /// Поле ввода: Address
   TextEditingController textFieldAddressController = TextEditingController();
 
+  /// Поле ввода: Date of payment
+  TextEditingController textFieldSchedulePaymentController = TextEditingController();
+
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
 
@@ -101,6 +104,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
     textFieldNameController.text = widget.contractItem.name;
     textFieldPhoneController.text = widget.contractItem.phone;
     textFieldAddressController.text = widget.contractItem.address;
+    textFieldSchedulePaymentController.text = widget.contractItem.schedulePayment.toString();
     textFieldCommentController.text = widget.contractItem.comment;
 
     // Технические данные
@@ -115,6 +119,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.name = textFieldNameController.text;
       widget.contractItem.phone = textFieldPhoneController.text;
       widget.contractItem.address = textFieldAddressController.text;
+      widget.contractItem.schedulePayment = int.parse(textFieldSchedulePaymentController.text);
       widget.contractItem.comment = textFieldCommentController.text;
 
       if (widget.contractItem.id != 0) {
@@ -266,6 +271,23 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+
+          /// SchedulePayment
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: TextField(
+              controller: textFieldSchedulePaymentController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                border: OutlineInputBorder(),
+                labelStyle: TextStyle(
+                  color: Colors.blueGrey,
+                ),
+                labelText: 'Отсрочка платежа (дней)',
               ),
             ),
           ),
