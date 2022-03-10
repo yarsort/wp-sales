@@ -18,6 +18,12 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
 
+  /// Поле ввода: Course
+  TextEditingController textFieldCourseController = TextEditingController();
+
+  /// Поле ввода: Multiplicity
+  TextEditingController textFieldMultiplicityController = TextEditingController();
+
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
 
@@ -82,7 +88,6 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
   }
 
   renewItem() async {
-
     if (widget.currencyItem.uid == '') {
       widget.currencyItem.uid = const Uuid().v4();
     }
@@ -99,6 +104,11 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   saveItem() async {
     try {
+      widget.currencyItem.name = textFieldNameController.text;
+      widget.currencyItem.comment = textFieldCommentController.text;
+      widget.currencyItem.course = double.parse(textFieldCourseController.text);
+      widget.currencyItem.multiplicity = double.parse(textFieldMultiplicityController.text);
+
       if (widget.currencyItem.id != 0) {
         await DatabaseHelper.instance.updateCurrency(widget.currencyItem);
         return true;
@@ -169,6 +179,40 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+
+        /// Course
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldCourseController,
+            readOnly: true,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Курс валюты',
+            ),
+          ),
+        ),
+
+        /// Multiplicity
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldMultiplicityController,
+            readOnly: true,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Кратность валюты',
             ),
           ),
         ),

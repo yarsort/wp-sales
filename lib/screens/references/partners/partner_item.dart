@@ -47,7 +47,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   }
 
   renewItem() async {
-
       if (widget.partnerItem.uid == '') {
         widget.partnerItem.uid = const Uuid().v4();
       }
@@ -141,7 +140,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   deleteItem() async {
     try {
       if (widget.partnerItem.id != 0) {
-
         /// Обновим объект в базе данных
         await DatabaseHelper.instance.deleteCurrency(widget.partnerItem.id);
         return true;
@@ -165,13 +163,15 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   }
 
   listHeaderOrder() {
-
     return Column(
       children: [
         /// Name
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.partnerItem.name = textFieldNameController.text;
+            },
             controller: textFieldNameController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -200,6 +200,9 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.partnerItem.phone = textFieldPhoneController.text;
+            },
             controller: textFieldPhoneController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -228,6 +231,9 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.partnerItem.address = textFieldAddressController.text;
+            },
             controller: textFieldAddressController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -296,6 +302,9 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.partnerItem.comment = textFieldCommentController.text;
+            },
             controller: textFieldCommentController,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),

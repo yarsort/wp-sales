@@ -91,6 +91,9 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
   }
 
   renewItem() {
+    if (widget.productItem.uid == '') {
+      widget.productItem.uid = const Uuid().v4();
+    }
 
     textFieldNameController.text = widget.productItem.name;
     textFieldVendorCodeController.text = widget.productItem.vendorCode;
@@ -102,15 +105,16 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
     textFieldUIDController.text = widget.productItem.uid;
     textFieldCodeController.text = widget.productItem.code;
 
-    if (widget.productItem.uid == '') {
-      widget.productItem.uid == const Uuid().v4();
-    }
-
     setState(() {});
   }
 
   saveItem() async {
     try {
+      widget.productItem.name = textFieldNameController.text;
+      widget.productItem.vendorCode = textFieldVendorCodeController.text;
+      widget.productItem.barcode = textFieldBarcodeController.text;
+      widget.productItem.comment = textFieldCommentController.text;
+
       if (widget.productItem.id != 0) {
         await DatabaseHelper.instance.updateProduct(widget.productItem);
         return true;
@@ -213,6 +217,9 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.productItem.nameUnit = textFieldNameUnitController.text;
+            },
             controller: textFieldNameUnitController,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
@@ -240,6 +247,9 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.productItem.vendorCode = textFieldVendorCodeController.text;
+            },
             controller: textFieldBarcodeController,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),

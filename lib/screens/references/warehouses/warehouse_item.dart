@@ -107,6 +107,11 @@ class _ScreenWarehouseItemState extends State<ScreenWarehouseItem> {
 
   saveItem() async {
     try {
+      widget.warehouseItem.name = textFieldNameController.text;
+      widget.warehouseItem.phone = textFieldPhoneController.text;
+      widget.warehouseItem.address = textFieldAddressController.text;
+      widget.warehouseItem.comment = textFieldCommentController.text;
+
       if (widget.warehouseItem.id != 0) {
         await DatabaseHelper.instance.updateWarehouse(widget.warehouseItem);
         return true;
@@ -155,6 +160,7 @@ class _ScreenWarehouseItemState extends State<ScreenWarehouseItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
+
             controller: textFieldNameController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),

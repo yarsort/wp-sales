@@ -88,7 +88,6 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
   }
 
   renewItem() async {
-
     if (widget.organizationItem.uid == '') {
       widget.organizationItem.uid = const Uuid().v4();
     }
@@ -123,6 +122,11 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
 
   deleteItem() async {
     try {
+      widget.organizationItem.name = textFieldNameController.text;
+      widget.organizationItem.phone = textFieldPhoneController.text;
+      widget.organizationItem.address = textFieldAddressController.text;
+      widget.organizationItem.comment = textFieldCommentController.text;
+
       if (widget.organizationItem.id != 0) {
 
         /// Обновим объект в базе данных
@@ -186,9 +190,6 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
-            onChanged: (value) {
-              widget.organizationItem.phone = textFieldPhoneController.text;
-            },
             controller: textFieldPhoneController,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),

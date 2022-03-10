@@ -2,31 +2,29 @@
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
-const String tableCurrency   = '_ReferenceCurrency';
+const String tableUnit   = '_ReferenceUnit';
 
-/// Справочник.Валюта
-class Currency {
+/// Справочник.ЕдиницыИзмерения
+class Unit {
   int id = 0;                     // Инкремент
   int isGroup = 0;                // Пометка удаления
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя
   String uidParent = '';          // Ссылка на группу
-  double course = 0.0;            // Курс валюты
-  double multiplicity = 0.0;      // Кратность валюты
+  double multiplicity = 0.0;      // Кратность
   String comment = '';            // Коммментарий
 
-  Currency();
+  Unit();
 
-  Currency.fromJson(Map<String, dynamic> json) {
+  Unit.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
     isGroup = 0;
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
     uidParent = json['uidParent'] ?? '';
-    course = json['course'] ?? 0.0;
-    multiplicity = json['multiplicity'] ?? 0.0;
+    multiplicity = json['multiplicity'] ?? 1.0;
     comment = json['comment'] ?? '';
   }
 
@@ -40,7 +38,6 @@ class Currency {
     data['code'] = code;
     data['name'] = name;
     data['uidParent'] = uidParent;
-    data['course'] = course;
     data['multiplicity'] = multiplicity;
     data['comment'] = comment;
     return data;
@@ -48,7 +45,7 @@ class Currency {
 }
 
 /// Поля для базы данных
-class ItemCurrencyFields {
+class ItemUnitFields {
   static final List<String> values = [
     id,
     isGroup,
@@ -56,7 +53,6 @@ class ItemCurrencyFields {
     code,
     name,
     uidParent,
-    course,
     multiplicity,
     comment,
   ];
@@ -68,7 +64,6 @@ class ItemCurrencyFields {
   static const String code = 'code';
   static const String name = 'name';
   static const String uidParent = 'uidParent';
-  static const String course = 'course';
   static const String multiplicity = 'multiplicity';
   static const String comment = 'comment';
 

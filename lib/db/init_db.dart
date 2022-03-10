@@ -7,6 +7,7 @@ import 'package:wp_sales/models/organization.dart';
 import 'package:wp_sales/models/partner.dart';
 import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/models/unit.dart';
 import 'package:wp_sales/models/warehouse.dart';
 
 final DatabaseHelper instance = DatabaseHelper._init();
@@ -169,7 +170,23 @@ class DatabaseHelper {
       ${ItemCurrencyFields.code} $textType,      
       ${ItemCurrencyFields.name} $textType,
       ${ItemCurrencyFields.uidParent} $textType,
+      ${ItemCurrencyFields.course} $realType,
+      ${ItemCurrencyFields.multiplicity} $realType,
       ${ItemCurrencyFields.comment} $textType            
+      )
+    ''');
+
+    /// Справочник.Валюты
+    await db.execute('''
+    CREATE TABLE $tableUnit(    
+      ${ItemUnitFields.id} $idType,
+      ${ItemUnitFields.isGroup} $integerType,      
+      ${ItemUnitFields.uid} $textType,
+      ${ItemUnitFields.code} $textType,      
+      ${ItemUnitFields.name} $textType,
+      ${ItemUnitFields.uidParent} $textType,
+      ${ItemUnitFields.multiplicity} $realType,
+      ${ItemUnitFields.comment} $textType            
       )
     ''');
 

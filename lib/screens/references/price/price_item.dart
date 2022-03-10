@@ -82,7 +82,6 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
   }
 
   renewItem() async {
-
     if (widget.priceItem.uid == '') {
       widget.priceItem.uid = const Uuid().v4();
     }
@@ -99,6 +98,9 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
 
   saveItem() async {
     try {
+      widget.priceItem.name = textFieldNameController.text;
+      widget.priceItem.comment = textFieldCommentController.text;
+
       if (widget.priceItem.id != 0) {
         await DatabaseHelper.instance.updatePrice(widget.priceItem);
         return true;
@@ -147,6 +149,9 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.priceItem.name = textFieldNameController.text;
+            },
             controller: textFieldNameController,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
@@ -174,6 +179,9 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
           child: TextField(
+            onChanged: (value) {
+              widget.priceItem.comment = textFieldCommentController.text;
+            },
             controller: textFieldCommentController,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
