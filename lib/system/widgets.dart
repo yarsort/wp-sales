@@ -8,6 +8,7 @@ import 'package:wp_sales/screens/references/organizations/organization_list.dart
 import 'package:wp_sales/screens/references/partners/partner_list.dart';
 import 'package:wp_sales/screens/references/price/price_list.dart';
 import 'package:wp_sales/screens/references/product/product_list.dart';
+import 'package:wp_sales/screens/references/unit/unit_list.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_list.dart';
 import 'package:wp_sales/screens/settings/about.dart';
 import 'package:wp_sales/screens/settings/help.dart';
@@ -24,6 +25,8 @@ class _MainDrawerState extends State<MainDrawer> {
   int countOrderCustomer = 0;
 
   int countProduct = 0;
+
+  int countUnit = 0;
 
   int countOrganization = 0;
 
@@ -151,6 +154,17 @@ class _MainDrawerState extends State<MainDrawer> {
                           );
                         }),
                     ListTile(
+                        title: const Text("Единицы измерения"),
+                        leading: const Icon(Icons.source, color: Colors.blue,),
+                        trailing: countNotification(countUnit),
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (BuildContext context) => const ScreenUnitList()),
+                              ModalRoute.withName('/')
+                          );
+                        }),
+                    ListTile(
                         title: const Text("Типы цен"),
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countPrice),
@@ -249,6 +263,7 @@ class _MainDrawerState extends State<MainDrawer> {
   renewItem() async {
     countOrderCustomer = await DatabaseHelper.instance.getCountSendOrderCustomer();
     countProduct = await DatabaseHelper.instance.getCountProduct();
+    countUnit = await DatabaseHelper.instance.getCountUnit();
     countOrganization = await DatabaseHelper.instance.getCountOrganization();
     countPartner = await DatabaseHelper.instance.getCountPartner();
     countContract = await DatabaseHelper.instance.getCountContract();
