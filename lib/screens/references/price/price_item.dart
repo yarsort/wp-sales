@@ -137,6 +137,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
       SnackBar(
         content:Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }

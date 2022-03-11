@@ -148,6 +148,7 @@ class _ScreenWarehouseItemState extends State<ScreenWarehouseItem> {
       SnackBar(
         content:Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "250262606142",
+    "project_id": "wp-sales-729cf",
+    "storage_bucket": "wp-sales-729cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:250262606142:android:48194bf52d36e648635c6f",
+        "android_client_info": {
+          "package_name": "ua.com.yarsoft.wp_sales"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "250262606142-lat8sn71nal4ducq0rsgtb6r4o3l7hi2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA10xMKwCMGwZ0XybO6NKMnAJW2wqRqi7M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "250262606142-lat8sn71nal4ducq0rsgtb6r4o3l7hi2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

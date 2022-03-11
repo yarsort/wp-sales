@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:wp_sales/screens/auth/home.dart';
 import 'package:wp_sales/screens/auth/registration.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class ScreenLogin extends StatefulWidget {
+  const ScreenLogin({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _ScreenLoginState createState() => _ScreenLoginState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ScreenLoginState extends State<ScreenLogin> {
   // Form key
   final _formKey = GlobalKey<FormState>();
 
@@ -47,14 +47,10 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         textInputAction: TextInputAction.next,
         decoration: const InputDecoration(
-          prefixIcon: Icon(Icons.mail),
+          prefixIcon: Icon(Icons.mail, color: Colors.blue,),
           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
           hintText: "Email",
           border: OutlineInputBorder(),
-          labelText: 'Email',
-          labelStyle: TextStyle(
-            color: Colors.blueGrey,
-          ),
         ));
 
     // Password field
@@ -76,33 +72,27 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         textInputAction: TextInputAction.done,
         decoration: const InputDecoration(
-          prefixIcon: Icon(Icons.vpn_key),
+          prefixIcon: Icon(Icons.vpn_key, color: Colors.blue,),
           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
           hintText: "Пароль",
           border: OutlineInputBorder(),
-          labelText: 'Пароль',
-          labelStyle: TextStyle(
-            color: Colors.blueGrey,
-          ),
         ));
 
-    final loginButton = Material(
-      elevation: 5,
-      borderRadius: BorderRadius.circular(30),
-      color: Colors.redAccent,
-      child: MaterialButton(
-          padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-          minWidth: MediaQuery.of(context).size.width,
-          onPressed: () {
-            signIn(emailController.text, passwordController.text);
-          },
-          child: const Text(
-            "Войти",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-          )),
-    );
+    final login2Button = ElevatedButton(
+        onPressed: () async {
+          signIn(emailController.text, passwordController.text);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            SizedBox(height: 50,),
+            Text('Войти',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),),
+            SizedBox(height: 50,),
+          ],
+        ));
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -118,18 +108,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    // const SizedBox(
-                    //     height: 200,
+                    // SizedBox(
+                    //     height: 150,
                     //     child: Image.asset(
                     //       "assets/logo.png",
                     //       fit: BoxFit.contain,
                     //     )),
+                    const SizedBox(
+                        height: 150,
+                        child: FlutterLogo(size: 150,)),
                     const SizedBox(height: 45),
                     emailField,
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 20),
                     passwordField,
-                    const SizedBox(height: 35),
-                    loginButton,
+                    const SizedBox(height: 20),
+                    login2Button,
                     const SizedBox(height: 15),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -146,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text(
                               "Зарегистрироватся",
                               style: TextStyle(
-                                  color: Colors.redAccent,
+                                  color: Colors.blue,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15),
                             ),
@@ -167,11 +160,12 @@ class _LoginScreenState extends State<LoginScreen> {
       SnackBar(
         content: Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }
 
-  // login function
+  // Login function
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -181,6 +175,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const ScreenHomePage())),
         });
+        showMessage('Авторизация успешно завершена!');
+
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":

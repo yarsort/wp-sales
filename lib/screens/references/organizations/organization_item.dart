@@ -153,6 +153,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
       SnackBar(
         content:Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }

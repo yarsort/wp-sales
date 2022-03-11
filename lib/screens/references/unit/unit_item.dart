@@ -151,6 +151,7 @@ class _ScreenUnitItemState extends State<ScreenUnitItem> {
       SnackBar(
         content:Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }

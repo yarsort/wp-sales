@@ -169,6 +169,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       SnackBar(
         content:Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }

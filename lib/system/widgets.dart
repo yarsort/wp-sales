@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/screens/auth/login.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
 import 'package:wp_sales/screens/references/contracts/contract_list.dart';
@@ -107,7 +109,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     }),
                 ExpansionTile(
                   title: const Text('Справочники'),
-                  initiallyExpanded: true,
+                  initiallyExpanded: false,
                   children: [
                     ListTile(
                         title: const Text("Организации"),
@@ -238,6 +240,14 @@ class _MainDrawerState extends State<MainDrawer> {
                           const ScreenAbout(),
                         ),
                       );
+                    }),
+                ListTile(
+                    title: const Text("Выход"),
+                    leading: const Icon(Icons.logout, color: Colors.blue,),
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => const ScreenLogin()));
                     }),
               ],
             ),

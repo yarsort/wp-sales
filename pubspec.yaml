@@ -37,6 +37,7 @@ dependencies:
   shared_preferences: ^2.0.13 # Для хранения настроек
   firebase_auth: ^3.3.10
   firebase_core: ^1.13.1
+  cloud_firestore: ^3.1.10
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

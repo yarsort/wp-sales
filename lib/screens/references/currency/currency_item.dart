@@ -149,6 +149,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
       SnackBar(
         content:Text(textMessage),
         duration: const Duration(seconds: 2),
+        backgroundColor: Colors.blue,
       ),
     );
   }
