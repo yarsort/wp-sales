@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/contract.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
@@ -13,6 +14,8 @@ class ScreenContractList extends StatefulWidget {
 }
 
 class _ScreenContractListState extends State<ScreenContractList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -21,8 +24,8 @@ class _ScreenContractListState extends State<ScreenContractList> {
 
   @override
   void initState() {
-    renewItem();
     super.initState();
+    renewItem();
   }
 
   @override
@@ -62,22 +65,27 @@ class _ScreenContractListState extends State<ScreenContractList> {
   }
 
   void renewItem() async {
+
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listContracts.clear();
     tempItems.clear();
 
-    listContracts =
-    await DatabaseHelper.instance.readAllContracts();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataPrice) {
+        Contract newItem = Contract.fromJson(message);
+        listContracts.add(newItem);
+      }
+    } else {
+      listContracts = await DatabaseHelper.instance.readAllContracts();
+    }
+
     tempItems.addAll(listContracts);
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataContracts) {
-    //   Contract newContract = Contract.fromJson(message);
-    //   listContracts.add(newContract);
-    //   tempItems.add(newContract); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {

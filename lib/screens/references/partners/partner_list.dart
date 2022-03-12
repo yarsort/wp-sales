@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/partner.dart';
+import 'package:wp_sales/screens/references/partners/partner_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
-import 'package:wp_sales/screens/references/partners/partner_item.dart';
 
 class ScreenPartnerList extends StatefulWidget {
   const ScreenPartnerList({Key? key}) : super(key: key);
@@ -13,6 +14,8 @@ class ScreenPartnerList extends StatefulWidget {
 }
 
 class _ScreenPartnerListState extends State<ScreenPartnerList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -62,26 +65,29 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
   }
 
   void renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listPartners.clear();
     tempItems.clear();
 
-    listPartners =
-    await DatabaseHelper.instance.readAllPartners();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataPartners) {
+        Partner newItem = Partner.fromJson(message);
+        listPartners.add(newItem);
+      }
+    } else {
+      listPartners = await DatabaseHelper.instance.readAllPartners();
+    }
+
     tempItems.addAll(listPartners);
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataPartners) {
-    //   Partner newPartner = Partner.fromJson(message);
-    //   listPartners.add(newPartner);
-    //   tempItems.add(newPartner); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -98,7 +104,6 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
     dummySearchList.addAll(listPartners);
 
     if (query.isNotEmpty) {
-
       List<Partner> dummyListData = <Partner>[];
 
       for (var item in dummySearchList) {
@@ -106,10 +111,12 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по адресу
         if (item.address.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по номеру телефона
         if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
@@ -182,15 +189,16 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
           itemBuilder: (context, index) {
             var partnerItem = listPartners[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenPartnerItem(partnerItem: partnerItem),
+                          builder: (context) =>
+                              ScreenPartnerItem(partnerItem: partnerItem),
                         ),
                       );
                       setState(() {
@@ -209,7 +217,8 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
+                                      const Icon(Icons.phone,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(partnerItem.phone),
                                     ],
@@ -217,9 +226,11 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
+                                      const Icon(Icons.home,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(partnerItem.address)),
+                                      Flexible(
+                                          child: Text(partnerItem.address)),
                                     ],
                                   )
                                 ],
@@ -231,7 +242,8 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.price_change, color: Colors.green, size: 20),
+                                      const Icon(Icons.price_change,
+                                          color: Colors.green, size: 20),
                                       const SizedBox(width: 5),
                                       Text(doubleToString(partnerItem.balance)),
                                     ],
@@ -239,9 +251,11 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.price_change, color: Colors.red, size: 20),
+                                      const Icon(Icons.price_change,
+                                          color: Colors.red, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(doubleToString(partnerItem.balanceForPayment)),
+                                      Text(doubleToString(
+                                          partnerItem.balanceForPayment)),
                                     ],
                                   ),
                                 ],
@@ -252,8 +266,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
                       ],
                     ),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

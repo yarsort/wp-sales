@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
@@ -13,6 +14,8 @@ class ScreenPriceList extends StatefulWidget {
 }
 
 class _ScreenPriceListState extends State<ScreenPriceList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -62,26 +65,31 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
   }
 
   void renewItem() async {
+
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listPrices.clear();
     tempItems.clear();
 
-    listPrices =
-        await DatabaseHelper.instance.readAllPrices();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataPrice) {
+        Price newItem = Price.fromJson(message);
+        listPrices.add(newItem);
+        tempItems.add(newItem); // Как шаблон
+      }
+    } else {
+      listPrices = await DatabaseHelper.instance.readAllPrices();
+    }
+
     tempItems.addAll(listPrices);
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataPrice) {
-    //   Price newItem = Price.fromJson(message);
-    //   listPrices.add(newItem);
-    //   tempItems.add(newItem); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -98,7 +106,6 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
     dummySearchList.addAll(listPrices);
 
     if (query.isNotEmpty) {
-
       List<Price> dummyListData = <Price>[];
 
       for (var item in dummySearchList) {
@@ -182,15 +189,16 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
           itemBuilder: (context, index) {
             var priceItem = listPrices[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenPriceItem(priceItem: priceItem),
+                          builder: (context) =>
+                              ScreenPriceItem(priceItem: priceItem),
                         ),
                       );
                       setState(() {
@@ -199,8 +207,7 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
                     },
                     title: Text(priceItem.name),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

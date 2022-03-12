@@ -9,6 +9,7 @@ import 'package:wp_sales/screens/references/organizations/organization_selection
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/screens/references/price/price_selection.dart';
 import 'package:wp_sales/screens/references/product/product_selection.dart';
+import 'package:wp_sales/screens/references/product/product_selection_treeview.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -150,7 +151,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenProductSelection(
+                          builder: (context) => ScreenProductSelectionTreeView(
                               listItemDoc: itemsOrder,
                               warehouse: warehouse,
                               price: price),
@@ -304,7 +305,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         return true;
       }
     } on Exception catch (error) {
-      debugPrint('Ошибка записи!');
+      showMessage('Ошибка записи документа!');
       debugPrint(error.toString());
       return false;
     }
@@ -649,6 +650,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               child: Card(
                 elevation: 2,
                 child: ListTile(
+                  onTap: () {
+                    ItemPopup(itemsOrder: itemsOrder,itemOrder: item);
+                    setState(() {});
+                  },
                   title: Text(item.name),
                   subtitle: Column(
                     children: [
@@ -807,6 +812,51 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ItemPopup extends StatelessWidget {
+  final List<ItemOrderCustomer> itemsOrder;
+  final ItemOrderCustomer itemOrder;
+
+ const ItemPopup({
+    Key? key,
+    required this.itemsOrder,
+    required this.itemOrder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<int>(
+      onSelected: (val) {
+        if (val == 0) {
+
+        }
+        if (val == 1) {
+          itemsOrder.remove(itemOrder);
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 0,
+          child: Text(
+            'Изменить',
+          ),
+        ),
+        const PopupMenuItem(
+          value: 1,
+          child: Text(
+            'Удалить',
+          ),
+        ),
+      ],
+      icon: Icon(
+        Icons.arrow_drop_down,
+        color: Theme.of(context).textTheme.headline6!.color,
+      ),
+      color: Theme.of(context).scaffoldBackgroundColor,
+      offset: const Offset(0, 30),
     );
   }
 }

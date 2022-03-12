@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
+import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenCurrencyList extends StatefulWidget {
@@ -12,6 +14,8 @@ class ScreenCurrencyList extends StatefulWidget {
 }
 
 class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -61,26 +65,29 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
   }
 
   void renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listCurrency.clear();
     tempItems.clear();
 
-    listCurrency =
-        await DatabaseHelper.instance.readAllCurrency();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataCurrency) {
+        Currency newItem = Currency.fromJson(message);
+        listCurrency.add(newItem);
+      }
+    } else {
+      listCurrency = await DatabaseHelper.instance.readAllCurrency();
+    }
+
     tempItems.addAll(listCurrency);
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataCurrency) {
-    //   Currency newItem = Currency.fromJson(message);
-    //   listCurrency.add(newItem);
-    //   tempItems.add(newItem); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -97,7 +104,6 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
     dummySearchList.addAll(listCurrency);
 
     if (query.isNotEmpty) {
-
       List<Currency> dummyListData = <Currency>[];
 
       for (var item in dummySearchList) {
@@ -173,15 +179,16 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
           itemBuilder: (context, index) {
             var currencyItem = listCurrency[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenCurrencyItem(currencyItem: currencyItem),
+                          builder: (context) =>
+                              ScreenCurrencyItem(currencyItem: currencyItem),
                         ),
                       );
                       setState(() {
@@ -190,8 +197,7 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
                     },
                     title: Text(currencyItem.name),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

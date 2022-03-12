@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/unit.dart';
 import 'package:wp_sales/screens/references/unit/unit_item.dart';
+import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenUnitList extends StatefulWidget {
@@ -12,6 +14,8 @@ class ScreenUnitList extends StatefulWidget {
 }
 
 class _ScreenUnitListState extends State<ScreenUnitList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -59,12 +63,22 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
   }
 
   void renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listUnit.clear();
     tempItems.clear();
 
-    listUnit =
-        await DatabaseHelper.instance.readAllUnit();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataUnit) {
+        Unit newItem = Unit.fromJson(message);
+        listUnit.add(newItem);
+      }
+    } else {
+      listUnit = await DatabaseHelper.instance.readAllUnit();
+    }
 
     tempItems.addAll(listUnit);
 
@@ -72,7 +86,6 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -89,7 +102,6 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
     dummySearchList.addAll(listUnit);
 
     if (query.isNotEmpty) {
-
       List<Unit> dummyListData = <Unit>[];
 
       for (var item in dummySearchList) {
@@ -165,23 +177,23 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
           itemBuilder: (context, index) {
             var unitItem = listUnit[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenUnitItem(unitItem: unitItem),
+                          builder: (context) =>
+                              ScreenUnitItem(unitItem: unitItem),
                         ),
                       );
                       renewItem();
                     },
                     title: Text(unitItem.name),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

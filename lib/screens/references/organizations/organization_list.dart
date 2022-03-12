@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/organization.dart';
-import 'package:wp_sales/system/widgets.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
+import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/system/widgets.dart';
 
 class ScreenOrganizationList extends StatefulWidget {
   const ScreenOrganizationList({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class ScreenOrganizationList extends StatefulWidget {
 }
 
 class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -44,7 +48,8 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
+              builder: (context) =>
+                  ScreenOrganizationItem(organizationItem: newItem),
             ),
           );
           setState(() {
@@ -60,20 +65,39 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     );
   }
 
+  showMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listOrganizations.clear();
     tempItems.clear();
 
-    listOrganizations =
-        await DatabaseHelper.instance.readAllOrganization();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataOrganizations) {
+        Organization newItem = Organization.fromJson(message);
+        listOrganizations.add(newItem);
+      }
+    } else {
+      listOrganizations = await DatabaseHelper.instance.readAllOrganization();
+    }
+
     tempItems.addAll(listOrganizations);
 
     setState(() {});
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -90,7 +114,6 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
     dummySearchList.addAll(listOrganizations);
 
     if (query.isNotEmpty) {
-
       List<Organization> dummyListData = <Organization>[];
 
       for (var item in dummySearchList) {
@@ -98,10 +121,12 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по адресу
         if (item.address.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по номеру телефона
         if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
@@ -174,15 +199,16 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
           itemBuilder: (context, index) {
             var organizationItem = listOrganizations[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenOrganizationItem(organizationItem: organizationItem),
+                          builder: (context) => ScreenOrganizationItem(
+                              organizationItem: organizationItem),
                         ),
                       );
                       setState(() {
@@ -201,7 +227,8 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
+                                      const Icon(Icons.phone,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(organizationItem.phone),
                                     ],
@@ -209,9 +236,12 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
+                                      const Icon(Icons.home,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(organizationItem.address)),
+                                      Flexible(
+                                          child:
+                                              Text(organizationItem.address)),
                                     ],
                                   )
                                 ],
@@ -222,8 +252,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
                       ],
                     ),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

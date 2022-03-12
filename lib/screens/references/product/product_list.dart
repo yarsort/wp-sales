@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/product.dart';
 import 'package:wp_sales/screens/references/product/product_item.dart';
@@ -13,6 +14,8 @@ class ScreenProductList extends StatefulWidget {
 }
 
 class _ScreenProductListState extends State<ScreenProductList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -61,13 +64,34 @@ class _ScreenProductListState extends State<ScreenProductList> {
     );
   }
 
+  showMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка
     listProducts.clear();
     tempItems.clear();
 
-    listProducts =
-    await DatabaseHelper.instance.readAllProducts();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataProduct) {
+        Product newItem = Product.fromJson(message);
+        listProducts.add(newItem);
+      }
+      showMessage('Тестовые данные загружены!');
+    } else {
+      listProducts = await DatabaseHelper.instance.readAllProducts();
+      showMessage('Реальные данные загружены!');
+    }
 
     tempItems.addAll(listProducts);
 
@@ -75,7 +99,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -92,7 +115,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
     dummySearchList.addAll(listProducts);
 
     if (query.isNotEmpty) {
-
       List<Product> dummyListData = <Product>[];
 
       for (var item in dummySearchList) {
@@ -179,15 +201,16 @@ class _ScreenProductListState extends State<ScreenProductList> {
             double countOnWarehouses = 0.0;
 
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenProductItem(productItem: productItem),
+                          builder: (context) =>
+                              ScreenProductItem(productItem: productItem),
                         ),
                       );
                       setState(() {
@@ -240,7 +263,8 @@ class _ScreenProductListState extends State<ScreenProductList> {
                                       const Icon(Icons.account_balance,
                                           color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(doubleThreeToString(countOnWarehouses)),
+                                      Text(doubleThreeToString(
+                                          countOnWarehouses)),
                                     ],
                                   )
                                 ],
@@ -249,8 +273,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
                       ],
                     ),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

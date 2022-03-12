@@ -22,7 +22,7 @@ class Product {
 
   Product.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
-    isGroup = 0;
+    isGroup = json['isGroup'];
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
@@ -39,7 +39,7 @@ class Product {
     if (id != 0) {
       data['id'] = id;
     }
-    data['isGroup'] = 0;
+    data['isGroup'] = isGroup;
     data['uid'] = uid;
     data['code'] = code;
     data['name'] = name;

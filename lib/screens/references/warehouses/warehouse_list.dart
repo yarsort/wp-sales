@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/warehouse.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
@@ -13,6 +14,8 @@ class ScreenWarehouseList extends StatefulWidget {
 }
 
 class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -62,26 +65,30 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
   }
 
   void renewItem() async {
+
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
     // Очистка списка заказов покупателя
     listWarehouses.clear();
     tempItems.clear();
 
-    listWarehouses =
-        await DatabaseHelper.instance.readAllWarehouse();
+    // Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataWarehouses) {
+        Warehouse newItem = Warehouse.fromJson(message);
+        listWarehouses.add(newItem);
+      }
+    } else {
+      listWarehouses = await DatabaseHelper.instance.readAllWarehouse();
+    }
+
     tempItems.addAll(listWarehouses);
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataWarehouses) {
-    //   Warehouse newItem = Warehouse.fromJson(message);
-    //   listWarehouses.add(newItem);
-    //   tempItems.add(newItem); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -98,7 +105,6 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
     dummySearchList.addAll(listWarehouses);
 
     if (query.isNotEmpty) {
-
       List<Warehouse> dummyListData = <Warehouse>[];
 
       for (var item in dummySearchList) {
@@ -106,10 +112,12 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по адресу
         if (item.address.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по номеру телефона
         if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
@@ -182,15 +190,16 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
           itemBuilder: (context, index) {
             var warehouseItem = listWarehouses[index];
             return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                elevation: 2,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  elevation: 2,
                   child: ListTile(
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenWarehouseItem(warehouseItem: warehouseItem),
+                          builder: (context) =>
+                              ScreenWarehouseItem(warehouseItem: warehouseItem),
                         ),
                       );
                       setState(() {
@@ -209,7 +218,8 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
+                                      const Icon(Icons.phone,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(warehouseItem.phone),
                                     ],
@@ -217,9 +227,11 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
+                                      const Icon(Icons.home,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(warehouseItem.address)),
+                                      Flexible(
+                                          child: Text(warehouseItem.address)),
                                     ],
                                   )
                                 ],
@@ -230,8 +242,7 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
                       ],
                     ),
                   ),
-                ) 
-              );            
+                ));
           },
         ),
       ),

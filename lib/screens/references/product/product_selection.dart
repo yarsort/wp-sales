@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/models/price.dart';
@@ -24,6 +25,9 @@ class ScreenProductSelection extends StatefulWidget {
 }
 
 class _ScreenProductSelectionState extends State<ScreenProductSelection> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
       TextEditingController();
@@ -48,7 +52,7 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Подбор товаров'),
+          title: const Text('Товары (список)'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Каталог'),
@@ -81,11 +85,24 @@ class _ScreenProductSelectionState extends State<ScreenProductSelection> {
   }
 
   void renewItem() async {
+
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = true;
+
     // Очистка списка заказов покупателя
     listProducts.clear();
     tempItems.clear();
 
-    listProducts = await DatabaseHelper.instance.readAllProducts();
+    // Если включены тестовые данные
+    if (useTestData) {
+      // Получение и запись списка заказов покупателей
+      for (var message in listDataProduct) {
+        Product newItem = Product.fromJson(message);
+        listProducts.add(newItem);
+      }
+    } else {
+      listProducts = await DatabaseHelper.instance.readAllProducts();
+    }
 
     tempItems.addAll(listProducts);
 

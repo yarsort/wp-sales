@@ -11,6 +11,8 @@ class ScreenSettings extends StatefulWidget {
 class _ScreenSettingsState extends State<ScreenSettings> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  bool useTestData = false; // Показывать тестовые данные
+
   bool deniedEditSettings = false; // Запретить изменять настройки
   bool deniedEditTypePrice = false; // Запретить изменять тип цены в документах
   bool deniedEditPrice = false; // Запретить изменять цены в документах
@@ -40,52 +42,89 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('Настройки'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {                    
-                    saveSettings();                    
-                    Navigator.of(context).pop();
-                  },
-                  child: const Icon(Icons.save, size: 26.0),
-                )),
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Основные'),
-              Tab(text: 'Обмен'),
-              Tab(text: 'Прочее'),
+    return WillPopScope(
+      onWillPop: () async {
+        final value = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: const Text('Сохранить настройки?'),
+                actions: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            await saveSettings();
+                            Navigator.of(context).pop(true);
+                          },
+                          child: const SizedBox(
+                              width: 60, child: Center(child: Text('Да')))),
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            Navigator.of(context).pop(true);
+                          },
+                          child: const SizedBox(
+                            width: 60,
+                            child: Center(child: Text('Нет')),
+                          )),
+                    ],
+                  ),
+                ],
+              );
+            });
+        return value == true;
+      },
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: const Text('Настройки'),
+            actions: [
+              Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      saveSettings();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Icon(Icons.save, size: 26.0),
+                  )),
+            ],
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Основные'),
+                Tab(text: 'Обмен'),
+                Tab(text: 'Прочее'),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listSettingsMain(),
+                ],
+              ),
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listSettingsExchange(),
+                ],
+              ),
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listSettingsOther()
+                ],
+              ),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                listSettingsMain(),
-              ],
-            ),
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                listSettingsExchange(),
-              ],
-            ),
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                listSettingsOther()
-              ],
-            ),
-          ],
         ),
       ),
     );
@@ -103,6 +142,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   fillSettings() async {
     final SharedPreferences prefs = await _prefs;
     setState(() {
+      useTestData = prefs.getBool('settings_useTestData')!;
+
       useFTPExchange = prefs.getBool('settings_useFTPExchange')!;
       enabledTextFieldWebExchange = useFTPExchange;
 
@@ -125,6 +166,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   saveSettings() async {
     final SharedPreferences prefs = await _prefs;
+
+    /// Тестовые данные в программе
+    prefs.setBool('settings_useTestData', useTestData);
 
     /// Common settings
     prefs.setBool('settings_deniedEditSettings', deniedEditSettings);
@@ -149,9 +193,27 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   listSettingsMain() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       child: Column(
         children: [
+          /// Использование тестовых данных в формах
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: useTestData,
+                  onChanged: (value) {
+                    setState(() {
+                      useTestData = !useTestData;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Показывать тестовые данные')),
+              ],
+            ),
+          ),
+          const Divider(),
           /// Запрет на изменение настроек
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
