@@ -38,9 +38,9 @@ class _ScreenProductSelectionTreeViewState
 
   List<Product> tempItems = [];
   List<Product> listProducts = [];
+  List<Product> treeParentItems = [];
 
   Product parentProduct = Product();
-  Product parentParentProduct = Product();
 
   @override
   void initState() {
@@ -108,32 +108,40 @@ class _ScreenProductSelectionTreeViewState
     listProducts.clear();
     tempItems.clear();
 
-    // Первым в список добавим каталог товаров, если он есть
-    // if (parentProduct.uid != '') {
-    //   listProducts.add(parentProduct);
-    // }
+    ///Первым в список добавим каталог товаров, если он есть
+    if (parentProduct.uid != '') {
+      listProducts.add(parentProduct);
+    }
 
     // Если включены тестовые данные
     if (useTestData) {
       for (var message in listDataProduct) {
         Product newItem = Product.fromJson(message);
-        if (newItem.uid != parentProduct.uid && parentProduct.uid != '') {
+
+        /// Пропустим сам каталог, потому что он добавлен первым до заполнения
+        if (newItem.uid == parentProduct.uid) {
           continue;
         }
+
+        /// Если у товара родитель не является текущим выбранным каталогом
+        if (newItem.uidParent != parentProduct.uid) {
+          continue;
+        }
+
+        /// Добавим товар
         listProducts.add(newItem);
       }
       showMessage('Тестовые данные загружены!');
     } else {
+      /// Загрузка данных из БД
       listProducts = await DatabaseHelper.instance.readAllProducts();
       showMessage('Реальные данные загружены!');
     }
 
-    // Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
-
-    // Если выбран каталог
+    /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
+    /// Возможно они попали по ошибке назначения UID родителя
     if (parentProduct.uid != '') {
-
-      var tempLength = listProducts.length;
+      var tempLength = listProducts.length-1;
       while (tempLength > 0) {
         if (listProducts[tempLength].uidParent != parentProduct.uid) {
           listProducts.remove(listProducts[tempLength]);
@@ -142,6 +150,10 @@ class _ScreenProductSelectionTreeViewState
       }
     }
 
+    /// Сортировка списка: сначала каталоги, потом элементы
+    listProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
+
+    /// Поместим найденные товары в группу для возврата из поиска
     tempItems.addAll(listProducts);
 
     setState(() {});
@@ -215,9 +227,11 @@ class _ScreenProductSelectionTreeViewState
               ),
               IconButton(
                 onPressed: () async {
+                  parentProduct = Product();
+                  treeParentItems.clear();
+
                   textFieldSearchCatalogController.text = '';
-                  var value = textFieldSearchCatalogController.text;
-                  filterSearchCatalogResults(value);
+                  renewItem();
                 },
                 icon: const Icon(Icons.delete, color: Colors.red),
               ),
@@ -247,10 +261,22 @@ class _ScreenProductSelectionTreeViewState
                     product: productItem,
                     tap: () {
                       if (productItem.uid == parentProduct.uid) {
-                        parentProduct = parentParentProduct;
+                        if (treeParentItems.isNotEmpty) {
+
+                          // Назначим нового родителя выхода из узла дерева
+                          parentProduct = treeParentItems[treeParentItems.length-1];
+
+                          // Удалим старого родителя для будущего узла
+                          treeParentItems.remove(treeParentItems[treeParentItems.length-1]);
+
+                        } else {
+
+                          // Отправим дерево на его самый главный узел
+                          parentProduct = Product();
+                        }
                         renewItem();
                       } else {
-                        parentParentProduct = parentProduct;
+                        treeParentItems.add(parentProduct);
                         parentProduct = productItem;
                         renewItem();
                       }
