@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/organization.dart';
+import 'package:wp_sales/models/ref_organization.dart';
 
 class ScreenOrganizationItem extends StatefulWidget {
   final Organization organizationItem;

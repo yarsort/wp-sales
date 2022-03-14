@@ -90,21 +90,22 @@ class _MainDrawerState extends State<MainDrawer> {
                     leading: const Icon(Icons.shopping_basket, color: Colors.blue,),
                     trailing: countNotification(countOrderCustomer),
                     onTap: () {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
                           context,
                           MaterialPageRoute(builder: (BuildContext context) => const ScreenOrderCustomerList()),
-                          ModalRoute.withName('/')
                       );
+
                     }),
                 ListTile(
                     title: const Text("ПКО (оплаты)"),
                     leading: const Icon(Icons.payment, color: Colors.blue,),
                     trailing: countNotification(0),
                     onTap: () {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
                           context,
                           MaterialPageRoute(builder: (BuildContext context) => const ScreenIncomingCashOrderList()),
-                          ModalRoute.withName('/')
                       );
                     }),
                 ExpansionTile(
@@ -116,10 +117,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countOrganization),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenOrganizationList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -127,10 +128,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countPartner),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenPartnerList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -138,10 +139,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countContract),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenContractList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -149,10 +150,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countProduct),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenProductList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -160,10 +161,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countUnit),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenUnitList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -171,10 +172,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countPrice),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenPriceList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -182,10 +183,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countCurrency),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenCurrencyList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                     ListTile(
@@ -193,10 +194,10 @@ class _MainDrawerState extends State<MainDrawer> {
                         leading: const Icon(Icons.source, color: Colors.blue,),
                         trailing: countNotification(countWarehouse),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.pop(context); // Закроем Drawer
+                          Navigator.push(
                               context,
                               MaterialPageRoute(builder: (BuildContext context) => const ScreenWarehouseList()),
-                              ModalRoute.withName('/')
                           );
                         }),
                   ],
@@ -205,6 +206,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     title: const Text("Настройки"),
                     leading: const Icon(Icons.settings, color: Colors.blue,),
                     onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -217,6 +219,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     title: const Text("Справка"),
                     leading: const Icon(Icons.help, color: Colors.blue,),
                     onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -229,6 +232,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     title: const Text("О программе"),
                     leading: const Icon(Icons.info, color: Colors.blue,),
                     onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(

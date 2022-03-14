@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/unit.dart';
+import 'package:wp_sales/models/ref_unit.dart';
 import 'package:wp_sales/screens/references/unit/unit_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenUnitList extends StatefulWidget {
   const ScreenUnitList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
         centerTitle: true,
         title: const Text('Единицы измерений'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

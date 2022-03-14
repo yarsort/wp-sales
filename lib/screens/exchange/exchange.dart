@@ -1,19 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:ssh2/ssh2.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/contract.dart';
-import 'package:wp_sales/models/organization.dart';
-import 'package:wp_sales/models/partner.dart';
-import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/models/product.dart';
-import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/models/ref_organization.dart';
+import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/models/ref_price.dart';
+import 'package:wp_sales/models/ref_product.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
 
 class ScreenExchangeData extends StatefulWidget {
@@ -28,8 +25,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   double _valueProgress = 0.0;
   List<String> listLogs = [];
-  bool loading = false;
-  bool _visibleIndicator = false;
+  bool _loading = false; // факт загрузки
+  bool _visibleIndicator = false; // Отображение видимости панели прогресс-бара
 
   @override
   void initState() {
@@ -104,12 +101,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   Future<void> loadData() async {
-    if (loading) {
+    if (_loading) {
       return;
     }
+
     listLogs.clear();
 
     setState(() {
+      _loading = true;
       _visibleIndicator = true;
     });
 
@@ -128,6 +127,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
 
     setState(() {
+      _loading = false;
       _visibleIndicator = false;
     });
 
@@ -212,7 +212,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     List<String> listLocalDownloaded = [];
 
     for (String pathFile in listDownload) {
-      String fileName = 'ssh2_test_upload.txt';
       final File localFile = File('$tempPath/$pathFile');
 
       // Попытаемся получить файл из сервера

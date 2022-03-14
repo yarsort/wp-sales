@@ -1,14 +1,17 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wp_sales/models/contract.dart';
-import 'package:wp_sales/models/currency.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/organization.dart';
-import 'package:wp_sales/models/partner.dart';
-import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/models/product.dart';
-import 'package:wp_sales/models/unit.dart';
-import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/models/accum_partner_depts.dart';
+import 'package:wp_sales/models/accum_product_prices.dart';
+import 'package:wp_sales/models/accum_product_rests.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/models/ref_currency.dart';
+import 'package:wp_sales/models/ref_organization.dart';
+import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/models/ref_price.dart';
+import 'package:wp_sales/models/ref_product.dart';
+import 'package:wp_sales/models/ref_unit.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 
 final DatabaseHelper instance = DatabaseHelper._init();
 
@@ -83,7 +86,7 @@ class DatabaseHelper {
       )
     ''');
 
-    await db.execute("DROP TABLE IF EXISTS $tableItemsOrderCustomer");
+    //await db.execute("DROP TABLE IF EXISTS $tableItemsOrderCustomer");
 
     /// Документ.ЗаказПокупателя - ТЧ "Товары" (№1)
     await db.execute('''
@@ -231,6 +234,44 @@ class DatabaseHelper {
       ${ItemProductFields.comment} $textType            
       )
     ''');
+
+    /// РегистрНакопления.Взаиморасчеты
+    await db.execute('''
+    CREATE TABLE $tableAccumPartnerDebts (    
+      ${ItemAccumPartnerDeptFields.id} $idType,
+      ${ItemAccumPartnerDeptFields.uidOrganization} $textType,      
+      ${ItemAccumPartnerDeptFields.uidPartner} $textType,
+      ${ItemAccumPartnerDeptFields.uidContract} $textType,      
+      ${ItemAccumPartnerDeptFields.uidDoc} $textType,
+      ${ItemAccumPartnerDeptFields.nameDoc} $textType,
+      ${ItemAccumPartnerDeptFields.numberDoc} $textType,
+      ${ItemAccumPartnerDeptFields.dateDoc} $textType,      
+      ${ItemAccumPartnerDeptFields.balance} $realType
+      ${ItemAccumPartnerDeptFields.balanceForPayment} $realType            
+      )
+    ''');
+
+    /// РегистрНакопления.Цены
+    await db.execute('''
+    CREATE TABLE $tableAccumProductPrices (    
+      ${ItemAccumProductPricesFields.id} $idType,
+      ${ItemAccumProductPricesFields.uidPrice} $textType,      
+      ${ItemAccumProductPricesFields.uidProduct} $textType,
+      ${ItemAccumProductPricesFields.uidUnit} $textType,      
+      ${ItemAccumProductPricesFields.price} $realType,                  
+      )
+    ''');
+
+    /// РегистрНакопления.ОстаткиНаСкладах
+    await db.execute('''
+    CREATE TABLE $tableAccumProductRests (    
+      ${ItemAccumProductRestsFields.id} $idType,
+      ${ItemAccumProductRestsFields.uidWarehouse} $textType,      
+      ${ItemAccumProductRestsFields.uidProduct} $textType,
+      ${ItemAccumProductRestsFields.uidUnit} $textType,      
+      ${ItemAccumProductRestsFields.count} $realType,                  
+      )
+    ''');
   }
 
   Future close() async {
@@ -238,6 +279,7 @@ class DatabaseHelper {
     _database = null;
     db.close();
   }
+
 
   /// Справочник.Организации
   Future<Organization> createOrganization(Organization organization) async {
@@ -298,6 +340,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+
   /// Справочник.Партнеры
   Future<Partner> createPartner(Partner partner) async {
     final db = await instance.database;
@@ -357,6 +400,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+
   /// Справочник.ДоговорыКонтрагентов (партнеров)
   Future<Contract> createContract(Contract contract) async {
     final db = await instance.database;
@@ -407,12 +451,23 @@ class DatabaseHelper {
     return result.map((json) => Contract.fromJson(json)).toList();
   }
 
+  Future<List<Contract>> readForPaymentContracts({int limit = 10}) async {
+    final db = await instance.database;
+    const orderBy = '${ItemContractFields.balanceForPayment} ASC';
+    final result = await db.query(
+        tableContract,
+        limit: limit,
+        orderBy: orderBy);
+    return result.map((json) => Contract.fromJson(json)).toList();
+  }
+
   Future<int> getCountContract() async {
     final db = await instance.database;
     var result = Sqflite.firstIntValue(
         await db.rawQuery("SELECT COUNT (*) FROM $tableContract"));
     return result ?? 0;
   }
+
 
   /// Справочник.Товары
   Future<Product> createProduct(Product product) async {
@@ -493,6 +548,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+
   /// Справочник.ТипыЦен
   Future<Price> createPrice(Price price) async {
     final db = await instance.database;
@@ -566,6 +622,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+
   /// Справочник.Валюты
   Future<Currency> createCurrency(Currency currency) async {
     final db = await instance.database;
@@ -623,6 +680,7 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+
   /// Справочник.ЕдиницыИзмерений
   Future<Unit> createUnit(Unit unit) async {
     final db = await instance.database;
@@ -679,6 +737,7 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableUnit"));
     return result ?? 0;
   }
+
 
   /// Справочник.Склады
   Future<Warehouse> createWarehouse(Warehouse warehouse) async {
@@ -752,6 +811,7 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableWarehouse"));
     return result ?? 0;
   }
+
 
   /// Документы.ЗаказПокупателя
   Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
@@ -919,4 +979,139 @@ class DatabaseHelper {
         where: '${OrderCustomerFields.status} = ?', whereArgs: [2]);
     return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
   }
+
+
+  /// РегистрНакопления.Взаиморасчеты
+  Future<AccumPartnerDept> createPartnerDept(AccumPartnerDept accumDeptPartner) async {
+    final db = await instance.database;
+    final id = await db.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
+    accumDeptPartner.id = id;
+    return accumDeptPartner;
+  }
+
+  Future<int> updatePartnerDept(AccumPartnerDept accumDeptPartner) async {
+    final db = await instance.database;
+    return db.update(
+      tableAccumPartnerDebts,
+      accumDeptPartner.toJson(),
+      where: '${ItemAccumPartnerDeptFields.id} = ?',
+      whereArgs: [accumDeptPartner.id],
+    );
+  }
+
+  Future<int> deletePartnerDept(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableAccumPartnerDebts,
+      where: '${ItemAccumPartnerDeptFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<AccumPartnerDept> readPartnerDept({required String uidPartner, required String uidContract}) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableAccumPartnerDebts,
+      columns: ItemAccumPartnerDeptFields.values,
+      where: '${ItemAccumPartnerDeptFields.uidPartner} = ? AND ${ItemAccumPartnerDeptFields.uidContract} = ?',
+      whereArgs: [uidPartner, uidContract],
+    );
+
+    if (maps.isNotEmpty) {
+      return AccumPartnerDept.fromJson(maps.first);
+    } else {
+      return AccumPartnerDept(); // Пустое значение
+    }
+  }
+
+
+  /// РегистрНакопления.Цены
+  Future<AccumProductPrice> createProductPrice(AccumProductPrice accumProductPrice) async {
+    final db = await instance.database;
+    final id = await db.insert(tableAccumProductPrices, accumProductPrice.toJson());
+    accumProductPrice.id = id;
+    return accumProductPrice;
+  }
+
+  Future<int> updateProductPrice(AccumProductPrice accumProductPrice) async {
+    final db = await instance.database;
+    return db.update(
+      tableAccumProductPrices,
+      accumProductPrice.toJson(),
+      where: '${ItemAccumProductPricesFields.id} = ?',
+      whereArgs: [accumProductPrice.id],
+    );
+  }
+
+  Future<int> deleteProductPrice(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableAccumProductPrices,
+      where: '${ItemAccumProductPricesFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<double> readProductPrice({required String uidPrice, required String uidProduct}) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableAccumProductPrices,
+      columns: ItemAccumProductPricesFields.values,
+      where: '${ItemAccumProductPricesFields.uidPrice} = ? AND ${ItemAccumProductPricesFields.uidProduct} = ?',
+      whereArgs: [uidPrice, uidProduct],
+    );
+
+    if (maps.isNotEmpty) {
+      return AccumProductPrice.fromJson(maps.first).price;
+    } else {
+      return 0.0;
+    }
+  }
+
+
+  /// РегистрНакопления.ОстаткиНаСкладах
+  Future<AccumProductRest> createProductRest(AccumProductRest accumProductRest) async {
+    final db = await instance.database;
+    final id = await db.insert(
+        tableAccumProductRests,
+        accumProductRest.toJson());
+    accumProductRest.id = id;
+    return accumProductRest;
+  }
+
+  Future<int> updateProductRest(AccumProductRest accumProductRest) async {
+    final db = await instance.database;
+    return db.update(
+      tableAccumProductRests,
+      accumProductRest.toJson(),
+      where: '${ItemAccumProductRestsFields.id} = ?',
+      whereArgs: [accumProductRest.id],
+    );
+  }
+
+  Future<int> deleteProductRest(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableAccumProductRests,
+      where: '${ItemAccumProductRestsFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<double> readProductRest({required String uidWarehouse, required String uidProduct}) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableAccumProductRests,
+      columns: ItemAccumProductRestsFields.values,
+      where: '${ItemAccumProductRestsFields.uidWarehouse} = ? AND ${ItemAccumProductRestsFields.uidProduct} = ?',
+      whereArgs: [uidWarehouse, uidProduct],
+    );
+
+    if (maps.isNotEmpty) {
+      return AccumProductRest.fromJson(maps.first).count;
+    } else {
+      return 0.0;
+    }
+  }
+
 }

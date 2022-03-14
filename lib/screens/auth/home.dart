@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenHomePage extends StatefulWidget {
@@ -9,19 +12,27 @@ class ScreenHomePage extends StatefulWidget {
 }
 
 class _ScreenHomePageState extends State<ScreenHomePage> {
+  List<Contract> listForPaymentContracts = [];
+
   @override
   void initState() {
     super.initState();
+    renewItem();
   }
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('WP Sales'),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                await renewItem();
+                setState(() {});
+              },
+              icon: const Icon(Icons.refresh)),
+        ],
       ),
       drawer: const MainDrawer(),
       body: SingleChildScrollView(
@@ -29,88 +40,15 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: ListView(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: width - 16,
-                      child: Card(
-                        color: Colors.blue,
-                        elevation: 3.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0)),
-                        child: Center(
-                            child: Padding(
-                          padding: const EdgeInsets.all(14.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                children: const [
-                                  Icon(
-                                    Icons.comment,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  Text(
-                                    'Заказы',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: const [
-                                  Icon(
-                                    Icons.comment,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  Text(
-                                    'Оплаты',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: const [
-                                  Icon(
-                                    Icons.category,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  Text(
-                                    'Товары',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: const [
-                                  Icon(
-                                    Icons.comment,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                  Text(
-                                    'Заказы',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )),
-                      ),
-                    ),
-                  ],
-                ),
+                nameGroup('Статистика (общая)'),
+                balanceCard(),
+                nameGroup('Балансы (к оплате)'),
+                listPartnerForPayment(),
+                //nameGroup('Документы на отправку'),
               ],
             ),
           ),
@@ -118,4 +56,254 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
       ),
     );
   }
+
+  renewItem() async {
+    listForPaymentContracts.clear();
+    listForPaymentContracts =
+        await DatabaseHelper.instance.readForPaymentContracts(limit: 5);
+
+    listForPaymentContracts.sort((a, b) => a.name.compareTo(b.name));
+  }
+
+  nameGroup(String nameGroup) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
+      child: Text(nameGroup,
+          style: const TextStyle(
+              fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  balanceCard() {
+    double balance = 126530.56;
+    double balanceForPayment = 56585.1;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(5, 7, 5, 7),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                  bottomRight: Radius.circular(5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 2,
+                  offset: Offset(1, 1), // Shadow position
+                ),
+              ],
+            ),
+            height: 120,
+            width: MediaQuery.of(context).size.width / 2 - 18,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      // bottomLeft: Radius.circular(5),
+                      // bottomRight: Radius.circular(5)
+                    ),
+                  ),
+                  height: 40,
+                  width: MediaQuery.of(context).size.width / 2 - 7,
+                  child: const Center(
+                    child: Text(
+                      'Баланс',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    child: Icon(
+                      Icons.balance,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '₴ ' + doubleToString(balance),
+                    style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                  bottomLeft: Radius.circular(5),
+                  bottomRight: Radius.circular(5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 2,
+                  offset: Offset(1, 1), // Shadow position
+                ),
+              ],
+            ),
+            height: 120,
+            width: MediaQuery.of(context).size.width / 2 - 18,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      //bottomLeft: Radius.circular(5),
+                      //bottomRight: Radius.circular(5)
+                    ),
+                  ),
+                  height: 40,
+                  width: MediaQuery.of(context).size.width / 2 - 7,
+                  child: const Center(
+                    child: Text(
+                      'Баланс к оплате',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    child: Icon(
+                      Icons.balance,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    '₴ ' + doubleToString(balanceForPayment),
+                    style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  listPartnerForPayment() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 5, 2, 5),
+      child: ColumnBuilder(
+          itemCount: listForPaymentContracts.length,
+          itemBuilder: (context, index) {
+            Contract contractItem = listForPaymentContracts[index];
+            return Card(
+              elevation: 3,
+              child: ListTile(
+                onTap: () {},
+                title: Text(contractItem.namePartner),
+                subtitle: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.person,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Flexible(child: Text(contractItem.name)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(contractItem.phone),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.home,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Flexible(child: Text(contractItem.address)),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.green, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(contractItem.balance)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.red, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(
+                                      contractItem.balanceForPayment)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.schedule,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(contractItem.schedulePayment.toString()),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
 }

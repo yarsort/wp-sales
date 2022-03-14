@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/screens/references/product/product_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductList extends StatefulWidget {
   const ScreenProductList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
         centerTitle: true,
         title: const Text('Товары'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/currency.dart';
+import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenCurrencyItem extends StatefulWidget {

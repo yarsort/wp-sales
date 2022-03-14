@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/organization.dart';
+import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenOrganizationList extends StatefulWidget {
   const ScreenOrganizationList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         centerTitle: true,
         title: const Text('Организации'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

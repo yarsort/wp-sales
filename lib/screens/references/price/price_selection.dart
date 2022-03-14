@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/price.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
-import 'package:wp_sales/system/system.dart';
 
 class ScreenPriceSelection extends StatefulWidget {
 

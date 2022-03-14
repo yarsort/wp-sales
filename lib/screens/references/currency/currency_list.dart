@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/currency.dart';
+import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenCurrencyList extends StatefulWidget {
   const ScreenCurrencyList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
         centerTitle: true,
         title: const Text('Валюты'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

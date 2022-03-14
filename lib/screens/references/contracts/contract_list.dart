@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/contract.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenContractList extends StatefulWidget {
   const ScreenContractList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenContractListState extends State<ScreenContractList> {
         centerTitle: true,
         title: const Text('Договоры партнеров'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

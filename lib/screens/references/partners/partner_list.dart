@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/partner.dart';
+import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/screens/references/partners/partner_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenPartnerList extends StatefulWidget {
   const ScreenPartnerList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
         centerTitle: true,
         title: const Text('Партнеры'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

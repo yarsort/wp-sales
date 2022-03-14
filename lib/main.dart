@@ -3,13 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/models/warehouse.dart';
 import 'package:wp_sales/screens/auth/home.dart';
 import 'package:flutter/services.dart';
 import 'package:wp_sales/screens/auth/login.dart';
-import 'package:wp_sales/screens/references/product/product_selection_treeview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 
 class ScreenWarehouseItem extends StatefulWidget {
   final Warehouse warehouseItem;

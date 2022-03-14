@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/unit.dart';
-import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/models/ref_unit.dart';
+import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/screens/references/unit/unit_item.dart';
 
 class ScreenUnitSelection extends StatefulWidget {

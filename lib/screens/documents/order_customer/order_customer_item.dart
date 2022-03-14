@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_price.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/screens/references/price/price_selection.dart';
-import 'package:wp_sales/screens/references/product/product_selection.dart';
 import 'package:wp_sales/screens/references/product/product_selection_treeview.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 import 'package:wp_sales/system/system.dart';

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/currency.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
-import 'package:wp_sales/system/system.dart';
 
 class ScreenCurrencySelection extends StatefulWidget {
 

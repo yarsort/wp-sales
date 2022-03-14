@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/product.dart';
+import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/screens/references/unit/unit_selection.dart';
 import 'package:wp_sales/system/widgets.dart';
 

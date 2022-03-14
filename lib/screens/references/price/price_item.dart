@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/price.dart';
+import 'package:wp_sales/models/ref_price.dart';
 
 class ScreenPriceItem extends StatefulWidget {
   final Price priceItem;

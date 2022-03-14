@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/price.dart';
-import 'package:wp_sales/models/product.dart';
-import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_price.dart';
+import 'package:wp_sales/models/ref_product.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 

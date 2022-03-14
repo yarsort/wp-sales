@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/contract.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/widgets.dart';
 

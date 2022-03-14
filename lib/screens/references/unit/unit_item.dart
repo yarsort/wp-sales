@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/unit.dart';
+import 'package:wp_sales/models/ref_unit.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenUnitItem extends StatefulWidget {

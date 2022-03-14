@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
-import 'package:wp_sales/models/organization.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
-import 'package:wp_sales/system/system.dart';
 
 class ScreenOrganizationSelection extends StatefulWidget {
 

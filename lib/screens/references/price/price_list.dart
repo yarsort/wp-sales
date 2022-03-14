@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/price.dart';
+import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenPriceList extends StatefulWidget {
   const ScreenPriceList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
         centerTitle: true,
         title: const Text('Тип цены'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

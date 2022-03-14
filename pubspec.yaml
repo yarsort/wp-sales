@@ -37,7 +37,6 @@ dependencies:
   shared_preferences: ^2.0.13 # Для хранения настроек
   firebase_auth: ^3.3.10
   firebase_core: ^1.13.1
-  ssh2: ^2.2.3 #SFTP client
   path_provider: ^2.0.9
   ftpconnect:
 

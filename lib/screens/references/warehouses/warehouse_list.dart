@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/warehouse.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 import 'package:wp_sales/system/system.dart';
-import 'package:wp_sales/system/widgets.dart';
 
 class ScreenWarehouseList extends StatefulWidget {
   const ScreenWarehouseList({Key? key}) : super(key: key);
@@ -35,7 +34,6 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
         centerTitle: true,
         title: const Text('Склады'),
       ),
-      drawer: const MainDrawer(),
       body: Column(
         children: [
           searchTextField(),

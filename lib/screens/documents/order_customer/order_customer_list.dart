@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/models/order_customer.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/screens/exchange/exchange.dart';
-import 'package:wp_sales/screens/settings/settings.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -121,7 +120,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             }, icon: const Icon(Icons.add)),
           ],
         ),
-        drawer: const MainDrawer(),
         body: TabBarView(
           children: [
             ListView(
@@ -224,8 +222,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       setState(() {
                         visibleListNewParameters = !visibleListNewParameters;
                       });
-                      var value = textFieldNewSearchController.text;
-                      //filterSearchResults(value);
+
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
                   ),
@@ -500,8 +497,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       setState(() {
                         visibleListSendParameters = !visibleListSendParameters;
                       });
-                      var value = textFieldSendSearchController.text;
-                      //filterSearchResults(value);
+
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
                   ),
@@ -777,8 +773,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                         visibleListTrashParameters =
                             !visibleListTrashParameters;
                       });
-                      var value = textFieldTrashSearchController.text;
-                      //filterSearchResults(value);
+
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
                   ),
