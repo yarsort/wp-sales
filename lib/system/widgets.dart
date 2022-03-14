@@ -201,34 +201,30 @@ class _MainDrawerState extends State<MainDrawer> {
                         }),
                   ],
                 ),
-                ExpansionTile(
-                    title: const Text('Служебные'),
-                    children: [
-                    ListTile(
-                        title: const Text("Настройки"),
-                        leading: const Icon(Icons.settings, color: Colors.blue,),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const ScreenSettings(),
-                            ),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Справка"),
-                        leading: const Icon(Icons.help, color: Colors.blue,),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const ScreenHelp(),
-                            ),
-                          );
-                        }),
-                ]),
+                ListTile(
+                    title: const Text("Настройки"),
+                    leading: const Icon(Icons.settings, color: Colors.blue,),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                          const ScreenSettings(),
+                        ),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Справка"),
+                    leading: const Icon(Icons.help, color: Colors.blue,),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                          const ScreenHelp(),
+                        ),
+                      );
+                    }),
                 ListTile(
                     title: const Text("О программе"),
                     leading: const Icon(Icons.info, color: Colors.blue,),

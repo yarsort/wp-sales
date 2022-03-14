@@ -24,6 +24,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   bool useFTPExchange = false; // Обмен по FTP
   bool enabledTextFieldFTPExchange = false;
 
+  /// UID пользователя для обмена данными
+  TextEditingController textFieldUIDUserController = TextEditingController();
+
   /// Параметры FTP
   TextEditingController textFieldFTPServerController = TextEditingController();
   TextEditingController textFieldFTPPortController = TextEditingController();
@@ -142,18 +145,20 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   fillSettings() async {
     final SharedPreferences prefs = await _prefs;
     setState(() {
-      useTestData = prefs.getBool('settings_useTestData')!;
+      useTestData = prefs.getBool('settings_useTestData') ?? false;
 
-      useFTPExchange = prefs.getBool('settings_useFTPExchange')!;
+      textFieldUIDUserController.text = prefs.getString('settings_UIDUser') ?? '';
+
+      useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? true;
       enabledTextFieldWebExchange = useFTPExchange;
 
-      textFieldFTPServerController.text = prefs.getString('settings_FTPServer')!;
-      textFieldFTPPortController.text = prefs.getString('settings_FTPPort')!;
-      textFieldFTPUserController.text = prefs.getString('settings_FTPUser')!;
-      textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')!;
-      textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')!;
+      textFieldFTPServerController.text = prefs.getString('settings_FTPServer')??'';
+      textFieldFTPPortController.text = prefs.getString('settings_FTPPort')??'';
+      textFieldFTPUserController.text = prefs.getString('settings_FTPUser')??'';
+      textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')??'';
+      textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')??'';
 
-      useWebExchange = prefs.getBool('settings_useWebExchange')!;
+      useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
       enabledTextFieldFTPExchange = useFTPExchange;
       textFieldWEBServerController.text = prefs.getString('settings_WEBServer')!;
 
@@ -171,6 +176,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_useTestData', useTestData);
 
     /// Common settings
+    prefs.setString('settings_UIDUser', textFieldUIDUserController.text);
     prefs.setBool('settings_deniedEditSettings', deniedEditSettings);
     prefs.setBool('settings_deniedEditTypePrice', deniedEditTypePrice);
     prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
@@ -361,9 +367,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
-                onChanged: (value) {
-                  
-                },
+                onChanged: (value) {},
                 enabled: enabledTextFieldFTPExchange,
                 keyboardType: TextInputType.number,
                 controller: textFieldFTPPortController,
@@ -482,7 +486,44 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
-
+          /// Рабочий каталог FTP
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: IntrinsicHeight(
+              child: TextField(
+                onChanged: (value) {},
+                enabled: enabledTextFieldFTPExchange,
+                keyboardType: TextInputType.text,
+                controller: textFieldFTPWorkCatalogController,
+                decoration: InputDecoration(
+                  isDense: true,
+                  suffixIconConstraints: const BoxConstraints(
+                    minWidth: 2,
+                    minHeight: 2,
+                  ),
+                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: const OutlineInputBorder(),
+                  labelStyle: const TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'Рабочий каталог',
+                  suffixIcon: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          textFieldFTPWorkCatalogController.text = '';
+                          },
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        //icon: const Icon(Icons.delete, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           const Divider(),
 
           /// Использование обмена через Web-сервис
@@ -558,8 +599,25 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
-        children: const [
-
+        children: [
+          /// UID пользователя
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            child: IntrinsicHeight(
+              child: TextField(
+                keyboardType: TextInputType.text,
+                controller: textFieldUIDUserController,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'UID пользователя',
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

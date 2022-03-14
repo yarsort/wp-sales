@@ -35,7 +35,15 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 3, onCreate: _createDB);
+    return await openDatabase(path, version: 3,
+        onCreate: _createDB,
+        onUpgrade: _upgradeDB);
+  }
+
+  Future _upgradeDB(Database db, int oldV, int newV) async{
+    if(oldV < newV) {
+      //await db.execute("alter table courses add column level varchar(50) ");
+    }
   }
 
   Future _createDB(Database db, int version) async {
@@ -453,6 +461,28 @@ class DatabaseHelper {
     final db = await instance.database;
     const orderBy = '${ItemProductFields.name} ASC';
     final result = await db.query(tableProduct, orderBy: orderBy);
+    return result.map((json) => Product.fromJson(json)).toList();
+  }
+
+  Future<List<Product>> readProductsByParent(String uidParent) async {
+    final db = await instance.database;
+    const orderBy = '${ItemProductFields.name} ASC';
+    final result = await db.query(
+        tableProduct,
+        where: '${ItemProductFields.uidParent} = ?',
+        whereArgs: [uidParent],
+        orderBy: orderBy);
+    return result.map((json) => Product.fromJson(json)).toList();
+  }
+
+  Future<List<Product>> readProductsForSearch(String searchString) async {
+    final db = await instance.database;
+    const orderBy = '${ItemProductFields.name} COLLATE NOCASE ASC';
+    final result = await db.query(
+        tableProduct,
+        where: '${ItemProductFields.name} LIKE ?',
+        whereArgs: ['%$searchString%'],
+        orderBy: orderBy);
     return result.map((json) => Product.fromJson(json)).toList();
   }
 

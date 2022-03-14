@@ -175,7 +175,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const ScreenHomePage())),
         });
-        showMessage('Авторизация успешно завершена!');
+        showMessage('Авторизация успешно выполнена!');
 
       } on FirebaseAuthException catch (error) {
         switch (error.code) {

@@ -137,30 +137,27 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             centerTitle: true,
             title: const Text('Заказ'),
             actions: [
-              Padding(
-                  padding: const EdgeInsets.only(right: 20.0),
-                  child: GestureDetector(
-                    onTap: () async {
-                      Warehouse warehouse = await DatabaseHelper.instance
-                          .readWarehouseByUID(
-                              widget.orderCustomer.uidWarehouse);
+              IconButton(
+                onPressed: () async {
+                  Warehouse warehouse = await DatabaseHelper.instance
+                      .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
 
-                      Price price = await DatabaseHelper.instance
-                          .readPriceByUID(widget.orderCustomer.uidPrice);
+                  Price price = await DatabaseHelper.instance
+                      .readPriceByUID(widget.orderCustomer.uidPrice);
 
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ScreenProductSelectionTreeView(
-                              listItemDoc: itemsOrder,
-                              warehouse: warehouse,
-                              price: price),
-                        ),
-                      );
-                      renewItems();
-                    },
-                    child: const Icon(Icons.add, size: 26.0),
-                  )),
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenProductSelectionTreeView(
+                          listItemDoc: itemsOrder,
+                          warehouse: warehouse,
+                          price: price),
+                    ),
+                  );
+                  renewItems();
+                },
+                icon: const Icon(Icons.add),
+              )
             ],
             bottom: const TabBar(
               tabs: [
@@ -651,7 +648,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 elevation: 2,
                 child: ListTile(
                   onTap: () {
-                    ItemPopup(itemsOrder: itemsOrder,itemOrder: item);
+                    ItemPopup(itemsOrder: itemsOrder, itemOrder: item);
                     setState(() {});
                   },
                   title: Text(item.name),
@@ -755,7 +752,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
                         /// Снятие флага на повторную отправку в учетную систему
                         sendYesTo1C = false;
-
                       } else {
                         /// Флаг отметки на отправку
                         sendYesTo1C = !sendYesTo1C;
@@ -776,7 +772,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                             shortDateToString(DateTime.now());
                       }
                     });
-
                   },
                 ),
                 const Text('Отправлено в учетную систему'),
@@ -820,7 +815,7 @@ class ItemPopup extends StatelessWidget {
   final List<ItemOrderCustomer> itemsOrder;
   final ItemOrderCustomer itemOrder;
 
- const ItemPopup({
+  const ItemPopup({
     Key? key,
     required this.itemsOrder,
     required this.itemOrder,
@@ -830,9 +825,7 @@ class ItemPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<int>(
       onSelected: (val) {
-        if (val == 0) {
-
-        }
+        if (val == 0) {}
         if (val == 1) {
           itemsOrder.remove(itemOrder);
         }

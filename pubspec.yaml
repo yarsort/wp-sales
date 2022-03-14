@@ -1,5 +1,5 @@
 name: wp_sales
-description: Workplace Sales
+description: WorkPlace Sales
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -37,7 +37,9 @@ dependencies:
   shared_preferences: ^2.0.13 # Для хранения настроек
   firebase_auth: ^3.3.10
   firebase_core: ^1.13.1
-  cloud_firestore: ^3.1.10
+  ssh2: ^2.2.3 #SFTP client
+  path_provider: ^2.0.9
+  ftpconnect:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

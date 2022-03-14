@@ -45,7 +45,7 @@ class Contract {
     namePrice = json['namePrice'] ?? '';
     uidCurrency = json['uidCurrency'] ?? '';
     nameCurrency = json['nameCurrency'] ?? '';
-    schedulePayment = json['schedulePayment'] ?? 0; // Отсрочка платежа в днях (int)
+    schedulePayment = json['schedulePayment']; // Отсрочка платежа в днях (int)
   }
 
   Map<String, dynamic> toJson() {

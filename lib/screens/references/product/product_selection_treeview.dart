@@ -6,6 +6,7 @@ import 'package:wp_sales/models/price.dart';
 import 'package:wp_sales/models/product.dart';
 import 'package:wp_sales/models/warehouse.dart';
 import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductSelectionTreeView extends StatefulWidget {
   List<ItemOrderCustomer> listItemDoc = [];
@@ -38,6 +39,7 @@ class _ScreenProductSelectionTreeViewState
 
   List<Product> tempItems = [];
   List<Product> listProducts = [];
+  List<Product> listDataProducts = [];
   List<Product> treeParentItems = [];
 
   Product parentProduct = Product();
@@ -70,7 +72,7 @@ class _ScreenProductSelectionTreeViewState
               physics: const BouncingScrollPhysics(),
               children: [
                 searchTextFieldCatalog(),
-                listViewCatalog(),
+                listViewCatalogTree(),
               ],
             ),
             ListView(
@@ -98,50 +100,53 @@ class _ScreenProductSelectionTreeViewState
 
   void renewItem() async {
     final SharedPreferences prefs = await _prefs;
-    //bool useTestData = prefs.getBool('settings_useTestData')!;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
 
-    bool useTestData = true;
-
-    showMessage('Тестовые данные загружены!');
+    // Главный каталог всегда будет стаким идентификатором
+    if (parentProduct.uid == '') {
+      parentProduct.uid = '00000000-0000-0000-0000-000000000000';
+    }
 
     // Очистка списка заказов покупателя
     listProducts.clear();
     tempItems.clear();
 
     ///Первым в список добавим каталог товаров, если он есть
-    if (parentProduct.uid != '') {
+    if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
       listProducts.add(parentProduct);
     }
 
-    // Если включены тестовые данные
+    /// Если включены тестовые данные
     if (useTestData) {
       for (var message in listDataProduct) {
         Product newItem = Product.fromJson(message);
-
-        /// Пропустим сам каталог, потому что он добавлен первым до заполнения
-        if (newItem.uid == parentProduct.uid) {
-          continue;
-        }
-
-        /// Если у товара родитель не является текущим выбранным каталогом
-        if (newItem.uidParent != parentProduct.uid) {
-          continue;
-        }
-
         /// Добавим товар
-        listProducts.add(newItem);
+        listDataProducts.add(newItem);
       }
-      showMessage('Тестовые данные загружены!');
+      //showMessage('Тестовые данные загружены!');
     } else {
       /// Загрузка данных из БД
-      listProducts = await DatabaseHelper.instance.readAllProducts();
-      showMessage('Реальные данные загружены!');
+      listDataProducts = await DatabaseHelper.instance.readProductsByParent(parentProduct.uid);
+      debugPrint('Реальные данные загружены! '+listDataProducts.length.toString());
+    }
+
+    for (var newItem in listDataProducts) {
+      // Пропустим сам каталог, потому что он добавлен первым до заполнения
+      if (newItem.uid == parentProduct.uid) {
+        continue;
+      }
+      // Если у товара родитель не является текущим выбранным каталогом
+      if (newItem.uidParent != parentProduct.uid) {
+        continue;
+      }
+      // Добавим товар
+      listProducts.add(newItem);
     }
 
     /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
     /// Возможно они попали по ошибке назначения UID родителя
     if (parentProduct.uid != '') {
-      var tempLength = listProducts.length-1;
+      var tempLength = listProducts.length - 1;
       while (tempLength > 0) {
         if (listProducts[tempLength].uidParent != parentProduct.uid) {
           listProducts.remove(listProducts[tempLength]);
@@ -159,12 +164,12 @@ class _ScreenProductSelectionTreeViewState
     setState(() {});
   }
 
-  void filterSearchCatalogResults(String query) {
+  void filterSearchCatalogResults(String query) async {
     /// Уберем пробелы
     query = query.trim();
 
     /// Искать можно только при наличии 3 и более символов
-    if (query.length < 3) {
+    if (query.length <= 2) {
       setState(() {
         listProducts.clear();
         listProducts.addAll(tempItems);
@@ -172,13 +177,15 @@ class _ScreenProductSelectionTreeViewState
       return;
     }
 
-    List<Product> dummySearchList = <Product>[];
-    dummySearchList.addAll(listProducts);
+    List<Product> dummySearchList = await DatabaseHelper.instance.readProductsForSearch(query);
 
     if (query.isNotEmpty) {
       List<Product> dummyListData = <Product>[];
 
       for (var item in dummySearchList) {
+        /// Группы в поиске не отображать
+        if(item.isGroup == 1){return;}
+
         /// Поиск по имени
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
@@ -242,56 +249,49 @@ class _ScreenProductSelectionTreeViewState
     );
   }
 
-  listViewCatalog() {
+  listViewCatalogTree() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: listProducts.length,
-        itemBuilder: (context, index) {
-          double price = 123.56;
-          double countOnWarehouses = 561.0;
+      padding: const EdgeInsets.fromLTRB(10, 0, 11, 14),
+      child: ColumnBuilder(
+          itemCount: listProducts.length,
+          itemBuilder: (context, index) {
+            var productItem = listProducts[index];
+            return Card(
+              elevation: 2,
+              child: (productItem.isGroup == 1)
+                  ? DirectoryItem(
+                      parentProduct: parentProduct,
+                      product: productItem,
+                      tap: () {
+                        if (productItem.uid == parentProduct.uid) {
+                          if (treeParentItems.isNotEmpty) {
+                            // Назначим нового родителя выхода из узла дерева
+                            parentProduct =
+                                treeParentItems[treeParentItems.length - 1];
 
-          var productItem = listProducts[index];
-          return Card(
-            elevation: 2,
-            child: (productItem.isGroup == 1)
-                ? DirectoryItem(
-                    parentProduct: parentProduct,
-                    product: productItem,
-                    tap: () {
-                      if (productItem.uid == parentProduct.uid) {
-                        if (treeParentItems.isNotEmpty) {
-
-                          // Назначим нового родителя выхода из узла дерева
-                          parentProduct = treeParentItems[treeParentItems.length-1];
-
-                          // Удалим старого родителя для будущего узла
-                          treeParentItems.remove(treeParentItems[treeParentItems.length-1]);
-
+                            // Удалим старого родителя для будущего узла
+                            treeParentItems.remove(
+                                treeParentItems[treeParentItems.length - 1]);
+                          } else {
+                            // Отправим дерево на его самый главный узел
+                            parentProduct = Product();
+                          }
+                          renewItem();
                         } else {
-
-                          // Отправим дерево на его самый главный узел
-                          parentProduct = Product();
+                          treeParentItems.add(parentProduct);
+                          parentProduct = productItem;
+                          renewItem();
                         }
-                        renewItem();
-                      } else {
-                        treeParentItems.add(parentProduct);
-                        parentProduct = productItem;
-                        renewItem();
-                      }
-                      setState(() {});
-                    },
-                    popTap: () {},
-                  )
-                : ProductItem(
-                    product: productItem,
-                    tap: () {},
-                    popTap: () {},
-                  ),
-          );
-        },
-      ),
+                      },
+                      popTap: () {},
+                    )
+                  : ProductItem(
+                      product: productItem,
+                      tap: () {},
+                      popTap: () {},
+                    ),
+            );
+          }),
     );
   }
 }
@@ -316,14 +316,12 @@ class DirectoryItem extends StatelessWidget {
       onTap: () => tap(),
       //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
-      leading: const SizedBox(
-        height: 40,
-        width: 40,
-        child: Center(
-          child: Icon(
-            Icons.folder,
-            color: Colors.blue,
-          ),
+      minLeadingWidth: 20,
+      leading: const Padding(
+        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+        child: Icon(
+          Icons.folder,
+          color: Colors.blue,
         ),
       ),
       title: Text(
@@ -361,14 +359,11 @@ class ProductItem extends StatelessWidget {
       onTap: () => tap(),
       //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
-      leading: const SizedBox(
-        height: 40,
-        width: 40,
-        child: Center(
-          child: Icon(
-            Icons.file_copy,
-            color: Colors.grey,
-          ),
+      leading: const Padding(
+        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+        child: Icon(
+          Icons.file_copy,
+          color: Colors.grey,
         ),
       ),
       title: Text(

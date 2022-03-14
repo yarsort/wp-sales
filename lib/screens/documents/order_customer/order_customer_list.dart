@@ -4,7 +4,8 @@ import 'package:wp_sales/models/order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
-import 'package:wp_sales/system/exchange.dart';
+import 'package:wp_sales/screens/exchange/exchange.dart';
+import 'package:wp_sales/screens/settings/settings.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -106,43 +107,18 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ],
           ),
           actions: [
-            PopupMenuButton<int>(
-              onSelected: (item) async {
-                // Создание нового заказа
-                if (item == 0) {
-                  var newOrderCustomer = OrderCustomer();
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(
-                          orderCustomer: newOrderCustomer),
-                    ),
-                  );
-                  await loadNewDocuments();
-                  setState(() {});
-                }
-                if (item == 1) {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ScreenExchangeData(),
-                    ),
-                  );
-                  setState(() {});
-                }
-                if (item == 2) {
-                  await loadNewDocuments();
-                  await loadSendDocuments();
-                  await loadTrashDocuments();
-                  setState(() {});
-                }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem<int>(value: 0, child: Text('Добавить')),
-                const PopupMenuItem<int>(value: 1, child: Text('Отправить')),
-                const PopupMenuItem<int>(value: 2, child: Text('Обновить')),
-              ],
-            ),
+            IconButton(onPressed: () async {
+              var newOrderCustomer = OrderCustomer();
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ScreenItemOrderCustomer(
+                      orderCustomer: newOrderCustomer),
+                ),
+              );
+              await loadNewDocuments();
+              setState(() {});
+            }, icon: const Icon(Icons.add)),
           ],
         ),
         drawer: const MainDrawer(),
@@ -173,6 +149,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ),
           ],
         ),
+        bottomNavigationBar: actionButtons(),
       ),
     );
   }
@@ -1374,5 +1351,32 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ),
           );
         });
+  }
+
+  actionButtons() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 28),
+      child: SizedBox(
+        height: 40,
+        width: (MediaQuery.of(context).size.width - 49) / 2,
+        child: ElevatedButton(
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ScreenExchangeData(),
+                ),
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.sync, color: Colors.white),
+                SizedBox(width: 14),
+                Text('Выполнить обмен')
+              ],
+            )),
+      ),
+    );
   }
 }

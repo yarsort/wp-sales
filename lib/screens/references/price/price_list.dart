@@ -58,7 +58,7 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
         tooltip: 'Добавить тип цены',
         child: const Text(
           "+",
-          style: TextStyle(fontSize: 30),
+          style: TextStyle(fontSize: 25),
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
@@ -67,7 +67,7 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
   void renewItem() async {
 
     final SharedPreferences prefs = await _prefs;
-    bool useTestData = prefs.getBool('settings_useTestData')!;
+    bool useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Очистка списка заказов покупателя
     listPrices.clear();
