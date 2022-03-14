@@ -5,6 +5,7 @@ import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
+import 'package:wp_sales/screens/references/product/add_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -13,11 +14,10 @@ class ScreenProductSelectionTreeView extends StatefulWidget {
   Price price = Price();
   Warehouse warehouse = Warehouse();
 
-  ScreenProductSelectionTreeView(
-      {Key? key,
-      required this.listItemDoc,
-      required this.price,
-      required this.warehouse})
+  ScreenProductSelectionTreeView({Key? key,
+    required this.listItemDoc,
+    required this.price,
+    required this.warehouse})
       : super(key: key);
 
   @override
@@ -31,11 +31,11 @@ class _ScreenProductSelectionTreeViewState
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController textFieldSearchBoughtController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController textFieldSearchRecommendController =
-      TextEditingController();
+  TextEditingController();
 
   List<Product> tempItems = [];
   List<Product> listProducts = [];
@@ -120,14 +120,17 @@ class _ScreenProductSelectionTreeViewState
     if (useTestData) {
       for (var message in listDataProduct) {
         Product newItem = Product.fromJson(message);
+
         /// Добавим товар
         listDataProducts.add(newItem);
       }
       //showMessage('Тестовые данные загружены!');
     } else {
       /// Загрузка данных из БД
-      listDataProducts = await DatabaseHelper.instance.readProductsByParent(parentProduct.uid);
-      debugPrint('Реальные данные загружены! '+listDataProducts.length.toString());
+      listDataProducts =
+      await DatabaseHelper.instance.readProductsByParent(parentProduct.uid);
+      debugPrint(
+          'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
 
     for (var newItem in listDataProducts) {
@@ -177,14 +180,17 @@ class _ScreenProductSelectionTreeViewState
       return;
     }
 
-    List<Product> dummySearchList = await DatabaseHelper.instance.readProductsForSearch(query);
+    List<Product> dummySearchList = await DatabaseHelper.instance
+        .readProductsForSearch(query);
 
     if (query.isNotEmpty) {
       List<Product> dummyListData = <Product>[];
 
       for (var item in dummySearchList) {
         /// Группы в поиске не отображать
-        if(item.isGroup == 1){return;}
+        if (item.isGroup == 1) {
+          return;
+        }
 
         /// Поиск по имени
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
@@ -260,36 +266,47 @@ class _ScreenProductSelectionTreeViewState
               elevation: 2,
               child: (productItem.isGroup == 1)
                   ? DirectoryItem(
-                      parentProduct: parentProduct,
-                      product: productItem,
-                      tap: () {
-                        if (productItem.uid == parentProduct.uid) {
-                          if (treeParentItems.isNotEmpty) {
-                            // Назначим нового родителя выхода из узла дерева
-                            parentProduct =
-                                treeParentItems[treeParentItems.length - 1];
+                parentProduct: parentProduct,
+                product: productItem,
+                tap: () {
+                  if (productItem.uid == parentProduct.uid) {
+                    if (treeParentItems.isNotEmpty) {
+                      // Назначим нового родителя выхода из узла дерева
+                      parentProduct =
+                      treeParentItems[treeParentItems.length - 1];
 
-                            // Удалим старого родителя для будущего узла
-                            treeParentItems.remove(
-                                treeParentItems[treeParentItems.length - 1]);
-                          } else {
-                            // Отправим дерево на его самый главный узел
-                            parentProduct = Product();
-                          }
-                          renewItem();
-                        } else {
-                          treeParentItems.add(parentProduct);
-                          parentProduct = productItem;
-                          renewItem();
-                        }
-                      },
-                      popTap: () {},
-                    )
-                  : ProductItem(
-                      product: productItem,
-                      tap: () {},
-                      popTap: () {},
+                      // Удалим старого родителя для будущего узла
+                      treeParentItems.remove(
+                          treeParentItems[treeParentItems.length - 1]);
+                    } else {
+                      // Отправим дерево на его самый главный узел
+                      parentProduct = Product();
+                    }
+                    renewItem();
+                  } else {
+                    treeParentItems.add(parentProduct);
+                    parentProduct = productItem;
+                    renewItem();
+                  }
+                },
+                popTap: () {},
+              ) : ProductItem(
+                product: productItem,
+                tap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ScreenAddItem(
+                              listItemDoc: widget.listItemDoc,
+                              price: widget.price,
+                              warehouse: widget.warehouse,
+                              product: productItem),
                     ),
+                  );
+                },
+                popTap: () {},
+              ),
             );
           }),
     );

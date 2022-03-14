@@ -794,7 +794,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Warehouse.fromJson(maps.first);
     } else {
-      throw Exception('Запись с UID: $uid не обнаружена!');
+      return Warehouse();
     }
   }
 

@@ -140,9 +140,17 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 onPressed: () async {
                   Warehouse warehouse = await DatabaseHelper.instance
                       .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
+                  if (warehouse.id == 0) {
+                    showMessageError('Склад не заполнен!');
+                    return;
+                  }
 
                   Price price = await DatabaseHelper.instance
                       .readPriceByUID(widget.orderCustomer.uidPrice);
+                  if (warehouse.id == 0) {
+                    showMessageError('Тип цены не заполнен!');
+                    return;
+                  }
 
                   await Navigator.push(
                     context,
@@ -250,6 +258,16 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         widget.orderCustomer.uidCurrency = '';
       }
     });
+  }
+
+  showMessageError(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   showMessage(String textMessage) {
