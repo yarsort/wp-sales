@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/screens/auth/home.dart';
+import 'package:wp_sales/home.dart';
 import 'package:flutter/services.dart';
 import 'package:wp_sales/screens/auth/login.dart';
 

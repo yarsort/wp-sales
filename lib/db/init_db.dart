@@ -902,6 +902,22 @@ class DatabaseHelper {
     }
   }
 
+  Future<OrderCustomer> readOrderCustomerByUID(String uid) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableOrderCustomer,
+      columns: OrderCustomerFields.values,
+      where: '${OrderCustomerFields.uid} = ?',
+      whereArgs: [uid],
+    );
+
+    if (maps.isNotEmpty) {
+      return OrderCustomer.fromJson(maps.first);
+    } else {
+      throw Exception('Запись с UID: $uid не обнаружена!');
+    }
+  }
+
   Future<List<ItemOrderCustomer>> readItemsOrderCustomer(int idOrderCustomer) async {
     final db = await instance.database;
     if (!db.isOpen) {

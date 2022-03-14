@@ -70,7 +70,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
       padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
       child: Text(nameGroup,
           style: const TextStyle(
-              fontSize: 16, color: Colors.blue, fontWeight: FontWeight.bold)),
+              fontSize: 16, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
     );
   }
 

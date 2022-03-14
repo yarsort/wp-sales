@@ -1350,9 +1350,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   actionButtons() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 28),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       child: SizedBox(
-        height: 40,
+        height: 50,
         width: (MediaQuery.of(context).size.width - 49) / 2,
         child: ElevatedButton(
             onPressed: () async {

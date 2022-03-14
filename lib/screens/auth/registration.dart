@@ -1,7 +1,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wp_sales/screens/auth/home.dart';
+import 'package:wp_sales/home.dart';
 
 class ScreenRegistration extends StatefulWidget {
   const ScreenRegistration({Key? key}) : super(key: key);

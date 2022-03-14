@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_organization.dart';
@@ -41,14 +42,16 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         centerTitle: true,
         title: const Text('Обмен данными'),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ScreenSettings(),
-              ),
-            );
-          }, icon: const Icon(Icons.settings))
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScreenSettings(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.settings))
         ],
       ),
       body: Padding(
@@ -96,9 +99,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     );
   }
 
-  renewItem() {
-
-  }
+  renewItem() {}
 
   Future<void> loadData() async {
     if (_loading) {
@@ -130,7 +131,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _loading = false;
       _visibleIndicator = false;
     });
-
   }
 
   Future<void> loadDataByFTP() async {
@@ -269,7 +269,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       var jsonData = json.decode(textJSON);
 
       /// Организации
-      List<Organization> listOrganization = await DatabaseHelper.instance.readAllOrganization();
+      List<Organization> listOrganization =
+          await DatabaseHelper.instance.readAllOrganization();
       for (var item in listOrganization) {
         await DatabaseHelper.instance.deleteOrganization(item.id);
       }
@@ -286,7 +287,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Партнеры
-      List<Partner> listPartners = await DatabaseHelper.instance.readAllPartners();
+      List<Partner> listPartners =
+          await DatabaseHelper.instance.readAllPartners();
       for (var item in listPartners) {
         await DatabaseHelper.instance.deletePartner(item.id);
       }
@@ -302,7 +304,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Контракты
-      List<Contract> listContracts = await DatabaseHelper.instance.readAllContracts();
+      List<Contract> listContracts =
+          await DatabaseHelper.instance.readAllContracts();
       for (var item in listContracts) {
         await DatabaseHelper.instance.deleteContract(item.id);
       }
@@ -334,7 +337,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Склады
-      List<Warehouse> listWarehouses = await DatabaseHelper.instance.readAllWarehouse();
+      List<Warehouse> listWarehouses =
+          await DatabaseHelper.instance.readAllWarehouse();
       for (var item in listWarehouses) {
         await DatabaseHelper.instance.deleteWarehouse(item.id);
       }
@@ -350,7 +354,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Каталоги товаров (папки)
-      List<Product> listProducts = await DatabaseHelper.instance.readAllProducts();
+      List<Product> listProducts =
+          await DatabaseHelper.instance.readAllProducts();
       for (var item in listProducts) {
         await DatabaseHelper.instance.deleteProduct(item.id);
       }
@@ -372,6 +377,35 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         countItem++;
       }
       listLogs.add('Товары: ' + countItem.toString() + ' шт');
+
+      setState(() {
+        _valueProgress = 0.9;
+      });
+
+      /// Полученные номеров документов из учетной системы
+      countItem = 0;
+      for (var item in jsonData['ReceivedDocuments']) {
+        if (item.typoDoc == 'ЗаказПокупателя') {
+          // Получим заказ
+          var orderCustomer =
+              await DatabaseHelper.instance.readOrderCustomerByUID(item.uidDoc);
+
+          // Получим товары заказа
+          var itemsOrder = await DatabaseHelper.instance
+              .readItemsOrderCustomer(orderCustomer.id);
+
+          // Запишем номер документа из учетной системы
+          orderCustomer.numberFrom1C = item.numberDoc;
+
+          // Запишем обновления заказа
+          await DatabaseHelper.instance
+              .updateOrderCustomer(orderCustomer, itemsOrder);
+        }
+
+        countItem++;
+      }
+
+      listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
 
       setState(() {
         _valueProgress = 1.0;
@@ -416,9 +450,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   actionButtons() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 7, 14, 28),
+      padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
       child: SizedBox(
-        height: 40,
+        height: 50,
         width: (MediaQuery.of(context).size.width - 49) / 2,
         child: ElevatedButton(
             onPressed: () async {
