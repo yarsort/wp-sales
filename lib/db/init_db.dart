@@ -477,7 +477,7 @@ class DatabaseHelper {
 
   Future<List<Product>> readProductsForSearch(String searchString) async {
     final db = await instance.database;
-    const orderBy = '${ItemProductFields.name} COLLATE NOCASE ASC';
+    const orderBy = '${ItemProductFields.name} ASC';
     final result = await db.query(
         tableProduct,
         where: '${ItemProductFields.name} LIKE ?',
