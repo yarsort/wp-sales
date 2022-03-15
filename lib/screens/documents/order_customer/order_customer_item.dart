@@ -618,8 +618,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               children: [
                 /// Записать документ
                 SizedBox(
-                  height: 5
-                  0,
+                  height: 50,
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
