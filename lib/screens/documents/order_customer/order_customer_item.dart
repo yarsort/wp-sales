@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_price.dart';
+import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
+import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/screens/references/price/price_selection.dart';
+import 'package:wp_sales/screens/references/product/add_item.dart';
 import 'package:wp_sales/screens/references/product/product_selection_treeview.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 import 'package:wp_sales/system/system.dart';
@@ -53,6 +58,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Поле ввода: Валюта документа
   TextEditingController textFieldCurrencyController = TextEditingController();
+
+  /// Поле ввода: Кассы
+  TextEditingController textFieldCashboxController = TextEditingController();
 
   /// Поле ввода: Дата отгрузки (отправки)
   TextEditingController textFieldDateSendingController =
@@ -138,27 +146,33 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             actions: [
               IconButton(
                 onPressed: () async {
-                  Warehouse warehouse = await DatabaseHelper.instance
-                      .readWarehouseByUID(widget.orderCustomer.uidWarehouse);
-                  if (warehouse.id == 0) {
-                    showMessageError('Склад не заполнен!');
+
+                  if (widget.orderCustomer.nameOrganization == '') {
+                    showMessageError('Организация не заполнена!');
                     return;
                   }
-
-                  Price price = await DatabaseHelper.instance
-                      .readPriceByUID(widget.orderCustomer.uidPrice);
-                  if (warehouse.id == 0) {
+                  if (widget.orderCustomer.namePartner == '') {
+                    showMessageError('Партнер не заполнен!');
+                    return;
+                  }
+                  if (widget.orderCustomer.nameContract == '') {
+                    showMessageError('Контракт не заполнен!');
+                    return;
+                  }
+                  if (widget.orderCustomer.namePrice == '') {
                     showMessageError('Тип цены не заполнен!');
                     return;
                   }
-
+                  if (widget.orderCustomer.nameWarehouse == '') {
+                    showMessageError('Склад не заполнен!');
+                    return;
+                  }
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenProductSelectionTreeView(
                           listItemDoc: itemsOrder,
-                          warehouse: warehouse,
-                          price: price),
+                          orderCustomer: widget.orderCustomer),
                     ),
                   );
                   renewItems();
@@ -214,6 +228,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       textFieldContractController.text = widget.orderCustomer.nameContract;
       textFieldPriceController.text = widget.orderCustomer.namePrice;
       textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
+      textFieldCashboxController.text = widget.orderCustomer.nameCashbox;
       textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
       textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
 
@@ -245,6 +260,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         textFieldCurrencyController.text = '';
         widget.orderCustomer.nameCurrency = '';
         widget.orderCustomer.uidCurrency = '';
+
+        textFieldCashboxController.text = '';
+        widget.orderCustomer.nameCashbox = '';
+        widget.orderCustomer.uidCashbox = '';
       }
 
       // Проверка договора
@@ -468,6 +487,33 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 updateHeader();
               }),
 
+          /// Cashbox
+          TextFieldWithText(
+              textLabel: 'Касса',
+              textEditingController: textFieldCashboxController,
+              onPressedEditIcon: Icons.request_quote,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                widget.orderCustomer.nameCashbox = '';
+                widget.orderCustomer.uidCashbox = '';
+                await updateHeader();
+              },
+              onPressedEdit: () async {
+                var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenCashboxSelection(
+                            orderCustomer: widget.orderCustomer)));
+                // Если изменили партнера, изменим его договор и валюту
+                if (result != null) {
+                  if (result) {
+                    widget.orderCustomer.nameCashbox = '';
+                    widget.orderCustomer.uidCashbox = '';
+                  }
+                }
+                updateHeader();
+              }),
+
           /// Warehouse
           TextFieldWithText(
               textLabel: 'Склад отгрузки',
@@ -656,38 +702,75 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: ColumnBuilder(
-          itemCount: countItems,
+          itemCount: itemsOrder.length,
           itemBuilder: (context, index) {
             final item = itemsOrder[index];
             return Padding(
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
               child: Card(
                 elevation: 2,
-                child: ListTile(
-                  onTap: () {
-                    ItemPopup(itemsOrder: itemsOrder, itemOrder: item);
-                    setState(() {});
-                  },
-                  title: Text(item.name),
-                  subtitle: Column(
-                    children: [
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Center(
+                  child: PopupMenuButton<String>(
+                    onSelected: (String value) async {
+                      if (value == 'delete'){
+                        setState(() {
+                          itemsOrder = List.from(itemsOrder)
+                            ..removeAt(index);
+                        });
+                      }
+                      if (value == 'edit') {
+                        Product productItem = await DatabaseHelper.instance.readProductByUID(item.uid);
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ScreenAddItem(
+                                    listItemDoc: itemsOrder,
+                                    orderCustomer: widget.orderCustomer,
+                                    product: productItem),
+                          ),
+                        );
+
+                        setState(() {});
+                      }
+                    },
+                    child: ListTile(
+                      title: Text(item.name),
+                      subtitle: Column(
                         children: [
-                          Expanded(
-                              flex: 1,
-                              child: Text(doubleThreeToString(item.count))),
-                          Expanded(flex: 1, child: Text(item.nameUnit)),
-                          Expanded(
-                              flex: 1, child: Text(doubleToString(item.price))),
-                          Expanded(
-                              flex: 1, child: Text(doubleToString(item.sum))),
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: Text(doubleThreeToString(item.count))),
+                              Expanded(flex: 1, child: Text(item.nameUnit)),
+                              Expanded(
+                                  flex: 1, child: Text(doubleToString(item.price))),
+                              Expanded(
+                                  flex: 1, child: Text(doubleToString(item.sum))),
+                            ],
+                          ),
                         ],
+                      ),
+                    ),
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'edit',
+                        child: Text('Редактировать'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Text('Удалить'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'view',
+                        child: Text('Открыть товар'),
                       ),
                     ],
                   ),
-                ),
+                )
               ),
             );
           }),

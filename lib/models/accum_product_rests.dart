@@ -17,7 +17,7 @@ class AccumProductRest {
     uidWarehouse = json["uidPrice"]??'';
     uidProduct = json["uidProduct"]??'';
     uidUnit = json["uidUnit"]??'';
-    count = json["price"].toDouble()??0.0;
+    count = json["price"]??0.0;
   }
 
   Map<String, dynamic> toJson() {

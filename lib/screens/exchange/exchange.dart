@@ -6,6 +6,10 @@ import 'package:ftpconnect/ftpconnect.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/accum_partner_depts.dart';
+import 'package:wp_sales/models/accum_product_prices.dart';
+import 'package:wp_sales/models/accum_product_rests.dart';
+import 'package:wp_sales/models/ref_cashbox.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/models/ref_partner.dart';
@@ -269,11 +273,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       var jsonData = json.decode(textJSON);
 
       /// Организации
-      List<Organization> listOrganization =
-          await DatabaseHelper.instance.readAllOrganization();
-      for (var item in listOrganization) {
-        await DatabaseHelper.instance.deleteOrganization(item.id);
-      }
+      await DatabaseHelper.instance.deleteAllOrganization();
       int countItem = 0;
       for (var item in jsonData['Organizations']) {
         await DatabaseHelper.instance
@@ -287,78 +287,86 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Партнеры
-      List<Partner> listPartners =
-          await DatabaseHelper.instance.readAllPartners();
-      for (var item in listPartners) {
-        await DatabaseHelper.instance.deletePartner(item.id);
-      }
+      await DatabaseHelper.instance.deleteAllPartner();
       countItem = 0;
       for (var item in jsonData['Partners']) {
         await DatabaseHelper.instance.createPartner(Partner.fromJson(item));
         countItem++;
       }
-      listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
 
+      listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
       setState(() {
         _valueProgress = 0.4;
       });
 
       /// Контракты
-      List<Contract> listContracts =
-          await DatabaseHelper.instance.readAllContracts();
-      for (var item in listContracts) {
-        await DatabaseHelper.instance.deleteContract(item.id);
-      }
+      await DatabaseHelper.instance.deleteAllContract();
       countItem = 0;
       for (var item in jsonData['Contracts']) {
         await DatabaseHelper.instance.createContract(Contract.fromJson(item));
         countItem++;
       }
-      listLogs.add('Контракты: ' + countItem.toString() + ' шт');
 
+      listLogs.add('Контракты: ' + countItem.toString() + ' шт');
       setState(() {
         _valueProgress = 0.5;
       });
 
-      /// Типы цен
-      List<Price> listPrices = await DatabaseHelper.instance.readAllPrices();
-      for (var item in listPrices) {
-        await DatabaseHelper.instance.deletePrice(item.id);
+      /// Долги по контрактам
+      await DatabaseHelper.instance.deleteAllPartnerDept();
+      countItem = 0;
+      for (var item in jsonData['DeptsPartners']) {
+        await DatabaseHelper.instance.createPartnerDept(AccumPartnerDept.fromJson(item));
+        countItem++;
       }
+
+      listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
+      setState(() {
+        _valueProgress = 0.55;
+      });
+
+      /// Типы цен
+      await DatabaseHelper.instance.deleteAllPrice();
       countItem = 0;
       for (var item in jsonData['Prices']) {
         await DatabaseHelper.instance.createPrice(Price.fromJson(item));
         countItem++;
       }
-      listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
 
+      listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
       setState(() {
         _valueProgress = 0.6;
       });
 
       /// Склады
-      List<Warehouse> listWarehouses =
-          await DatabaseHelper.instance.readAllWarehouse();
-      for (var item in listWarehouses) {
-        await DatabaseHelper.instance.deleteWarehouse(item.id);
-      }
+      await DatabaseHelper.instance.deleteAllWarehouse();
       countItem = 0;
       for (var item in jsonData['Warehouses']) {
         await DatabaseHelper.instance.createWarehouse(Warehouse.fromJson(item));
         countItem++;
       }
-      listLogs.add('Склады: ' + countItem.toString() + ' шт');
 
+      listLogs.add('Склады: ' + countItem.toString() + ' шт');
       setState(() {
         _valueProgress = 0.7;
       });
 
-      /// Каталоги товаров (папки)
-      List<Product> listProducts =
-          await DatabaseHelper.instance.readAllProducts();
-      for (var item in listProducts) {
-        await DatabaseHelper.instance.deleteProduct(item.id);
+      /// Кассы
+      await DatabaseHelper.instance.deleteAllCashbox();
+      countItem = 0;
+      for (var item in jsonData['Cashboxes']) {
+        await DatabaseHelper.instance.createCashbox(Cashbox.fromJson(item));
+        countItem++;
       }
+
+      listLogs.add('Кассы: ' + countItem.toString() + ' шт');
+      setState(() {
+        _valueProgress = 0.7;
+      });
+
+
+      /// Каталоги товаров (папки)
+      await DatabaseHelper.instance.deleteAllProduct();
       countItem = 0;
       for (var item in jsonData['ProductsParent']) {
         await DatabaseHelper.instance.createProduct(Product.fromJson(item));
@@ -378,6 +386,32 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Товары: ' + countItem.toString() + ' шт');
 
+      setState(() {
+        _valueProgress = 0.85;
+      });
+
+      /// Остатки товаров
+      await DatabaseHelper.instance.deleteAllProductRest();
+      countItem = 0;
+      for (var item in jsonData['Rests']) {
+        await DatabaseHelper.instance.createProductRest(AccumProductRest.fromJson(item));
+        countItem++;
+      }
+
+      listLogs.add('Остатки товаров: ' + countItem.toString() + ' шт');
+      setState(() {
+        _valueProgress = 0.9;
+      });
+
+      /// Цены товаров
+      await DatabaseHelper.instance.deleteAllProductPrice();
+      countItem = 0;
+      for (var item in jsonData['ProductsPrices']) {
+        await DatabaseHelper.instance.createProductPrice(AccumProductPrice.fromJson(item));
+        countItem++;
+      }
+
+      listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
       setState(() {
         _valueProgress = 0.9;
       });

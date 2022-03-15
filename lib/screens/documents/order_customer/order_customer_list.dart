@@ -1026,7 +1026,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   yesNewDocuments() {
     return ColumnBuilder(
-        itemCount: countNewDocuments,
+        itemCount: listNewOrdersCustomer.length,
         itemBuilder: (context, index) {
           final orderCustomer = listNewOrdersCustomer[index];
           return Padding(
@@ -1121,7 +1121,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   yesSendDocuments() {
     // Отображение списка заказов покупателя
     return ColumnBuilder(
-        itemCount: countSendDocuments,
+        itemCount: listSendOrdersCustomer.length,
         itemBuilder: (context, index) {
           final orderCustomer = listSendOrdersCustomer[index];
           return Padding(
@@ -1256,7 +1256,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   yesTrashDocuments() {
     // Отображение списка заказов покупателя
     return ColumnBuilder(
-        itemCount: countTrashDocuments,
+        itemCount: listTrashOrdersCustomer.length,
         itemBuilder: (context, index) {
           final orderCustomer = listTrashOrdersCustomer[index];
           return Padding(
@@ -1368,7 +1368,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               children: const [
                 Icon(Icons.sync, color: Colors.white),
                 SizedBox(width: 14),
-                Text('Выполнить обмен')
+                Text('Обмен данными')
               ],
             )),
       ),

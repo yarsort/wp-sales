@@ -4,6 +4,7 @@ import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_cashbox.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/models/ref_organization.dart';
@@ -27,25 +28,29 @@ class DatabaseHelper {
       if (_database!.isOpen) {
         return _database!;
       } else {
-        _database = await _initDB('WPSalesDatabase1.db');
+        _database = await _initDB('WPSalesDB.db');
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDatabase3.db');
+    _database = await _initDB('WPSalesDB.db');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 3,
-        onCreate: _createDB,
-        onUpgrade: _upgradeDB);
+    return await openDatabase(path,
+        version: 1, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
-  Future _upgradeDB(Database db, int oldV, int newV) async{
-    if(oldV < newV) {
-      //await db.execute("alter table courses add column level varchar(50) ");
+  Future _upgradeDB(Database db, int oldV, int newV) async {
+    const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    const textType = 'TEXT NOT NULL';
+    const realType = 'REAL NOT NULL';
+    const integerType = 'INTEGER NOT NULL';
+
+    if (newV == 2) {
+
     }
   }
 
@@ -74,6 +79,8 @@ class DatabaseHelper {
       ${OrderCustomerFields.nameWarehouse} $textType,
       ${OrderCustomerFields.uidCurrency} $textType,
       ${OrderCustomerFields.nameCurrency} $textType,
+      ${OrderCustomerFields.uidCashbox} $textType,
+      ${OrderCustomerFields.nameCashbox} $textType,
       ${OrderCustomerFields.sum} $realType,
       ${OrderCustomerFields.comment} $textType,
       ${OrderCustomerFields.dateSending} $textType,
@@ -85,8 +92,6 @@ class DatabaseHelper {
       ${OrderCustomerFields.countItems} $integerType
       )
     ''');
-
-    //await db.execute("DROP TABLE IF EXISTS $tableItemsOrderCustomer");
 
     /// Документ.ЗаказПокупателя - ТЧ "Товары" (№1)
     await db.execute('''
@@ -189,6 +194,19 @@ class DatabaseHelper {
       )
     ''');
 
+    /// Справочник.Кассы
+    await db.execute('''
+    CREATE TABLE $tableCashbox (    
+      ${ItemCashboxFields.id} $idType,
+      ${ItemCashboxFields.isGroup} $integerType,      
+      ${ItemCashboxFields.uid} $textType,
+      ${ItemCashboxFields.code} $textType,      
+      ${ItemCashboxFields.name} $textType,
+      ${ItemCashboxFields.uidParent} $textType,
+      ${ItemCashboxFields.comment} $textType            
+      )
+    ''');
+
     /// Справочник.ЕдиницыИзмерения
     await db.execute('''
     CREATE TABLE $tableUnit(    
@@ -246,7 +264,7 @@ class DatabaseHelper {
       ${ItemAccumPartnerDeptFields.nameDoc} $textType,
       ${ItemAccumPartnerDeptFields.numberDoc} $textType,
       ${ItemAccumPartnerDeptFields.dateDoc} $textType,      
-      ${ItemAccumPartnerDeptFields.balance} $realType
+      ${ItemAccumPartnerDeptFields.balance} $realType,
       ${ItemAccumPartnerDeptFields.balanceForPayment} $realType            
       )
     ''');
@@ -258,7 +276,7 @@ class DatabaseHelper {
       ${ItemAccumProductPricesFields.uidPrice} $textType,      
       ${ItemAccumProductPricesFields.uidProduct} $textType,
       ${ItemAccumProductPricesFields.uidUnit} $textType,      
-      ${ItemAccumProductPricesFields.price} $realType,                  
+      ${ItemAccumProductPricesFields.price} $realType                  
       )
     ''');
 
@@ -269,7 +287,7 @@ class DatabaseHelper {
       ${ItemAccumProductRestsFields.uidWarehouse} $textType,      
       ${ItemAccumProductRestsFields.uidProduct} $textType,
       ${ItemAccumProductRestsFields.uidUnit} $textType,      
-      ${ItemAccumProductRestsFields.count} $realType,                  
+      ${ItemAccumProductRestsFields.count} $realType                  
       )
     ''');
   }
@@ -279,7 +297,6 @@ class DatabaseHelper {
     _database = null;
     db.close();
   }
-
 
   /// Справочник.Организации
   Future<Organization> createOrganization(Organization organization) async {
@@ -308,6 +325,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllOrganization() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableOrganization,
+    );
+  }
+
   Future<Organization> readOrganization(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -320,7 +344,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Organization.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Organization();
     }
   }
 
@@ -339,7 +363,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableOrganization"));
     return result ?? 0;
   }
-
 
   /// Справочник.Партнеры
   Future<Partner> createPartner(Partner partner) async {
@@ -368,6 +391,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllPartner() async {
+    final db = await instance.database;
+    return await db.delete(
+      tablePartner,
+    );
+  }
+
   Future<Partner> readPartner(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -380,7 +410,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Partner.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Partner();
     }
   }
 
@@ -399,7 +429,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tablePartner"));
     return result ?? 0;
   }
-
 
   /// Справочник.ДоговорыКонтрагентов (партнеров)
   Future<Contract> createContract(Contract contract) async {
@@ -428,6 +457,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllContract() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableContract,
+    );
+  }
+
   Future<Contract> readContract(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -440,7 +476,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Contract.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Contract();
     }
   }
 
@@ -454,10 +490,8 @@ class DatabaseHelper {
   Future<List<Contract>> readForPaymentContracts({int limit = 10}) async {
     final db = await instance.database;
     const orderBy = '${ItemContractFields.balanceForPayment} ASC';
-    final result = await db.query(
-        tableContract,
-        limit: limit,
-        orderBy: orderBy);
+    final result =
+        await db.query(tableContract, limit: limit, orderBy: orderBy);
     return result.map((json) => Contract.fromJson(json)).toList();
   }
 
@@ -467,7 +501,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableContract"));
     return result ?? 0;
   }
-
 
   /// Справочник.Товары
   Future<Product> createProduct(Product product) async {
@@ -496,6 +529,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllProduct() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableProduct,
+    );
+  }
+
   Future<Product> readProduct(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -508,7 +548,23 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Product.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Product();
+    }
+  }
+
+  Future<Product> readProductByUID(String uid) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableProduct,
+      columns: ItemProductFields.values,
+      where: '${ItemProductFields.uid} = ?',
+      whereArgs: [uid],
+    );
+
+    if (maps.isNotEmpty) {
+      return Product.fromJson(maps.first);
+    } else {
+      throw Product();
     }
   }
 
@@ -522,8 +578,7 @@ class DatabaseHelper {
   Future<List<Product>> readProductsByParent(String uidParent) async {
     final db = await instance.database;
     const orderBy = '${ItemProductFields.name} ASC';
-    final result = await db.query(
-        tableProduct,
+    final result = await db.query(tableProduct,
         where: '${ItemProductFields.uidParent} = ?',
         whereArgs: [uidParent],
         orderBy: orderBy);
@@ -533,8 +588,7 @@ class DatabaseHelper {
   Future<List<Product>> readProductsForSearch(String searchString) async {
     final db = await instance.database;
     const orderBy = '${ItemProductFields.name} ASC';
-    final result = await db.query(
-        tableProduct,
+    final result = await db.query(tableProduct,
         where: '${ItemProductFields.name} LIKE ?',
         whereArgs: ['%$searchString%'],
         orderBy: orderBy);
@@ -547,7 +601,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableProduct"));
     return result ?? 0;
   }
-
 
   /// Справочник.ТипыЦен
   Future<Price> createPrice(Price price) async {
@@ -576,6 +629,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllPrice() async {
+    final db = await instance.database;
+    return await db.delete(
+      tablePrice,
+    );
+  }
+
   Future<Price> readPrice(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -588,7 +648,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Price.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Price();
     }
   }
 
@@ -604,7 +664,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Price.fromJson(maps.first);
     } else {
-      throw Exception('Запись с UID: $uid не обнаружена!');
+      throw Price();
     }
   }
 
@@ -621,7 +681,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tablePrice"));
     return result ?? 0;
   }
-
 
   /// Справочник.Валюты
   Future<Currency> createCurrency(Currency currency) async {
@@ -650,6 +709,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllCurrency() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableCurrency,
+    );
+  }
+
   Future<Currency> readCurrency(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -662,7 +728,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Currency.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Currency();
     }
   }
 
@@ -679,7 +745,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableCurrency"));
     return result ?? 0;
   }
-
 
   /// Справочник.ЕдиницыИзмерений
   Future<Unit> createUnit(Unit unit) async {
@@ -708,6 +773,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllUnit() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableUnit,
+    );
+  }
+
   Future<Unit> readUnit(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -720,7 +792,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Unit.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Unit();
     }
   }
 
@@ -737,7 +809,6 @@ class DatabaseHelper {
         await db.rawQuery("SELECT COUNT (*) FROM $tableUnit"));
     return result ?? 0;
   }
-
 
   /// Справочник.Склады
   Future<Warehouse> createWarehouse(Warehouse warehouse) async {
@@ -766,6 +837,13 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllWarehouse() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableWarehouse,
+    );
+  }
+
   Future<Warehouse> readWarehouse(int id) async {
     final db = await instance.database;
     final maps = await db.query(
@@ -778,7 +856,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return Warehouse.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw Warehouse();
     }
   }
 
@@ -812,13 +890,78 @@ class DatabaseHelper {
     return result ?? 0;
   }
 
+  /// Справочник.Кассы
+  Future<Cashbox> createCashbox(Cashbox cashbox) async {
+    final db = await instance.database;
+    final id = await db.insert(tableCashbox, cashbox.toJson());
+    cashbox.id = id;
+    return cashbox;
+  }
+
+  Future<int> updateCashbox(Cashbox cashbox) async {
+    final db = await instance.database;
+    return db.update(
+      tableCashbox,
+      cashbox.toJson(),
+      where: '${ItemCashboxFields.id} = ?',
+      whereArgs: [cashbox.id],
+    );
+  }
+
+  Future<int> deleteCashbox(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      tableCashbox,
+      where: '${ItemCashboxFields.id} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> deleteAllCashbox() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableCashbox,
+    );
+  }
+
+  Future<Cashbox> readCashbox(int id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      tableCashbox,
+      columns: ItemCashboxFields.values,
+      where: '${ItemCashboxFields.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Cashbox.fromJson(maps.first);
+    } else {
+      throw Cashbox();
+    }
+  }
+
+  Future<List<Cashbox>> readAllCashbox() async {
+    final db = await instance.database;
+    const orderBy = '${ItemCashboxFields.name} ASC';
+    final result = await db.query(tableCashbox, orderBy: orderBy);
+    return result.map((json) => Cashbox.fromJson(json)).toList();
+  }
+
+  Future<int> getCountCashbox() async {
+    final db = await instance.database;
+    var result = Sqflite.firstIntValue(
+        await db.rawQuery("SELECT COUNT (*) FROM $tableCashbox"));
+    return result ?? 0;
+  }
 
   /// Документы.ЗаказПокупателя
-  Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
+  Future<OrderCustomer> createOrderCustomer(OrderCustomer orderCustomer,
+      List<ItemOrderCustomer> itemsOrderCustomer) async {
     final db = await instance.database;
     try {
       db.transaction((txn) async {
-        orderCustomer.id = await txn.insert(tableOrderCustomer, orderCustomer.toJson());
+        orderCustomer.id =
+            await txn.insert(tableOrderCustomer, orderCustomer.toJson());
 
         /// Запись ТЧ "Товары"
         for (var itemOrderCustomer in itemsOrderCustomer) {
@@ -832,17 +975,19 @@ class DatabaseHelper {
     }
   }
 
-  Future<int> updateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
+  Future<int> updateOrderCustomer(OrderCustomer orderCustomer,
+      List<ItemOrderCustomer> itemsOrderCustomer) async {
     final db = await instance.database;
-    int intOperation = 0; 
+    int intOperation = 0;
     try {
       db.transaction((txn) async {
-        intOperation = intOperation + await txn.update(
-          tableOrderCustomer,
-          orderCustomer.toJson(),
-          where: '${OrderCustomerFields.id} = ?',
-          whereArgs: [orderCustomer.id],
-        );
+        intOperation = intOperation +
+            await txn.update(
+              tableOrderCustomer,
+              orderCustomer.toJson(),
+              where: '${OrderCustomerFields.id} = ?',
+              whereArgs: [orderCustomer.id],
+            );
 
         /// Очистка ТЧ "Товары"
         txn.delete(
@@ -898,7 +1043,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return OrderCustomer.fromJson(maps.first);
     } else {
-      throw Exception('Запись с ID: $id не обнаружена!');
+      throw OrderCustomer();
     }
   }
 
@@ -914,11 +1059,12 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       return OrderCustomer.fromJson(maps.first);
     } else {
-      throw Exception('Запись с UID: $uid не обнаружена!');
+      throw OrderCustomer();
     }
   }
 
-  Future<List<ItemOrderCustomer>> readItemsOrderCustomer(int idOrderCustomer) async {
+  Future<List<ItemOrderCustomer>> readItemsOrderCustomer(
+      int idOrderCustomer) async {
     final db = await instance.database;
     if (!db.isOpen) {
       DatabaseHelper._init();
@@ -996,11 +1142,12 @@ class DatabaseHelper {
     return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
   }
 
-
   /// РегистрНакопления.Взаиморасчеты
-  Future<AccumPartnerDept> createPartnerDept(AccumPartnerDept accumDeptPartner) async {
+  Future<AccumPartnerDept> createPartnerDept(
+      AccumPartnerDept accumDeptPartner) async {
     final db = await instance.database;
-    final id = await db.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
+    final id =
+        await db.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
     accumDeptPartner.id = id;
     return accumDeptPartner;
   }
@@ -1024,12 +1171,21 @@ class DatabaseHelper {
     );
   }
 
-  Future<AccumPartnerDept> readPartnerDept({required String uidPartner, required String uidContract}) async {
+  Future<int> deleteAllPartnerDept() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableAccumPartnerDebts,
+    );
+  }
+
+  Future<AccumPartnerDept> readPartnerDept(
+      {required String uidPartner, required String uidContract}) async {
     final db = await instance.database;
     final maps = await db.query(
       tableAccumPartnerDebts,
       columns: ItemAccumPartnerDeptFields.values,
-      where: '${ItemAccumPartnerDeptFields.uidPartner} = ? AND ${ItemAccumPartnerDeptFields.uidContract} = ?',
+      where:
+          '${ItemAccumPartnerDeptFields.uidPartner} = ? AND ${ItemAccumPartnerDeptFields.uidContract} = ?',
       whereArgs: [uidPartner, uidContract],
     );
 
@@ -1040,11 +1196,12 @@ class DatabaseHelper {
     }
   }
 
-
   /// РегистрНакопления.Цены
-  Future<AccumProductPrice> createProductPrice(AccumProductPrice accumProductPrice) async {
+  Future<AccumProductPrice> createProductPrice(
+      AccumProductPrice accumProductPrice) async {
     final db = await instance.database;
-    final id = await db.insert(tableAccumProductPrices, accumProductPrice.toJson());
+    final id =
+        await db.insert(tableAccumProductPrices, accumProductPrice.toJson());
     accumProductPrice.id = id;
     return accumProductPrice;
   }
@@ -1068,12 +1225,21 @@ class DatabaseHelper {
     );
   }
 
-  Future<double> readProductPrice({required String uidPrice, required String uidProduct}) async {
+  Future<int> deleteAllProductPrice() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableAccumProductPrices,
+    );
+  }
+
+  Future<double> readProductPrice(
+      {required String uidPrice, required String uidProduct}) async {
     final db = await instance.database;
     final maps = await db.query(
       tableAccumProductPrices,
       columns: ItemAccumProductPricesFields.values,
-      where: '${ItemAccumProductPricesFields.uidPrice} = ? AND ${ItemAccumProductPricesFields.uidProduct} = ?',
+      where:
+          '${ItemAccumProductPricesFields.uidPrice} = ? AND ${ItemAccumProductPricesFields.uidProduct} = ?',
       whereArgs: [uidPrice, uidProduct],
     );
 
@@ -1084,13 +1250,12 @@ class DatabaseHelper {
     }
   }
 
-
   /// РегистрНакопления.ОстаткиНаСкладах
-  Future<AccumProductRest> createProductRest(AccumProductRest accumProductRest) async {
+  Future<AccumProductRest> createProductRest(
+      AccumProductRest accumProductRest) async {
     final db = await instance.database;
-    final id = await db.insert(
-        tableAccumProductRests,
-        accumProductRest.toJson());
+    final id =
+        await db.insert(tableAccumProductRests, accumProductRest.toJson());
     accumProductRest.id = id;
     return accumProductRest;
   }
@@ -1114,12 +1279,21 @@ class DatabaseHelper {
     );
   }
 
-  Future<double> readProductRest({required String uidWarehouse, required String uidProduct}) async {
+  Future<int> deleteAllProductRest() async {
+    final db = await instance.database;
+    return await db.delete(
+      tableAccumProductRests,
+    );
+  }
+
+  Future<double> readProductRest(
+      {required String uidWarehouse, required String uidProduct}) async {
     final db = await instance.database;
     final maps = await db.query(
       tableAccumProductRests,
       columns: ItemAccumProductRestsFields.values,
-      where: '${ItemAccumProductRestsFields.uidWarehouse} = ? AND ${ItemAccumProductRestsFields.uidProduct} = ?',
+      where:
+          '${ItemAccumProductRestsFields.uidWarehouse} = ? AND ${ItemAccumProductRestsFields.uidProduct} = ?',
       whereArgs: [uidWarehouse, uidProduct],
     );
 
@@ -1130,4 +1304,9 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<AccumProductRest>> readAllProductRest() async {
+    final db = await instance.database;
+    final result = await db.query(tableAccumProductRests);
+    return result.map((json) => AccumProductRest.fromJson(json)).toList();
+  }
 }

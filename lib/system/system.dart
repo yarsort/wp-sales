@@ -374,6 +374,24 @@ final listDataPrice = [
 ];
 
 /// Тестовые данные
+final listDataCashboxes = [
+  {
+    'id': 1,
+    'isGroup': 0,
+    'uid': '03701c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Основная касса',
+    'uidParent': '13704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+  {
+    'id': 2,
+    'isGroup': 0,
+    'uid': '13705c3a-025e-4d5b-b3f9-9213a338e807',
+    'name': 'Касса менеджера',
+    'uidParent': '03704c3a-025e-4d5b-b3f9-9213a338e807',
+  },
+];
+
+/// Тестовые данные
 final listDataUnit = [
   {
     'id': 1,

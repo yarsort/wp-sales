@@ -11,13 +11,11 @@ import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductSelectionTreeView extends StatefulWidget {
   List<ItemOrderCustomer> listItemDoc = [];
-  Price price = Price();
-  Warehouse warehouse = Warehouse();
+  OrderCustomer orderCustomer = OrderCustomer();
 
   ScreenProductSelectionTreeView({Key? key,
     required this.listItemDoc,
-    required this.price,
-    required this.warehouse})
+    required this.orderCustomer})
       : super(key: key);
 
   @override
@@ -299,8 +297,7 @@ class _ScreenProductSelectionTreeViewState
                       builder: (context) =>
                           ScreenAddItem(
                               listItemDoc: widget.listItemDoc,
-                              price: widget.price,
-                              warehouse: widget.warehouse,
+                              orderCustomer: widget.orderCustomer,
                               product: productItem),
                     ),
                   );

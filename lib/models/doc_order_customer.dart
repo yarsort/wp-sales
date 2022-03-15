@@ -23,6 +23,8 @@ class OrderCustomer {
   String nameWarehouse = '';    // Наименование склада
   String uidCurrency = '';      // Ссылка на валюту заказа
   String nameCurrency = '';     // Наименование валюты заказа
+  String uidCashbox = '';      // Ссылка на кассу
+  String nameCashbox = '';     // Наименование кассы
   double sum = 0.0;             // Сумма документа
   String comment = '';          // Комментарий заказа
   DateTime dateSending = DateTime(1900, 1, 1);      // Дата планируемой отгрузки заказа
@@ -52,6 +54,8 @@ class OrderCustomer {
     nameWarehouse = json['nameWarehouse'] ?? '';
     uidCurrency = json['uidCurrency'] ?? '';
     nameCurrency = json['nameCurrency'] ?? '';
+    uidCashbox = json['uidCashbox'] ?? '';
+    nameCashbox = json['nameCashbox'] ?? '';
     sum = json["sum"] ?? 0.0;
     comment = json['comment'] ?? '';
     dateSending = DateTime.parse(json['dateSending']);
@@ -98,6 +102,8 @@ class OrderCustomer {
     data['uidWarehouse'] = uidWarehouse;
     data['uidCurrency'] = uidCurrency;
     data['nameCurrency'] = nameCurrency;
+    data['uidCashbox'] = uidCashbox;
+    data['nameCashbox'] = nameCashbox;
     data['sum'] = sum;
     data['comment'] = comment;
     data['dateSending'] = dateSending.toIso8601String();
@@ -130,6 +136,8 @@ class OrderCustomerFields {
     nameWarehouse,
     uidCurrency,
     nameCurrency,
+    uidCashbox,
+    nameCashbox,
     sum,
     comment,
     dateSending,
@@ -158,6 +166,8 @@ class OrderCustomerFields {
   static const String nameWarehouse = 'nameWarehouse';// Наименование склада
   static const String uidCurrency = 'uidCurrency';// Ссылка на валюту
   static const String nameCurrency = 'nameCurrency';// Наименование валюты
+  static const String uidCashbox = 'uidCashbox';// Ссылка на кассу
+  static const String nameCashbox = 'nameCashbox';// Наименование кассы
   static const String sum = 'sum';// Сумма документа
   static const String comment = 'comment';// Комментарий
   static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
