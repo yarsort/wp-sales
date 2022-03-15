@@ -70,17 +70,10 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
     tempItems.clear();
 
     listContracts =
-    await DatabaseHelper.instance.readAllContracts();
+    await DatabaseHelper.instance.readContractsOfPartner(widget.orderCustomer.uidPartner);
     tempItems.addAll(listContracts);
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataContracts) {
-    //   Contract newContract = Contract.fromJson(message);
-    //   listContracts.add(newContract);
-    //   tempItems.add(newContract); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {

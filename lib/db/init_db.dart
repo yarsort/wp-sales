@@ -480,6 +480,17 @@ class DatabaseHelper {
     }
   }
 
+  Future<List<Contract>> readContractsOfPartner(String uidPartner) async {
+    final db = await instance.database;
+    const orderBy = '${ItemContractFields.name} ASC';
+    final result = await db.query(
+        tableContract,
+        where: '${ItemContractFields.uidPartner} = ?',
+        whereArgs: [uidPartner],
+        orderBy: orderBy);
+    return result.map((json) => Contract.fromJson(json)).toList();
+  }
+
   Future<List<Contract>> readAllContracts() async {
     final db = await instance.database;
     const orderBy = '${ItemContractFields.name} ASC';

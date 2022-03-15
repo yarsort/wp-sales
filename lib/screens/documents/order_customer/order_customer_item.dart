@@ -412,22 +412,19 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                var result = await Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenPartnerSelection(
                             orderCustomer: widget.orderCustomer)));
+
                 // Если изменили партнера, изменим его договор и валюту
-                if (result != null) {
-                  if (result) {
-                    widget.orderCustomer.nameContract = '';
-                    widget.orderCustomer.uidContract = '';
-                    widget.orderCustomer.namePrice = '';
-                    widget.orderCustomer.uidPrice = '';
-                    widget.orderCustomer.nameCurrency = '';
-                    widget.orderCustomer.uidCurrency = '';
-                  }
-                }
+                widget.orderCustomer.nameContract = '';
+                widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.namePrice = '';
+                widget.orderCustomer.uidPrice = '';
+                widget.orderCustomer.nameCurrency = '';
+                widget.orderCustomer.uidCurrency = '';
                 updateHeader();
               }),
 
@@ -443,20 +440,18 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                var result = await Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenContractSelection(
                             orderCustomer: widget.orderCustomer)));
-                // Если изменили партнера, изменим его договор и валюту
-                if (result != null) {
-                  if (result) {
-                    widget.orderCustomer.namePrice = '';
-                    widget.orderCustomer.uidPrice = '';
-                    widget.orderCustomer.nameCurrency = '';
-                    widget.orderCustomer.uidCurrency = '';
-                  }
-                }
+
+                // Если изменили контрак, изменим цену и валюту
+                widget.orderCustomer.namePrice = '';
+                widget.orderCustomer.uidPrice = '';
+                widget.orderCustomer.nameCurrency = '';
+                widget.orderCustomer.uidCurrency = '';
+
                 await updateHeader();
               }),
 
@@ -472,18 +467,12 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                var result = await Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenPriceSelection(
                             orderCustomer: widget.orderCustomer)));
-                // Если изменили партнера, изменим его договор и валюту
-                if (result != null) {
-                  if (result) {
-                    widget.orderCustomer.namePrice = '';
-                    widget.orderCustomer.uidPrice = '';
-                  }
-                }
+
                 updateHeader();
               }),
 
@@ -504,13 +493,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     MaterialPageRoute(
                         builder: (context) => ScreenCashboxSelection(
                             orderCustomer: widget.orderCustomer)));
-                // Если изменили партнера, изменим его договор и валюту
-                if (result != null) {
-                  if (result) {
-                    widget.orderCustomer.nameCashbox = '';
-                    widget.orderCustomer.uidCashbox = '';
-                  }
-                }
+
                 updateHeader();
               }),
 
@@ -526,18 +509,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                var result = await Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenWarehouseSelection(
                             orderCustomer: widget.orderCustomer)));
-                // Если изменили партнера, изменим его договор и валюту
-                if (result != null) {
-                  if (result) {
-                    widget.orderCustomer.nameWarehouse = '';
-                    widget.orderCustomer.uidWarehouse = '';
-                  }
-                }
                 updateHeader();
               }),
 
@@ -642,7 +618,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               children: [
                 /// Записать документ
                 SizedBox(
-                  height: 40,
+                  height: 5
+                  0,
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
@@ -668,7 +645,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
                 /// Удалить документ
                 SizedBox(
-                  height: 40,
+                  height: 50,
                   width: (MediaQuery.of(context).size.width - 35) / 2,
                   child: ElevatedButton(
                       style: ButtonStyle(
