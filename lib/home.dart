@@ -44,10 +44,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               children: [
-                nameGroup('Статистика (общая)'),
+                //nameGroup('Статистика (общая)'),
                 balanceCard(),
-                nameGroup('Балансы (к оплате)'),
-                listPartnerForPayment(),
+                //nameGroup('Балансы (к оплате)'),
+                debtsCard(),
                 //nameGroup('Документы на отправку'),
               ],
             ),
@@ -67,7 +67,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
   nameGroup(String nameGroup) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
+      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
       child: Text(nameGroup,
           style: const TextStyle(
               fontSize: 16, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
@@ -79,7 +79,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     double balanceForPayment = 56585.1;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(5, 7, 5, 7),
+      padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -100,13 +100,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               ],
             ),
             height: 120,
-            width: MediaQuery.of(context).size.width / 2 - 18,
+            width: MediaQuery.of(context).size.width / 2 - 22,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                    color: Colors.blue,
+                    color: Color.fromRGBO(144, 202, 249, 1.0),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5),
@@ -115,11 +115,11 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                     ),
                   ),
                   height: 40,
-                  width: MediaQuery.of(context).size.width / 2 - 7,
+                  width: MediaQuery.of(context).size.width / 2 - 18,
                   child: const Center(
                     child: Text(
                       'Баланс',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                      style: TextStyle(fontSize: 16,),
                     ),
                   ),
                 ),
@@ -162,13 +162,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               ],
             ),
             height: 120,
-            width: MediaQuery.of(context).size.width / 2 - 18,
+            width: MediaQuery.of(context).size.width / 2 - 22,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                    color: Colors.blue,
+                    color: Color.fromRGBO(144, 202, 249, 1.0),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5),
@@ -177,11 +177,11 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                     ),
                   ),
                   height: 40,
-                  width: MediaQuery.of(context).size.width / 2 - 7,
+                  width: MediaQuery.of(context).size.width / 2 - 18,
                   child: const Center(
                     child: Text(
                       'Баланс к оплате',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                      style: TextStyle(fontSize: 16,),
                     ),
                   ),
                 ),
@@ -212,91 +212,129 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     );
   }
 
-  listPartnerForPayment() {
+  debtsCard() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 5, 2, 5),
+      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
       child: ColumnBuilder(
           itemCount: listForPaymentContracts.length,
           itemBuilder: (context, index) {
             Contract contractItem = listForPaymentContracts[index];
-            return Card(
-              elevation: 3,
-              child: ListTile(
-                onTap: () {},
-                title: Text(contractItem.namePartner),
-                subtitle: Column(
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(0, 7, 0, 7),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 4,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.person,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Flexible(child: Text(contractItem.name)),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.phone,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(contractItem.phone),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.home,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Flexible(child: Text(contractItem.address)),
-                                ],
-                              )
-                            ],
-                          ),
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(144, 202, 249, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          // bottomLeft: Radius.circular(5),
+                          // bottomRight: Radius.circular(5)
                         ),
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.green, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(doubleToString(contractItem.balance)),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.red, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(doubleToString(
-                                      contractItem.balanceForPayment)),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.schedule,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(contractItem.schedulePayment.toString()),
-                                ],
-                              ),
-                            ],
-                          ),
+                      ),
+                      height: 40,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          contractItem.namePartner,
+                          style: const TextStyle(
+                              fontSize: 16,),
                         ),
-                      ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.person,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Flexible(child: Text(contractItem.name)),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.phone,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(contractItem.phone),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.home,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Flexible(child: Text(contractItem.address)),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.price_change,
+                                        color: Colors.green, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(doubleToString(contractItem.balance)),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.price_change,
+                                        color: Colors.red, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(doubleToString(
+                                        contractItem.balanceForPayment)),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.schedule,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(contractItem.schedulePayment.toString()),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

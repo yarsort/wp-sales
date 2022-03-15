@@ -176,6 +176,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     ),
                   );
                   renewItems();
+                  updateHeader();
                 },
                 icon: const Icon(Icons.add),
               )
@@ -685,14 +686,18 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
               child: Card(
                 elevation: 2,
-                child: Center(
+                child: Align(
+                  alignment: Alignment.topRight,
                   child: PopupMenuButton<String>(
                     onSelected: (String value) async {
                       if (value == 'delete'){
-                        setState(() {
                           itemsOrder = List.from(itemsOrder)
                             ..removeAt(index);
-                        });
+                          setState(() {
+                            OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
+                            OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+                            updateHeader();
+                          });
                       }
                       if (value == 'edit') {
                         Product productItem = await DatabaseHelper.instance.readProductByUID(item.uid);
@@ -706,8 +711,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                                     product: productItem),
                           ),
                         );
-
-                        setState(() {});
+                        setState(() {
+                          OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
+                          OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+                          updateHeader();
+                        });
                       }
                     },
                     child: ListTile(
@@ -732,17 +740,35 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       ),
                     ),
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Text('Редактировать'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Text('Удалить'),
-                      ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'view',
-                        child: Text('Открыть товар'),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.search, color: Colors.blue,),
+                            SizedBox(width: 10,),
+                            Text('Просмотр'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'edit',
+                        child: Row(
+                          children: const [
+                            Icon(Icons.edit, color: Colors.blue,),
+                            SizedBox(width: 10,),
+                            Text('Изменить')
+                          ]
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Row(
+                          children: const [
+                            Icon(Icons.delete, color: Colors.red,),
+                            SizedBox(width: 10,),
+                            Text('Удалить'),
+                          ],
+                        ),
                       ),
                     ],
                   ),

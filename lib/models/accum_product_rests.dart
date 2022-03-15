@@ -1,4 +1,6 @@
 
+import 'package:wp_sales/system/system.dart';
+
 ///***********************************
 /// Название таблиц базы данных
 ///***********************************
@@ -14,10 +16,10 @@ class AccumProductRest {
   AccumProductRest();
 
   AccumProductRest.fromJson(Map<String, dynamic> json) {
-    uidWarehouse = json["uidPrice"]??'';
+    uidWarehouse = json["uidWarehouse"]??'';
     uidProduct = json["uidProduct"]??'';
     uidUnit = json["uidUnit"]??'';
-    count = json["price"]??0.0;
+    count = json["count"].toDouble()??0.0;
   }
 
   Map<String, dynamic> toJson() {

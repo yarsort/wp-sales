@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/accum_product_prices.dart';
+import 'package:wp_sales/models/accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
@@ -13,9 +15,8 @@ class ScreenProductSelectionTreeView extends StatefulWidget {
   List<ItemOrderCustomer> listItemDoc = [];
   OrderCustomer orderCustomer = OrderCustomer();
 
-  ScreenProductSelectionTreeView({Key? key,
-    required this.listItemDoc,
-    required this.orderCustomer})
+  ScreenProductSelectionTreeView(
+      {Key? key, required this.listItemDoc, required this.orderCustomer})
       : super(key: key);
 
   @override
@@ -29,17 +30,34 @@ class _ScreenProductSelectionTreeViewState
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
-  TextEditingController();
+      TextEditingController();
   TextEditingController textFieldSearchBoughtController =
-  TextEditingController();
+      TextEditingController();
   TextEditingController textFieldSearchRecommendController =
-  TextEditingController();
+      TextEditingController();
 
+  // Список товаров для возвращения из поиска
   List<Product> tempItems = [];
+
+  // Список товаров для вывода на экран
   List<Product> listProducts = [];
+
+  // Список тестовых товаров
   List<Product> listDataProducts = [];
+
+  // Список каталогов для построения иерархии
   List<Product> treeParentItems = [];
 
+  // Список идентификаторов товаров для поиска цен и остатков
+  List<String> listProductsUID = [];
+
+  // Цены товаров
+  List<AccumProductPrice> listProductPrice = [];
+
+  // Остатки товаров
+  List<AccumProductRest> listProductRest = [];
+
+  // Текущий выбранный каталог иерархии товаров
   Product parentProduct = Product();
 
   @override
@@ -55,7 +73,7 @@ class _ScreenProductSelectionTreeViewState
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Товары (иерархия)'),
+          title: const Text('Подбор товаров'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Каталог'),
@@ -108,6 +126,7 @@ class _ScreenProductSelectionTreeViewState
     // Очистка списка заказов покупателя
     listProducts.clear();
     tempItems.clear();
+    listProductsUID.clear();
 
     ///Первым в список добавим каталог товаров, если он есть
     if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
@@ -126,7 +145,7 @@ class _ScreenProductSelectionTreeViewState
     } else {
       /// Загрузка данных из БД
       listDataProducts =
-      await DatabaseHelper.instance.readProductsByParent(parentProduct.uid);
+          await DatabaseHelper.instance.readProductsByParent(parentProduct.uid);
       debugPrint(
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
@@ -142,19 +161,20 @@ class _ScreenProductSelectionTreeViewState
       }
       // Добавим товар
       listProducts.add(newItem);
+      listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
     }
 
-    /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
-    /// Возможно они попали по ошибке назначения UID родителя
-    if (parentProduct.uid != '') {
-      var tempLength = listProducts.length - 1;
-      while (tempLength > 0) {
-        if (listProducts[tempLength].uidParent != parentProduct.uid) {
-          listProducts.remove(listProducts[tempLength]);
-        }
-        tempLength--;
-      }
-    }
+    // /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
+    // /// Возможно они попали по ошибке назначения UID родителя
+    // if (parentProduct.uid != '') {
+    //   var tempLength = listProducts.length - 1;
+    //   while (tempLength > 0) {
+    //     if (listProducts[tempLength].uidParent != parentProduct.uid) {
+    //       listProducts.remove(listProducts[tempLength]);
+    //     }
+    //     tempLength--;
+    //   }
+    // }
 
     /// Сортировка списка: сначала каталоги, потом элементы
     listProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
@@ -178,8 +198,8 @@ class _ScreenProductSelectionTreeViewState
       return;
     }
 
-    List<Product> dummySearchList = await DatabaseHelper.instance
-        .readProductsForSearch(query);
+    List<Product> dummySearchList =
+        await DatabaseHelper.instance.readProductsForSearch(query);
 
     if (query.isNotEmpty) {
       List<Product> dummyListData = <Product>[];
@@ -260,50 +280,53 @@ class _ScreenProductSelectionTreeViewState
           itemCount: listProducts.length,
           itemBuilder: (context, index) {
             var productItem = listProducts[index];
+
             return Card(
               elevation: 2,
               child: (productItem.isGroup == 1)
                   ? DirectoryItem(
-                parentProduct: parentProduct,
-                product: productItem,
-                tap: () {
-                  if (productItem.uid == parentProduct.uid) {
-                    if (treeParentItems.isNotEmpty) {
-                      // Назначим нового родителя выхода из узла дерева
-                      parentProduct =
-                      treeParentItems[treeParentItems.length - 1];
+                      parentProduct: parentProduct,
+                      product: productItem,
+                      tap: () {
+                        if (productItem.uid == parentProduct.uid) {
+                          if (treeParentItems.isNotEmpty) {
+                            // Назначим нового родителя выхода из узла дерева
+                            parentProduct =
+                                treeParentItems[treeParentItems.length - 1];
 
-                      // Удалим старого родителя для будущего узла
-                      treeParentItems.remove(
-                          treeParentItems[treeParentItems.length - 1]);
-                    } else {
-                      // Отправим дерево на его самый главный узел
-                      parentProduct = Product();
-                    }
-                    renewItem();
-                  } else {
-                    treeParentItems.add(parentProduct);
-                    parentProduct = productItem;
-                    renewItem();
-                  }
-                },
-                popTap: () {},
-              ) : ProductItem(
-                product: productItem,
-                tap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ScreenAddItem(
-                              listItemDoc: widget.listItemDoc,
-                              orderCustomer: widget.orderCustomer,
-                              product: productItem),
+                            // Удалим старого родителя для будущего узла
+                            treeParentItems.remove(
+                                treeParentItems[treeParentItems.length - 1]);
+                          } else {
+                            // Отправим дерево на его самый главный узел
+                            parentProduct = Product();
+                          }
+                          renewItem();
+                        } else {
+                          treeParentItems.add(parentProduct);
+                          parentProduct = productItem;
+                          renewItem();
+                        }
+                      },
+                      popTap: () {},
+                    )
+                  : ProductItem(
+                      uidPrice: widget.orderCustomer.uidPrice,
+                      uidWarehouse: widget.orderCustomer.uidWarehouse,
+                      product: productItem,
+                      tap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ScreenAddItem(
+                                listItemDoc: widget.listItemDoc,
+                                orderCustomer: widget.orderCustomer,
+                                product: productItem),
+                          ),
+                        );
+                      },
+                      popTap: () {},
                     ),
-                  );
-                },
-                popTap: () {},
-              ),
             );
           }),
     );
@@ -341,7 +364,7 @@ class DirectoryItem extends StatelessWidget {
       title: Text(
         product.name,
         style: const TextStyle(
-          fontSize: 14,
+          fontSize: 16,
         ),
         maxLines: 2,
       ),
@@ -355,22 +378,40 @@ class DirectoryItem extends StatelessWidget {
   }
 }
 
-class ProductItem extends StatelessWidget {
+class ProductItem extends StatefulWidget {
   final Product product;
+  final String uidPrice;
+  final String uidWarehouse;
   final Function tap;
   final Function? popTap;
 
   const ProductItem({
     Key? key,
     required this.product,
+    required this.uidPrice,
+    required this.uidWarehouse,
     required this.tap,
     this.popTap,
   }) : super(key: key);
 
   @override
+  State<ProductItem> createState() => _ProductItemState();
+}
+
+class _ProductItemState extends State<ProductItem> {
+  double countOnWarehouse = 0.0;
+  double price = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    renewItem();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => tap(),
+      onTap: () => widget.tap(),
       //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
       leading: const Padding(
@@ -381,15 +422,15 @@ class ProductItem extends StatelessWidget {
         ),
       ),
       title: Text(
-        product.name,
+        widget.product.name,
         style: const TextStyle(
-          fontSize: 14,
+          fontSize: 16,
         ),
         maxLines: 2,
       ),
       subtitle: Column(
         children: [
-          const SizedBox(height: 5),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -397,13 +438,10 @@ class ProductItem extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      doubleToString(0),
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      'грн',
-                      style: TextStyle(color: Colors.grey),
+                      doubleToString(price) + ' грн',
+                      style: price > 0
+                          ? const TextStyle(fontSize: 15, color: Colors.blue)
+                          : const TextStyle(fontSize: 15),
                     ),
                   ],
                 ),
@@ -412,7 +450,14 @@ class ProductItem extends StatelessWidget {
                 flex: 1,
                 child: Row(
                   children: [
-                    Text(doubleThreeToString(0) + ' ' + product.nameUnit),
+                    Text(
+                      doubleThreeToString(countOnWarehouse) +
+                          ' ' +
+                          widget.product.nameUnit,
+                      style: countOnWarehouse > 0
+                          ? const TextStyle(fontSize: 15, color: Colors.blue)
+                          : const TextStyle(fontSize: 15),
+                    ),
                   ],
                 ),
               )
@@ -425,5 +470,15 @@ class ProductItem extends StatelessWidget {
         child: Icon(Icons.navigate_next),
       ),
     );
+  }
+
+  renewItem() async {
+    price = await DatabaseHelper.instance.readProductPrice(
+        uidPrice: widget.uidPrice, uidProduct: widget.product.uid);
+
+    countOnWarehouse = await DatabaseHelper.instance.readProductRest(
+        uidWarehouse: widget.uidWarehouse, uidProduct: widget.product.uid);
+
+    setState(() {});
   }
 }
