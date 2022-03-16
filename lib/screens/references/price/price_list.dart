@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -79,7 +79,7 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
         tempItems.add(newItem); // Как шаблон
       }
     } else {
-      listPrices = await DatabaseHelper.instance.readAllPrices();
+      listPrices = await dbReadAllPrices();
     }
 
     tempItems.addAll(listPrices);

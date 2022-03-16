@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
@@ -70,7 +70,7 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
     tempItems.clear();
 
     listContracts =
-    await DatabaseHelper.instance.readContractsOfPartner(widget.orderCustomer.uidPartner);
+    await dbReadContractsOfPartner(widget.orderCustomer.uidPartner);
     tempItems.addAll(listContracts);
 
     setState(() {});

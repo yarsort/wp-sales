@@ -1,9 +1,4 @@
 
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableOrganization   = '_ReferenceOrganization';
-
 /// Справочник.Организации
 class Organization {
   int id = 0;                     // Инкремент
@@ -45,31 +40,4 @@ class Organization {
     data['comment'] = comment;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemOrganizationFields {
-  static final List<String> values = [
-    id,
-    isGroup,
-    uid,
-    code,
-    name,
-    uidParent,
-    phone,
-    address,
-    comment,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String isGroup = 'isGroup'; // Каталог в иерархии
-  static const String uid = 'uid';
-  static const String code = 'code';
-  static const String name = 'name';
-  static const String uidParent = 'uidParent';
-  static const String phone = 'phone';
-  static const String address = 'address';
-  static const String comment = 'comment';
-
 }

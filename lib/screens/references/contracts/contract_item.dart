@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -123,10 +123,10 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.comment = textFieldCommentController.text;
 
       if (widget.contractItem.id != 0) {
-        await DatabaseHelper.instance.updateContract(widget.contractItem);
+        await dbUpdateContract(widget.contractItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createContract(widget.contractItem);
+        await dbCreateContract(widget.contractItem);
         return true;
       }
     } on Exception catch (error) {
@@ -141,7 +141,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       if (widget.contractItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteContract(widget.contractItem.id);
+        await dbDeleteContract(widget.contractItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

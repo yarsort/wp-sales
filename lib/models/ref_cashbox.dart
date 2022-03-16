@@ -1,9 +1,4 @@
 
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableCashbox   = '_ReferenceCashbox';
-
 /// Справочник.Кассы
 class Cashbox {
   int id = 0;                     // Инкремент
@@ -39,27 +34,4 @@ class Cashbox {
     data['comment'] = comment;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemCashboxFields {
-  static final List<String> values = [
-    id,
-    isGroup,
-    uid,
-    code,
-    name,
-    uidParent,
-    comment,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String isGroup = 'isGroup'; // Каталог в иерархии
-  static const String uid = 'uid';
-  static const String code = 'code';
-  static const String name = 'name';
-  static const String uidParent = 'uidParent';
-  static const String comment = 'comment';
-
 }

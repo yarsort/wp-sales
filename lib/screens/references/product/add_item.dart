@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_accum_product_prices.dart';
+import 'package:wp_sales/db/db_accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenAddItem extends StatefulWidget {
@@ -293,13 +292,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     textFieldWarehouseNameController.text = widget.orderCustomer.nameWarehouse;
 
     // Остаток на складе.
-    var countOnWarehouse = await DatabaseHelper.instance.readProductRest(
+    var countOnWarehouse = await dbReadProductRest(
         uidWarehouse: widget.orderCustomer.uidWarehouse,
         uidProduct: widget.product.uid);
     textFieldWarehouseController.text = doubleThreeToString(countOnWarehouse);
 
     // Цена товара.
-    var price = await DatabaseHelper.instance.readProductPrice(
+    var price = await dbReadProductPrice(
         uidPrice: widget.orderCustomer.uidPrice,
         uidProduct: widget.product.uid);
     textFieldPriceController.text = doubleToString(price);

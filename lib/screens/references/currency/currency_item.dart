@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_currency.dart';
 import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/system/system.dart';
 
@@ -114,10 +114,10 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
       widget.currencyItem.multiplicity = double.parse(textFieldMultiplicityController.text);
 
       if (widget.currencyItem.id != 0) {
-        await DatabaseHelper.instance.updateCurrency(widget.currencyItem);
+        await dbUpdateCurrency(widget.currencyItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createCurrency(widget.currencyItem);
+        await dbCreateCurrency(widget.currencyItem);
         return true;
       }
     } on Exception catch (error) {
@@ -132,7 +132,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
       if (widget.currencyItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteCurrency(widget.currencyItem.id);
+        await dbDeleteCurrency(widget.currencyItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_currency.dart';
 import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -77,7 +77,7 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
         listCurrency.add(newItem);
       }
     } else {
-      listCurrency = await DatabaseHelper.instance.readAllCurrency();
+      listCurrency = await dbReadAllCurrency();
     }
 
     tempItems.addAll(listCurrency);

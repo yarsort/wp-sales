@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/models/ref_price.dart';
 
 class ScreenPriceItem extends StatefulWidget {
@@ -102,10 +102,10 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
       widget.priceItem.comment = textFieldCommentController.text;
 
       if (widget.priceItem.id != 0) {
-        await DatabaseHelper.instance.updatePrice(widget.priceItem);
+        await dbUpdatePrice(widget.priceItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createPrice(widget.priceItem);
+        await dbCreatePrice(widget.priceItem);
         return true;
       }
     } on Exception catch (error) {
@@ -120,7 +120,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
       if (widget.priceItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deletePrice(widget.priceItem.id);
+        await dbDeletePrice(widget.priceItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -78,7 +78,7 @@ class _ScreenCashboxListState extends State<ScreenCashboxList> {
         listCashboxes.add(newItem);
       }
     } else {
-      listCashboxes = await DatabaseHelper.instance.readAllCashbox();
+      listCashboxes = await dbReadAllCashbox();
     }
 
     tempItems.addAll(listCashboxes);

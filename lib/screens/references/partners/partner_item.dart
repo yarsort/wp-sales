@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/system/system.dart';
 
@@ -135,10 +135,10 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       widget.partnerItem.comment = textFieldCommentController.text;
 
       if (widget.partnerItem.id != 0) {
-        await DatabaseHelper.instance.updatePartner(widget.partnerItem);
+        await dbUpdatePartner(widget.partnerItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createPartner(widget.partnerItem);
+        await dbCreatePartner(widget.partnerItem);
         return true;
       }
     } on Exception catch (error) {
@@ -152,7 +152,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     try {
       if (widget.partnerItem.id != 0) {
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteCurrency(widget.partnerItem.id);
+        await dbDeletePartner(widget.partnerItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

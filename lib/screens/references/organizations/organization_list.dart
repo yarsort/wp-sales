@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
 import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -87,7 +87,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
         listOrganizations.add(newItem);
       }
     } else {
-      listOrganizations = await DatabaseHelper.instance.readAllOrganization();
+      listOrganizations = await dbReadAllOrganization();
     }
 
     tempItems.addAll(listOrganizations);

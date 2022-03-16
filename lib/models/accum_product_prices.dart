@@ -1,9 +1,4 @@
 
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableAccumProductPrices   = '_AccumProductPrices';
-
 class AccumProductPrice {
   int id = 0;
   String uidPrice = '';
@@ -31,22 +26,4 @@ class AccumProductPrice {
     data['price'] = price;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemAccumProductPricesFields {
-  static final List<String> values = [
-    id,
-    uidPrice,
-    uidProduct,
-    uidUnit,
-    price,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String uidPrice = 'uidPrice';
-  static const String uidProduct = 'uidProduct';
-  static const String uidUnit = 'uidUnit';
-  static const String price = 'price';
 }

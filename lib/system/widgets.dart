@@ -1,6 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
+import 'package:wp_sales/db/db_ref_currency.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
+import 'package:wp_sales/db/db_ref_product.dart';
+import 'package:wp_sales/db/db_ref_unit.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/screens/auth/login.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
@@ -271,15 +279,15 @@ class _MainDrawerState extends State<MainDrawer> {
   }
 
   renewItem() async {
-    countOrderCustomer = await DatabaseHelper.instance.getCountSendOrderCustomer();
-    countProduct = await DatabaseHelper.instance.getCountProduct();
-    countUnit = await DatabaseHelper.instance.getCountUnit();
-    countOrganization = await DatabaseHelper.instance.getCountOrganization();
-    countPartner = await DatabaseHelper.instance.getCountPartner();
-    countContract = await DatabaseHelper.instance.getCountContract();
-    countCurrency = await DatabaseHelper.instance.getCountCurrency();
-    countPrice = await DatabaseHelper.instance.getCountPrice();
-    countWarehouse = await DatabaseHelper.instance.getCountWarehouse();
+    countOrderCustomer = await dbGetCountSendOrderCustomer();
+    countProduct = await dbGetCountProduct();
+    countUnit = await dbGetCountUnit();
+    countOrganization = await dbGetCountOrganization();
+    countPartner = await dbGetCountPartner();
+    countContract = await dbGetCountContract();
+    countCurrency = await dbGetCountCurrency();
+    countPrice = await dbGetCountPrice();
+    countWarehouse = await dbGetCountWarehouse();
 
     setState(() {});
   }

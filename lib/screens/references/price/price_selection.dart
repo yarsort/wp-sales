@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
@@ -66,7 +66,7 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
     tempItems.clear();
 
     listPrice =
-        await DatabaseHelper.instance.readAllPrices();
+        await dbReadAllPrices();
     tempItems.addAll(listPrice);
 
     setState(() {});

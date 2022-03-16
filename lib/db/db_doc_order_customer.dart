@@ -1,0 +1,282 @@
+
+import 'package:sqflite/sqflite.dart';
+import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+
+/// Название таблиц базы данных
+const String tableOrderCustomer   = '_DocumentOrderCustomer';
+const String tableItemsOrderCustomer   = '_DocumentOrderCustomer_VT1'; // Товары
+
+/// Поля для базы данных
+class OrderCustomerFields {
+  static final List<String> values = [
+    id,
+    status,
+    date,
+    uid,
+    uidOrganization,
+    nameOrganization,
+    uidPartner,
+    namePartner,
+    uidContract,
+    nameContract,
+    uidPrice,
+    namePrice,
+    uidWarehouse,
+    nameWarehouse,
+    uidCurrency,
+    nameCurrency,
+    uidCashbox,
+    nameCashbox,
+    sum,
+    comment,
+    dateSending,
+    datePaying,
+    sendYesTo1C,
+    sendNoTo1C,
+    dateSendingTo1C,
+    numberFrom1C,
+    countItems,
+  ];
+
+  /// Описание названий реквизитов таблицы ДБ в виде строк
+  static const String id = 'id';// Инкремент
+  static const String status = 'status';// 0 - новый, 1 - отправлено, 2 - удален
+  static const String date = 'date';// Дата создания заказа
+  static const String uid = 'uid';// UID для 1С и связи с ТЧ
+  static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
+  static const String nameOrganization = 'nameOrganization';// Имя организации
+  static const String uidPartner = 'uidPartner';// Ссылка на контрагента
+  static const String namePartner = 'namePartner';// Имя контрагента
+  static const String uidContract = 'uidContract';// Ссылка на договор контрагента
+  static const String nameContract = 'nameContract';// Ссылка на договор контрагента
+  static const String uidPrice = 'uidPrice';// Ссылка на тип цены номенклатуры продажи контрагенту
+  static const String namePrice = 'namePrice';// Наименование типа цены номенклатуры продажи контрагенту
+  static const String uidWarehouse = 'uidWarehouse';// Ссылка на склад
+  static const String nameWarehouse = 'nameWarehouse';// Наименование склада
+  static const String uidCurrency = 'uidCurrency';// Ссылка на валюту
+  static const String nameCurrency = 'nameCurrency';// Наименование валюты
+  static const String uidCashbox = 'uidCashbox';// Ссылка на кассу
+  static const String nameCashbox = 'nameCashbox';// Наименование кассы
+  static const String sum = 'sum';// Сумма документа
+  static const String comment = 'comment';// Комментарий
+  static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
+  static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
+  static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
+  static const String sendNoTo1C = 'sendNoTo1C';  // Булево: "Отправлено в 1С" - для фильтрации в списках
+  static const String dateSendingTo1C = 'dateSendingTo1C'; // Дата отправки заказа в 1С из мобильного устройства
+  static const String numberFrom1C = 'numberFrom1C';
+  static const String countItems = 'countItems';
+
+}
+
+/// Поля для базы данных
+class ItemOrderCustomerFields {
+  static final List<String> values = [
+    id,
+    idOrderCustomer,
+    uid,
+    name,
+    uidUnit,
+    nameUnit,
+    count,
+    price,
+    discount,
+    sum,
+  ];
+
+  /// Описание названий реквизитов таблицы ДБ в виде строк
+  static const String id = 'id';// Инкремент
+  static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на Заказ покупателя
+  static const String uid = 'uid'; // Ссылка на товар
+  static const String name = 'name'; // Имя товара
+  static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.
+  static const String nameUnit = 'nameUnit';
+  static const String count = 'count';
+  static const String price = 'price';
+  static const String discount = 'discount';
+  static const String sum = 'sum';
+
+}
+
+/// Документы.ЗаказПокупателя
+Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer,
+    List<ItemOrderCustomer> itemsOrderCustomer) async {
+  final db = await instance.database;
+  try {
+    db.transaction((txn) async {
+      orderCustomer.id =
+      await txn.insert(tableOrderCustomer, orderCustomer.toJson());
+
+      /// Запись ТЧ "Товары"
+      for (var itemOrderCustomer in itemsOrderCustomer) {
+        itemOrderCustomer.idOrderCustomer = orderCustomer.id;
+        txn.insert(tableItemsOrderCustomer, itemOrderCustomer.toJson());
+      }
+    });
+    return orderCustomer;
+  } catch (e) {
+    throw Exception('Ошибка записи объекта!');
+  }
+}
+
+Future<int> dbUpdateOrderCustomer(OrderCustomer orderCustomer,
+    List<ItemOrderCustomer> itemsOrderCustomer) async {
+  final db = await instance.database;
+  int intOperation = 0;
+  try {
+    db.transaction((txn) async {
+      intOperation = intOperation +
+          await txn.update(
+            tableOrderCustomer,
+            orderCustomer.toJson(),
+            where: '${OrderCustomerFields.id} = ?',
+            whereArgs: [orderCustomer.id],
+          );
+
+      /// Очистка ТЧ "Товары"
+      txn.delete(
+        tableItemsOrderCustomer,
+        where: '${ItemOrderCustomerFields.idOrderCustomer} = ?',
+        whereArgs: [orderCustomer.id],
+      );
+      intOperation = intOperation + 1;
+
+      /// Добавление ТЧ "Товары"
+      for (var itemOrderCustomer in itemsOrderCustomer) {
+        itemOrderCustomer.idOrderCustomer = orderCustomer.id;
+        txn.insert(tableItemsOrderCustomer, itemOrderCustomer.toJson());
+        intOperation = intOperation + 1;
+      }
+    });
+    return intOperation;
+  } catch (e) {
+    throw Exception('Ошибка записи объекта!');
+  }
+}
+
+Future<int> dbDeleteOrderCustomer(int id) async {
+  final db = await instance.database;
+  try {
+    db.transaction((txn) async {
+      txn.delete(
+        tableOrderCustomer,
+        where: '${OrderCustomerFields.id} = ?',
+        whereArgs: [id],
+      );
+      txn.delete(
+        tableItemsOrderCustomer,
+        where: '${ItemOrderCustomerFields.id} = ?',
+        whereArgs: [id],
+      );
+    });
+    return 1;
+  } catch (e) {
+    throw Exception('Ошибка удаления объекта с ID: $id!');
+  }
+}
+
+Future<OrderCustomer> dbReadOrderCustomer(int id) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableOrderCustomer,
+    columns: OrderCustomerFields.values,
+    where: '${OrderCustomerFields.id} = ?',
+    whereArgs: [id],
+  );
+
+  if (maps.isNotEmpty) {
+    return OrderCustomer.fromJson(maps.first);
+  } else {
+    throw OrderCustomer();
+  }
+}
+
+Future<OrderCustomer> dbReadOrderCustomerByUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableOrderCustomer,
+    columns: OrderCustomerFields.values,
+    where: '${OrderCustomerFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return OrderCustomer.fromJson(maps.first);
+  } else {
+    throw OrderCustomer();
+  }
+}
+
+Future<List<ItemOrderCustomer>> dbReadItemsOrderCustomer(
+    int idOrderCustomer) async {
+  final db = await instance.database;
+  const orderBy = '${ItemOrderCustomerFields.name} ASC';
+  final result = await db.query(tableItemsOrderCustomer,
+      where: '${ItemOrderCustomerFields.idOrderCustomer} = ?',
+      whereArgs: [idOrderCustomer],
+      orderBy: orderBy);
+
+  return result.map((json) => ItemOrderCustomer.fromJson(json)).toList();
+}
+
+Future<List<OrderCustomer>> dbReadAllNewOrderCustomer() async {
+  final db = await instance.database;
+  String orderBy = '${OrderCustomerFields.date} ASC';
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ?',
+      whereArgs: [1],
+      orderBy: orderBy);
+
+  return result.map((json) => OrderCustomer.fromJson(json)).toList();
+}
+
+Future<List<OrderCustomer>> dbReadAllSendOrderCustomer() async {
+  final db = await instance.database;
+  String orderBy = '${OrderCustomerFields.date} ASC';
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ?',
+      whereArgs: [2],
+      orderBy: orderBy);
+
+  return result.map((json) => OrderCustomer.fromJson(json)).toList();
+}
+
+Future<List<OrderCustomer>> dbReadAllTrashOrderCustomer() async {
+  final db = await instance.database;
+  String orderBy = '${OrderCustomerFields.date} ASC';
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ?',
+      whereArgs: [3],
+      orderBy: orderBy);
+
+  return result.map((json) => OrderCustomer.fromJson(json)).toList();
+}
+
+Future<int> dbGetCountOrderCustomer() async {
+  final db = await instance.database;
+  var result = Sqflite.firstIntValue(
+      await db.rawQuery("SELECT COUNT (*) FROM $tableOrderCustomer"));
+  return result ?? 0;
+}
+
+Future<int> dbGetCountNewOrderCustomer() async {
+  final db = await instance.database;
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ?', whereArgs: [0]);
+  return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
+}
+
+Future<int> dbGetCountSendOrderCustomer() async {
+  final db = await instance.database;
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ?', whereArgs: [1]);
+  return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
+}
+
+Future<int> dbGetCountTrashOrderCustomer() async {
+  final db = await instance.database;
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ?', whereArgs: [2]);
+  return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
+}

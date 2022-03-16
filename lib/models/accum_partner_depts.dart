@@ -1,7 +1,3 @@
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableAccumPartnerDebts   = '_AccumPartnerDebts';
 
 class AccumPartnerDept {
   int id = 0;
@@ -45,33 +41,4 @@ class AccumPartnerDept {
     data['balanceForPayment'] = balanceForPayment;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemAccumPartnerDeptFields {
-  static final List<String> values = [
-    id,
-    uidOrganization,
-    uidPartner,
-    uidContract,
-    uidDoc,
-    nameDoc,
-    numberDoc,
-    dateDoc,
-    balance,
-    balanceForPayment,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String uidOrganization = 'uidOrganization';
-  static const String uidPartner = 'uidPartner';
-  static const String uidContract = 'uidContract';
-  static const String uidDoc = 'uidDoc';
-  static const String nameDoc = 'nameDoc';
-  static const String numberDoc = 'numberDoc';
-  static const String dateDoc = 'dateDoc';
-  static const String balance = 'balance';
-  static const String balanceForPayment = 'balanceForPayment';
-
 }

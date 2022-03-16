@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -78,7 +78,7 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
         listWarehouses.add(newItem);
       }
     } else {
-      listWarehouses = await DatabaseHelper.instance.readAllWarehouse();
+      listWarehouses = await dbReadAllWarehouse();
     }
 
     tempItems.addAll(listWarehouses);

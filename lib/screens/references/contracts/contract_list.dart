@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -78,7 +78,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
         listContracts.add(newItem);
       }
     } else {
-      listContracts = await DatabaseHelper.instance.readAllContracts();
+      listContracts = await dbReadAllContracts();
     }
 
     tempItems.addAll(listContracts);

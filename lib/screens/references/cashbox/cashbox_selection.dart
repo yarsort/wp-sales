@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_item.dart';
-import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 
 class ScreenCashboxSelection extends StatefulWidget {
 
@@ -68,7 +66,7 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
     tempItems.clear();
 
     listCashboxes =
-        await DatabaseHelper.instance.readAllCashbox();
+        await dbReadAllCashbox();
     tempItems.addAll(listCashboxes);
 
     setState(() {});

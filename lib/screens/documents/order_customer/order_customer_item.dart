@@ -1,12 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
@@ -306,8 +303,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       itemsOrder.clear();
 
       if (widget.orderCustomer.id != 0) {
-        itemsOrder = await DatabaseHelper.instance
-            .readItemsOrderCustomer(widget.orderCustomer.id);
+        itemsOrder = await dbReadItemsOrderCustomer(widget.orderCustomer.id);
       }
       firstOpen = false;
     }
@@ -330,12 +326,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
 
       if (widget.orderCustomer.id != 0) {
-        await DatabaseHelper.instance
-            .updateOrderCustomer(widget.orderCustomer, itemsOrder);
+        await dbUpdateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       } else {
-        await DatabaseHelper.instance
-            .createOrderCustomer(widget.orderCustomer, itemsOrder);
+        await dbCreateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       }
     } on Exception catch (error) {
@@ -352,8 +346,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         widget.orderCustomer.status = 3;
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance
-            .updateOrderCustomer(widget.orderCustomer, itemsOrder);
+        await dbUpdateOrderCustomer(widget.orderCustomer, itemsOrder);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -489,7 +482,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                var result = await Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenCashboxSelection(
@@ -700,7 +693,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           });
                       }
                       if (value == 'edit') {
-                        Product productItem = await DatabaseHelper.instance.readProductByUID(item.uid);
+                        Product productItem = await dbReadProductByUID(item.uid);
                         await Navigator.push(
                           context,
                           MaterialPageRoute(

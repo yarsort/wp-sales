@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -46,7 +46,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               children: [
                 //nameGroup('Статистика (общая)'),
                 balanceCard(),
-                //nameGroup('Балансы (к оплате)'),
+                nameGroup('Балансы (к оплате)'),
                 debtsCard(),
                 //nameGroup('Документы на отправку'),
               ],
@@ -60,14 +60,14 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   renewItem() async {
     listForPaymentContracts.clear();
     listForPaymentContracts =
-        await DatabaseHelper.instance.readForPaymentContracts(limit: 5);
+        await dbReadForPaymentContracts(limit: 5);
 
     listForPaymentContracts.sort((a, b) => a.name.compareTo(b.name));
   }
 
   nameGroup(String nameGroup) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+      padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
       child: Text(nameGroup,
           style: const TextStyle(
               fontSize: 16, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
@@ -106,7 +106,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                    color: Color.fromRGBO(144, 202, 249, 1.0),
+                    color: Color.fromRGBO(100, 181, 246, 1.0),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5),
@@ -119,7 +119,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   child: const Center(
                     child: Text(
                       'Баланс',
-                      style: TextStyle(fontSize: 16,),
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 ),
@@ -168,7 +168,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                    color: Color.fromRGBO(144, 202, 249, 1.0),
+                    color: Color.fromRGBO(100, 181, 246, 1.0),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5),
@@ -181,7 +181,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   child: const Center(
                     child: Text(
                       'Баланс к оплате',
-                      style: TextStyle(fontSize: 16,),
+                      style: TextStyle(fontSize: 16,color: Colors.white),
                     ),
                   ),
                 ),
@@ -214,7 +214,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
   debtsCard() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+      padding: const EdgeInsets.fromLTRB(7, 0, 7, 7),
       child: ColumnBuilder(
           itemCount: listForPaymentContracts.length,
           itemBuilder: (context, index) {
@@ -243,7 +243,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                     Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: const BoxDecoration(
-                        color: Color.fromRGBO(144, 202, 249, 1.0),
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(5),
                           topRight: Radius.circular(5),
@@ -257,7 +257,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                         child: Text(
                           contractItem.namePartner,
                           style: const TextStyle(
-                              fontSize: 16,),
+                              fontSize: 16, color: Colors.white),
                         ),
                       ),
                     ),

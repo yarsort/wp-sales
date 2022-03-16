@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -157,8 +157,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     listNewOrdersCustomer.clear();
     countNewDocuments = 0;
 
-    listNewOrdersCustomer =
-        await DatabaseHelper.instance.readAllNewOrderCustomer();
+    listNewOrdersCustomer = await dbReadAllNewOrderCustomer();
 
     // Количество документов в списке
     countNewDocuments = listNewOrdersCustomer.length;
@@ -171,8 +170,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     listSendOrdersCustomer.clear();
     countSendDocuments = 0;
 
-    listSendOrdersCustomer =
-        await DatabaseHelper.instance.readAllSendOrderCustomer();
+    listSendOrdersCustomer = await dbReadAllSendOrderCustomer();
 
     // Количество документов в списке
     countSendDocuments = listSendOrdersCustomer.length;
@@ -186,8 +184,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     listTrashOrdersCustomer.clear();
     countTrashDocuments = 0;
 
-    listTrashOrdersCustomer =
-        await DatabaseHelper.instance.readAllTrashOrderCustomer();
+    listTrashOrdersCustomer = await dbReadAllTrashOrderCustomer();
 
     // Количество документов в списке
     countTrashDocuments = listTrashOrdersCustomer.length;

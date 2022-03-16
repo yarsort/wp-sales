@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_unit.dart';
 import 'package:wp_sales/models/ref_unit.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/screens/references/unit/unit_item.dart';
@@ -69,7 +69,7 @@ class _ScreenUnitSelectionState extends State<ScreenUnitSelection> {
     tempItems.clear();
 
     listUnit =
-        await DatabaseHelper.instance.readAllUnit();
+        await dbReadAllUnit();
     tempItems.addAll(listUnit);
 
     setState(() {});

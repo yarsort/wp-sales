@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/screens/references/unit/unit_selection.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -118,10 +118,10 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
       widget.productItem.comment = textFieldCommentController.text;
 
       if (widget.productItem.id != 0) {
-        await DatabaseHelper.instance.updateProduct(widget.productItem);
+        await dbUpdateProduct(widget.productItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createProduct(widget.productItem);
+        await dbCreateProduct(widget.productItem);
         return true;
       }
     } on Exception catch (error) {
@@ -136,7 +136,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
       if (widget.productItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteProduct(widget.productItem.id);
+        await dbDeleteProduct(widget.productItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

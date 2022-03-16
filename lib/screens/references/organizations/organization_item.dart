@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
 import 'package:wp_sales/models/ref_organization.dart';
 
 class ScreenOrganizationItem extends StatefulWidget {
@@ -113,10 +113,10 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
       widget.organizationItem.comment = textFieldCommentController.text;
 
       if (widget.organizationItem.id != 0) {
-        await DatabaseHelper.instance.updateOrganization(widget.organizationItem);
+        await dbUpdateOrganization(widget.organizationItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createOrganization(widget.organizationItem);
+        await dbCreateOrganization(widget.organizationItem);
         return true;
       }
     } on Exception catch (error) {
@@ -135,8 +135,8 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
 
       if (widget.organizationItem.id != 0) {
 
-        /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteOrganization(widget.organizationItem.id);
+        /// Удалим объект в базе данных
+        await dbDeleteOrganization(widget.organizationItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

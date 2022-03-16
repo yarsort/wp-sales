@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_unit.dart';
 import 'package:wp_sales/models/ref_unit.dart';
 import 'package:wp_sales/system/system.dart';
 
@@ -116,10 +116,10 @@ class _ScreenUnitItemState extends State<ScreenUnitItem> {
       }
 
       if (widget.unitItem.id != 0) {
-        await DatabaseHelper.instance.updateUnit(widget.unitItem);
+        await dbUpdateUnit(widget.unitItem);
         return true;
       } else {
-        await DatabaseHelper.instance.createUnit(widget.unitItem);
+        await dbCreateUnit(widget.unitItem);
         return true;
       }
     } on Exception catch (error) {
@@ -134,7 +134,7 @@ class _ScreenUnitItemState extends State<ScreenUnitItem> {
       if (widget.unitItem.id != 0) {
 
         /// Обновим объект в базе данных
-        await DatabaseHelper.instance.deleteUnit(widget.unitItem.id);
+        await dbDeleteUnit(widget.unitItem.id);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!

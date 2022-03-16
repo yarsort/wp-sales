@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/screens/references/partners/partner_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -77,7 +77,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
         listPartners.add(newItem);
       }
     } else {
-      listPartners = await DatabaseHelper.instance.readAllPartners();
+      listPartners = await dbReadAllPartners();
     }
 
     tempItems.addAll(listPartners);

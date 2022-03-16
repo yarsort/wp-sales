@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_partner.dart';
@@ -69,7 +69,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     tempItems.clear();
 
     listPartners =
-    await DatabaseHelper.instance.readAllPartners();
+    await dbReadAllPartners();
     tempItems.addAll(listPartners);
 
     setState(() {});

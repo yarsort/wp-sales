@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_ref_unit.dart';
 import 'package:wp_sales/models/ref_unit.dart';
 import 'package:wp_sales/screens/references/unit/unit_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -75,7 +75,7 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
         listUnit.add(newItem);
       }
     } else {
-      listUnit = await DatabaseHelper.instance.readAllUnit();
+      listUnit = await dbReadAllUnit();
     }
 
     tempItems.addAll(listUnit);

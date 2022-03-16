@@ -1,10 +1,4 @@
 
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableOrderCustomer   = '_DocumentOrderCustomer';
-const String tableItemsOrderCustomer   = '_DocumentOrderCustomer_VT1'; // Товары
-
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
   int id = 0;                   // Инкремент
@@ -117,69 +111,6 @@ class OrderCustomer {
   }
 }
 
-/// Поля для базы данных
-class OrderCustomerFields {
-  static final List<String> values = [
-    id,
-    status,
-    date,
-    uid,
-    uidOrganization,
-    nameOrganization,
-    uidPartner,
-    namePartner,
-    uidContract,
-    nameContract,
-    uidPrice,
-    namePrice,
-    uidWarehouse,
-    nameWarehouse,
-    uidCurrency,
-    nameCurrency,
-    uidCashbox,
-    nameCashbox,
-    sum,
-    comment,
-    dateSending,
-    datePaying,
-    sendYesTo1C,
-    sendNoTo1C,
-    dateSendingTo1C,
-    numberFrom1C,
-    countItems,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String status = 'status';// 0 - новый, 1 - отправлено, 2 - удален
-  static const String date = 'date';// Дата создания заказа
-  static const String uid = 'uid';// UID для 1С и связи с ТЧ
-  static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
-  static const String nameOrganization = 'nameOrganization';// Имя организации
-  static const String uidPartner = 'uidPartner';// Ссылка на контрагента
-  static const String namePartner = 'namePartner';// Имя контрагента
-  static const String uidContract = 'uidContract';// Ссылка на договор контрагента
-  static const String nameContract = 'nameContract';// Ссылка на договор контрагента
-  static const String uidPrice = 'uidPrice';// Ссылка на тип цены номенклатуры продажи контрагенту
-  static const String namePrice = 'namePrice';// Наименование типа цены номенклатуры продажи контрагенту
-  static const String uidWarehouse = 'uidWarehouse';// Ссылка на склад
-  static const String nameWarehouse = 'nameWarehouse';// Наименование склада
-  static const String uidCurrency = 'uidCurrency';// Ссылка на валюту
-  static const String nameCurrency = 'nameCurrency';// Наименование валюты
-  static const String uidCashbox = 'uidCashbox';// Ссылка на кассу
-  static const String nameCashbox = 'nameCashbox';// Наименование кассы
-  static const String sum = 'sum';// Сумма документа
-  static const String comment = 'comment';// Комментарий
-  static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
-  static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
-  static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
-  static const String sendNoTo1C = 'sendNoTo1C';  // Булево: "Отправлено в 1С" - для фильтрации в списках
-  static const String dateSendingTo1C = 'dateSendingTo1C'; // Дата отправки заказа в 1С из мобильного устройства
-  static const String numberFrom1C = 'numberFrom1C';
-  static const String countItems = 'countItems';
-
-}
-
 /// ТЧ Товары, Документы.ЗаказПокупателя
 class ItemOrderCustomer {
   int id = 0;                   // Инкремент
@@ -237,33 +168,4 @@ class ItemOrderCustomer {
     data['sum'] = sum;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemOrderCustomerFields {
-  static final List<String> values = [
-    id,
-    idOrderCustomer,
-    uid,
-    name,
-    uidUnit,
-    nameUnit,
-    count,
-    price,
-    discount,
-    sum,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на Заказ покупателя
-  static const String uid = 'uid'; // Ссылка на товар
-  static const String name = 'name'; // Имя товара
-  static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.
-  static const String nameUnit = 'nameUnit';
-  static const String count = 'count';
-  static const String price = 'price';
-  static const String discount = 'discount';
-  static const String sum = 'sum';
-
 }

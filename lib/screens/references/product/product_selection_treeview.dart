@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_accum_product_prices.dart';
+import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/product/add_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -145,7 +145,7 @@ class _ScreenProductSelectionTreeViewState
     } else {
       /// Загрузка данных из БД
       listDataProducts =
-          await DatabaseHelper.instance.readProductsByParent(parentProduct.uid);
+          await dbReadProductsByParent(parentProduct.uid);
       debugPrint(
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
@@ -199,7 +199,7 @@ class _ScreenProductSelectionTreeViewState
     }
 
     List<Product> dummySearchList =
-        await DatabaseHelper.instance.readProductsForSearch(query);
+        await dbReadProductsForSearch(query);
 
     if (query.isNotEmpty) {
       List<Product> dummyListData = <Product>[];
@@ -473,10 +473,10 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   renewItem() async {
-    price = await DatabaseHelper.instance.readProductPrice(
+    price = await dbReadProductPrice(
         uidPrice: widget.uidPrice, uidProduct: widget.product.uid);
 
-    countOnWarehouse = await DatabaseHelper.instance.readProductRest(
+    countOnWarehouse = await dbReadProductRest(
         uidWarehouse: widget.uidWarehouse, uidProduct: widget.product.uid);
 
     setState(() {});

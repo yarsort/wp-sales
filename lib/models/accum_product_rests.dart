@@ -1,11 +1,4 @@
 
-import 'package:wp_sales/system/system.dart';
-
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableAccumProductRests   = '_AccumProductRests';
-
 class AccumProductRest {
   int id = 0;
   String uidWarehouse = '';
@@ -33,22 +26,4 @@ class AccumProductRest {
     data['count'] = count;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemAccumProductRestsFields {
-  static final List<String> values = [
-    id,
-    uidWarehouse,
-    uidProduct,
-    uidUnit,
-    count,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String uidWarehouse = 'uidWarehouse';
-  static const String uidProduct = 'uidProduct';
-  static const String uidUnit = 'uidUnit';
-  static const String count = 'count';
 }

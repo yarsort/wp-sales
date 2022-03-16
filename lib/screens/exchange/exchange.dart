@@ -5,7 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/db/db_accum_partner_depts.dart';
+import 'package:wp_sales/db/db_accum_product_prices.dart';
+import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_ref_cashbox.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
+import 'package:wp_sales/db/db_ref_product.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
@@ -273,11 +283,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       var jsonData = json.decode(textJSON);
 
       /// Организации
-      await DatabaseHelper.instance.deleteAllOrganization();
+      await dbDeleteAllOrganization();
       int countItem = 0;
       for (var item in jsonData['Organizations']) {
-        await DatabaseHelper.instance
-            .createOrganization(Organization.fromJson(item));
+        await dbCreateOrganization(Organization.fromJson(item));
         countItem++;
       }
       listLogs.add('Организации: ' + countItem.toString() + ' шт');
@@ -287,10 +296,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Партнеры
-      await DatabaseHelper.instance.deleteAllPartner();
+      await dbDeleteAllPartner();
       countItem = 0;
       for (var item in jsonData['Partners']) {
-        await DatabaseHelper.instance.createPartner(Partner.fromJson(item));
+        await dbCreatePartner(Partner.fromJson(item));
         countItem++;
       }
 
@@ -300,10 +309,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Контракты
-      await DatabaseHelper.instance.deleteAllContract();
+      await dbDeleteAllContract();
       countItem = 0;
       for (var item in jsonData['Contracts']) {
-        await DatabaseHelper.instance.createContract(Contract.fromJson(item));
+        await dbCreateContract(Contract.fromJson(item));
         countItem++;
       }
 
@@ -313,10 +322,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Долги по контрактам
-      await DatabaseHelper.instance.deleteAllPartnerDept();
+      await dbDeleteAllPartnerDept();
       countItem = 0;
       for (var item in jsonData['DeptsPartners']) {
-        await DatabaseHelper.instance.createPartnerDept(AccumPartnerDept.fromJson(item));
+        await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
         countItem++;
       }
 
@@ -326,10 +335,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Типы цен
-      await DatabaseHelper.instance.deleteAllPrice();
+      await dbDeleteAllPrice();
       countItem = 0;
       for (var item in jsonData['Prices']) {
-        await DatabaseHelper.instance.createPrice(Price.fromJson(item));
+        await dbCreatePrice(Price.fromJson(item));
         countItem++;
       }
 
@@ -339,10 +348,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Склады
-      await DatabaseHelper.instance.deleteAllWarehouse();
+      await dbDeleteAllWarehouse();
       countItem = 0;
       for (var item in jsonData['Warehouses']) {
-        await DatabaseHelper.instance.createWarehouse(Warehouse.fromJson(item));
+        await dbCreateWarehouse(Warehouse.fromJson(item));
         countItem++;
       }
 
@@ -352,10 +361,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Кассы
-      await DatabaseHelper.instance.deleteAllCashbox();
+      await dbDeleteAllCashbox();
       countItem = 0;
       for (var item in jsonData['Cashboxes']) {
-        await DatabaseHelper.instance.createCashbox(Cashbox.fromJson(item));
+        await dbCreateCashbox(Cashbox.fromJson(item));
         countItem++;
       }
 
@@ -366,10 +375,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
 
       /// Каталоги товаров (папки)
-      await DatabaseHelper.instance.deleteAllProduct();
+      await dbDeleteAllProduct();
       countItem = 0;
       for (var item in jsonData['ProductsParent']) {
-        await DatabaseHelper.instance.createProduct(Product.fromJson(item));
+        await dbCreateProduct(Product.fromJson(item));
         countItem++;
       }
       listLogs.add('Каталоги товаров: ' + countItem.toString() + ' шт');
@@ -381,7 +390,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       /// Товары
       countItem = 0;
       for (var item in jsonData['Products']) {
-        await DatabaseHelper.instance.createProduct(Product.fromJson(item));
+        await dbCreateProduct(Product.fromJson(item));
         countItem++;
       }
       listLogs.add('Товары: ' + countItem.toString() + ' шт');
@@ -391,10 +400,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Остатки товаров
-      await DatabaseHelper.instance.deleteAllProductRest();
+      await dbDeleteAllProductRest();
       countItem = 0;
       for (var item in jsonData['Rests']) {
-        await DatabaseHelper.instance.createProductRest(AccumProductRest.fromJson(item));
+        await dbCreateProductRest(AccumProductRest.fromJson(item));
         countItem++;
       }
 
@@ -404,10 +413,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
 
       /// Цены товаров
-      await DatabaseHelper.instance.deleteAllProductPrice();
+      await dbDeleteAllProductPrice();
       countItem = 0;
       for (var item in jsonData['ProductsPrices']) {
-        await DatabaseHelper.instance.createProductPrice(AccumProductPrice.fromJson(item));
+        await dbCreateProductPrice(AccumProductPrice.fromJson(item));
         countItem++;
       }
 
@@ -422,18 +431,16 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         if (item.typoDoc == 'ЗаказПокупателя') {
           // Получим заказ
           var orderCustomer =
-              await DatabaseHelper.instance.readOrderCustomerByUID(item.uidDoc);
+              await dbReadOrderCustomerByUID(item.uidDoc);
 
           // Получим товары заказа
-          var itemsOrder = await DatabaseHelper.instance
-              .readItemsOrderCustomer(orderCustomer.id);
+          var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
 
           // Запишем номер документа из учетной системы
           orderCustomer.numberFrom1C = item.numberDoc;
 
           // Запишем обновления заказа
-          await DatabaseHelper.instance
-              .updateOrderCustomer(orderCustomer, itemsOrder);
+          await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
         }
 
         countItem++;
