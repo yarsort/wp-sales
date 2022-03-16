@@ -111,6 +111,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
+                  nameGroup('Тип данных приложения'),
+                  listSettingsTypeData(),
+                  nameGroup('Запреты и разрешения'),
                   listSettingsMain(),
                 ],
               ),
@@ -197,9 +200,27 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     showMessage('Настройки сохранены!');
   }
 
-  listSettingsMain() {
+  nameGroup(String nameGroup) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(nameGroup,
+              style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.blueGrey,
+                  fontWeight: FontWeight.bold,),
+          textAlign: TextAlign.start,),
+          Divider(),
+        ],
+      ),
+    );
+  }
+
+  listSettingsTypeData() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
       child: Column(
         children: [
           /// Использование тестовых данных в формах
@@ -219,7 +240,16 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
-          const Divider(),
+        ],
+      ),
+    );
+  }
+
+  listSettingsMain() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+      child: Column(
+        children: [
           /// Запрет на изменение настроек
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -230,7 +260,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditSettings = !deniedEditSettings;
-                      
+
                     });
                   },
                 ),
@@ -248,7 +278,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditTypePrice = !deniedEditTypePrice;
-                      
+
                     });
                   },
                 ),
@@ -266,7 +296,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditPrice = !deniedEditPrice;
-                      
+
                     });
                   },
                 ),
@@ -284,7 +314,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditDiscount = !deniedEditDiscount;
-                      
+
                     });
                   },
                 ),

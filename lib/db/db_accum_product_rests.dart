@@ -11,6 +11,7 @@ class ItemAccumProductRestsFields {
     id,
     uidWarehouse,
     uidProduct,
+    uidProductCharacteristic,
     uidUnit,
     count,
   ];
@@ -19,6 +20,7 @@ class ItemAccumProductRestsFields {
   static const String id = 'id';// Инкремент
   static const String uidWarehouse = 'uidWarehouse';
   static const String uidProduct = 'uidProduct';
+  static const String uidProductCharacteristic = 'uidProductCharacteristic';
   static const String uidUnit = 'uidUnit';
   static const String count = 'count';
 }
@@ -43,12 +45,19 @@ Future<int> dbUpdateProductRest(AccumProductRest accumProductRest) async {
   );
 }
 
-Future<int> dbDeleteProductRest(int id) async {
+Future<int> dbDeleteProductRest({
+  required String uidWarehouse,
+  required String uidProduct,
+  required String uidProductCharacteristic}) async {
+
   final db = await instance.database;
   return await db.delete(
     tableAccumProductRests,
-    where: '${ItemAccumProductRestsFields.id} = ?',
-    whereArgs: [id],
+    where:
+    '${ItemAccumProductRestsFields.uidWarehouse} = ? '
+        'AND ${ItemAccumProductRestsFields.uidProduct} = ?'
+        'AND ${ItemAccumProductRestsFields.uidProductCharacteristic} = ?',
+    whereArgs: [uidWarehouse, uidProduct, uidProductCharacteristic],
   );
 }
 
@@ -60,14 +69,19 @@ Future<int> dbDeleteAllProductRest() async {
 }
 
 Future<double> dbReadProductRest(
-    {required String uidWarehouse, required String uidProduct}) async {
+    {required String uidWarehouse,
+      required String uidProduct,
+      required String uidProductCharacteristic}) async {
+
   final db = await instance.database;
   final maps = await db.query(
     tableAccumProductRests,
     columns: ItemAccumProductRestsFields.values,
     where:
-    '${ItemAccumProductRestsFields.uidWarehouse} = ? AND ${ItemAccumProductRestsFields.uidProduct} = ?',
-    whereArgs: [uidWarehouse, uidProduct],
+    '${ItemAccumProductRestsFields.uidWarehouse} = ? '
+        'AND ${ItemAccumProductRestsFields.uidProduct} = ?'
+        'AND ${ItemAccumProductRestsFields.uidProductCharacteristic} = ?',
+    whereArgs: [uidWarehouse, uidProduct, uidProductCharacteristic],
   );
 
   if (maps.isNotEmpty) {

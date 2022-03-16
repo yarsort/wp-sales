@@ -3,6 +3,7 @@ class AccumProductRest {
   int id = 0;
   String uidWarehouse = '';
   String uidProduct = '';
+  String uidProductCharacteristic = '';
   String uidUnit = '';
   double count = 0.0;
 
@@ -11,6 +12,7 @@ class AccumProductRest {
   AccumProductRest.fromJson(Map<String, dynamic> json) {
     uidWarehouse = json["uidWarehouse"]??'';
     uidProduct = json["uidProduct"]??'';
+    uidProductCharacteristic = json["uidProductCharacteristic"]??'';
     uidUnit = json["uidUnit"]??'';
     count = json["count"].toDouble()??0.0;
   }
@@ -22,6 +24,7 @@ class AccumProductRest {
     }
     data['uidWarehouse'] = uidWarehouse;
     data['uidProduct'] = uidProduct;
+    data['uidProductCharacteristic'] = uidProductCharacteristic;
     data['uidUnit'] = uidUnit;
     data['count'] = count;
     return data;

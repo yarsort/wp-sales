@@ -11,6 +11,7 @@ import 'package:wp_sales/db/db_ref_organization.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
+import 'package:wp_sales/db/db_ref_product_characteristic.dart';
 import 'package:wp_sales/db/db_ref_unit.dart';
 import 'package:wp_sales/db/db_ref_warehouse.dart';
 
@@ -28,11 +29,11 @@ class DatabaseHelper {
       if (_database!.isOpen) {
         return _database!;
       } else {
-        _database = await _initDB('WPSalesDB.db');
+        _database = await _initDB('WPSalesDB2.db');
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDB.db');
+    _database = await _initDB('WPSalesDB2.db');
     return _database!;
   }
 
@@ -229,7 +230,7 @@ class DatabaseHelper {
       )
     ''');
 
-    /// Справочник.Товары
+    /// Справочник.Номенклатура
     await db.execute('''
     CREATE TABLE $tableProduct (    
       ${ItemProductFields.id} $idType,
@@ -246,7 +247,19 @@ class DatabaseHelper {
       )
     ''');
 
-    /// РегистрНакопления.Взаиморасчеты
+    /// Справочник.ХарактеристикиНоменклатуры
+    await db.execute('''
+    CREATE TABLE $tableProductCharacteristic (    
+      ${ItemProductCharacteristicFields.id} $idType,     
+      ${ItemProductCharacteristicFields.uid} $textType,
+      ${ItemProductCharacteristicFields.code} $textType,      
+      ${ItemProductCharacteristicFields.name} $textType,
+      ${ItemProductCharacteristicFields.uidProduct} $textType, 
+      ${ItemProductCharacteristicFields.comment} $textType            
+      )
+    ''');
+
+    /// РегистрНакопления.ВзаиморасчетыСКонтрагентами (Партнерами)
     await db.execute('''
     CREATE TABLE $tableAccumPartnerDebts (    
       ${ItemAccumPartnerDeptFields.id} $idType,
@@ -262,12 +275,13 @@ class DatabaseHelper {
       )
     ''');
 
-    /// РегистрНакопления.Цены
+    /// РегистрНакопления.ЦеныНоменклатуры
     await db.execute('''
     CREATE TABLE $tableAccumProductPrices (    
       ${ItemAccumProductPricesFields.id} $idType,
       ${ItemAccumProductPricesFields.uidPrice} $textType,      
       ${ItemAccumProductPricesFields.uidProduct} $textType,
+      ${ItemAccumProductPricesFields.uidProductCharacteristic} $textType,
       ${ItemAccumProductPricesFields.uidUnit} $textType,      
       ${ItemAccumProductPricesFields.price} $realType                  
       )
@@ -279,6 +293,7 @@ class DatabaseHelper {
       ${ItemAccumProductRestsFields.id} $idType,
       ${ItemAccumProductRestsFields.uidWarehouse} $textType,      
       ${ItemAccumProductRestsFields.uidProduct} $textType,
+      ${ItemAccumProductRestsFields.uidProductCharacteristic} $textType,
       ${ItemAccumProductRestsFields.uidUnit} $textType,      
       ${ItemAccumProductRestsFields.count} $realType                  
       )

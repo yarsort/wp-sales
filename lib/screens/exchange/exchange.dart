@@ -115,7 +115,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   renewItem() {}
 
-  Future<void> loadData() async {
+  Future<void> downloadData() async {
     if (_loading) {
       return;
     }
@@ -132,13 +132,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
       showMessage('Начало обмена по  FTP.');
-      await loadDataByFTP();
+      await downloadDataFromFTP();
       showMessage('Завершение обмена по FTP.');
     }
 
     bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useWebExchange) {
-      //loadDataByWebServer();
+      downloadDataFromWebServer();
     }
 
     setState(() {
@@ -147,7 +147,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     });
   }
 
-  Future<void> loadDataByFTP() async {
+  Future<void> downloadDataFromFTP() async {
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
 
@@ -274,6 +274,22 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _valueProgress = 0.2;
     });
 
+    /// Получений список файлов в формате JSON, отправим на обработку
+    /// Файлами могут быть данные:
+    /// 1. Обмен товарами, партнерами, контрактами и т.д.
+    /// 2. Отчеты для менеджера по запросу.
+    /// 3. Запросы на какие-либо данные из учетной системы.
+
+    saveData(listJSONFiles);
+
+  }
+
+  Future<void> downloadDataFromWebServer() async {
+
+  }
+
+  Future<void> saveData(List<String> listJSONFiles) async {
+
     /// Обрбаотка данных обмена: чтение и запись данных
     //  Прочитаем каждый файл и запишем данных
     for (String pathFile in listJSONFiles) {
@@ -282,181 +298,200 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       var jsonData = json.decode(textJSON);
 
-      /// Организации
-      await dbDeleteAllOrganization();
-      int countItem = 0;
-      for (var item in jsonData['Organizations']) {
-        await dbCreateOrganization(Organization.fromJson(item));
-        countItem++;
-      }
-      listLogs.add('Организации: ' + countItem.toString() + ' шт');
+      saveJsonDataSimple(jsonData);
 
-      setState(() {
-        _valueProgress = 0.3;
-      });
+      return;
 
-      /// Партнеры
-      await dbDeleteAllPartner();
-      countItem = 0;
-      for (var item in jsonData['Partners']) {
-        await dbCreatePartner(Partner.fromJson(item));
-        countItem++;
+      var typeExchange = jsonData['typeExchange'];
+
+      // Простой обмен
+      if (typeExchange == 'simple') {
+        saveJsonDataSimple(jsonData);
       }
 
-      listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.4;
-      });
-
-      /// Контракты
-      await dbDeleteAllContract();
-      countItem = 0;
-      for (var item in jsonData['Contracts']) {
-        await dbCreateContract(Contract.fromJson(item));
-        countItem++;
+      // Обмен отчетами
+      if (typeExchange == 'report') {
+        saveJsonDataReport(jsonData);
       }
-
-      listLogs.add('Контракты: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.5;
-      });
-
-      /// Долги по контрактам
-      await dbDeleteAllPartnerDept();
-      countItem = 0;
-      for (var item in jsonData['DeptsPartners']) {
-        await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
-        countItem++;
-      }
-
-      listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.55;
-      });
-
-      /// Типы цен
-      await dbDeleteAllPrice();
-      countItem = 0;
-      for (var item in jsonData['Prices']) {
-        await dbCreatePrice(Price.fromJson(item));
-        countItem++;
-      }
-
-      listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.6;
-      });
-
-      /// Склады
-      await dbDeleteAllWarehouse();
-      countItem = 0;
-      for (var item in jsonData['Warehouses']) {
-        await dbCreateWarehouse(Warehouse.fromJson(item));
-        countItem++;
-      }
-
-      listLogs.add('Склады: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.7;
-      });
-
-      /// Кассы
-      await dbDeleteAllCashbox();
-      countItem = 0;
-      for (var item in jsonData['Cashboxes']) {
-        await dbCreateCashbox(Cashbox.fromJson(item));
-        countItem++;
-      }
-
-      listLogs.add('Кассы: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.7;
-      });
-
-
-      /// Каталоги товаров (папки)
-      await dbDeleteAllProduct();
-      countItem = 0;
-      for (var item in jsonData['ProductsParent']) {
-        await dbCreateProduct(Product.fromJson(item));
-        countItem++;
-      }
-      listLogs.add('Каталоги товаров: ' + countItem.toString() + ' шт');
-
-      setState(() {
-        _valueProgress = 0.8;
-      });
-
-      /// Товары
-      countItem = 0;
-      for (var item in jsonData['Products']) {
-        await dbCreateProduct(Product.fromJson(item));
-        countItem++;
-      }
-      listLogs.add('Товары: ' + countItem.toString() + ' шт');
-
-      setState(() {
-        _valueProgress = 0.85;
-      });
-
-      /// Остатки товаров
-      await dbDeleteAllProductRest();
-      countItem = 0;
-      for (var item in jsonData['Rests']) {
-        await dbCreateProductRest(AccumProductRest.fromJson(item));
-        countItem++;
-      }
-
-      listLogs.add('Остатки товаров: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.9;
-      });
-
-      /// Цены товаров
-      await dbDeleteAllProductPrice();
-      countItem = 0;
-      for (var item in jsonData['ProductsPrices']) {
-        await dbCreateProductPrice(AccumProductPrice.fromJson(item));
-        countItem++;
-      }
-
-      listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.9;
-      });
-
-      /// Полученные номеров документов из учетной системы
-      countItem = 0;
-      for (var item in jsonData['ReceivedDocuments']) {
-        if (item.typoDoc == 'ЗаказПокупателя') {
-          // Получим заказ
-          var orderCustomer =
-              await dbReadOrderCustomerByUID(item.uidDoc);
-
-          // Получим товары заказа
-          var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
-
-          // Запишем номер документа из учетной системы
-          orderCustomer.numberFrom1C = item.numberDoc;
-
-          // Запишем обновления заказа
-          await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
-        }
-
-        countItem++;
-      }
-
-      listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
-
-      setState(() {
-        _valueProgress = 1.0;
-      });
     }
   }
 
-  Future<void> loadDataByWebServer() async {}
+  Future<void> saveJsonDataSimple(jsonData) async {
 
-  Future<void> saveDataFromFile(String fileName) async {}
+    /// Организации
+    await dbDeleteAllOrganization();
+    int countItem = 0;
+    for (var item in jsonData['Organizations']) {
+      await dbCreateOrganization(Organization.fromJson(item));
+      countItem++;
+    }
+    listLogs.add('Организации: ' + countItem.toString() + ' шт');
+
+    setState(() {
+      _valueProgress = 0.3;
+    });
+
+    /// Партнеры
+    await dbDeleteAllPartner();
+    countItem = 0;
+    for (var item in jsonData['Partners']) {
+      await dbCreatePartner(Partner.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.4;
+    });
+
+    /// Контракты
+    await dbDeleteAllContract();
+    countItem = 0;
+    for (var item in jsonData['Contracts']) {
+      await dbCreateContract(Contract.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Контракты: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.5;
+    });
+
+    /// Долги по контрактам
+    await dbDeleteAllPartnerDept();
+    countItem = 0;
+    for (var item in jsonData['DeptsPartners']) {
+      await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.55;
+    });
+
+    /// Типы цен
+    await dbDeleteAllPrice();
+    countItem = 0;
+    for (var item in jsonData['Prices']) {
+      await dbCreatePrice(Price.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.6;
+    });
+
+    /// Склады
+    await dbDeleteAllWarehouse();
+    countItem = 0;
+    for (var item in jsonData['Warehouses']) {
+      await dbCreateWarehouse(Warehouse.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Склады: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.7;
+    });
+
+    /// Кассы
+    await dbDeleteAllCashbox();
+    countItem = 0;
+    for (var item in jsonData['Cashboxes']) {
+      await dbCreateCashbox(Cashbox.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Кассы: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.7;
+    });
+
+
+    /// Каталоги товаров (папки)
+    await dbDeleteAllProduct();
+    countItem = 0;
+    for (var item in jsonData['ProductsParent']) {
+      await dbCreateProduct(Product.fromJson(item));
+      countItem++;
+    }
+    listLogs.add('Каталоги товаров: ' + countItem.toString() + ' шт');
+
+    setState(() {
+      _valueProgress = 0.8;
+    });
+
+    /// Товары
+    countItem = 0;
+    for (var item in jsonData['Products']) {
+      await dbCreateProduct(Product.fromJson(item));
+      countItem++;
+    }
+    listLogs.add('Товары: ' + countItem.toString() + ' шт');
+
+    setState(() {
+      _valueProgress = 0.85;
+    });
+
+    /// Остатки товаров
+    await dbDeleteAllProductRest();
+    countItem = 0;
+    for (var item in jsonData['Rests']) {
+      await dbCreateProductRest(AccumProductRest.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Остатки товаров: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.9;
+    });
+
+    /// Цены товаров
+    await dbDeleteAllProductPrice();
+    countItem = 0;
+    for (var item in jsonData['ProductsPrices']) {
+      await dbCreateProductPrice(AccumProductPrice.fromJson(item));
+      countItem++;
+    }
+
+    listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
+    setState(() {
+      _valueProgress = 0.9;
+    });
+
+    /// Полученные номеров документов из учетной системы
+    countItem = 0;
+    for (var item in jsonData['ReceivedDocuments']) {
+      if (item.typoDoc == 'ЗаказПокупателя') {
+        // Получим заказ
+        var orderCustomer =
+            await dbReadOrderCustomerByUID(item.uidDoc);
+
+        // Получим товары заказа
+        var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
+
+        // Запишем номер документа из учетной системы
+        orderCustomer.numberFrom1C = item.numberDoc;
+
+        // Запишем обновления заказа
+        await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
+      }
+
+      countItem++;
+    }
+
+    listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
+
+    setState(() {
+      _valueProgress = 1.0;
+    });
+  }
+
+  Future<void> saveJsonDataReport(jsonData) async {
+
+  }
 
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -497,7 +532,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         width: (MediaQuery.of(context).size.width - 49) / 2,
         child: ElevatedButton(
             onPressed: () async {
-              await loadData();
+              await downloadData();
               setState(() {});
             },
             child: Row(

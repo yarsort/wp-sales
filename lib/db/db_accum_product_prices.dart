@@ -11,6 +11,7 @@ class ItemAccumProductPricesFields {
     id,
     uidPrice,
     uidProduct,
+    uidProductCharacteristic,
     uidUnit,
     price,
   ];
@@ -19,6 +20,7 @@ class ItemAccumProductPricesFields {
   static const String id = 'id';// Инкремент
   static const String uidPrice = 'uidPrice';
   static const String uidProduct = 'uidProduct';
+  static const String uidProductCharacteristic = 'uidProductCharacteristic';
   static const String uidUnit = 'uidUnit';
   static const String price = 'price';
 }
@@ -26,9 +28,12 @@ class ItemAccumProductPricesFields {
 /// РегистрНакопления.Цены
 Future<AccumProductPrice> dbCreateProductPrice(
     AccumProductPrice accumProductPrice) async {
+
   final db = await instance.database;
   final id =
-  await db.insert(tableAccumProductPrices, accumProductPrice.toJson());
+  await db.insert(
+      tableAccumProductPrices,
+      accumProductPrice.toJson());
   accumProductPrice.id = id;
   return accumProductPrice;
 }
@@ -43,12 +48,19 @@ Future<int> dbUpdateProductPrice(AccumProductPrice accumProductPrice) async {
   );
 }
 
-Future<int> dbDeleteProductPrice(int id) async {
+Future<int> dbDeleteProductPrice(
+    {required String uidPrice,
+      required String uidProduct,
+      required String uidProductCharacteristic}) async {
+
   final db = await instance.database;
   return await db.delete(
     tableAccumProductPrices,
-    where: '${ItemAccumProductPricesFields.id} = ?',
-    whereArgs: [id],
+    where:
+    '${ItemAccumProductPricesFields.uidPrice} = ? '
+        'AND ${ItemAccumProductPricesFields.uidProduct} = ?'
+        'AND ${ItemAccumProductPricesFields.uidProductCharacteristic} = ?',
+    whereArgs: [uidPrice, uidProduct, uidProductCharacteristic],
   );
 }
 
@@ -60,14 +72,19 @@ Future<int> dbDeleteAllProductPrice() async {
 }
 
 Future<double> dbReadProductPrice(
-    {required String uidPrice, required String uidProduct}) async {
+    {required String uidPrice,
+      required String uidProduct,
+      required String uidProductCharacteristic}) async {
+
   final db = await instance.database;
   final maps = await db.query(
     tableAccumProductPrices,
     columns: ItemAccumProductPricesFields.values,
     where:
-    '${ItemAccumProductPricesFields.uidPrice} = ? AND ${ItemAccumProductPricesFields.uidProduct} = ?',
-    whereArgs: [uidPrice, uidProduct],
+    '${ItemAccumProductPricesFields.uidPrice} = ? '
+        'AND ${ItemAccumProductPricesFields.uidProduct} = ?'
+        'AND ${ItemAccumProductPricesFields.uidProductCharacteristic} = ?',
+    whereArgs: [uidPrice, uidProduct, uidProductCharacteristic],
   );
 
   if (maps.isNotEmpty) {

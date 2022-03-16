@@ -144,8 +144,7 @@ class _ScreenProductSelectionTreeViewState
       //showMessage('Тестовые данные загружены!');
     } else {
       /// Загрузка данных из БД
-      listDataProducts =
-          await dbReadProductsByParent(parentProduct.uid);
+      listDataProducts = await dbReadProductsByParent(parentProduct.uid);
       debugPrint(
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
@@ -198,8 +197,7 @@ class _ScreenProductSelectionTreeViewState
       return;
     }
 
-    List<Product> dummySearchList =
-        await dbReadProductsForSearch(query);
+    List<Product> dummySearchList = await dbReadProductsForSearch(query);
 
     if (query.isNotEmpty) {
       List<Product> dummyListData = <Product>[];
@@ -311,8 +309,8 @@ class _ScreenProductSelectionTreeViewState
                       popTap: () {},
                     )
                   : ProductItem(
-                      uidPrice: widget.orderCustomer.uidPrice,
-                      uidWarehouse: widget.orderCustomer.uidWarehouse,
+                      uidPriceProductItem: widget.orderCustomer.uidPrice,
+                      uidWarehouseProductItem: widget.orderCustomer.uidWarehouse,
                       product: productItem,
                       tap: () async {
                         await Navigator.push(
@@ -350,6 +348,9 @@ class DirectoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      tileColor: product.uid != parentProduct.uid
+          ? null
+          : const Color.fromRGBO(227, 242, 253, 1.0),
       onTap: () => tap(),
       //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
@@ -380,16 +381,16 @@ class DirectoryItem extends StatelessWidget {
 
 class ProductItem extends StatefulWidget {
   final Product product;
-  final String uidPrice;
-  final String uidWarehouse;
+  final String uidPriceProductItem;
+  final String uidWarehouseProductItem;
   final Function tap;
   final Function? popTap;
 
   const ProductItem({
     Key? key,
     required this.product,
-    required this.uidPrice,
-    required this.uidWarehouse,
+    required this.uidPriceProductItem,
+    required this.uidWarehouseProductItem,
     required this.tap,
     this.popTap,
   }) : super(key: key);
@@ -410,6 +411,7 @@ class _ProductItemState extends State<ProductItem> {
 
   @override
   Widget build(BuildContext context) {
+
     return ListTile(
       onTap: () => widget.tap(),
       //onLongPress: popTap == null ? null : popTap,
@@ -434,7 +436,7 @@ class _ProductItemState extends State<ProductItem> {
           Row(
             children: [
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Row(
                   children: [
                     Text(
@@ -474,10 +476,14 @@ class _ProductItemState extends State<ProductItem> {
 
   renewItem() async {
     price = await dbReadProductPrice(
-        uidPrice: widget.uidPrice, uidProduct: widget.product.uid);
+        uidPrice: widget.uidPriceProductItem,
+        uidProduct: widget.product.uid,
+        uidProductCharacteristic: '');
 
     countOnWarehouse = await dbReadProductRest(
-        uidWarehouse: widget.uidWarehouse, uidProduct: widget.product.uid);
+        uidWarehouse: widget.uidWarehouseProductItem,
+        uidProduct: widget.product.uid,
+        uidProductCharacteristic: '');
 
     setState(() {});
   }

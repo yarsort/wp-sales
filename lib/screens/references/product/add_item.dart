@@ -113,7 +113,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             children: [
               /// Price
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
                   child: TextField(
@@ -132,7 +132,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
               /// Sum
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                   child: TextField(
@@ -154,7 +154,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             children: [
               /// Warehouse
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
                   child: TextField(
@@ -173,7 +173,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
               /// Count to document
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                   child: TextField(
@@ -227,7 +227,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
           Row(
             children: [
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(14, 7, 7, 14),
                   child: SizedBox(
@@ -243,8 +243,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.undo, color: Colors.white),
-                            SizedBox(width: 14),
                             Text('Отменить')
                           ],
                         )),
@@ -252,7 +250,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 ),
               ),
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(7, 7, 14, 14),
                   child: SizedBox(
@@ -271,8 +269,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.add, color: Colors.white),
-                            SizedBox(width: 14),
                             Text('Добавить'),
                           ],
                         )),
@@ -294,13 +290,17 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     // Остаток на складе.
     var countOnWarehouse = await dbReadProductRest(
         uidWarehouse: widget.orderCustomer.uidWarehouse,
-        uidProduct: widget.product.uid);
+        uidProduct: widget.product.uid,
+        uidProductCharacteristic: '');
+
     textFieldWarehouseController.text = doubleThreeToString(countOnWarehouse);
 
     // Цена товара.
     var price = await dbReadProductPrice(
         uidPrice: widget.orderCustomer.uidPrice,
-        uidProduct: widget.product.uid);
+        uidProduct: widget.product.uid,
+        uidProductCharacteristic: '');
+
     textFieldPriceController.text = doubleToString(price);
 
     // Подставим количесто из заказа, если оно есть.

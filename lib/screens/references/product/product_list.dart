@@ -14,18 +14,15 @@ import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductList extends StatefulWidget {
-
-  const ScreenProductList(
-      {Key? key,})
-      : super(key: key);
+  const ScreenProductList({
+    Key? key,
+  }) : super(key: key);
 
   @override
-  _ScreenProductListState createState() =>
-      _ScreenProductListState();
+  _ScreenProductListState createState() => _ScreenProductListState();
 }
 
-class _ScreenProductListState
-    extends State<ScreenProductList> {
+class _ScreenProductListState extends State<ScreenProductList> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool visibleParameters = false;
@@ -40,10 +37,8 @@ class _ScreenProductListState
   TextEditingController textFieldSearchRecommendController =
       TextEditingController();
 
-  TextEditingController textFieldPriceController =
-  TextEditingController();
-  TextEditingController textFieldWarehouseController =
-  TextEditingController();
+  TextEditingController textFieldPriceController = TextEditingController();
+  TextEditingController textFieldWarehouseController = TextEditingController();
 
   // Список товаров для возвращения из поиска
   List<Product> tempItems = [];
@@ -153,8 +148,7 @@ class _ScreenProductListState
       //showMessage('Тестовые данные загружены!');
     } else {
       /// Загрузка данных из БД
-      listDataProducts =
-          await dbReadProductsByParent(parentProduct.uid);
+      listDataProducts = await dbReadProductsByParent(parentProduct.uid);
       debugPrint(
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
@@ -195,8 +189,7 @@ class _ScreenProductListState
       return;
     }
 
-    List<Product> dummySearchList =
-        await dbReadProductsForSearch(query);
+    List<Product> dummySearchList = await dbReadProductsForSearch(query);
 
     if (query.isNotEmpty) {
       List<Product> dummyListData = <Product>[];
@@ -326,7 +319,7 @@ class _ScreenProductListState
 
                               renewItem();
                             });
-                            },
+                          },
                           icon: const Icon(Icons.people, color: Colors.blue),
                         ),
                         IconButton(
@@ -377,9 +370,8 @@ class _ScreenProductListState
                             await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        ScreenPriceSelection(
-                                            orderCustomer: orderCustomer)));
+                                    builder: (context) => ScreenPriceSelection(
+                                        orderCustomer: orderCustomer)));
                             setState(() {
                               textFieldPriceController.text =
                                   orderCustomer.namePrice;
@@ -634,12 +626,15 @@ class _ProductItemState extends State<ProductItem> {
 
   renewItem() async {
     price = await dbReadProductPrice(
-        uidPrice: widget.uidPriceProductItem, uidProduct: widget.product.uid);
+        uidPrice: widget.uidPriceProductItem,
+        uidProduct: widget.product.uid,
+        uidProductCharacteristic: '');
 
     countOnWarehouse = await dbReadProductRest(
-        uidWarehouse: widget.uidWarehouseProductItem, uidProduct: widget.product.uid);
+        uidWarehouse: widget.uidWarehouseProductItem,
+        uidProduct: widget.product.uid,
+        uidProductCharacteristic: '');
 
     setState(() {});
   }
-
 }
