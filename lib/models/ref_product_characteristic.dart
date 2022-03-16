@@ -1,9 +1,4 @@
 
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableProductCharacteristic   = '_ReferenceProductCharacteristic';
-
 /// Справочник.ХарактеристикиТоваров
 class ProductCharacteristic {
   int id = 0;                     // Инкремент
@@ -36,25 +31,4 @@ class ProductCharacteristic {
     data['comment'] = comment;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemProductCharacteristicFields {
-  static final List<String> values = [
-    id,
-    uid,
-    code,
-    name,
-    uidProduct,
-    comment,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String uid = 'uid';
-  static const String code = 'code';
-  static const String name = 'name';
-  static const String uidProduct = 'uidProduct';
-  static const String comment = 'comment';
-
 }
