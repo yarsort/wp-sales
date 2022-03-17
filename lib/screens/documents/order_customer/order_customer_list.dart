@@ -147,7 +147,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ),
           ],
         ),
-        bottomNavigationBar: actionButtons(),
       ),
     );
   }
@@ -1343,32 +1342,5 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             ),
           );
         });
-  }
-
-  actionButtons() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-      child: SizedBox(
-        height: 50,
-        width: (MediaQuery.of(context).size.width - 49) / 2,
-        child: ElevatedButton(
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ScreenExchangeData(),
-                ),
-              );
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.sync, color: Colors.white),
-                SizedBox(width: 14),
-                Text('Обмен данными')
-              ],
-            )),
-      ),
-    );
   }
 }

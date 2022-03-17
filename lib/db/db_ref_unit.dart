@@ -77,7 +77,23 @@ Future<Unit> dbReadUnit(int id) async {
   if (maps.isNotEmpty) {
     return Unit.fromJson(maps.first);
   } else {
-    throw Unit();
+    return Unit();
+  }
+}
+
+Future<Unit> dbReadUnitUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableUnit,
+    columns: ItemUnitFields.values,
+    where: '${ItemUnitFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Unit.fromJson(maps.first);
+  } else {
+    return Unit();
   }
 }
 

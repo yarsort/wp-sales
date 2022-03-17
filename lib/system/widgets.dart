@@ -12,6 +12,7 @@ import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/screens/auth/login.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
+import 'package:wp_sales/screens/exchange/exchange.dart';
 import 'package:wp_sales/screens/references/contracts/contract_list.dart';
 import 'package:wp_sales/screens/references/currency/currency_list.dart';
 import 'package:wp_sales/screens/references/organizations/organization_list.dart';
@@ -92,170 +93,240 @@ class _MainDrawerState extends State<MainDrawer> {
                         ),
                       ),
                     ])),
-                listTileTitle('Документы'),
                 ListTile(
-                    title: const Text("Заказы покупателей"),
-                    leading: const Icon(Icons.shopping_basket, color: Colors.blue,),
-                    trailing: countNotification(countOrderCustomer),
-                    onTap: () {
-                      Navigator.pop(context); // Закроем Drawer
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (BuildContext context) => const ScreenOrderCustomerList()),
-                      );
-
-                    }),
-                ListTile(
-                    title: const Text("ПКО (оплаты)"),
-                    leading: const Icon(Icons.payment, color: Colors.blue,),
-                    trailing: countNotification(0),
-                    onTap: () {
-                      Navigator.pop(context); // Закроем Drawer
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (BuildContext context) => const ScreenIncomingCashOrderList()),
-                      );
-                    }),
-                ExpansionTile(
-                  title: const Text('Справочники'),
-                  initiallyExpanded: false,
-                  children: [
-                    ListTile(
-                        title: const Text("Организации"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countOrganization),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenOrganizationList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Партнеры"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countPartner),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenPartnerList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Договоры партнеров"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countContract),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenContractList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Товары"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countProduct),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenProductList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Единицы измерения"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countUnit),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenUnitList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Типы цен"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countPrice),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenPriceList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Валюты"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countCurrency),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenCurrencyList()),
-                          );
-                        }),
-                    ListTile(
-                        title: const Text("Склады"),
-                        leading: const Icon(Icons.source, color: Colors.blue,),
-                        trailing: countNotification(countWarehouse),
-                        onTap: () {
-                          Navigator.pop(context); // Закроем Drawer
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => const ScreenWarehouseList()),
-                          );
-                        }),
-                  ],
-                ),
-                ListTile(
-                    title: const Text("Настройки"),
-                    leading: const Icon(Icons.settings, color: Colors.blue,),
+                    title: const Text("Обмен данными"),
+                    leading: const Icon(
+                      Icons.update,
+                      color: Colors.blue,
+                    ),
                     onTap: () {
                       Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                          const ScreenSettings(),
+                          builder: (context) => const ScreenExchangeData(),
+                        ),
+                      );
+                    }),
+                listTileTitle('Документы'),
+                ListTile(
+                    title: const Text("Заказы покупателей"),
+                    leading: const Icon(
+                      Icons.shopping_basket,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countOrderCustomer),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenOrderCustomerList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("ПКО (оплаты)"),
+                    leading: const Icon(
+                      Icons.payment,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(0),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenIncomingCashOrderList()),
+                      );
+                    }),
+                listTileTitle('Справочники'),
+                ListTile(
+                    title: const Text("Организации"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countOrganization),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenOrganizationList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Партнеры"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countPartner),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenPartnerList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Договоры партнеров"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countContract),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenContractList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Товары"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countProduct),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenProductList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Единицы измерения"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countUnit),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenUnitList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Типы цен"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countPrice),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenPriceList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Валюты"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countCurrency),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenCurrencyList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Склады"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countWarehouse),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenWarehouseList()),
+                      );
+                    }),
+                listTileTitle('Параметры'),
+                ListTile(
+                    title: const Text("Настройки"),
+                    leading: const Icon(
+                      Icons.settings,
+                      color: Colors.blue,
+                    ),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ScreenSettings(),
                         ),
                       );
                     }),
                 ListTile(
                     title: const Text("Справка"),
-                    leading: const Icon(Icons.help, color: Colors.blue,),
+                    leading: const Icon(
+                      Icons.help,
+                      color: Colors.blue,
+                    ),
                     onTap: () {
                       Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                          const ScreenHelp(),
+                          builder: (context) => const ScreenHelp(),
                         ),
                       );
                     }),
                 ListTile(
                     title: const Text("О программе"),
-                    leading: const Icon(Icons.info, color: Colors.blue,),
+                    leading: const Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                    ),
                     onTap: () {
                       Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                          const ScreenAbout(),
+                          builder: (context) => const ScreenAbout(),
                         ),
                       );
                     }),
+                const Divider(indent: 8, endIndent: 8),
                 ListTile(
                     title: const Text("Выход"),
-                    leading: const Icon(Icons.logout, color: Colors.blue,),
+                    leading: const Icon(
+                      Icons.logout,
+                      color: Colors.blue,
+                    ),
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
-                      Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const ScreenLogin()));
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const ScreenLogin()));
                     }),
               ],
             ),
@@ -357,9 +428,9 @@ class ColumnBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-        children: List.generate(itemCount, (index) => itemBuilder(context, index))
-            .toList(),
-      );
+      children: List.generate(itemCount, (index) => itemBuilder(context, index))
+          .toList(),
+    );
   }
 }
 

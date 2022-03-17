@@ -79,7 +79,23 @@ Future<Warehouse> dbReadWarehouse(int id) async {
   if (maps.isNotEmpty) {
     return Warehouse.fromJson(maps.first);
   } else {
-    throw Warehouse();
+    return Warehouse();
+  }
+}
+
+Future<Warehouse> dbReadWarehouseUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableWarehouse,
+    columns: ItemWarehouseFields.values,
+    where: '${ItemWarehouseFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Warehouse.fromJson(maps.first);
+  } else {
+    return Warehouse();
   }
 }
 

@@ -188,11 +188,11 @@ Future<OrderCustomer> dbReadOrderCustomer(int id) async {
   if (maps.isNotEmpty) {
     return OrderCustomer.fromJson(maps.first);
   } else {
-    throw OrderCustomer();
+    return OrderCustomer();
   }
 }
 
-Future<OrderCustomer> dbReadOrderCustomerByUID(String uid) async {
+Future<OrderCustomer> dbReadOrderCustomerUID(String uid) async {
   final db = await instance.database;
   final maps = await db.query(
     tableOrderCustomer,
@@ -204,7 +204,7 @@ Future<OrderCustomer> dbReadOrderCustomerByUID(String uid) async {
   if (maps.isNotEmpty) {
     return OrderCustomer.fromJson(maps.first);
   } else {
-    throw OrderCustomer();
+    return OrderCustomer();
   }
 }
 

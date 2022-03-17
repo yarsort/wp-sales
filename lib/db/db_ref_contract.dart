@@ -98,7 +98,23 @@ Future<Contract> dbReadContract(int id) async {
   if (maps.isNotEmpty) {
     return Contract.fromJson(maps.first);
   } else {
-    throw Contract();
+    return Contract();
+  }
+}
+
+Future<Contract> dbReadContractUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableContract,
+    columns: ItemContractFields.values,
+    where: '${ItemContractFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Contract.fromJson(maps.first);
+  } else {
+    return Contract();
   }
 }
 

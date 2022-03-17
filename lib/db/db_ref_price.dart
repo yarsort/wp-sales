@@ -77,11 +77,11 @@ Future<Price> dbReadPrice(int id) async {
   if (maps.isNotEmpty) {
     return Price.fromJson(maps.first);
   } else {
-    throw Price();
+    return Price();
   }
 }
 
-Future<Price> dbReadPriceByUID(String uid) async {
+Future<Price> dbReadPriceUID(String uid) async {
   final db = await instance.database;
   final maps = await db.query(
     tablePrice,
@@ -93,7 +93,7 @@ Future<Price> dbReadPriceByUID(String uid) async {
   if (maps.isNotEmpty) {
     return Price.fromJson(maps.first);
   } else {
-    throw Price();
+    return Price();
   }
 }
 

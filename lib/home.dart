@@ -63,6 +63,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
         await dbReadForPaymentContracts(limit: 5);
 
     listForPaymentContracts.sort((a, b) => a.name.compareTo(b.name));
+
+    setState(() {});
   }
 
   nameGroup(String nameGroup) {

@@ -86,7 +86,23 @@ Future<Partner> dbReadPartner(int id) async {
   if (maps.isNotEmpty) {
     return Partner.fromJson(maps.first);
   } else {
-    throw Partner();
+    return Partner();
+  }
+}
+
+Future<Partner> dbReadPartnerUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tablePartner,
+    columns: ItemPartnerFields.values,
+    where: '${ItemPartnerFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Partner.fromJson(maps.first);
+  } else {
+    return Partner();
   }
 }
 

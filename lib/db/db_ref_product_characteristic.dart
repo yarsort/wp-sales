@@ -75,11 +75,11 @@ Future<ProductCharacteristic> dbReadProductCharacteristic(int id) async {
   if (maps.isNotEmpty) {
     return ProductCharacteristic.fromJson(maps.first);
   } else {
-    throw ProductCharacteristic();
+    return ProductCharacteristic();
   }
 }
 
-Future<ProductCharacteristic> dbReadProductCharacteristicByUID(String uid) async {
+Future<ProductCharacteristic> dbReadProductCharacteristicUID(String uid) async {
   final db = await instance.database;
   final maps = await db.query(
     tableProductCharacteristic,
@@ -91,7 +91,7 @@ Future<ProductCharacteristic> dbReadProductCharacteristicByUID(String uid) async
   if (maps.isNotEmpty) {
     return ProductCharacteristic.fromJson(maps.first);
   } else {
-    throw ProductCharacteristic();
+    return ProductCharacteristic();
   }
 }
 

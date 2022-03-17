@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wp_sales/db/db_ref_cashbox.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_cashbox.dart';
+import 'package:wp_sales/models/ref_organization.dart';
+import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/models/ref_price.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
+import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
+import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
+import 'package:wp_sales/screens/references/partners/partner_selection.dart';
+import 'package:wp_sales/screens/references/price/price_selection.dart';
+import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
+import 'package:wp_sales/system/widgets.dart';
 
 class ScreenSettings extends StatefulWidget {
   const ScreenSettings({Key? key}) : super(key: key);
@@ -12,15 +29,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool useTestData = false; // Показывать тестовые данные
-
   bool deniedEditSettings = false; // Запретить изменять настройки
   bool deniedEditTypePrice = false; // Запретить изменять тип цены в документах
   bool deniedEditPrice = false; // Запретить изменять цены в документах
   bool deniedEditDiscount = false; // Запретить изменять скидку в документах
-
   bool useWebExchange = false; // Обмен по вебсервису
   bool enabledTextFieldWebExchange = false;
-
   bool useFTPExchange = false; // Обмен по FTP
   bool enabledTextFieldFTPExchange = false;
 
@@ -36,6 +50,35 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   /// Параметры WEB-сервиса
   TextEditingController textFieldWEBServerController = TextEditingController();
+
+  /// Параметры заполнения по-умолчанию
+  // Поле ввода: Организация
+  TextEditingController textFieldOrganizationController = TextEditingController();
+  String uidOrganization = '';
+
+  // Поле ввода: Партнер
+  TextEditingController textFieldPartnerController = TextEditingController();
+  String uidPartner = '';
+
+  // Поле ввода: Договор или торговая точка
+  TextEditingController textFieldContractController = TextEditingController();
+  String uidContract = '';
+
+  // Поле ввода: Тип цены
+  TextEditingController textFieldPriceController = TextEditingController();
+  String uidPrice = '';
+
+  // Поле ввода: Склад
+  TextEditingController textFieldWarehouseController = TextEditingController();
+  String uidWarehouse = '';
+
+  // Поле ввода: Валюта
+  TextEditingController textFieldCurrencyController = TextEditingController();
+  String uidCurrency = '';
+
+  // Поле ввода: Кассы
+  TextEditingController textFieldCashboxController = TextEditingController();
+  String uidCashbox = '';
 
   @override
   void initState() {
@@ -101,8 +144,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             bottom: const TabBar(
               tabs: [
                 Tab(text: 'Основные'),
+                Tab(text: 'Заполнение'),
                 Tab(text: 'Обмен'),
-                Tab(text: 'Прочее'),
               ],
             ),
           ),
@@ -111,22 +154,24 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  nameGroup('Тип данных приложения'),
+                  nameGroup(nameGroup: 'Тип данных приложения'),
                   listSettingsTypeData(),
-                  nameGroup('Запреты и разрешения'),
+                  nameGroup(nameGroup: 'Запреты и разрешения'),
                   listSettingsMain(),
                 ],
               ),
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  listSettingsExchange(),
+                  nameGroup(nameGroup: 'Значения по-умолчанию', hideDivider: true),
+                  listFillingByDefault(),
                 ],
               ),
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  listSettingsOther()
+                  listSettingsOther(),
+                  listSettingsExchange(),
                 ],
               ),
             ],
@@ -147,29 +192,54 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   fillSettings() async {
     final SharedPreferences prefs = await _prefs;
-    setState(() {
-      useTestData = prefs.getBool('settings_useTestData') ?? false;
 
-      textFieldUIDUserController.text = prefs.getString('settings_UIDUser') ?? '';
+    useTestData = prefs.getBool('settings_useTestData') ?? false;
 
-      useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? true;
-      enabledTextFieldWebExchange = useFTPExchange;
+    // Идентификатор пользователя в приложении для обмена данными
+    textFieldUIDUserController.text = prefs.getString('settings_UIDUser') ?? '';
 
-      textFieldFTPServerController.text = prefs.getString('settings_FTPServer')??'';
-      textFieldFTPPortController.text = prefs.getString('settings_FTPPort')??'';
-      textFieldFTPUserController.text = prefs.getString('settings_FTPUser')??'';
-      textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')??'';
-      textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')??'';
+    //Обмен по ftp-серверу
+    useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? true;
+    enabledTextFieldWebExchange = useFTPExchange;
+    textFieldFTPServerController.text = prefs.getString('settings_FTPServer')??'';
+    textFieldFTPPortController.text = prefs.getString('settings_FTPPort')??'';
+    textFieldFTPUserController.text = prefs.getString('settings_FTPUser')??'';
+    textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')??'';
+    textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')??'';
 
-      useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
-      enabledTextFieldFTPExchange = useFTPExchange;
-      textFieldWEBServerController.text = prefs.getString('settings_WEBServer')!;
+    // Обмен по web-серверу
+    useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
+    enabledTextFieldFTPExchange = useFTPExchange;
+    textFieldWEBServerController.text = prefs.getString('settings_WEBServer')!;
 
-      deniedEditSettings = prefs.getBool('settings_deniedEditSettings')!;
-      deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')!;
-      deniedEditPrice = prefs.getBool('settings_deniedEditPrice')!;
-      deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
-    });
+    // Разрешения и запреты
+    deniedEditSettings = prefs.getBool('settings_deniedEditSettings')!;
+    deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')!;
+    deniedEditPrice = prefs.getBool('settings_deniedEditPrice')!;
+    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
+
+    // Заполнение значений по-умолчанию
+    uidOrganization = prefs.getString('settings_uidOrganization')??'';
+    Organization organization = await dbReadOrganizationUID(uidOrganization);
+    textFieldOrganizationController.text = organization.name;
+
+    uidPartner = prefs.getString('settings_uidPartner')??'';
+    Partner partner = await dbReadPartnerUID(uidPartner);
+    textFieldPartnerController.text = partner.name;
+
+    uidPrice = prefs.getString('settings_uidPrice')??'';
+    Price price = await dbReadPriceUID(uidPrice);
+    textFieldPriceController.text = price.name;
+
+    uidCashbox = prefs.getString('settings_uidCashbox')??'';
+    Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
+    textFieldCashboxController.text = cashbox.name;
+
+    uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+    Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
+    textFieldWarehouseController.text = warehouse.name;
+
+    setState(() {});
   }
 
   saveSettings() async {
@@ -193,6 +263,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setString('settings_FTPPassword', textFieldFTPPasswordController.text);
     prefs.setString('settings_FTPWorkCatalog', textFieldFTPWorkCatalogController.text);
 
+    /// Значения заполнения документов по-умолчанию
+    prefs.setString('settings_uidOrganization', uidOrganization);
+    prefs.setString('settings_uidPartner', uidPartner);
+    prefs.setString('settings_uidPrice', uidPrice);
+    prefs.setString('settings_uidCashbox', uidCashbox);
+    prefs.setString('settings_uidWarehouse', uidWarehouse);
+
     /// Web-service
     prefs.setBool('settings_useWebExchange', useWebExchange);
     prefs.setString('settings_WEBServer', textFieldWEBServerController.text);
@@ -200,7 +277,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     showMessage('Настройки сохранены!');
   }
 
-  nameGroup(String nameGroup) {
+  nameGroup({String nameGroup = '', bool hideDivider = false}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
       child: Column(
@@ -212,7 +289,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.bold,),
           textAlign: TextAlign.start,),
-          Divider(),
+          if (!hideDivider) const Divider(),
         ],
       ),
     );
@@ -653,4 +730,118 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     );
   }
 
+  listFillingByDefault() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
+        children: [
+          /// Organization
+          TextFieldWithText(
+              textLabel: 'Организация',
+              textEditingController: textFieldOrganizationController,
+              onPressedEditIcon: Icons.person,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () {
+                textFieldOrganizationController.text = '';
+                uidOrganization = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                var result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenOrganizationSelection(
+                            orderCustomer: orderCustomer)));
+                textFieldOrganizationController.text = orderCustomer.nameOrganization;
+                uidOrganization = orderCustomer.uidOrganization;
+
+              }),
+
+          /// Partner
+          TextFieldWithText(
+              textLabel: 'Партнер',
+              textEditingController: textFieldPartnerController,
+              onPressedEditIcon: Icons.people,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                textFieldPartnerController.text = '';
+                uidPartner = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenPartnerSelection(
+                            orderCustomer: orderCustomer)));
+                textFieldPartnerController.text = orderCustomer.namePartner;
+                uidPartner = orderCustomer.uidPartner;
+              }),
+
+          /// Price
+          TextFieldWithText(
+              textLabel: 'Тип цены продажи',
+              textEditingController: textFieldPriceController,
+              onPressedEditIcon: Icons.request_quote,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                textFieldPriceController.text = '';
+                uidPrice = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenPriceSelection(
+                            orderCustomer: orderCustomer)));
+                textFieldPriceController.text = orderCustomer.namePrice;
+                uidPrice = orderCustomer.uidPrice;
+              }),
+
+          /// Cashbox
+          TextFieldWithText(
+              textLabel: 'Касса',
+              textEditingController: textFieldCashboxController,
+              onPressedEditIcon: Icons.request_quote,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                textFieldCashboxController.text = '';
+                uidCashbox = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenCashboxSelection(
+                            orderCustomer: orderCustomer)));
+                textFieldCashboxController.text = orderCustomer.nameCashbox;
+                uidCashbox = orderCustomer.uidCashbox;
+              }),
+
+          /// Warehouse
+          TextFieldWithText(
+              textLabel: 'Склад отгрузки',
+              textEditingController: textFieldWarehouseController,
+              onPressedEditIcon: Icons.gite,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                textFieldWarehouseController.text = '';
+                uidWarehouse = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenWarehouseSelection(
+                            orderCustomer: orderCustomer)));
+                textFieldWarehouseController.text = orderCustomer.nameWarehouse;
+                uidWarehouse = orderCustomer.uidWarehouse;
+              }),
+        ],
+      ),
+    );
+  }
 }

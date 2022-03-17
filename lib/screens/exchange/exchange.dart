@@ -544,7 +544,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     for (var item in jsonData['ReceivedDocuments']) {
       if (item.typeDoc == 'ЗаказПокупателя') {
         // Получим заказ
-        var orderCustomer = await dbReadOrderCustomerByUID(item.uidDoc);
+        var orderCustomer = await dbReadOrderCustomerUID(item.uidDoc);
 
         // Получим товары заказа
         var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
@@ -871,5 +871,4 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     return dataList;
   }
-
 }

@@ -82,7 +82,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   /// Поле ввода: Не отправлять в 1С
   bool sendNoTo1C = false;
 
-  /// Поле ввода: Дата отпрваки в 1С
+  /// Поле ввода: Дата отправки в 1С
   TextEditingController textFieldDateSendingTo1CController =
       TextEditingController();
 
@@ -594,7 +594,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               keyboardType: TextInputType.text,
               controller: textFieldCommentController,
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,

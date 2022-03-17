@@ -84,7 +84,7 @@ Future<Product> dbReadProduct(int id) async {
   if (maps.isNotEmpty) {
     return Product.fromJson(maps.first);
   } else {
-    throw Product();
+    return Product();
   }
 }
 
@@ -100,7 +100,7 @@ Future<Product> dbReadProductByUID(String uid) async {
   if (maps.isNotEmpty) {
     return Product.fromJson(maps.first);
   } else {
-    throw Product();
+    return Product();
   }
 }
 

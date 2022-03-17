@@ -12,10 +12,10 @@ import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductSelectionTreeView extends StatefulWidget {
-  List<ItemOrderCustomer> listItemDoc = [];
-  OrderCustomer orderCustomer = OrderCustomer();
+  final List<ItemOrderCustomer> listItemDoc;
+  final OrderCustomer orderCustomer;
 
-  ScreenProductSelectionTreeView(
+  const ScreenProductSelectionTreeView(
       {Key? key, required this.listItemDoc, required this.orderCustomer})
       : super(key: key);
 
@@ -237,6 +237,7 @@ class _ScreenProductSelectionTreeViewState
         },
         controller: textFieldSearchCatalogController,
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
             color: Colors.blueGrey,

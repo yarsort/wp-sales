@@ -77,7 +77,23 @@ Future<Organization> dbReadOrganization(int id) async {
   if (maps.isNotEmpty) {
     return Organization.fromJson(maps.first);
   } else {
-    throw Organization();
+    return Organization();
+  }
+}
+
+Future<Organization> dbReadOrganizationUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableOrganization,
+    columns: ItemOrganizationFields.values,
+    where: '${ItemOrganizationFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Organization.fromJson(maps.first);
+  } else {
+    return Organization();
   }
 }
 

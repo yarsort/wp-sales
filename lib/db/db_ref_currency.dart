@@ -81,7 +81,23 @@ Future<Currency> dbReadCurrency(int id) async {
   if (maps.isNotEmpty) {
     return Currency.fromJson(maps.first);
   } else {
-    throw Currency();
+    return Currency();
+  }
+}
+
+Future<Currency> dbReadCurrencyUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableCurrency,
+    columns: ItemCurrencyFields.values,
+    where: '${ItemCurrencyFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Currency.fromJson(maps.first);
+  } else {
+    return Currency();
   }
 }
 

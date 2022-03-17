@@ -76,7 +76,23 @@ Future<Cashbox> dbReadCashbox(int id) async {
   if (maps.isNotEmpty) {
     return Cashbox.fromJson(maps.first);
   } else {
-    throw Cashbox();
+    return Cashbox();
+  }
+}
+
+Future<Cashbox> dbReadCashboxUID(String uid) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableCashbox,
+    columns: ItemCashboxFields.values,
+    where: '${ItemCashboxFields.uid} = ?',
+    whereArgs: [uid],
+  );
+
+  if (maps.isNotEmpty) {
+    return Cashbox.fromJson(maps.first);
+  } else {
+    return Cashbox();
   }
 }
 
