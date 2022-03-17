@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/price/price_selection.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 import 'package:wp_sales/system/system.dart';
@@ -67,13 +71,14 @@ class _ScreenProductListState extends State<ScreenProductList> {
   @override
   void initState() {
     super.initState();
+    fillSetting();
     renewItem();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -81,8 +86,8 @@ class _ScreenProductListState extends State<ScreenProductList> {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Каталог'),
-              Tab(text: 'Купленные'),
-              Tab(text: 'Рекомендации'),
+              //Tab(text: 'Купленные'),
+              Tab(text: 'Акции'),
             ],
           ),
         ),
@@ -99,14 +104,22 @@ class _ScreenProductListState extends State<ScreenProductList> {
               physics: const BouncingScrollPhysics(),
               children: const [],
             ),
-            ListView(
-              physics: const BouncingScrollPhysics(),
-              children: const [],
-            ),
           ],
         ),
       ),
     );
+  }
+
+  fillSetting() async {
+    final SharedPreferences prefs = await _prefs;
+
+    uidPrice = prefs.getString('settings_uidPrice')??'';
+    Price price = await dbReadPriceUID(uidPrice);
+    textFieldPriceController.text = price.name;
+
+    uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+    Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
+    textFieldWarehouseController.text = warehouse.name;
   }
 
   showMessage(String textMessage) {

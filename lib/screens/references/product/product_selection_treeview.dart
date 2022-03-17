@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
@@ -36,6 +37,9 @@ class _ScreenProductSelectionTreeViewState
   TextEditingController textFieldSearchRecommendController =
       TextEditingController();
 
+  // Список товаров, которые ранее покупал клиент
+  List<Product> listPurchasedProducts = [];
+
   // Список товаров для возвращения из поиска
   List<Product> tempItems = [];
 
@@ -64,6 +68,7 @@ class _ScreenProductSelectionTreeViewState
   void initState() {
     super.initState();
     renewItem();
+    renewPurchasedItem();
   }
 
   @override
@@ -93,7 +98,9 @@ class _ScreenProductSelectionTreeViewState
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
-              children: const [],
+              children: [
+                listViewPurchasedProducts(),
+              ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
@@ -182,6 +189,44 @@ class _ScreenProductSelectionTreeViewState
     tempItems.addAll(listProducts);
 
     setState(() {});
+  }
+
+  void renewPurchasedItem() async {
+    listPurchasedProducts.clear();
+    if (widget.orderCustomer.uidPartner == '') {
+      return;
+    }
+
+    // Список идентификаторов для получения обектов <Product>
+    List<String> listUidProduct = [];
+
+    // Получим список товаров из заказов покупателя, которые он покупал ранее
+    List<OrderCustomer> listOrders = await dbReadOrderCustomerUIDPartner(widget.orderCustomer.uidPartner);
+    for (var itemOrder in listOrders) {
+      // Получим товары заказа
+      List<ItemOrderCustomer> listItemsOrder = await dbReadItemsOrderCustomer(itemOrder.id);
+      for (var itemItemOrder in listItemsOrder) {
+        // Найдем UID товара, который продавали клиенту и если его нет в списке, то добавим
+        if (!listUidProduct.contains(itemItemOrder.uid)) {
+          listUidProduct.add(itemItemOrder.uid);
+        }
+      }
+    }
+
+    // Найдем объекты <Product> по их UID для отображения в списке
+    if (listUidProduct.isNotEmpty) {
+      for (var uidProduct in listUidProduct) {
+        Product product = await dbReadProductUID(uidProduct);
+        if (product.id != 0) {
+          listPurchasedProducts.add(product);
+        }
+      }
+    }
+    
+    // Посортируем товары по названию
+    listPurchasedProducts.sort((a, b) => a.name.compareTo(b.name));
+    
+    debugPrint('Количество ранее купленных товаров: '+listPurchasedProducts.length.toString());
   }
 
   void filterSearchCatalogResults(String query) async {
@@ -330,6 +375,36 @@ class _ScreenProductSelectionTreeViewState
           }),
     );
   }
+
+  listViewPurchasedProducts() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 14, 11, 14),
+      child: ColumnBuilder(
+          itemCount: listPurchasedProducts.length,
+          itemBuilder: (context, index) {
+            var productItem = listPurchasedProducts[index];
+            return Card(
+              elevation: 2,
+              child: ProductItem(
+                uidPriceProductItem: widget.orderCustomer.uidPrice,
+                uidWarehouseProductItem: widget.orderCustomer.uidWarehouse,
+                product: productItem,
+                tap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenAddItem(
+                          listItemDoc: widget.listItemDoc,
+                          orderCustomer: widget.orderCustomer,
+                          product: productItem),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
+    );
+  }
 }
 
 class DirectoryItem extends StatelessWidget {
@@ -421,7 +496,7 @@ class _ProductItemState extends State<ProductItem> {
         padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
         child: Icon(
           Icons.file_copy,
-          color: Colors.grey,
+          color: Color.fromRGBO(144, 202, 249, 1.0),
         ),
       ),
       title: Text(

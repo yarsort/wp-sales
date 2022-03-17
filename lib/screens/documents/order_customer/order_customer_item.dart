@@ -692,7 +692,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           });
                       }
                       if (value == 'edit') {
-                        Product productItem = await dbReadProductByUID(item.uid);
+                        Product productItem = await dbReadProductUID(item.uid);
                         await Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -192,6 +192,18 @@ Future<OrderCustomer> dbReadOrderCustomer(int id) async {
   }
 }
 
+Future<List<OrderCustomer>> dbReadOrderCustomerUIDPartner(String uidPartner) async {
+  final db = await instance.database;
+  final result = await db.query(
+    tableOrderCustomer,
+    columns: OrderCustomerFields.values,
+    where: '${OrderCustomerFields.uidPartner} = ?',
+    whereArgs: [uidPartner],
+  );
+
+  return result.map((json) => OrderCustomer.fromJson(json)).toList();
+}
+
 Future<OrderCustomer> dbReadOrderCustomerUID(String uid) async {
   final db = await instance.database;
   final maps = await db.query(
@@ -208,8 +220,7 @@ Future<OrderCustomer> dbReadOrderCustomerUID(String uid) async {
   }
 }
 
-Future<List<ItemOrderCustomer>> dbReadItemsOrderCustomer(
-    int idOrderCustomer) async {
+Future<List<ItemOrderCustomer>> dbReadItemsOrderCustomer(int idOrderCustomer) async {
   final db = await instance.database;
   const orderBy = '${ItemOrderCustomerFields.name} ASC';
   final result = await db.query(tableItemsOrderCustomer,

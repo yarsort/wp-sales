@@ -88,7 +88,7 @@ Future<Product> dbReadProduct(int id) async {
   }
 }
 
-Future<Product> dbReadProductByUID(String uid) async {
+Future<Product> dbReadProductUID(String uid) async {
   final db = await instance.database;
   final maps = await db.query(
     tableProduct,
