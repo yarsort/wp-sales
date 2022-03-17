@@ -1,4 +1,6 @@
 
+import 'package:wp_sales/db/db_doc_order_customer.dart';
+
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
   int id = 0;                   // Инкремент

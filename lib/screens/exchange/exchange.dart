@@ -19,6 +19,7 @@ import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
+import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_organization.dart';
@@ -115,6 +116,102 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   renewItem() {}
 
+  showMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.blue,
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  showErrorMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  progressIndicator() {
+    return Visibility(
+      visible: _visibleIndicator,
+      child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: LinearProgressIndicator(
+            value: _valueProgress,
+          )),
+    );
+  }
+
+  actionButtons() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+      child: SizedBox(
+        height: 50,
+        width: (MediaQuery.of(context).size.width - 49) / 2,
+        child: ElevatedButton(
+            onPressed: () async {
+              await uploadData();
+              //await downloadData();
+              setState(() {});
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.sync, color: Colors.white),
+                SizedBox(width: 14),
+                Text('Выполнить обмен')
+              ],
+            )),
+      ),
+    );
+  }
+
+  /// Получение данных из учетных систем
+
+  Future<List<String>> unZipArchives(listLocalDownloaded) async {
+
+    /// Определение пользвателя обмена
+    final SharedPreferences prefs = await _prefs;
+    String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
+
+    // Получим путь к временному каталогу устройства
+    Directory tempDir = await getTemporaryDirectory();
+    String tempPath = tempDir.path;
+
+    // Список файлов в формет JSON из архивов обмена
+    List<String> listJSONFiles = [];
+
+    // Итератор нужен для того что бы каждый архив был в своем каталоге.
+    // Далее каждый файл распаковывается и обрабатывается подряд
+    int iterator = 1;
+
+    //  Прочитаем каждый файл и запишем данных
+    for (String pathDownloadedFile in listLocalDownloaded) {
+      // Каждый файл в отдельном каталоге, что бы создать уникальность
+      String localJsonFile =
+          tempPath + '/' + iterator.toString() + '_' + settingsUIDUser;
+
+      final File localZipFile = File(pathDownloadedFile);
+      List listUnzippedFlies =
+          await FTPConnect.unZipFile(localZipFile, localJsonFile);
+
+      for (var itemUnzippedFile in listUnzippedFlies) {
+        listJSONFiles.add(itemUnzippedFile);
+      }
+      iterator++;
+    }
+
+    return listJSONFiles;
+  }
+
+  /// Получение данных из учетных систем
+
+  // Начало получения данных
   Future<void> downloadData() async {
     if (_loading) {
       return;
@@ -131,9 +228,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
-      showMessage('Начало обмена по  FTP.');
+      showMessage('Загрузка данных из FTP.');
       await downloadDataFromFTP();
-      showMessage('Завершение обмена по FTP.');
+      showMessage('Завершение загрузки из FTP.');
     }
 
     bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
@@ -147,6 +244,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     });
   }
 
+  // Получение данных из FTP Server
   Future<void> downloadDataFromFTP() async {
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
@@ -185,7 +283,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       showErrorMessage('Ошибка подключения к серверу FTP!');
       return;
     } else {
-      showMessage('Подключение выполнено успешно!');
+      // showMessage('Подключение выполнено успешно!');
     }
 
     // Установка рабочего каталога для чтения данных на сервере FTP
@@ -204,7 +302,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     for (var fileFTPPath in listDirectoryContentOnlyNames) {
       // Каждый файл обмена содержит в своем имени идентификатор получателя
       if (fileFTPPath.contains(settingsUIDUser)) {
-        listDownload.add(fileFTPPath);
+        if (fileFTPPath.contains('update_')) {
+          listDownload.add(fileFTPPath);
+        }
       }
     }
 
@@ -232,7 +332,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       bool res = await ftpClient.downloadFileWithRetry(pathFile, localFile);
       if (res) {
         // Логируем про загруженный файл
-        listLogs.add('Получен файл обмена: $localFile');
+        //listLogs.add('Получен файл обмена: $localFile');
 
         // Добавим для дальнейшей обработки
         listLocalDownloaded.add(localFile.path.toString());
@@ -249,26 +349,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _valueProgress = 0.1;
     });
 
-    /// Распакуем все файлы обменов из формата ZIP
-    // Список файлов в формет JSON из архивов обмена
+    /// Распакуем файлы данных их архивов по разным итерационным каталогам
     List<String> listJSONFiles = [];
-    int iterator = 1;
-
-    //  Прочитаем каждый файл и запишем данных
-    for (String pathDownloadedFile in listLocalDownloaded) {
-      // Каждый файл в отдельном каталоге, что бы создать уникальность
-      String localJsonFile =
-          tempPath + '/' + iterator.toString() + '_' + settingsUIDUser;
-
-      final File localZipFile = File(pathDownloadedFile);
-      List listUnzippedFlies =
-          await FTPConnect.unZipFile(localZipFile, localJsonFile);
-      for (var itemUnzippedFile in listUnzippedFlies) {
-        listJSONFiles.add(itemUnzippedFile);
-      }
-
-      iterator++;
-    }
+    listJSONFiles = await unZipArchives(listLocalDownloaded);
 
     setState(() {
       _valueProgress = 0.2;
@@ -280,17 +363,16 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// 2. Отчеты для менеджера по запросу.
     /// 3. Запросы на какие-либо данные из учетной системы.
 
-    saveData(listJSONFiles);
-
+    saveDownloadedData(listJSONFiles);
   }
 
-  Future<void> downloadDataFromWebServer() async {
+  // Получение данных из Web Server
+  Future<void> downloadDataFromWebServer() async {}
 
-  }
+  // Обработка полученных данных из JSON: разделение потоков
+  Future<void> saveDownloadedData(List<String> listJSONFiles) async {
 
-  Future<void> saveData(List<String> listJSONFiles) async {
-
-    /// Обрбаотка данных обмена: чтение и запись данных
+    /// Обработка данных обмена: чтение и запись данных
     //  Прочитаем каждый файл и запишем данных
     for (String pathFile in listJSONFiles) {
       File fileJson = File(pathFile);
@@ -298,26 +380,23 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       var jsonData = json.decode(textJSON);
 
-      saveJsonDataSimple(jsonData);
-
-      return;
-
+      // Прочитаем тип обмена из полученных данных
       var typeExchange = jsonData['typeExchange'];
 
       // Простой обмен
-      if (typeExchange == 'simple') {
-        saveJsonDataSimple(jsonData);
-      }
+      //if (typeExchange == 'simple') {
+        saveFromJsonDataSimple(jsonData);
+      //}
 
       // Обмен отчетами
       if (typeExchange == 'report') {
-        saveJsonDataReport(jsonData);
+        saveFromJsonDataReport(jsonData);
       }
     }
   }
 
-  Future<void> saveJsonDataSimple(jsonData) async {
-
+  // Обработка полученных данных из JSON: Обычный
+  Future<void> saveFromJsonDataSimple(jsonData) async {
     /// Организации
     await dbDeleteAllOrganization();
     int countItem = 0;
@@ -409,7 +488,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _valueProgress = 0.7;
     });
 
-
     /// Каталоги товаров (папки)
     await dbDeleteAllProduct();
     countItem = 0;
@@ -464,10 +542,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Полученные номеров документов из учетной системы
     countItem = 0;
     for (var item in jsonData['ReceivedDocuments']) {
-      if (item.typoDoc == 'ЗаказПокупателя') {
+      if (item.typeDoc == 'ЗаказПокупателя') {
         // Получим заказ
-        var orderCustomer =
-            await dbReadOrderCustomerByUID(item.uidDoc);
+        var orderCustomer = await dbReadOrderCustomerByUID(item.uidDoc);
 
         // Получим товары заказа
         var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
@@ -478,7 +555,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         // Запишем обновления заказа
         await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
       }
-
       countItem++;
     }
 
@@ -489,61 +565,311 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     });
   }
 
-  Future<void> saveJsonDataReport(jsonData) async {
+  // Обработка полученных данных из JSON: Отчеты
+  Future<void> saveFromJsonDataReport(jsonData) async {}
 
+  // Запись данных в JSON: Обычный
+  Future<void> saveToJsonDataReport(jsonData) async {}
+
+  /// Отправка данных в учетные системы
+
+  // Начало отправки данных
+  Future<void> uploadData() async {
+    if (_loading) {
+      return;
+    }
+
+    listLogs.clear();
+
+    setState(() {
+      _loading = true;
+      _visibleIndicator = true;
+    });
+
+    final SharedPreferences prefs = await _prefs;
+    List<String> listToUpload = [];
+
+    bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
+    if (useFTPExchange) {
+      showMessage('Начало отправки на FTP.');
+
+      // Добавим файлы
+      String pathZipFile = await generateDataSimple();
+      listToUpload.add(pathZipFile);
+
+      // Отправим на FTP-сервер
+      await uploadDataToFTP(listToUpload);
+
+      showMessage('Завершение отправки на FTP.');
+    }
+
+    bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
+    if (useWebExchange) {
+      uploadDataToWebServer();
+    }
+
+    setState(() {
+      _loading = false;
+      _visibleIndicator = false;
+    });
   }
 
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.blue,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  // Получение данных из FTP Server
+  Future<bool> uploadDataToFTP(List<String> listToUpload) async {
+
+    // Если файлов для отправки нет, значит все ОК
+    if (listToUpload.isEmpty) {
+      return true;
+    }
+
+    /// Прочитаем настройки подключения
+    final SharedPreferences prefs = await _prefs;
+
+    /// Определение пользвателя обмена
+    String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
+    if (settingsUIDUser.trim() == '') {
+      showMessage('В настройках не указан UID  пользователя!');
+      return false;
+    }
+
+    /// Параметры подключения
+    String settingsFTPServer = prefs.getString('settings_FTPServer') ?? '';
+    String settingsFTPPort = prefs.getString('settings_FTPPort') ?? '21';
+    String settingsFTPUser = prefs.getString('settings_FTPUser') ?? '';
+    String settingsFTPPassword = prefs.getString('settings_FTPPassword') ?? '';
+    String settingsFTPWorkCatalog =
+        prefs.getString('settings_FTPWorkCatalog') ?? '';
+
+    /// Получение данных обмена
+    // Экземпляр коннектора
+    final FTPConnect ftpClient = FTPConnect(settingsFTPServer,
+        port: int.parse(settingsFTPPort),
+        user: settingsFTPUser,
+        pass: settingsFTPPassword,
+        timeout: 600,
+        debug: true);
+
+    var res = await ftpClient.connect();
+    if (!res) {
+      showErrorMessage('Ошибка подключения к серверу FTP!');
+      return false;
+    } else {
+      //showMessage('Подключение выполнено успешно!');
+    }
+
+    // Установка рабочего каталога для чтения данных на сервере FTP
+    if (settingsFTPWorkCatalog.trim() != '') {
+      bool res = await ftpClient.changeDirectory(settingsFTPWorkCatalog);
+      if (!res) {
+        showMessage('Ошибка установки рабочего каталога!');
+        await ftpClient.disconnect();
+        return false;
+      }
+    }
+
+    // Найдем и отправим файлы на сервер
+    int countSendFiles = 0;
+    for (var pathFile in listToUpload) {
+      File fileToUpload = File(pathFile);
+      bool res = await ftpClient.uploadFileWithRetry(fileToUpload, pRetryCount: 2);
+      if (res) {
+        countSendFiles++;
+      }
+    }
+    await ftpClient.disconnect();
+
+    // Если отправлены все файлы, значит все ОК! :)
+    if (countSendFiles == listToUpload.length) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  showErrorMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  // Отправка данных на Web Server
+  Future<void> uploadDataToWebServer() async {}
+
+  /// Генерация данных
+
+  // Отправка данных на FTP Server
+  Future<String> generateDataSimple() async {
+
+    /// Прочитаем настройки подключения
+    final SharedPreferences prefs = await _prefs;
+
+    /// Определение пользвателя обмена
+    String settingsUidUser = prefs.getString('settings_UIDUser') ?? '';
+    String settingsNameUser = prefs.getString('settings_nameUser') ?? '';
+    if (settingsUidUser.trim() == '') {
+      showMessage('В настройках не указан UID  пользователя!');
+      return '';
+    }
+
+    // Массив на отправку
+    var data = {};
+
+    // Массив настроек
+    var dataSettings = {};
+    dataSettings["dateSending"] = DateTime.now().toIso8601String();
+    dataSettings["uidUser"]     = settingsUidUser;
+    dataSettings["nameUser"]    = settingsNameUser;
+
+    // Номер документов для которых надо получить номера из учетной системы
+    // Наличие номера говорит о том, что запись была зарегистрирована
+    List numberDocs = []; // передается по процедурам
+
+    // Получим массив документов: Заказы покупателя
+    List<dynamic> listDocsOrderCustomer = await createListDocsOrderCustomer(numberDocs);
+    // Получим массив документов: Возвраты товаров от покупателей
+    List<dynamic> listDocsReturnOrderCustomer = await createListDocsReturnOrderCustomer(numberDocs);
+    // Получим массив документов: Приходные кассовые ордера
+    List<dynamic> listDocsIncomingCashOrder = await createListDocsIncomingCashOrder(numberDocs);
+
+    // Добавим данные на кодирование в JSON
+    data['settings'] = dataSettings;
+    data['numberDocs'] = numberDocs;
+    data['docsOrderCustomer'] = listDocsOrderCustomer;
+    data['docsReturnOrderCustomer'] = listDocsReturnOrderCustomer;
+    data['docsIncomingCashOrder'] = listDocsIncomingCashOrder;
+
+    // Закодируем список в JSON и отправим на сервер обмена
+    String dataString = json.encode(data);
+
+    // Получим путь к временному каталогу устройства
+    Directory tempDir = await getTemporaryDirectory();
+
+    // Путь к файлу обмена
+    String pathLocalFile = tempDir.path + '/orders_$settingsUidUser.json';
+
+    // Путь к файлу архива
+    String pathLocalZipFile = tempDir.path + '/orders_$settingsUidUser.zip';
+
+    // Запишем даные в файл
+    final File localFile = File(pathLocalFile);
+    localFile.writeAsString(dataString);
+
+    List<String> paths = [];
+    paths.add(pathLocalFile);
+
+    var res = await FTPConnect.zipFiles(paths, pathLocalZipFile);
+    if (!res) {
+      showErrorMessage('Ошибка архивирования файла для отправки');
+    }
+    return pathLocalZipFile;
   }
 
-  progressIndicator() {
-    return Visibility(
-      visible: _visibleIndicator,
-      child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-          child: LinearProgressIndicator(
-            value: _valueProgress,
-          )),
-    );
+  Future<List> createListDocsOrderCustomer(List<dynamic> numberDocs) async {
+
+    // Получим данные для выгрузки
+    List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
+
+    // Каждый документ выгрузим в JSON
+    List dataList = [];
+    for (var itemDoc in listDocs) {
+      var dataNumber = {};
+
+      // Добавим номер (UID) документа
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'orderCustomer';
+      numberDocs.add(dataNumber);
+
+      var data = {};
+      data['status'] = itemDoc.status;
+      data['date'] = itemDoc.date.toIso8601String();
+      data['uid'] = itemDoc.uid;
+      data['uidOrganization'] = itemDoc.uidOrganization;
+      data['nameOrganization'] = itemDoc.nameOrganization;
+      data['uidPartner'] = itemDoc.uidPartner;
+      data['namePartner'] = itemDoc.namePartner;
+      data['uidContract'] = itemDoc.uidContract;
+      data['nameContract'] = itemDoc.nameContract;
+      data['uidPrice'] = itemDoc.uidPrice;
+      data['namePrice'] = itemDoc.namePrice;
+      data['nameWarehouse'] = itemDoc.nameWarehouse;
+      data['uidWarehouse'] = itemDoc.uidWarehouse;
+      data['uidCurrency'] = itemDoc.uidCurrency;
+      data['nameCurrency'] = itemDoc.nameCurrency;
+      data['uidCashbox'] = itemDoc.uidCashbox;
+      data['nameCashbox'] = itemDoc.nameCashbox;
+      data['sum'] = itemDoc.sum;
+      data['comment'] = itemDoc.comment;
+      data['dateSending'] = itemDoc.dateSending.toIso8601String();
+      data['datePaying'] = itemDoc.datePaying.toIso8601String();
+      data['countItems'] = itemDoc.countItems;
+
+      var listDataProduct = [];
+      List<ItemOrderCustomer> listItemOrderCustomer = await dbReadItemsOrderCustomer(itemDoc.id);
+      for (var itemOrderCustomer in listItemOrderCustomer) {
+        var dataProduct = {};
+        dataProduct['uid'] = itemOrderCustomer.uid;
+        dataProduct['name'] = itemOrderCustomer.name;
+        dataProduct['uidUnit'] = itemOrderCustomer.uidUnit;
+        dataProduct['nameUnit'] = itemOrderCustomer.nameUnit;
+        dataProduct['count'] = itemOrderCustomer.count;
+        dataProduct['price'] = itemOrderCustomer.price;
+        dataProduct['discount'] = itemOrderCustomer.discount;
+        dataProduct['sum'] = itemOrderCustomer.sum;
+        listDataProduct.add(dataProduct);
+      }
+
+      // Добавим товары документа
+      data['products'] = listDataProduct;
+
+      // Добавим документ в список
+      dataList.add(data);
+    }
+
+    return dataList;
   }
 
-  actionButtons() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-      child: SizedBox(
-        height: 50,
-        width: (MediaQuery.of(context).size.width - 49) / 2,
-        child: ElevatedButton(
-            onPressed: () async {
-              await downloadData();
-              setState(() {});
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.sync, color: Colors.white),
-                SizedBox(width: 14),
-                Text('Выполнить обмен')
-              ],
-            )),
-      ),
-    );
+  Future<List> createListDocsReturnOrderCustomer(List<dynamic> numberDocs) async {
+
+    ///TODO: Сделать выгрузку на тип документа: Возврат товаров от покупателя
+    return [];
+
+    // Получим данные для выгрузки
+    List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
+
+    // Каждый документы выгрузим в JSON
+    List dataList = [];
+    for (var itemDoc in listDocs) {
+      var dataNumber = {};
+
+      // Добавим номер (UID) документа
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'orderCustomer';
+      numberDocs.add(dataNumber);
+
+      // Добавим документ в список
+      dataList.add(itemDoc.toJson());
+    }
+
+    return dataList;
   }
+
+  Future<List> createListDocsIncomingCashOrder(List<dynamic> numberDocs) async {
+
+    ///TODO: Сделать выгрузку на тип документа: Приходный кассовый ордер
+    return [];
+
+    // Получим данные для выгрузки
+    List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
+
+    // Каждый документы выгрузим в JSON
+    List dataList = [];
+    for (var itemDoc in listDocs) {
+      var dataNumber = {};
+
+      // Добавим номер (UID) документа
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'orderCustomer';
+      numberDocs.add(dataNumber);
+
+      // Добавим документ в список
+      dataList.add(itemDoc.toJson());
+    }
+
+    return dataList;
+  }
+
 }
