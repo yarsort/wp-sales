@@ -3,10 +3,15 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_partner.dart';
 
-///***********************************
+
 /// Название таблиц базы данных
-///***********************************
 const String tablePartner   = '_ReferencePartner';
+
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemPartnerFields {
@@ -38,6 +43,25 @@ class ItemPartnerFields {
   static const String address = 'address';
   static const String comment = 'comment';
   static const String schedulePayment = 'schedulePayment';
+}
+
+Future createTablePartner(db) async {
+  await db.execute('''
+    CREATE TABLE $tablePartner (    
+      ${ItemPartnerFields.id} $idType,
+      ${ItemPartnerFields.isGroup} $integerType,      
+      ${ItemPartnerFields.uid} $textType,
+      ${ItemPartnerFields.code} $textType,      
+      ${ItemPartnerFields.name} $textType,
+      ${ItemPartnerFields.uidParent} $textType,
+      ${ItemPartnerFields.balance} $realType,
+      ${ItemPartnerFields.balanceForPayment} $realType,      
+      ${ItemPartnerFields.phone} $textType,
+      ${ItemPartnerFields.address} $textType,
+      ${ItemPartnerFields.comment} $textType,
+      ${ItemPartnerFields.schedulePayment} $integerType            
+      )
+    ''');
 }
 
 /// Справочник.Партнеры

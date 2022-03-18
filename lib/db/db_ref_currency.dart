@@ -3,10 +3,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_currency.dart';
 
-///***********************************
 /// Название таблиц базы данных
-///***********************************
 const String tableCurrency   = '_ReferenceCurrency';
+
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemCurrencyFields {
@@ -35,7 +39,24 @@ class ItemCurrencyFields {
 
 }
 
-/// Справочник.Валюты
+/// Создание таблиц БД
+Future createTableCurrency(db) async {
+  await db.execute('''
+    CREATE TABLE $tableCurrency (    
+      ${ItemCurrencyFields.id} $idType,
+      ${ItemCurrencyFields.isGroup} $integerType,      
+      ${ItemCurrencyFields.uid} $textType,
+      ${ItemCurrencyFields.code} $textType,      
+      ${ItemCurrencyFields.name} $textType,
+      ${ItemCurrencyFields.uidParent} $textType,
+      ${ItemCurrencyFields.course} $realType,
+      ${ItemCurrencyFields.multiplicity} $realType,
+      ${ItemCurrencyFields.comment} $textType            
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
 Future<Currency> dbCreateCurrency(Currency currency) async {
   final db = await instance.database;
   final id = await db.insert(tableCurrency, currency.toJson());

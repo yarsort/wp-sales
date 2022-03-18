@@ -3,10 +3,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'init_db.dart';
 
-///***********************************
 /// Название таблиц базы данных
-///***********************************
 const String tableContract   = '_ReferenceContract';
+
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemContractFields {
@@ -52,7 +56,33 @@ class ItemContractFields {
   static const String schedulePayment = 'schedulePayment';
 }
 
-/// Справочник.ДоговорыКонтрагентов (партнеров)
+/// Создание таблиц БД
+Future createTableContract(db) async {
+  await db.execute('''
+    CREATE TABLE $tableContract (
+      ${ItemContractFields.id} $idType,
+      ${ItemContractFields.isGroup} $integerType,
+      ${ItemContractFields.uid} $textType,
+      ${ItemContractFields.code} $textType,
+      ${ItemContractFields.name} $textType,
+      ${ItemContractFields.uidParent} $textType,
+      ${ItemContractFields.balance} $realType,
+      ${ItemContractFields.balanceForPayment} $realType,
+      ${ItemContractFields.phone} $textType,
+      ${ItemContractFields.address} $textType,
+      ${ItemContractFields.comment} $textType,
+      ${ItemContractFields.namePartner} $textType,
+      ${ItemContractFields.uidPartner} $textType,
+      ${ItemContractFields.uidPrice} $textType,
+      ${ItemContractFields.namePrice} $textType,
+      ${ItemContractFields.uidCurrency} $textType,
+      ${ItemContractFields.nameCurrency} $textType,
+      ${ItemContractFields.schedulePayment} $integerType
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
 Future<Contract> dbCreateContract(Contract contract) async {
   final db = await instance.database;
   final id = await db.insert(tableContract, contract.toJson());

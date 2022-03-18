@@ -5,6 +5,12 @@ import 'package:wp_sales/models/accum_product_rests.dart';
 /// Название таблиц базы данных
 const String tableAccumProductRests   = '_AccumProductRests';
 
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
+
 /// Поля для базы данных
 class ItemAccumProductRestsFields {
   static final List<String> values = [
@@ -25,9 +31,22 @@ class ItemAccumProductRestsFields {
   static const String count = 'count';
 }
 
-/// РегистрНакопления.ОстаткиНаСкладах
-Future<AccumProductRest> dbCreateProductRest(
-    AccumProductRest accumProductRest) async {
+/// Создание таблиц БД
+Future createTableAccumProductRests(db) async {
+  await db.execute('''
+    CREATE TABLE $tableAccumProductRests (    
+      ${ItemAccumProductRestsFields.id} $idType,
+      ${ItemAccumProductRestsFields.uidWarehouse} $textType,      
+      ${ItemAccumProductRestsFields.uidProduct} $textType,
+      ${ItemAccumProductRestsFields.uidProductCharacteristic} $textType,
+      ${ItemAccumProductRestsFields.uidUnit} $textType,      
+      ${ItemAccumProductRestsFields.count} $realType                  
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
+Future<AccumProductRest> dbCreateProductRest(AccumProductRest accumProductRest) async {
   final db = await instance.database;
   final id =
   await db.insert(tableAccumProductRests, accumProductRest.toJson());
@@ -68,10 +87,10 @@ Future<int> dbDeleteAllProductRest() async {
   );
 }
 
-Future<double> dbReadProductRest(
-    {required String uidWarehouse,
-      required String uidProduct,
-      required String uidProductCharacteristic}) async {
+Future<double> dbReadProductRest({
+  required String uidWarehouse,
+  required String uidProduct,
+  required String uidProductCharacteristic}) async {
 
   final db = await instance.database;
   final maps = await db.query(

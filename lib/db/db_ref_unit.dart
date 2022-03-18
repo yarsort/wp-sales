@@ -3,9 +3,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_unit.dart';
 
-
 /// Название таблиц базы данных
 const String tableUnit   = '_ReferenceUnit';
+
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemUnitFields {
@@ -31,7 +36,23 @@ class ItemUnitFields {
   static const String comment = 'comment';
 }
 
-/// Справочник.ЕдиницыИзмерений
+/// Создание таблиц БД
+Future createTableUnit(db) async {
+  await db.execute('''
+    CREATE TABLE $tableUnit(    
+      ${ItemUnitFields.id} $idType,
+      ${ItemUnitFields.isGroup} $integerType,      
+      ${ItemUnitFields.uid} $textType,
+      ${ItemUnitFields.code} $textType,      
+      ${ItemUnitFields.name} $textType,
+      ${ItemUnitFields.uidParent} $textType,      
+      ${ItemUnitFields.multiplicity} $realType,
+      ${ItemUnitFields.comment} $textType            
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
 Future<Unit> dbCreateUnit(Unit unit) async {
   final db = await instance.database;
   final id = await db.insert(tableUnit, unit.toJson());

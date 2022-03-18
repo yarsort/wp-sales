@@ -5,6 +5,12 @@ import 'package:wp_sales/models/accum_partner_depts.dart';
 /// Название таблиц базы данных
 const String tableAccumPartnerDebts   = '_AccumPartnerDebts';
 
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
+
 /// Поля для базы данных
 class ItemAccumPartnerDeptFields {
   static final List<String> values = [
@@ -33,9 +39,26 @@ class ItemAccumPartnerDeptFields {
   static const String balanceForPayment = 'balanceForPayment';
 }
 
-/// РегистрНакопления.Взаиморасчеты
-Future<AccumPartnerDept> dbCreatePartnerDept(
-    AccumPartnerDept accumDeptPartner) async {
+/// Создание таблиц БД
+Future createTableAccumPartnerDebts(db) async {
+  await db.execute('''
+    CREATE TABLE $tableAccumPartnerDebts (    
+      ${ItemAccumPartnerDeptFields.id} $idType,
+      ${ItemAccumPartnerDeptFields.uidOrganization} $textType,      
+      ${ItemAccumPartnerDeptFields.uidPartner} $textType,
+      ${ItemAccumPartnerDeptFields.uidContract} $textType,      
+      ${ItemAccumPartnerDeptFields.uidDoc} $textType,
+      ${ItemAccumPartnerDeptFields.nameDoc} $textType,
+      ${ItemAccumPartnerDeptFields.numberDoc} $textType,
+      ${ItemAccumPartnerDeptFields.dateDoc} $textType,      
+      ${ItemAccumPartnerDeptFields.balance} $realType,
+      ${ItemAccumPartnerDeptFields.balanceForPayment} $realType            
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
+Future<AccumPartnerDept> dbCreatePartnerDept(AccumPartnerDept accumDeptPartner) async {
   final db = await instance.database;
   final id =
   await db.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
@@ -69,8 +92,9 @@ Future<int> dbDeleteAllPartnerDept() async {
   );
 }
 
-Future<AccumPartnerDept> dbReadPartnerDept(
-    {required String uidPartner, required String uidContract}) async {
+Future<AccumPartnerDept> dbReadPartnerDept({
+  required String uidPartner,
+  required String uidContract}) async {
   final db = await instance.database;
   final maps = await db.query(
     tableAccumPartnerDebts,

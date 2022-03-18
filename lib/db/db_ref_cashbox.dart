@@ -2,10 +2,14 @@ import 'package:sqflite/sqflite.dart';
 import 'init_db.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
 
-///***********************************
 /// Название таблиц базы данных
-///***********************************
 const String tableCashbox   = '_ReferenceCashbox';
+
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemCashboxFields {
@@ -30,7 +34,22 @@ class ItemCashboxFields {
 
 }
 
-/// Справочник.Кассы
+/// Создание таблиц БД
+Future createTableCashbox(db) async {
+  await db.execute('''
+    CREATE TABLE $tableCashbox (    
+      ${ItemCashboxFields.id} $idType,
+      ${ItemCashboxFields.isGroup} $integerType,      
+      ${ItemCashboxFields.uid} $textType,
+      ${ItemCashboxFields.code} $textType,      
+      ${ItemCashboxFields.name} $textType,
+      ${ItemCashboxFields.uidParent} $textType,
+      ${ItemCashboxFields.comment} $textType            
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
 Future<Cashbox> dbCreateCashbox(Cashbox cashbox) async {
   final db = await instance.database;
   final id = await db.insert(tableCashbox, cashbox.toJson());

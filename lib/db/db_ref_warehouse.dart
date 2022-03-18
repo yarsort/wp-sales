@@ -7,6 +7,12 @@ import 'package:wp_sales/models/ref_warehouse.dart';
 /// Название таблиц базы данных
 const String tableWarehouse   = '_ReferenceWarehouse';
 
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
+
 /// Поля для базы данных
 class ItemWarehouseFields {
   static final List<String> values = [
@@ -33,7 +39,24 @@ class ItemWarehouseFields {
   static const String comment = 'comment';
 }
 
-/// Справочник.Склады
+/// Создание таблиц БД
+Future createTableWarehouse(db) async {
+  await db.execute('''
+    CREATE TABLE $tableWarehouse (    
+      ${ItemWarehouseFields.id} $idType,
+      ${ItemWarehouseFields.isGroup} $integerType,      
+      ${ItemWarehouseFields.uid} $textType,
+      ${ItemWarehouseFields.code} $textType,      
+      ${ItemWarehouseFields.name} $textType,
+      ${ItemWarehouseFields.uidParent} $textType,
+      ${ItemWarehouseFields.phone} $textType,
+      ${ItemWarehouseFields.address} $textType,      
+      ${ItemWarehouseFields.comment} $textType            
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
 Future<Warehouse> dbCreateWarehouse(Warehouse warehouse) async {
   final db = await instance.database;
   final id = await db.insert(tableWarehouse, warehouse.toJson());

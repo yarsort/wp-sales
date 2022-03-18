@@ -7,6 +7,12 @@ import 'package:wp_sales/models/doc_order_customer.dart';
 const String tableOrderCustomer   = '_DocumentOrderCustomer';
 const String tableItemsOrderCustomer   = '_DocumentOrderCustomer_VT1'; // Товары
 
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
+
 /// Поля для базы данных
 class OrderCustomerFields {
   static final List<String> values = [
@@ -99,9 +105,63 @@ class ItemOrderCustomerFields {
 
 }
 
-/// Документы.ЗаказПокупателя
-Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer,
-    List<ItemOrderCustomer> itemsOrderCustomer) async {
+/// Создание таблиц БД
+Future createTableOrderCustomer(db) async {
+
+  /// Документ.ЗаказПокупателя
+  await db.execute('''
+    CREATE TABLE $tableOrderCustomer (    
+      ${OrderCustomerFields.id} $idType, 
+      ${OrderCustomerFields.status} $integerType,
+      ${OrderCustomerFields.date} $textType,
+      ${OrderCustomerFields.uid} $textType,
+      ${OrderCustomerFields.uidOrganization} $textType,
+      ${OrderCustomerFields.nameOrganization} $textType,
+      ${OrderCustomerFields.uidPartner} $textType,
+      ${OrderCustomerFields.namePartner} $textType,
+      ${OrderCustomerFields.uidContract} $textType,
+      ${OrderCustomerFields.nameContract} $textType,  
+      ${OrderCustomerFields.uidPrice} $textType,
+      ${OrderCustomerFields.namePrice} $textType,
+      ${OrderCustomerFields.uidWarehouse} $textType,
+      ${OrderCustomerFields.nameWarehouse} $textType,
+      ${OrderCustomerFields.uidCurrency} $textType,
+      ${OrderCustomerFields.nameCurrency} $textType,
+      ${OrderCustomerFields.uidCashbox} $textType,
+      ${OrderCustomerFields.nameCashbox} $textType,
+      ${OrderCustomerFields.sum} $realType,
+      ${OrderCustomerFields.comment} $textType,
+      ${OrderCustomerFields.dateSending} $textType,
+      ${OrderCustomerFields.datePaying} $textType,
+      ${OrderCustomerFields.sendYesTo1C} $integerType,
+      ${OrderCustomerFields.sendNoTo1C} $integerType,
+      ${OrderCustomerFields.dateSendingTo1C} $textType,
+      ${OrderCustomerFields.numberFrom1C} $textType,
+      ${OrderCustomerFields.countItems} $integerType
+      )
+    ''');
+
+}
+
+Future createTableItemOrderCustomer(db) async {
+  await db.execute('''
+    CREATE TABLE $tableItemsOrderCustomer (    
+      ${ItemOrderCustomerFields.id} $idType,
+      ${ItemOrderCustomerFields.idOrderCustomer} $integerType,      
+      ${ItemOrderCustomerFields.uid} $textType,
+      ${ItemOrderCustomerFields.name} $textType,      
+      ${ItemOrderCustomerFields.uidUnit} $textType,
+      ${ItemOrderCustomerFields.nameUnit} $textType,
+      ${ItemOrderCustomerFields.count} $realType,
+      ${ItemOrderCustomerFields.price} $realType,
+      ${ItemOrderCustomerFields.discount} $realType,
+      ${ItemOrderCustomerFields.sum} $realType      
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
+Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
   final db = await instance.database;
   try {
     db.transaction((txn) async {
@@ -120,8 +180,7 @@ Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer,
   }
 }
 
-Future<int> dbUpdateOrderCustomer(OrderCustomer orderCustomer,
-    List<ItemOrderCustomer> itemsOrderCustomer) async {
+Future<int> dbUpdateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
   final db = await instance.database;
   int intOperation = 0;
   try {

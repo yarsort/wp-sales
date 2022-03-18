@@ -3,10 +3,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_price.dart';
 
-///***********************************
 /// Название таблиц базы данных
-///***********************************
 const String tablePrice   = '_ReferencePrice';
+
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemPriceFields {
@@ -31,7 +35,22 @@ class ItemPriceFields {
 
 }
 
-/// Справочник.ТипыЦен
+/// Создание таблиц БД
+Future createTablePrice(db) async {
+  await db.execute('''
+    CREATE TABLE $tablePrice (    
+      ${ItemPriceFields.id} $idType,
+      ${ItemPriceFields.isGroup} $integerType,      
+      ${ItemPriceFields.uid} $textType,
+      ${ItemPriceFields.code} $textType,      
+      ${ItemPriceFields.name} $textType,
+      ${ItemPriceFields.uidParent} $textType,
+      ${ItemPriceFields.comment} $textType            
+      )
+    ''');
+}
+
+/// Операции с объектами: CRUD and more
 Future<Price> dbCreatePrice(Price price) async {
   final db = await instance.database;
   final id = await db.insert(tablePrice, price.toJson());
