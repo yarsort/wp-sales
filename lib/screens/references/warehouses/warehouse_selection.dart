@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_item.dart';
 
 class ScreenWarehouseSelection extends StatefulWidget {
 
-  final OrderCustomer orderCustomer;
+  final OrderCustomer? orderCustomer;
+  final ReturnOrderCustomer? returnOrderCustomer;
 
-  const ScreenWarehouseSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenWarehouseSelection({Key? key,
+    this.orderCustomer,
+    this.returnOrderCustomer}) : super(key: key);
 
   @override
   _ScreenWarehouseSelectionState createState() => _ScreenWarehouseSelectionState();
@@ -179,7 +183,7 @@ class _ScreenWarehouseSelectionState extends State<ScreenWarehouseSelection> {
           shrinkWrap: true,
           itemCount: listWarehouses.length,
           itemBuilder: (context, index) {
-            var organizationItem = listWarehouses[index];
+            var warehouseItem = listWarehouses[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(
@@ -187,12 +191,22 @@ class _ScreenWarehouseSelectionState extends State<ScreenWarehouseSelection> {
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidWarehouse = organizationItem.uid;
-                        widget.orderCustomer.nameWarehouse = organizationItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidWarehouse =
+                              warehouseItem.uid;
+                          widget.orderCustomer?.nameWarehouse =
+                              warehouseItem.name;
+                        }
+                        if (widget.returnOrderCustomer != null) {
+                          widget.returnOrderCustomer?.uidWarehouse =
+                              warehouseItem.uid;
+                          widget.returnOrderCustomer?.nameWarehouse =
+                              warehouseItem.name;
+                        }
                       });
                       Navigator.pop(context);
                     },
-                    title: Text(organizationItem.name),
+                    title: Text(warehouseItem.name),
                     subtitle: Column(
                       children: [
                         const Divider(),
@@ -206,7 +220,7 @@ class _ScreenWarehouseSelectionState extends State<ScreenWarehouseSelection> {
                                     children: [
                                       const Icon(Icons.phone, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(organizationItem.phone),
+                                      Text(warehouseItem.phone),
                                     ],
                                   ),
                                   const SizedBox(height: 5),
@@ -214,7 +228,7 @@ class _ScreenWarehouseSelectionState extends State<ScreenWarehouseSelection> {
                                     children: [
                                       const Icon(Icons.home, color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(organizationItem.address)),
+                                      Flexible(child: Text(warehouseItem.address)),
                                     ],
                                   )
                                 ],

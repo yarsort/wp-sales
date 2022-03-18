@@ -156,7 +156,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         child: ElevatedButton(
             onPressed: () async {
               await uploadData();
-              //await downloadData();
+              await downloadData();
               setState(() {});
             },
             child: Row(

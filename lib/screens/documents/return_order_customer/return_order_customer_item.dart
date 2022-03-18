@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_doc_return_order_customer.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
@@ -16,24 +16,24 @@ import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart'
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
-class ScreenItemOrderCustomer extends StatefulWidget {
-  final OrderCustomer orderCustomer;
+class ScreenItemReturnOrderCustomer extends StatefulWidget {
+  final ReturnOrderCustomer returnOrderCustomer;
 
-  const ScreenItemOrderCustomer({Key? key, required this.orderCustomer})
+  const ScreenItemReturnOrderCustomer({Key? key, required this.returnOrderCustomer})
       : super(key: key);
 
   @override
-  _ScreenItemOrderCustomerState createState() =>
-      _ScreenItemOrderCustomerState();
+  _ScreenItemReturnOrderCustomerState createState() =>
+      _ScreenItemReturnOrderCustomerState();
 }
 
-class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
+class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCustomer> {
   /// Количество строк товаров в заказе
   int countItems = 0;
   bool firstOpen = true;
 
   /// Позиции товаров в заказе
-  List<ItemOrderCustomer> itemsOrder = [];
+  List<ItemReturnOrderCustomer> itemsReturnOrder = [];
 
   /// Поле ввода: Организация
   TextEditingController textFieldOrganizationController =
@@ -44,6 +44,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Поле ввода: Договор или торговая точка
   TextEditingController textFieldContractController = TextEditingController();
+
+  /// Поле ввода: Заказ покупателя
+  TextEditingController textFieldOrderCustomerController = TextEditingController();
 
   /// Поле ввода: Тип цены
   TextEditingController textFieldPriceController = TextEditingController();
@@ -140,27 +143,27 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: const Text('Заказ'),
+            title: const Text('Возврат покупателя'),
             actions: [
               IconButton(
                 onPressed: () async {
-                  if (widget.orderCustomer.nameOrganization == '') {
+                  if (widget.returnOrderCustomer.nameOrganization == '') {
                     showMessageError('Организация не заполнена!');
                     return;
                   }
-                  if (widget.orderCustomer.namePartner == '') {
+                  if (widget.returnOrderCustomer.namePartner == '') {
                     showMessageError('Партнер не заполнен!');
                     return;
                   }
-                  if (widget.orderCustomer.nameContract == '') {
+                  if (widget.returnOrderCustomer.nameContract == '') {
                     showMessageError('Контракт не заполнен!');
                     return;
                   }
-                  if (widget.orderCustomer.namePrice == '') {
+                  if (widget.returnOrderCustomer.namePrice == '') {
                     showMessageError('Тип цены не заполнен!');
                     return;
                   }
-                  if (widget.orderCustomer.nameWarehouse == '') {
+                  if (widget.returnOrderCustomer.nameWarehouse == '') {
                     showMessageError('Склад не заполнен!');
                     return;
                   }
@@ -169,8 +172,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenProductSelectionTreeView(
-                        listItemDoc: itemsOrder,
-                        orderCustomer: widget.orderCustomer),
+                        listItemReturnDoc: itemsReturnOrder,
+                        returnOrderCustomer: widget.returnOrderCustomer,
+                        orderCustomer: OrderCustomer(),
+                        listItemDoc: const [],
+                      ),
                     ),
                   );
                   renewItems();
@@ -214,68 +220,75 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
-  updateHeader() {
-    setState(() {
-      if (widget.orderCustomer.uid == '') {
-        widget.orderCustomer.uid = const Uuid().v4();
+  updateHeader() async {
+
+      if (widget.returnOrderCustomer.uid == '') {
+        widget.returnOrderCustomer.uid = const Uuid().v4();
       }
 
-      countItems = widget.orderCustomer.countItems;
+      countItems = widget.returnOrderCustomer.countItems;
       textFieldOrganizationController.text =
-          widget.orderCustomer.nameOrganization;
-      textFieldPartnerController.text = widget.orderCustomer.namePartner;
-      textFieldContractController.text = widget.orderCustomer.nameContract;
-      textFieldPriceController.text = widget.orderCustomer.namePrice;
-      textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
-      textFieldCashboxController.text = widget.orderCustomer.nameCashbox;
-      textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
-      textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
+          widget.returnOrderCustomer.nameOrganization;
+      textFieldPartnerController.text = widget.returnOrderCustomer.namePartner;
+      textFieldContractController.text = widget.returnOrderCustomer.nameContract;
+      textFieldPriceController.text = widget.returnOrderCustomer.namePrice;
+      textFieldCurrencyController.text = widget.returnOrderCustomer.nameCurrency;
+      textFieldWarehouseController.text = widget.returnOrderCustomer.nameWarehouse;
+      textFieldSumController.text = doubleToString(widget.returnOrderCustomer.sum);
 
       textFieldDateSendingController.text =
-          shortDateToString(widget.orderCustomer.dateSending);
+          shortDateToString(widget.returnOrderCustomer.dateSending);
       textFieldDatePayingController.text =
-          shortDateToString(widget.orderCustomer.datePaying);
-      textFieldCommentController.text = widget.orderCustomer.comment;
+          shortDateToString(widget.returnOrderCustomer.datePaying);
+      textFieldCommentController.text = widget.returnOrderCustomer.comment;
 
       // Технические данные
-      textFieldUUIDController.text = widget.orderCustomer.uid;
-      sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
-      sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
+      textFieldUUIDController.text = widget.returnOrderCustomer.uid;
+      sendNoTo1C = widget.returnOrderCustomer.sendNoTo1C == 1 ? true : false;
+      sendYesTo1C = widget.returnOrderCustomer.sendYesTo1C == 1 ? true : false;
       textFieldDateSendingTo1CController.text =
-          shortDateToString(widget.orderCustomer.dateSendingTo1C);
-      textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
+          shortDateToString(widget.returnOrderCustomer.dateSendingTo1C);
+      textFieldNumberFrom1CController.text = widget.returnOrderCustomer.numberFrom1C;
+
+      OrderCustomer orderCustomer = await dbReadOrderCustomerUID(widget.returnOrderCustomer.uidParent);
+      if (orderCustomer.id != 0) {
+        if (orderCustomer.numberFrom1C != '') {
+          textFieldOrderCustomerController.text = 'Заказ №'+orderCustomer.numberFrom1C;
+        } else {
+          textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
+        }
+      }
 
       // Проверка Организации
       if ((textFieldPartnerController.text.trim() == '') ||
           (textFieldOrganizationController.text.trim() == '')) {
         textFieldContractController.text = '';
-        widget.orderCustomer.nameContract = '';
-        widget.orderCustomer.uidContract = '';
+        widget.returnOrderCustomer.nameContract = '';
+        widget.returnOrderCustomer.uidContract = '';
 
         textFieldPriceController.text = '';
-        widget.orderCustomer.namePrice = '';
-        widget.orderCustomer.uidPrice = '';
+        widget.returnOrderCustomer.namePrice = '';
+        widget.returnOrderCustomer.uidPrice = '';
 
         textFieldCurrencyController.text = '';
-        widget.orderCustomer.nameCurrency = '';
-        widget.orderCustomer.uidCurrency = '';
+        widget.returnOrderCustomer.nameCurrency = '';
+        widget.returnOrderCustomer.uidCurrency = '';
 
         textFieldCashboxController.text = '';
-        widget.orderCustomer.nameCashbox = '';
-        widget.orderCustomer.uidCashbox = '';
       }
 
       // Проверка договора
       if (textFieldContractController.text.trim() == '') {
         textFieldPriceController.text = '';
-        widget.orderCustomer.namePrice = '';
-        widget.orderCustomer.uidPrice = '';
+        widget.returnOrderCustomer.namePrice = '';
+        widget.returnOrderCustomer.uidPrice = '';
 
         textFieldCurrencyController.text = '';
-        widget.orderCustomer.nameCurrency = '';
-        widget.orderCustomer.uidCurrency = '';
+        widget.returnOrderCustomer.nameCurrency = '';
+        widget.returnOrderCustomer.uidCurrency = '';
       }
-    });
+
+      setState(() {});
   }
 
   showMessageError(String textMessage) {
@@ -301,36 +314,36 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     countItems = 0;
 
     if (firstOpen) {
-      itemsOrder.clear();
+      itemsReturnOrder.clear();
 
-      if (widget.orderCustomer.id != 0) {
-        itemsOrder = await dbReadItemsOrderCustomer(widget.orderCustomer.id);
+      if (widget.returnOrderCustomer.id != 0) {
+        itemsReturnOrder = await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
       }
       firstOpen = false;
     }
 
     // Количество документов в списке
-    countItems = itemsOrder.length;
-    widget.orderCustomer.countItems = countItems;
+    countItems = itemsReturnOrder.length;
+    widget.returnOrderCustomer.countItems = countItems;
 
     debugPrint('Количество товаров: ' + countItems.toString());
 
     setState(() {});
   }
 
-  saveDoc() async {
+  Future<bool> saveDoc() async {
     try {
       /// Сумма товаров в заказе
-      OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
+      ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
 
       /// Количество товаров в заказе
-      OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+      ReturnOrderCustomer().allCount(widget.returnOrderCustomer, itemsReturnOrder);
 
-      if (widget.orderCustomer.id != 0) {
-        await dbUpdateOrderCustomer(widget.orderCustomer, itemsOrder);
+      if (widget.returnOrderCustomer.id != 0) {
+        await dbUpdateReturnOrderCustomer(widget.returnOrderCustomer, itemsReturnOrder);
         return true;
       } else {
-        await dbCreateOrderCustomer(widget.orderCustomer, itemsOrder);
+        await dbCreateReturnOrderCustomer(widget.returnOrderCustomer, itemsReturnOrder);
         return true;
       }
     } on Exception catch (error) {
@@ -340,14 +353,14 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     }
   }
 
-  deleteDoc() async {
+  Future<bool> deleteDoc() async {
     try {
-      if (widget.orderCustomer.id != 0) {
+      if (widget.returnOrderCustomer.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
-        widget.orderCustomer.status = 3;
+        widget.returnOrderCustomer.status = 3;
 
         /// Обновим объект в базе данных
-        await dbUpdateOrderCustomer(widget.orderCustomer, itemsOrder);
+        await dbUpdateReturnOrderCustomer(widget.returnOrderCustomer, itemsReturnOrder);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -380,16 +393,18 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenOrganizationSelection(
-                            orderCustomer: widget.orderCustomer)));
+                          returnOrderCustomer: widget.returnOrderCustomer,
+                          orderCustomer: OrderCustomer(),
+                            )));
                 // Если изменили партнера, изменим его договор и валюту
                 if (result != null) {
                   if (result) {
-                    widget.orderCustomer.nameContract = '';
-                    widget.orderCustomer.uidContract = '';
-                    widget.orderCustomer.namePrice = '';
-                    widget.orderCustomer.uidPrice = '';
-                    widget.orderCustomer.nameCurrency = '';
-                    widget.orderCustomer.uidCurrency = '';
+                    widget.returnOrderCustomer.nameContract = '';
+                    widget.returnOrderCustomer.uidContract = '';
+                    widget.returnOrderCustomer.namePrice = '';
+                    widget.returnOrderCustomer.uidPrice = '';
+                    widget.returnOrderCustomer.nameCurrency = '';
+                    widget.returnOrderCustomer.uidCurrency = '';
                   }
                 }
                 updateHeader();
@@ -402,8 +417,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.people,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                widget.orderCustomer.namePartner = '';
-                widget.orderCustomer.uidPartner = '';
+                widget.returnOrderCustomer.namePartner = '';
+                widget.returnOrderCustomer.uidPartner = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
@@ -411,15 +426,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenPartnerSelection(
-                            orderCustomer: widget.orderCustomer)));
+                            returnOrderCustomer: widget.returnOrderCustomer)));
 
                 // Если изменили партнера, изменим его договор и валюту
-                widget.orderCustomer.nameContract = '';
-                widget.orderCustomer.uidContract = '';
-                widget.orderCustomer.namePrice = '';
-                widget.orderCustomer.uidPrice = '';
-                widget.orderCustomer.nameCurrency = '';
-                widget.orderCustomer.uidCurrency = '';
+                widget.returnOrderCustomer.nameContract = '';
+                widget.returnOrderCustomer.uidContract = '';
+                widget.returnOrderCustomer.namePrice = '';
+                widget.returnOrderCustomer.uidPrice = '';
+                widget.returnOrderCustomer.nameCurrency = '';
+                widget.returnOrderCustomer.uidCurrency = '';
                 updateHeader();
               }),
 
@@ -430,8 +445,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.recent_actors,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                widget.orderCustomer.nameContract = '';
-                widget.orderCustomer.uidContract = '';
+                widget.returnOrderCustomer.nameContract = '';
+                widget.returnOrderCustomer.uidContract = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
@@ -439,15 +454,37 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenContractSelection(
-                            orderCustomer: widget.orderCustomer)));
+                            returnOrderCustomer: widget.returnOrderCustomer)));
 
                 // Если изменили контрак, изменим цену и валюту
-                widget.orderCustomer.namePrice = '';
-                widget.orderCustomer.uidPrice = '';
-                widget.orderCustomer.nameCurrency = '';
-                widget.orderCustomer.uidCurrency = '';
+                widget.returnOrderCustomer.namePrice = '';
+                widget.returnOrderCustomer.uidPrice = '';
+                widget.returnOrderCustomer.nameCurrency = '';
+                widget.returnOrderCustomer.uidCurrency = '';
 
                 await updateHeader();
+              }),
+
+          /// OrderCustomer
+          TextFieldWithText(
+              textLabel: 'Заказ покупателя',
+              textEditingController: textFieldOrderCustomerController,
+              onPressedEditIcon: Icons.recent_actors,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                widget.returnOrderCustomer.uidParent = '';
+                updateHeader();
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenContractSelection(
+                            orderCustomer: orderCustomer)));
+                // Изменение договора
+                widget.returnOrderCustomer.uidParent = orderCustomer.uidContract;
+                updateHeader();
               }),
 
           /// Price
@@ -457,8 +494,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.request_quote,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                widget.orderCustomer.namePrice = '';
-                widget.orderCustomer.uidPrice = '';
+                widget.returnOrderCustomer.namePrice = '';
+                widget.returnOrderCustomer.uidPrice = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
@@ -466,28 +503,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenPriceSelection(
-                            orderCustomer: widget.orderCustomer)));
-
-                updateHeader();
-              }),
-
-          /// Cashbox
-          TextFieldWithText(
-              textLabel: 'Касса',
-              textEditingController: textFieldCashboxController,
-              onPressedEditIcon: Icons.request_quote,
-              onPressedDeleteIcon: Icons.delete,
-              onPressedDelete: () async {
-                widget.orderCustomer.nameCashbox = '';
-                widget.orderCustomer.uidCashbox = '';
-                await updateHeader();
-              },
-              onPressedEdit: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ScreenCashboxSelection(
-                            orderCustomer: widget.orderCustomer)));
+                            returnOrderCustomer: widget.returnOrderCustomer)));
 
                 updateHeader();
               }),
@@ -499,8 +515,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.gite,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                widget.orderCustomer.nameWarehouse = '';
-                widget.orderCustomer.uidWarehouse = '';
+                widget.returnOrderCustomer.nameWarehouse = '';
+                widget.returnOrderCustomer.uidWarehouse = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
@@ -508,8 +524,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenWarehouseSelection(
-                          orderCustomer: widget.orderCustomer,
-                          returnOrderCustomer: ReturnOrderCustomer(),)));
+                            returnOrderCustomer: widget.returnOrderCustomer)));
                 updateHeader();
               }),
 
@@ -537,7 +552,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 setState(() {
                   textFieldDateSendingController.text = '';
-                  widget.orderCustomer.dateSending = DateTime(1900, 1, 1);
+                  widget.returnOrderCustomer.dateSending = DateTime(1900, 1, 1);
                 });
               },
               onPressedEdit: () async {
@@ -553,7 +568,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   setState(() {
                     textFieldDateSendingController.text =
                         shortDateToString(_datePick);
-                    widget.orderCustomer.dateSending = _datePick;
+                    widget.returnOrderCustomer.dateSending = _datePick;
                   });
                 }
               }),
@@ -567,7 +582,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 setState(() {
                   textFieldDatePayingController.text = '';
-                  widget.orderCustomer.datePaying = DateTime(1900, 1, 1);
+                  widget.returnOrderCustomer.datePaying = DateTime(1900, 1, 1);
                 });
               },
               onPressedEdit: () async {
@@ -583,7 +598,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   setState(() {
                     textFieldDatePayingController.text =
                         shortDateToString(_datePick);
-                    widget.orderCustomer.datePaying = _datePick;
+                    widget.returnOrderCustomer.datePaying = _datePick;
                   });
                 }
               }),
@@ -673,9 +688,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: ColumnBuilder(
-          itemCount: itemsOrder.length,
+          itemCount: itemsReturnOrder.length,
           itemBuilder: (context, index) {
-            final item = itemsOrder[index];
+            final item = itemsReturnOrder[index];
             return Padding(
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
               child: Card(
@@ -685,11 +700,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   child: PopupMenuButton<String>(
                     onSelected: (String value) async {
                       if (value == 'delete'){
-                          itemsOrder = List.from(itemsOrder)
+                        itemsReturnOrder = List.from(itemsReturnOrder)
                             ..removeAt(index);
                           setState(() {
-                            OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
-                            OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+                            ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
+                            ReturnOrderCustomer().allCount(widget.returnOrderCustomer, itemsReturnOrder);
                             updateHeader();
                           });
                       }
@@ -700,14 +715,14 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           MaterialPageRoute(
                             builder: (context) =>
                                 ScreenAddItem(
-                                    listItemDoc: itemsOrder,
-                                    orderCustomer: widget.orderCustomer,
+                                    returnOrderCustomer: widget.returnOrderCustomer,
+                                    listItemReturnDoc: itemsReturnOrder,
                                     product: productItem),
                           ),
                         );
                         setState(() {
-                          OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
-                          OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+                          ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
+                          ReturnOrderCustomer().allCount(widget.returnOrderCustomer, itemsReturnOrder);
                           updateHeader();
                         });
                       }
@@ -855,13 +870,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
                       if (!sendYesTo1C) {
                         /// Отметим статус заказа как неотправленный
-                        widget.orderCustomer.status = 1;
+                        widget.returnOrderCustomer.status = 1;
 
                         /// Очистка даты отправки заказа вручную
                         textFieldDateSendingTo1CController.text = '';
                       } else {
                         /// Отметим статус заказа как отправленный
-                        widget.orderCustomer.status = 2;
+                        widget.returnOrderCustomer.status = 2;
 
                         /// Фиксация даты отправки заказа вручную
                         textFieldDateSendingTo1CController.text =

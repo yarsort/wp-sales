@@ -1,6 +1,4 @@
 
-import 'package:wp_sales/db/db_doc_order_customer.dart';
-
 /// Документы.ЗаказПокупателя
 class OrderCustomer {
   int id = 0;                   // Инкремент
@@ -65,7 +63,7 @@ class OrderCustomer {
 
 
   allSum (OrderCustomer orderCustomer, List<ItemOrderCustomer> items) {
-    /// Сумма документв
+    /// Сумма документа
     double allSum = 0.0;
     for (var item in items) {
       allSum = allSum + item.sum;
@@ -74,7 +72,7 @@ class OrderCustomer {
   }
 
   allCount (OrderCustomer orderCustomer, List<ItemOrderCustomer> items) {
-    /// Количество строк товаров документв
+    /// Количество строк товаров документа
     orderCustomer.countItems = items.length;
   }
 

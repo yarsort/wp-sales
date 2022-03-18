@@ -93,7 +93,7 @@ class ItemOrderCustomerFields {
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id';// Инкремент
-  static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на Заказ покупателя
+  static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на документ
   static const String uid = 'uid'; // Ссылка на товар
   static const String name = 'name'; // Имя товара
   static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.

@@ -1,17 +1,10 @@
-
-///***********************************
-/// Название таблиц базы данных
-///***********************************
-const String tableReturnOrderCustomer   = '_DocumentReturnOrderCustomer';
-const String tableItemsReturnOrderCustomer   = '_DocumentReturnOrderCustomer_VT1'; // Товары
-
 /// Документы.ВозвратЗаказПокупателя
 class ReturnOrderCustomer {
   int id = 0;                   // Инкремент
   int status = 0;               // 0 - новый, 1 - отправлено, 2 - удален
   DateTime date = DateTime.now(); // Дата создания возврата заказа
   String uid = '';              // UID для 1С и связи с ТЧ
-  String uidOrderCustomer = ''; // UID заказа покупателя, по которому возврат
+  String uidParent = '';        // UID заказа покупателя, по которому возврат
   String uidOrganization = '';  // Ссылка на организацию
   String nameOrganization = ''; // Имя организации
   String uidPartner = '';       // Ссылка на контрагента
@@ -36,12 +29,26 @@ class ReturnOrderCustomer {
 
   ReturnOrderCustomer();
 
+  allSum (ReturnOrderCustomer orderCustomer, List<ItemReturnOrderCustomer> items) {
+    /// Сумма документа
+    double allSum = 0.0;
+    for (var item in items) {
+      allSum = allSum + item.sum;
+    }
+    orderCustomer.sum = allSum;
+  }
+
+  allCount (ReturnOrderCustomer orderCustomer, List<ItemReturnOrderCustomer> items) {
+    /// Количество строк товаров документа
+    orderCustomer.countItems = items.length;
+  }
+
   ReturnOrderCustomer.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     status = json['status'] ?? 0;
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
-    uidOrderCustomer = json['uidOrderCustomer'] ?? '';
+    uidParent = json['uidParent'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
     nameOrganization = json['nameOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
@@ -73,7 +80,7 @@ class ReturnOrderCustomer {
     data['status'] = status;
     data['date'] = date.toIso8601String();
     data['uid'] = uid;
-    data['uidOrderCustomer'] = uidOrderCustomer;
+    data['uidParent'] = uidParent;
     data['uidOrganization'] = uidOrganization;
     data['nameOrganization'] = nameOrganization;
     data['uidPartner'] = uidPartner;
@@ -99,70 +106,10 @@ class ReturnOrderCustomer {
   }
 }
 
-/// Поля для базы данных
-class ReturnOrderCustomerFields {
-  static final List<String> values = [
-    id,
-    status,
-    date,
-    uid,
-    uidOrderCustomer,
-    uidOrganization,
-    nameOrganization,
-    uidPartner,
-    namePartner,
-    uidContract,
-    nameContract,
-    uidPrice,
-    namePrice,
-    uidWarehouse,
-    nameWarehouse,
-    uidCurrency,
-    nameCurrency,
-    sum,
-    comment,
-    dateSending,
-    datePaying,
-    sendYesTo1C,
-    sendNoTo1C,
-    dateSendingTo1C,
-    numberFrom1C,
-    countItems,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String status = 'status';// 0 - новый, 1 - отправлено, 2 - удален
-  static const String date = 'date';// Дата создания заказа
-  static const String uid = 'uid';// UID для 1С и связи с ТЧ
-  static const String uidOrderCustomer = 'uidOrderCustomer';// UID для 1С и заказа покупателя
-  static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
-  static const String nameOrganization = 'nameOrganization';// Имя организации
-  static const String uidPartner = 'uidPartner';// Ссылка на контрагента
-  static const String namePartner = 'namePartner';// Имя контрагента
-  static const String uidContract = 'uidContract';// Ссылка на договор контрагента
-  static const String nameContract = 'nameContract';// Ссылка на договор контрагента
-  static const String uidPrice = 'uidPrice';// Ссылка на тип цены номенклатуры продажи контрагенту
-  static const String namePrice = 'namePrice';// Наименование типа цены номенклатуры продажи контрагенту
-  static const String uidWarehouse = 'uidWarehouse';// Ссылка на склад
-  static const String nameWarehouse = 'nameWarehouse';// Наименование склада
-  static const String uidCurrency = 'uidCurrency';// Ссылка на валюту
-  static const String nameCurrency = 'nameCurrency';// Наименование валюты
-  static const String sum = 'sum';// Сумма документа
-  static const String comment = 'comment';// Комментарий
-  static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
-  static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
-  static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
-  static const String sendNoTo1C = 'sendNoTo1C';  // Булево: "Отправлено в 1С" - для фильтрации в списках
-  static const String dateSendingTo1C = 'dateSendingTo1C'; // Дата отправки заказа в 1С из мобильного устройства
-  static const String numberFrom1C = 'numberFrom1C';
-  static const String countItems = 'countItems';
-
-}
-
-/// ТЧ Товары, Документы.ЗаказПокупателя
+/// ТЧ Товары, Документы.ВозвратЗаказаПокупателя
 class ItemReturnOrderCustomer {
   int id = 0;                   // Инкремент
+  int idReturnOrderCustomer = 0;// ID владельца ТЧ (документ)
   String uid = '';              // UID для 1С и связи с ТЧ
   String name = '';             // Название товара
   String uidUnit = '';          // Ссылка на единицу измерения товарв
@@ -176,6 +123,7 @@ class ItemReturnOrderCustomer {
 
   ItemReturnOrderCustomer({
     required this.id,
+    required this.idReturnOrderCustomer,
     required this.uid,
     required this.name,
     required this.uidUnit,
@@ -186,8 +134,23 @@ class ItemReturnOrderCustomer {
     required this.sum,
   });
 
+  allSum (ReturnOrderCustomer returnOrderCustomer, List<ItemReturnOrderCustomer> items) {
+    /// Сумма документа
+    double allSum = 0.0;
+    for (var item in items) {
+      allSum = allSum + item.sum;
+    }
+    returnOrderCustomer.sum = allSum;
+  }
+
+  allCount (ReturnOrderCustomer returnOrderCustomer, List<ItemReturnOrderCustomer> items) {
+    /// Количество строк товаров документа
+    returnOrderCustomer.countItems = items.length;
+  }
+
   ItemReturnOrderCustomer.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    idReturnOrderCustomer = json['idReturnOrderCustomer'];
     uid = json['uid'];
     name = json['name'];
     uidUnit = json['uidUnit'];
@@ -200,7 +163,10 @@ class ItemReturnOrderCustomer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
+    if (id != 0) {
+      data['id'] = id;
+    }
+    data['idReturnOrderCustomer'] = idReturnOrderCustomer;
     data['uid'] = uid;
     data['name'] = name;
     data['uidUnit'] = uidUnit;
@@ -211,33 +177,4 @@ class ItemReturnOrderCustomer {
     data['sum'] = sum;
     return data;
   }
-}
-
-/// Поля для базы данных
-class ItemReturnOrderCustomerFields {
-  static final List<String> values = [
-    id,
-    idOrderCustomer,
-    uid,
-    name,
-    uidUnit,
-    nameUnit,
-    count,
-    price,
-    discount,
-    sum,
-  ];
-
-  /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String idOrderCustomer = 'idOrderCustomer'; // Ссылка на Заказ покупателя
-  static const String uid = 'uid'; // Ссылка на заказ покупателя
-  static const String name = 'name'; // Имя товара
-  static const String uidUnit = 'uidUnit'; // Ссылка на ед. изм.
-  static const String nameUnit = 'nameUnit';
-  static const String count = 'count';
-  static const String price = 'price';
-  static const String discount = 'discount';
-  static const String sum = 'sum';
-
 }

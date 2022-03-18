@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenContractSelection extends StatefulWidget {
+  final OrderCustomer? orderCustomer;
+  final ReturnOrderCustomer? returnOrderCustomer;
+  final IncomingCashOrder? incomingCashOrder;
 
-  final OrderCustomer orderCustomer;
-
-  const ScreenContractSelection({Key? key, required this.orderCustomer})
+  const ScreenContractSelection(
+      {Key? key, this.orderCustomer, this.returnOrderCustomer, this.incomingCashOrder})
       : super(key: key);
 
   @override
@@ -69,15 +73,28 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
     listContracts.clear();
     tempItems.clear();
 
-    listContracts =
-    await dbReadContractsOfPartner(widget.orderCustomer.uidPartner);
-    tempItems.addAll(listContracts);
+    if (widget.orderCustomer != null) {
+      listContracts = await dbReadContractsOfPartner(
+          widget.orderCustomer?.uidPartner ?? '');
+      tempItems.addAll(listContracts);
+    }
+
+    if (widget.returnOrderCustomer != null) {
+      listContracts = await dbReadContractsOfPartner(
+          widget.returnOrderCustomer?.uidPartner ?? '');
+      tempItems.addAll(listContracts);
+    }
+
+    if (widget.incomingCashOrder != null) {
+      listContracts = await dbReadContractsOfPartner(
+          widget.incomingCashOrder?.uidPartner ?? '');
+      tempItems.addAll(listContracts);
+    }
 
     setState(() {});
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -135,7 +152,6 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -185,13 +201,23 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidContract = contractItem.uid;
-                        widget.orderCustomer.nameContract = contractItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidContract = contractItem.uid;
+                          widget.orderCustomer?.nameContract =
+                              contractItem.name;
 
-                        if (contractItem.schedulePayment != 0) {
-                          DateTime tempDate = DateTime.now().add(
-                              Duration(days: contractItem.schedulePayment));
-                          widget.orderCustomer.datePaying = tempDate;
+                          if (contractItem.schedulePayment != 0) {
+                            DateTime tempDate = DateTime.now().add(
+                                Duration(days: contractItem.schedulePayment));
+                            widget.orderCustomer?.datePaying = tempDate;
+                          }
+                        }
+
+                        if (widget.returnOrderCustomer != null) {
+                          widget.returnOrderCustomer?.uidContract =
+                              contractItem.uid;
+                          widget.returnOrderCustomer?.nameContract =
+                              contractItem.name;
                         }
                       });
                       Navigator.pop(context);
@@ -208,9 +234,8 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(
-                                          Icons.phone, color: Colors.blue,
-                                          size: 20),
+                                      const Icon(Icons.phone,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(contractItem.phone),
                                     ],
@@ -218,8 +243,8 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.home, color: Colors.blue,
-                                          size: 20),
+                                      const Icon(Icons.home,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Flexible(
                                           child: Text(contractItem.address)),
@@ -243,9 +268,8 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(
-                                          Icons.price_change, color: Colors.red,
-                                          size: 20),
+                                      const Icon(Icons.price_change,
+                                          color: Colors.red, size: 20),
                                       const SizedBox(width: 5),
                                       Text(doubleToString(
                                           contractItem.balanceForPayment)),
@@ -253,9 +277,8 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(
-                                          Icons.schedule, color: Colors.blue,
-                                          size: 20),
+                                      const Icon(Icons.schedule,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(contractItem.schedulePayment
                                           .toString()),
@@ -269,8 +292,7 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                       ],
                     ),
                   ),
-                )
-            );
+                ));
           },
         ),
       ),

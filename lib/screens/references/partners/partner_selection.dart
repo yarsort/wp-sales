@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
-import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_partner.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/screens/references/partners/partner_item.dart';
+import 'package:wp_sales/system/system.dart';
 
 class ScreenPartnerSelection extends StatefulWidget {
-
   final OrderCustomer? orderCustomer;
+  final ReturnOrderCustomer? returnOrderCustomer;
+  final IncomingCashOrder? incomingCashOrder;
   final Contract? contract;
 
-  const ScreenPartnerSelection({Key? key, required this.orderCustomer, this.contract}) : super(key: key);
+  const ScreenPartnerSelection(
+      {Key? key,
+      this.orderCustomer,
+      this.contract,
+      this.returnOrderCustomer,
+      this.incomingCashOrder})
+      : super(key: key);
 
   @override
   _ScreenPartnerSelectionState createState() => _ScreenPartnerSelectionState();
@@ -50,7 +59,8 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenPartnerItem(partnerItem: newPartnerItem),
+              builder: (context) =>
+                  ScreenPartnerItem(partnerItem: newPartnerItem),
             ),
           );
         },
@@ -68,8 +78,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     listPartners.clear();
     tempItems.clear();
 
-    listPartners =
-    await dbReadAllPartners();
+    listPartners = await dbReadAllPartners();
     tempItems.addAll(listPartners);
 
     setState(() {});
@@ -83,7 +92,6 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -100,7 +108,6 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     dummySearchList.addAll(listPartners);
 
     if (query.isNotEmpty) {
-
       List<Partner> dummyListData = <Partner>[];
 
       for (var item in dummySearchList) {
@@ -108,10 +115,12 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по адресу
         if (item.address.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по номеру телефона
         if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
@@ -140,7 +149,6 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -194,6 +202,14 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                           widget.orderCustomer?.uidPartner = partnerItem.uid;
                           widget.orderCustomer?.namePartner = partnerItem.name;
                         }
+                        if (widget.returnOrderCustomer != null) {
+                          widget.returnOrderCustomer?.uidPartner = partnerItem.uid;
+                          widget.returnOrderCustomer?.namePartner = partnerItem.name;
+                        }
+                        if (widget.incomingCashOrder != null) {
+                          widget.incomingCashOrder?.uidPartner = partnerItem.uid;
+                          widget.incomingCashOrder?.namePartner = partnerItem.name;
+                        }
                         if (widget.contract != null) {
                           widget.contract?.uidPartner = partnerItem.uid;
                           widget.contract?.namePartner = partnerItem.name;
@@ -213,7 +229,8 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
+                                      const Icon(Icons.phone,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(partnerItem.phone),
                                     ],
@@ -221,9 +238,11 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
+                                      const Icon(Icons.home,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(partnerItem.address)),
+                                      Flexible(
+                                          child: Text(partnerItem.address)),
                                     ],
                                   )
                                 ],
@@ -235,23 +254,28 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.price_change, color: Colors.green, size: 20),
+                                      const Icon(Icons.price_change,
+                                          color: Colors.green, size: 20),
                                       const SizedBox(width: 5),
                                       Text(doubleToString(partnerItem.balance)),
                                     ],
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(Icons.price_change, color: Colors.red, size: 20),
+                                      const Icon(Icons.price_change,
+                                          color: Colors.red, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(doubleToString(partnerItem.balanceForPayment)),
+                                      Text(doubleToString(
+                                          partnerItem.balanceForPayment)),
                                     ],
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(Icons.schedule, color: Colors.blue,size: 20),
+                                      const Icon(Icons.schedule,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Text(partnerItem.schedulePayment.toString()),
+                                      Text(partnerItem.schedulePayment
+                                          .toString()),
                                     ],
                                   ),
                                 ],
@@ -262,8 +286,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                       ],
                     ),
                   ),
-                )
-            );
+                ));
           },
         ),
       ),

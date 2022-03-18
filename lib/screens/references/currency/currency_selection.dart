@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_currency.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_currency.dart';
 import 'package:wp_sales/screens/references/currency/currency_item.dart';
 
 class ScreenCurrencySelection extends StatefulWidget {
+  final OrderCustomer? orderCustomer;
+  final ReturnOrderCustomer? returnOrderCustomer;
+  final IncomingCashOrder? incomingCashOrder;
 
-  final OrderCustomer orderCustomer;
-
-  const ScreenCurrencySelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenCurrencySelection(
+      {Key? key,
+      this.orderCustomer,
+      this.returnOrderCustomer,
+      this.incomingCashOrder})
+      : super(key: key);
 
   @override
-  _ScreenCurrencySelectionState createState() => _ScreenCurrencySelectionState();
+  _ScreenCurrencySelectionState createState() =>
+      _ScreenCurrencySelectionState();
 }
 
 class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
@@ -65,8 +74,7 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
     listCurrency.clear();
     tempItems.clear();
 
-    listCurrency =
-        await dbReadAllCurrency();
+    listCurrency = await dbReadAllCurrency();
     tempItems.addAll(listCurrency);
 
     setState(() {});
@@ -80,7 +88,6 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -97,7 +104,6 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
     dummySearchList.addAll(listCurrency);
 
     if (query.isNotEmpty) {
-
       List<Currency> dummyListData = <Currency>[];
 
       for (var item in dummySearchList) {
@@ -129,7 +135,6 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -171,7 +176,7 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
           shrinkWrap: true,
           itemCount: listCurrency.length,
           itemBuilder: (context, index) {
-            var priceItem = listCurrency[index];
+            var currencyItem = listCurrency[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Card(
@@ -179,15 +184,24 @@ class _ScreenCurrencySelectionState extends State<ScreenCurrencySelection> {
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidPrice = priceItem.uid;
-                        widget.orderCustomer.namePrice = priceItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidCurrency = currencyItem.uid;
+                          widget.orderCustomer?.nameCurrency = currencyItem.name;
+                        }
+                        if (widget.returnOrderCustomer != null) {
+                          widget.returnOrderCustomer?.uidCurrency = currencyItem.uid;
+                          widget.returnOrderCustomer?.nameCurrency = currencyItem.name;
+                        }
+                        if (widget.incomingCashOrder != null) {
+                          widget.incomingCashOrder?.uidCurrency = currencyItem.uid;
+                          widget.incomingCashOrder?.nameCurrency = currencyItem.name;
+                        }
                       });
                       Navigator.pop(context);
                     },
-                    title: Text(priceItem.name),
+                    title: Text(currencyItem.name),
                   ),
-                )
-            );
+                ));
           },
         ),
       ),

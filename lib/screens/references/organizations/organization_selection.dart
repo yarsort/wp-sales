@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/screens/references/organizations/organization_item.dart';
 
 class ScreenOrganizationSelection extends StatefulWidget {
+  final OrderCustomer? orderCustomer;
+  final ReturnOrderCustomer? returnOrderCustomer;
+  final IncomingCashOrder? incomingCashOrder;
 
-  final OrderCustomer orderCustomer;
-
-  const ScreenOrganizationSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenOrganizationSelection(
+      {Key? key,
+      this.orderCustomer,
+      this.returnOrderCustomer,
+      this.incomingCashOrder})
+      : super(key: key);
 
   @override
-  _ScreenOrganizationSelectionState createState() => _ScreenOrganizationSelectionState();
+  _ScreenOrganizationSelectionState createState() =>
+      _ScreenOrganizationSelectionState();
 }
 
-class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelection> {
+class _ScreenOrganizationSelectionState
+    extends State<ScreenOrganizationSelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -47,7 +57,8 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ScreenOrganizationItem(organizationItem: newItem),
+              builder: (context) =>
+                  ScreenOrganizationItem(organizationItem: newItem),
             ),
           );
         },
@@ -65,8 +76,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     listOrganizations.clear();
     tempItems.clear();
 
-    listOrganizations =
-        await dbReadAllOrganization();
+    listOrganizations = await dbReadAllOrganization();
     tempItems.addAll(listOrganizations);
 
     setState(() {});
@@ -80,7 +90,6 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -97,7 +106,6 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
     dummySearchList.addAll(listOrganizations);
 
     if (query.isNotEmpty) {
-
       List<Organization> dummyListData = <Organization>[];
 
       for (var item in dummySearchList) {
@@ -105,10 +113,12 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по адресу
         if (item.address.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
+
         /// Поиск по номеру телефона
         if (item.phone.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
@@ -137,7 +147,6 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -187,8 +196,24 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidOrganization = organizationItem.uid;
-                        widget.orderCustomer.nameOrganization = organizationItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidOrganization =
+                              organizationItem.uid;
+                          widget.orderCustomer?.nameOrganization =
+                              organizationItem.name;
+                        }
+                        if (widget.returnOrderCustomer != null) {
+                          widget.returnOrderCustomer?.uidOrganization =
+                              organizationItem.uid;
+                          widget.returnOrderCustomer?.nameOrganization =
+                              organizationItem.name;
+                        }
+                        if (widget.incomingCashOrder != null) {
+                          widget.incomingCashOrder?.uidOrganization =
+                              organizationItem.uid;
+                          widget.incomingCashOrder?.nameOrganization =
+                              organizationItem.name;
+                        }
                       });
                       Navigator.pop(context);
                     },
@@ -204,7 +229,8 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.phone, color: Colors.blue, size: 20),
+                                      const Icon(Icons.phone,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
                                       Text(organizationItem.phone),
                                     ],
@@ -212,9 +238,12 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
-                                      const Icon(Icons.home, color: Colors.blue, size: 20),
+                                      const Icon(Icons.home,
+                                          color: Colors.blue, size: 20),
                                       const SizedBox(width: 5),
-                                      Flexible(child: Text(organizationItem.address)),
+                                      Flexible(
+                                          child:
+                                              Text(organizationItem.address)),
                                     ],
                                   )
                                 ],
@@ -225,8 +254,7 @@ class _ScreenOrganizationSelectionState extends State<ScreenOrganizationSelectio
                       ],
                     ),
                   ),
-                )
-            );
+                ));
           },
         ),
       ),

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/db_doc_order_customer.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
+import 'package:wp_sales/db/db_doc_return_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
+import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
-class ScreenOrderCustomerList extends StatefulWidget {
-  const ScreenOrderCustomerList({Key? key}) : super(key: key);
+class ScreenReturnOrderCustomerList extends StatefulWidget {
+  const ScreenReturnOrderCustomerList({Key? key}) : super(key: key);
 
   @override
-  _ScreenOrderCustomerListState createState() =>
-      _ScreenOrderCustomerListState();
+  _ScreenReturnOrderCustomerListState createState() =>
+      _ScreenReturnOrderCustomerListState();
 }
 
-class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
+class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustomerList> {
   /// Поля ввода: Поиск
   TextEditingController textFieldNewSearchController = TextEditingController();
   TextEditingController textFieldSendSearchController = TextEditingController();
@@ -34,8 +34,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   String uidPartner = '';
   String uidContract = '';
-  OrderCustomer newOrderCustomer =
-      OrderCustomer(); // Шаблонный объект для отборов
+  ReturnOrderCustomer newReturnOrderCustomer =
+      ReturnOrderCustomer(); // Шаблонный объект для отборов
 
   /// Начало периода отбора
   DateTime startPeriodOrders =
@@ -46,9 +46,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
   /// Списки документов
-  List<OrderCustomer> listNewOrdersCustomer = [];
-  List<OrderCustomer> listSendOrdersCustomer = [];
-  List<OrderCustomer> listTrashOrdersCustomer = [];
+  List<ReturnOrderCustomer> listNewReturnOrdersCustomer = [];
+  List<ReturnOrderCustomer> listSendReturnOrdersCustomer = [];
+  List<ReturnOrderCustomer> listTrashReturnOrdersCustomer = [];
 
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
@@ -96,7 +96,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Заказы покупателей'),
+          title: const Text('Возвраты покупателей'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Новые'),
@@ -106,12 +106,12 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
           ),
           actions: [
             IconButton(onPressed: () async {
-              var newOrderCustomer = OrderCustomer();
+              var newReturnOrderCustomer = ReturnOrderCustomer();
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ScreenItemOrderCustomer(
-                      orderCustomer: newOrderCustomer),
+                  builder: (context) => ScreenItemReturnOrderCustomer(
+                      returnOrderCustomer: newReturnOrderCustomer),
                 ),
               );
               await loadNewDocuments();
@@ -152,26 +152,26 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   loadNewDocuments() async {
     // Очистка списка заказов покупателя
-    listNewOrdersCustomer.clear();
+    listNewReturnOrdersCustomer.clear();
     countNewDocuments = 0;
 
-    listNewOrdersCustomer = await dbReadAllNewOrderCustomer();
+    listNewReturnOrdersCustomer = await dbReadAllNewReturnOrderCustomer();
 
     // Количество документов в списке
-    countNewDocuments = listNewOrdersCustomer.length;
+    countNewDocuments = listNewReturnOrdersCustomer.length;
 
     debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
 
   loadSendDocuments() async {
     // Очистка списка заказов покупателя
-    listSendOrdersCustomer.clear();
+    listSendReturnOrdersCustomer.clear();
     countSendDocuments = 0;
 
-    listSendOrdersCustomer = await dbReadAllSendOrderCustomer();
+    listSendReturnOrdersCustomer = await dbReadAllSendReturnOrderCustomer();
 
     // Количество документов в списке
-    countSendDocuments = listSendOrdersCustomer.length;
+    countSendDocuments = listSendReturnOrdersCustomer.length;
 
     debugPrint(
         'Количество отправленных документов: ' + countSendDocuments.toString());
@@ -179,13 +179,13 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   loadTrashDocuments() async {
     // Очистка списка заказов покупателя
-    listTrashOrdersCustomer.clear();
+    listTrashReturnOrdersCustomer.clear();
     countTrashDocuments = 0;
 
-    listTrashOrdersCustomer = await dbReadAllTrashOrderCustomer();
+    listTrashReturnOrdersCustomer = await dbReadAllTrashReturnOrderCustomer();
 
     // Количество документов в списке
-    countTrashDocuments = listTrashOrdersCustomer.length;
+    countTrashDocuments = listTrashReturnOrdersCustomer.length;
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
@@ -322,10 +322,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenPartnerSelection(
-                                            orderCustomer: newOrderCustomer)));
+                                            returnOrderCustomer: newReturnOrderCustomer)));
                             setState(() {
                               textFieldNewPartnerController.text =
-                                  newOrderCustomer.namePartner;
+                                  newReturnOrderCustomer.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -334,8 +334,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           onPressed: () async {
                             setState(() {
                               textFieldNewPartnerController.text = '';
-                              newOrderCustomer.uidPartner = '';
-                              newOrderCustomer.namePartner = '';
+                              newReturnOrderCustomer.uidPartner = '';
+                              newReturnOrderCustomer.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -370,10 +370,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenContractSelection(
-                                            orderCustomer: newOrderCustomer)));
+                                            returnOrderCustomer: newReturnOrderCustomer)));
                             setState(() {
                               textFieldNewContractController.text =
-                                  newOrderCustomer.nameContract;
+                                  newReturnOrderCustomer.nameContract;
                             });
                           },
                           icon: const Icon(Icons.recent_actors,
@@ -383,8 +383,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           onPressed: () async {
                             setState(() {
                               textFieldNewContractController.text = '';
-                              newOrderCustomer.uidContract = '';
-                              newOrderCustomer.nameContract = '';
+                              newReturnOrderCustomer.uidContract = '';
+                              newReturnOrderCustomer.nameContract = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -437,10 +437,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               textFieldNewContractController.text = '';
                               textFieldNewPeriodController.text = '';
 
-                              newOrderCustomer.uidPartner = '';
-                              newOrderCustomer.namePartner = '';
-                              newOrderCustomer.uidContract = '';
-                              newOrderCustomer.nameContract = '';
+                              newReturnOrderCustomer.uidPartner = '';
+                              newReturnOrderCustomer.namePartner = '';
+                              newReturnOrderCustomer.uidContract = '';
+                              newReturnOrderCustomer.nameContract = '';
 
                               visibleListNewParameters = false;
                             });
@@ -597,10 +597,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenPartnerSelection(
-                                            orderCustomer: newOrderCustomer)));
+                                            returnOrderCustomer: newReturnOrderCustomer)));
                             setState(() {
                               textFieldSendPartnerController.text =
-                                  newOrderCustomer.namePartner;
+                                  newReturnOrderCustomer.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -609,8 +609,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           onPressed: () async {
                             setState(() {
                               textFieldSendPartnerController.text = '';
-                              newOrderCustomer.uidPartner = '';
-                              newOrderCustomer.namePartner = '';
+                              newReturnOrderCustomer.uidPartner = '';
+                              newReturnOrderCustomer.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -645,10 +645,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenContractSelection(
-                                            orderCustomer: newOrderCustomer)));
+                                            returnOrderCustomer: newReturnOrderCustomer)));
                             setState(() {
                               textFieldSendContractController.text =
-                                  newOrderCustomer.nameContract;
+                                  newReturnOrderCustomer.nameContract;
                             });
                           },
                           icon: const Icon(Icons.recent_actors,
@@ -658,8 +658,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           onPressed: () async {
                             setState(() {
                               textFieldSendContractController.text = '';
-                              newOrderCustomer.uidContract = '';
-                              newOrderCustomer.nameContract = '';
+                              newReturnOrderCustomer.uidContract = '';
+                              newReturnOrderCustomer.nameContract = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -712,10 +712,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               textFieldSendContractController.text = '';
                               textFieldSendPeriodController.text = '';
 
-                              newOrderCustomer.uidPartner = '';
-                              newOrderCustomer.namePartner = '';
-                              newOrderCustomer.uidContract = '';
-                              newOrderCustomer.nameContract = '';
+                              newReturnOrderCustomer.uidPartner = '';
+                              newReturnOrderCustomer.namePartner = '';
+                              newReturnOrderCustomer.uidContract = '';
+                              newReturnOrderCustomer.nameContract = '';
 
                               visibleListSendParameters = false;
                             });
@@ -875,10 +875,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenPartnerSelection(
-                                            orderCustomer: newOrderCustomer)));
+                                            returnOrderCustomer: newReturnOrderCustomer)));
                             setState(() {
                               textFieldTrashPartnerController.text =
-                                  newOrderCustomer.namePartner;
+                                  newReturnOrderCustomer.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -887,8 +887,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           onPressed: () async {
                             setState(() {
                               textFieldTrashPartnerController.text = '';
-                              newOrderCustomer.uidPartner = '';
-                              newOrderCustomer.namePartner = '';
+                              newReturnOrderCustomer.uidPartner = '';
+                              newReturnOrderCustomer.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -923,10 +923,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenContractSelection(
-                                            orderCustomer: newOrderCustomer)));
+                                            returnOrderCustomer: newReturnOrderCustomer)));
                             setState(() {
                               textFieldTrashContractController.text =
-                                  newOrderCustomer.nameContract;
+                                  newReturnOrderCustomer.nameContract;
                             });
                           },
                           icon: const Icon(Icons.recent_actors,
@@ -936,8 +936,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           onPressed: () async {
                             setState(() {
                               textFieldTrashContractController.text = '';
-                              newOrderCustomer.uidContract = '';
-                              newOrderCustomer.nameContract = '';
+                              newReturnOrderCustomer.uidContract = '';
+                              newReturnOrderCustomer.nameContract = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -990,10 +990,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               textFieldTrashContractController.text = '';
                               textFieldTrashPeriodController.text = '';
 
-                              newOrderCustomer.uidPartner = '';
-                              newOrderCustomer.namePartner = '';
-                              newOrderCustomer.uidContract = '';
-                              newOrderCustomer.nameContract = '';
+                              newReturnOrderCustomer.uidPartner = '';
+                              newReturnOrderCustomer.namePartner = '';
+                              newReturnOrderCustomer.uidContract = '';
+                              newReturnOrderCustomer.nameContract = '';
 
                               visibleListTrashParameters = false;
                             });
@@ -1021,9 +1021,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   yesNewDocuments() {
     return ColumnBuilder(
-        itemCount: listNewOrdersCustomer.length,
+        itemCount: listNewReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
-          final orderCustomer = listNewOrdersCustomer[index];
+          final returnOrderCustomer = listNewReturnOrdersCustomer[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
@@ -1035,12 +1035,12 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                          ScreenItemReturnOrderCustomer(returnOrderCustomer: returnOrderCustomer),
                     ),
                   );
                  loadData();
                 },
-                title: Text(orderCustomer.namePartner),
+                title: Text(returnOrderCustomer.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -1050,7 +1050,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
                         Flexible(
-                            flex: 1, child: Text(orderCustomer.nameContract)),
+                            flex: 1, child: Text(returnOrderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1064,7 +1064,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
+                                  Text(shortDateToString(returnOrderCustomer.date)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -1074,7 +1074,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(shortDateToString(
-                                      orderCustomer.dateSending)),
+                                      returnOrderCustomer.dateSending)),
                                 ],
                               )
                             ],
@@ -1088,7 +1088,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) +
+                                  Text(doubleToString(returnOrderCustomer.sum) +
                                       ' грн'),
                                 ],
                               ),
@@ -1098,7 +1098,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() +
+                                  Text(returnOrderCustomer.countItems.toString() +
                                       ' поз'),
                                 ],
                               )
@@ -1116,15 +1116,15 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   yesSendDocuments() {
     // Отображение списка заказов покупателя
     return ColumnBuilder(
-        itemCount: listSendOrdersCustomer.length,
+        itemCount: listSendReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
-          final orderCustomer = listSendOrdersCustomer[index];
+          final returnOrderCustomer = listSendReturnOrdersCustomer[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
-                tileColor: orderCustomer.numberFrom1C != ''
+                tileColor: returnOrderCustomer.numberFrom1C != ''
                     ? Colors.lightGreen[50]
                     : Colors.deepOrange[50],
                 onTap: () async {
@@ -1132,12 +1132,12 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                          ScreenItemReturnOrderCustomer(returnOrderCustomer: returnOrderCustomer),
                     ),
                   );
                   loadData();
                 },
-                title: Text(orderCustomer.namePartner),
+                title: Text(returnOrderCustomer.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -1147,7 +1147,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
                         Flexible(
-                            flex: 1, child: Text(orderCustomer.nameContract)),
+                            flex: 1, child: Text(returnOrderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1161,7 +1161,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
+                                  Text(shortDateToString(returnOrderCustomer.date)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -1171,7 +1171,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(shortDateToString(
-                                      orderCustomer.dateSending)),
+                                      returnOrderCustomer.dateSending)),
                                 ],
                               ),
                             ],
@@ -1185,7 +1185,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) +
+                                  Text(doubleToString(returnOrderCustomer.sum) +
                                       ' грн'),
                                 ],
                               ),
@@ -1195,7 +1195,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() +
+                                  Text(returnOrderCustomer.countItems.toString() +
                                       ' поз'),
                                 ],
                               ),
@@ -1214,7 +1214,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(shortDateToString(
-                                      orderCustomer.dateSendingTo1C)),
+                                      returnOrderCustomer.dateSendingTo1C)),
                                 ],
                               )
                             ],
@@ -1225,14 +1225,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             children: [
                               Row(
                                 children: [
-                                  orderCustomer.numberFrom1C != ''
+                                  returnOrderCustomer.numberFrom1C != ''
                                       ? const Icon(Icons.repeat_one,
                                           color: Colors.green, size: 20)
                                       : const Icon(Icons.repeat_one,
                                           color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  orderCustomer.numberFrom1C != ''
-                                      ? Text(orderCustomer.numberFrom1C)
+                                  returnOrderCustomer.numberFrom1C != ''
+                                      ? Text(returnOrderCustomer.numberFrom1C)
                                       : const Text('Нет данных!',
                                           style: TextStyle(color: Colors.red)),
                                 ],
@@ -1251,9 +1251,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   yesTrashDocuments() {
     // Отображение списка заказов покупателя
     return ColumnBuilder(
-        itemCount: listTrashOrdersCustomer.length,
+        itemCount: listTrashReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
-          final orderCustomer = listTrashOrdersCustomer[index];
+          final returnOrderCustomer = listTrashReturnOrdersCustomer[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
@@ -1265,12 +1265,12 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                          ScreenItemReturnOrderCustomer(returnOrderCustomer: returnOrderCustomer),
                     ),
                   );
                   loadData();
                 },
-                title: Text(orderCustomer.namePartner),
+                title: Text(returnOrderCustomer.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -1280,7 +1280,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
                         Flexible(
-                            flex: 1, child: Text(orderCustomer.nameContract)),
+                            flex: 1, child: Text(returnOrderCustomer.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1294,7 +1294,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
+                                  Text(shortDateToString(returnOrderCustomer.date)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -1304,7 +1304,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(shortDateToString(
-                                      orderCustomer.dateSending)),
+                                      returnOrderCustomer.dateSending)),
                                 ],
                               )
                             ],
@@ -1318,7 +1318,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) +
+                                  Text(doubleToString(returnOrderCustomer.sum) +
                                       ' грн'),
                                 ],
                               ),
@@ -1328,7 +1328,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.format_list_numbered_rtl,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() +
+                                  Text(returnOrderCustomer.countItems.toString() +
                                       ' поз'),
                                 ],
                               )

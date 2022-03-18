@@ -3,7 +3,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_doc_return_order_customer.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_currency.dart';
@@ -29,11 +31,11 @@ class DatabaseHelper {
       if (_database!.isOpen) {
         return _database!;
       } else {
-        _database = await _initDB('WPSalesDB2.db');
+        _database = await _initDB('WPSalesDB6.db');
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDB2.db');
+    _database = await _initDB('WPSalesDB6.db');
     return _database!;
   }
 
@@ -55,6 +57,15 @@ class DatabaseHelper {
 
     /// Документ.ЗаказПокупателя - ТЧ "Товары" (№1)
     await createTableItemOrderCustomer(db);
+
+    /// Документ.ВозвратТоваровОтПокупателя
+    await createTableReturnOrderCustomer(db);
+
+    /// Документ.ВозвратТоваровОтПокупателя  - ТЧ "Товары" (№1)
+    await createTableItemReturnOrderCustomer(db);
+
+    /// Документ.ПриходныйКассовыйОрдер
+    await createTableIncomingCashOrder(db);
 
     /// Справочник.Организации
     await createTableOrganization(db);

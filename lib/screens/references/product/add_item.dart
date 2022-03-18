@@ -3,20 +3,27 @@ import 'package:flutter/services.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenAddItem extends StatefulWidget {
-  final List<ItemOrderCustomer> listItemDoc;
-  final OrderCustomer orderCustomer;
+  final List<ItemReturnOrderCustomer>? listItemReturnDoc;
+  final ReturnOrderCustomer? returnOrderCustomer;
+
+  final List<ItemOrderCustomer>? listItemDoc;
+  final OrderCustomer? orderCustomer;
+
   final Product product;
 
-  const ScreenAddItem(
-      {Key? key,
-      required this.listItemDoc,
-      required this.orderCustomer,
-      required this.product})
-      : super(key: key);
+  const ScreenAddItem({
+    Key? key,
+    this.listItemReturnDoc,
+    this.returnOrderCustomer,
+    this.listItemDoc,
+    this.orderCustomer,
+    required this.product,
+  }) : super(key: key);
 
   @override
   State<ScreenAddItem> createState() => _ScreenAddItemState();
@@ -242,9 +249,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text('Отменить')
-                          ],
+                          children: const [Text('Отменить')],
                         )),
                   ),
                 ),
@@ -260,8 +265,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.blue)),
                         onPressed: () async {
-                          // Добавим товар в заказ
-                          addProductToOrderCustomer();
+                          // Добавим товар в заказ покупателя
+                          if (widget.orderCustomer != null) {
+                            addProductToOrderCustomer();
+                          }
+
+                          // Добавим товар в возврат товаров от покупателя
+                          if (widget.returnOrderCustomer != null) {
+                            addProductToReturnOrderCustomer();
+                          }
 
                           // Закроем окно
                           Navigator.of(context).pop();
@@ -284,12 +296,25 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
   renewItem() async {
     textFieldProductNameController.text = widget.product.name;
-    textFieldPriceNameController.text = widget.orderCustomer.namePrice;
-    textFieldWarehouseNameController.text = widget.orderCustomer.nameWarehouse;
+
+    String uidWarehouse = '';
+    String nameWarehouse = '';
+    String uidPrice = '';
+    String namePrice = '';
+
+    if (widget.orderCustomer != null) {
+      namePrice = widget.orderCustomer?.namePrice??'';
+      uidPrice = widget.orderCustomer?.uidPrice??'';
+      nameWarehouse = widget.orderCustomer?.nameWarehouse??'';
+      uidWarehouse = widget.orderCustomer?.uidWarehouse??'';
+    }
+
+    textFieldPriceNameController.text = namePrice;
+    textFieldWarehouseNameController.text = nameWarehouse;
 
     // Остаток на складе.
     var countOnWarehouse = await dbReadProductRest(
-        uidWarehouse: widget.orderCustomer.uidWarehouse,
+        uidWarehouse: uidWarehouse,
         uidProduct: widget.product.uid,
         uidProductCharacteristic: '');
 
@@ -297,27 +322,53 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
     // Цена товара.
     var price = await dbReadProductPrice(
-        uidPrice: widget.orderCustomer.uidPrice,
+        uidPrice: uidPrice,
         uidProduct: widget.product.uid,
         uidProductCharacteristic: '');
 
     textFieldPriceController.text = doubleToString(price);
 
+    /// Заказ покупателя
     // Подставим количесто из заказа, если оно есть.
-    // Найдем индекс строки товара в заказе по товару который добавляем.
-    var indexItem = widget.listItemDoc
-        .indexWhere((element) => element.uid == widget.product.uid);
+    if(widget.listItemDoc != null) {
+      var indexItem = widget.listItemDoc?.indexWhere((element) => element.uid == widget.product.uid)??-1;
+      // Если нашли товар в списке товаров заказа.
+      if (indexItem >= 0) {
 
-    // Если нашли товар в списке товаров заказа.
-    if (indexItem >= 0) {
-      // Подставим из заказа
-      var itemList = widget.listItemDoc[indexItem];
-      textFieldCountController.text = doubleThreeToString(itemList.count);
-      textFieldSumController.text = doubleToString(price * itemList.count);
-    } else {
-      // Подставим 1 единицу
-      textFieldCountController.text = doubleThreeToString(1.0);
-      textFieldSumController.text = doubleToString(price);
+        // Подставим из заказа
+        var itemList = widget.listItemDoc?[indexItem];
+        double count = itemList?.count??0.0;
+        double sum = price * (itemList?.count??0.0);
+
+        textFieldCountController.text = doubleThreeToString(count);
+        textFieldSumController.text = doubleToString(sum);
+
+      } else {
+        // Подставим 1 единицу
+        textFieldCountController.text = doubleThreeToString(1.0);
+        textFieldSumController.text = doubleToString(price);
+      }
+    }
+
+    /// Возврат товаров от покупателя
+    // Подставим количесто из заказа, если оно есть.
+    if(widget.listItemReturnDoc != null) {
+      var indexItem = widget.listItemReturnDoc?.indexWhere((element) => element.uid == widget.product.uid)??-1;
+      // Если нашли товар в списке товаров заказа.
+      if (indexItem >= 0) {
+
+        // Подставим из заказа
+        var itemList = widget.listItemReturnDoc?[indexItem];
+        double count = itemList?.count??0.0;
+        double sum = price * (itemList?.count??0.0);
+
+        textFieldCountController.text = doubleThreeToString(count);
+        textFieldSumController.text = doubleToString(sum);
+      } else {
+        // Подставим 1 единицу
+        textFieldCountController.text = doubleThreeToString(1.0);
+        textFieldSumController.text = doubleToString(price);
+      }
     }
   }
 
@@ -364,14 +415,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         doubleThreeToString(double.parse(textFieldCountController.text)));
 
     // Найдем индекс строки товара в заказе по товару который добавляем
-    var indexItem = widget.listItemDoc
-        .indexWhere((element) => element.uid == widget.product.uid);
+    var indexItem = widget.listItemDoc?.indexWhere((element) => element.uid == widget.product.uid)??-1;
 
     // Если нашли товар в списке товаров заказа
     if (indexItem >= 0) {
-      var itemList = widget.listItemDoc[indexItem];
-      itemList.count = value;
-      itemList.sum = itemList.price * itemList.count;
+      var itemList = widget.listItemDoc?[indexItem];
+      itemList?.count = value;
+      itemList?.sum = itemList.price * itemList.count;
     } else {
       // Добавим новый товар в заказ
       var priceProduct = double.parse(
@@ -379,7 +429,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
       ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
           id: 0,
-          idOrderCustomer: widget.orderCustomer.id,
+          idOrderCustomer: widget.orderCustomer?.id??0,
           uid: widget.product.uid,
           name: widget.product.name,
           uidUnit: widget.product.uidUnit,
@@ -389,12 +439,42 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
           discount: 0.0,
           sum: priceProduct * value);
 
-      widget.listItemDoc.add(itemOrderCustomer);
+      widget.listItemDoc?.add(itemOrderCustomer);
     }
+  }
 
-    OrderCustomer().allSum(widget.orderCustomer, widget.listItemDoc);
-    OrderCustomer().allCount(widget.orderCustomer, widget.listItemDoc);
+  addProductToReturnOrderCustomer() {
+
+    // Получим количество товара, которое добавляем
+    var value = double.parse(
+        doubleThreeToString(double.parse(textFieldCountController.text)));
+
+    // Найдем индекс строки товара в заказе по товару который добавляем
+    var indexItem = widget.listItemReturnDoc?.indexWhere((element) => element.uid == widget.product.uid)??-1;
+
+    // Если нашли товар в списке товаров заказа
+    if (indexItem >= 0) {
+      var itemList = widget.listItemReturnDoc?[indexItem];
+      itemList?.count = value;
+      itemList?.sum = itemList.price * itemList.count;
+    } else {
+      // Добавим новый товар в заказ
+      var priceProduct = double.parse(
+          doubleThreeToString(double.parse(textFieldPriceController.text)));
+
+      ItemReturnOrderCustomer itemReturnOrderCustomer = ItemReturnOrderCustomer(
+          id: 0,
+          idReturnOrderCustomer: widget.returnOrderCustomer?.id??0,
+          uid: widget.product.uid,
+          name: widget.product.name,
+          uidUnit: widget.product.uidUnit,
+          nameUnit: widget.product.nameUnit,
+          count: value,
+          price: priceProduct,
+          discount: 0.0,
+          sum: priceProduct * value);
+
+      widget.listItemReturnDoc?.add(itemReturnOrderCustomer);
+    }
   }
 }
-
-

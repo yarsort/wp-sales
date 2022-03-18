@@ -7,17 +7,24 @@ import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/screens/references/product/add_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenProductSelectionTreeView extends StatefulWidget {
-  final List<ItemOrderCustomer> listItemDoc;
-  final OrderCustomer orderCustomer;
+  final List<ItemOrderCustomer>? listItemDoc;
+  final OrderCustomer? orderCustomer;
+  final List<ItemReturnOrderCustomer>? listItemReturnDoc;
+  final ReturnOrderCustomer? returnOrderCustomer;
 
   const ScreenProductSelectionTreeView(
-      {Key? key, required this.listItemDoc, required this.orderCustomer})
+      {Key? key,
+        this.listItemDoc,
+        this.orderCustomer,
+        this.listItemReturnDoc,
+        this.returnOrderCustomer})
       : super(key: key);
 
   @override
@@ -192,8 +199,25 @@ class _ScreenProductSelectionTreeViewState
   }
 
   void renewPurchasedItem() async {
-    listPurchasedProducts.clear();
-    if (widget.orderCustomer.uidPartner == '') {
+    String uidPartner = '';
+
+    if (widget.orderCustomer != null) {
+      listPurchasedProducts.clear();
+      if (widget.orderCustomer?.uidPartner == '') {
+        return;
+      }
+      uidPartner = widget.orderCustomer?.uidPartner??'';
+    }
+
+    if (widget.returnOrderCustomer != null) {
+      listPurchasedProducts.clear();
+      if (widget.returnOrderCustomer?.uidPartner == '') {
+        return;
+      }
+      uidPartner = widget.returnOrderCustomer?.uidPartner??'';
+    }
+
+    if (uidPartner == '') {
       return;
     }
 
@@ -201,7 +225,7 @@ class _ScreenProductSelectionTreeViewState
     List<String> listUidProduct = [];
 
     // Получим список товаров из заказов покупателя, которые он покупал ранее
-    List<OrderCustomer> listOrders = await dbReadOrderCustomerUIDPartner(widget.orderCustomer.uidPartner);
+    List<OrderCustomer> listOrders = await dbReadOrderCustomerUIDPartner(uidPartner);
     for (var itemOrder in listOrders) {
       // Получим товары заказа
       List<ItemOrderCustomer> listItemsOrder = await dbReadItemsOrderCustomer(itemOrder.id);
@@ -325,6 +349,22 @@ class _ScreenProductSelectionTreeViewState
           itemBuilder: (context, index) {
             var productItem = listProducts[index];
 
+            String uidPrice = '';
+            if (widget.orderCustomer != null) {
+              uidPrice = widget.orderCustomer?.uidPrice??'';
+            }
+            if (widget.returnOrderCustomer != null) {
+              uidPrice = widget.returnOrderCustomer?.uidPrice??'';
+            }
+
+            String uidWarehouse = '';
+            if (widget.orderCustomer != null) {
+              uidWarehouse = widget.orderCustomer?.uidWarehouse??'';
+            }
+            if (widget.returnOrderCustomer != null) {
+              uidWarehouse = widget.returnOrderCustomer?.uidWarehouse??'';
+            }
+
             return Card(
               elevation: 2,
               child: (productItem.isGroup == 1)
@@ -355,8 +395,8 @@ class _ScreenProductSelectionTreeViewState
                       popTap: () {},
                     )
                   : ProductItem(
-                      uidPriceProductItem: widget.orderCustomer.uidPrice,
-                      uidWarehouseProductItem: widget.orderCustomer.uidWarehouse,
+                      uidPriceProductItem: uidPrice,
+                      uidWarehouseProductItem: uidWarehouse,
                       product: productItem,
                       tap: () async {
                         await Navigator.push(
@@ -383,11 +423,28 @@ class _ScreenProductSelectionTreeViewState
           itemCount: listPurchasedProducts.length,
           itemBuilder: (context, index) {
             var productItem = listPurchasedProducts[index];
+
+            String uidPrice = '';
+            if (widget.orderCustomer != null) {
+              uidPrice = widget.orderCustomer?.uidPrice??'';
+            }
+            if (widget.returnOrderCustomer != null) {
+              uidPrice = widget.returnOrderCustomer?.uidPrice??'';
+            }
+
+            String uidWarehouse = '';
+            if (widget.orderCustomer != null) {
+              uidWarehouse = widget.orderCustomer?.uidWarehouse??'';
+            }
+            if (widget.returnOrderCustomer != null) {
+              uidWarehouse = widget.returnOrderCustomer?.uidWarehouse??'';
+            }
+
             return Card(
               elevation: 2,
               child: ProductItem(
-                uidPriceProductItem: widget.orderCustomer.uidPrice,
-                uidWarehouseProductItem: widget.orderCustomer.uidWarehouse,
+                uidPriceProductItem: uidPrice,
+                uidWarehouseProductItem: uidWarehouse,
                 product: productItem,
                 tap: () async {
                   await Navigator.push(

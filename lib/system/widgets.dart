@@ -12,6 +12,7 @@ import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/screens/auth/login.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
+import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_list.dart';
 import 'package:wp_sales/screens/exchange/exchange.dart';
 import 'package:wp_sales/screens/references/contracts/contract_list.dart';
 import 'package:wp_sales/screens/references/currency/currency_list.dart';
@@ -123,6 +124,22 @@ class _MainDrawerState extends State<MainDrawer> {
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                                 const ScreenOrderCustomerList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Возвраты покупателей"),
+                    leading: const Icon(
+                      Icons.undo,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(0),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                            const ScreenReturnOrderCustomerList()),
                       );
                     }),
                 ListTile(

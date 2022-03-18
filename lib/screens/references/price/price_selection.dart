@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/screens/references/price/price_item.dart';
 
 class ScreenPriceSelection extends StatefulWidget {
+  final OrderCustomer? orderCustomer;
+  final ReturnOrderCustomer? returnOrderCustomer;
+  final Contract? contract;
 
-  final OrderCustomer orderCustomer;
-
-  const ScreenPriceSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenPriceSelection(
+      {Key? key, this.orderCustomer, this.returnOrderCustomer, this.contract})
+      : super(key: key);
 
   @override
   _ScreenPriceSelectionState createState() => _ScreenPriceSelectionState();
@@ -65,8 +70,7 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
     listPrice.clear();
     tempItems.clear();
 
-    listPrice =
-        await dbReadAllPrices();
+    listPrice = await dbReadAllPrices();
     tempItems.addAll(listPrice);
 
     setState(() {});
@@ -80,7 +84,6 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -97,7 +100,6 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
     dummySearchList.addAll(listPrice);
 
     if (query.isNotEmpty) {
-
       List<Price> dummyListData = <Price>[];
 
       for (var item in dummySearchList) {
@@ -129,7 +131,6 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -179,15 +180,24 @@ class _ScreenPriceSelectionState extends State<ScreenPriceSelection> {
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidPrice = priceItem.uid;
-                        widget.orderCustomer.namePrice = priceItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidPrice = priceItem.uid;
+                          widget.orderCustomer?.namePrice = priceItem.name;
+                        }
+                        if (widget.returnOrderCustomer != null) {
+                          widget.returnOrderCustomer?.uidPrice = priceItem.uid;
+                          widget.returnOrderCustomer?.namePrice = priceItem.name;
+                        }
+                        if (widget.contract != null) {
+                          widget.contract?.uidPrice = priceItem.uid;
+                          widget.contract?.namePrice = priceItem.name;
+                        }
                       });
                       Navigator.pop(context);
                     },
                     title: Text(priceItem.name),
                   ),
-                )
-            );
+                ));
           },
         ),
       ),

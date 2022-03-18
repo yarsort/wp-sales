@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_item.dart';
 
 class ScreenCashboxSelection extends StatefulWidget {
+  final OrderCustomer? orderCustomer;
+  final IncomingCashOrder? incomingCashOrder;
 
-  final OrderCustomer orderCustomer;
-
-  const ScreenCashboxSelection({Key? key, required this.orderCustomer}) : super(key: key);
+  const ScreenCashboxSelection({Key? key, this.orderCustomer, this.incomingCashOrder})
+      : super(key: key);
 
   @override
   _ScreenCashboxSelectionState createState() => _ScreenCashboxSelectionState();
@@ -65,8 +67,7 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
     listCashboxes.clear();
     tempItems.clear();
 
-    listCashboxes =
-        await dbReadAllCashbox();
+    listCashboxes = await dbReadAllCashbox();
     tempItems.addAll(listCashboxes);
 
     setState(() {});
@@ -80,7 +81,6 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
   }
 
   void filterSearchResults(String query) {
-
     /// Уберем пробелы
     query = query.trim();
 
@@ -97,7 +97,6 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
     dummySearchList.addAll(listCashboxes);
 
     if (query.isNotEmpty) {
-
       List<Cashbox> dummyListData = <Cashbox>[];
 
       for (var item in dummySearchList) {
@@ -129,7 +128,6 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
           filterSearchResults(value);
         },
         controller: textFieldSearchController,
-        
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
@@ -179,15 +177,20 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
                   child: ListTile(
                     onTap: () {
                       setState(() {
-                        widget.orderCustomer.uidCashbox = cashboxItem.uid;
-                        widget.orderCustomer.nameCashbox = cashboxItem.name;
+                        if (widget.orderCustomer != null) {
+                          widget.orderCustomer?.uidCashbox = cashboxItem.uid;
+                          widget.orderCustomer?.nameCashbox = cashboxItem.name;
+                        }
+                        if (widget.incomingCashOrder != null) {
+                          widget.incomingCashOrder?.uidCashbox = cashboxItem.uid;
+                          widget.incomingCashOrder?.nameCashbox = cashboxItem.name;
+                        }
                       });
                       Navigator.pop(context);
                     },
                     title: Text(cashboxItem.name),
                   ),
-                )
-            );
+                ));
           },
         ),
       ),

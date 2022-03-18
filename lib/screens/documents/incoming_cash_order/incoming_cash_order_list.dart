@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
+import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
+import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -22,9 +23,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   DateTime finishPeriodOrders = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
-  List<OrderCustomer> listNewOrdersCustomer = [];
-  List<OrderCustomer> listSendOrdersCustomer = [];
-  List<OrderCustomer> listTrashOrdersCustomer = [];
+  List<IncomingCashOrder> listNewIncomingCashOrder = [];
+  List<IncomingCashOrder> listSendIncomingCashOrder = [];
+  List<IncomingCashOrder> listTrashIncomingCashOrder = [];
 
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
@@ -66,6 +67,20 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               Tab(text: 'Корзина'),
             ],
           ),
+          actions: [
+            IconButton(onPressed: () async {
+              var newIncomingCashOrder = IncomingCashOrder();
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ScreenItemIncomingCashOrder(
+                      incomingCashOrder: newIncomingCashOrder),
+                ),
+              );
+              await loadNewDocuments();
+              setState(() {});
+            }, icon: const Icon(Icons.add)),
+          ],
         ),
         body: TabBarView(
           children: [
@@ -73,32 +88,32 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countNewDocuments == 1 ? noDocuments() : yesNewDocuments(),
+                yesNewDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countSendDocuments == 1 ? noDocuments() : yesSendDocuments(),
+                yesSendDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                countTrashDocuments == 1 ? noDocuments() : yesTrashDocuments(),
+                yesTrashDocuments(),
               ],
             ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            var newOrderCustomer = OrderCustomer();
+            var newIncomingCashOrder = IncomingCashOrder();
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
+                builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: newIncomingCashOrder),
               ),
             );
           },
@@ -112,46 +127,45 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     );
   }
 
-  loadNewDocuments() {
+  loadNewDocuments() async {
     // Очистка списка заказов покупателя
-    listNewOrdersCustomer.clear();
+    listNewIncomingCashOrder.clear();
+    countNewDocuments = 0;
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomer) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listNewOrdersCustomer.add(newOrderCustomer);
-    }
+    listNewIncomingCashOrder = await dbReadAllNewIncomingCashOrder();
 
     // Количество документов в списке
-    countNewDocuments = listNewOrdersCustomer.length;
+    countNewDocuments = listNewIncomingCashOrder.length;
+
+    debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
 
-  loadSendDocuments() {
+  loadSendDocuments() async {
     // Очистка списка заказов покупателя
-    listSendOrdersCustomer.clear();
+    listSendIncomingCashOrder.clear();
+    countSendDocuments = 0;
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomer) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listSendOrdersCustomer.add(newOrderCustomer);
-    }
+    listSendIncomingCashOrder = await dbReadAllSendIncomingCashOrder();
 
     // Количество документов в списке
-    countSendDocuments = listSendOrdersCustomer.length;
+    countSendDocuments = listSendIncomingCashOrder.length;
+
+    debugPrint(
+        'Количество отправленных документов: ' + countSendDocuments.toString());
   }
 
-  loadTrashDocuments() {
+  loadTrashDocuments() async {
     // Очистка списка заказов покупателя
-    listTrashOrdersCustomer.clear();
+    listTrashIncomingCashOrder.clear();
+    countTrashDocuments = 0;
 
-    // Получение и запись списка заказов покупателей
-    for (var message in listDataOrderCustomer) {
-      OrderCustomer newOrderCustomer = OrderCustomer.fromJson(message);
-      listTrashOrdersCustomer.add(newOrderCustomer);
-    }
+    listTrashIncomingCashOrder = await dbReadAllTrashIncomingCashOrder();
 
     // Количество документов в списке
-    countTrashDocuments = listTrashOrdersCustomer.length;
+    countTrashDocuments = listTrashIncomingCashOrder.length;
+
+    debugPrint(
+        'Количество удаленных документов: ' + countTrashDocuments.toString());
   }
 
   listParameters() {
@@ -356,7 +370,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     return ColumnBuilder(
         itemCount: countNewDocuments,
         itemBuilder: (context, index) {
-          final orderCustomer = listNewOrdersCustomer[index];
+          final incomingCashOrder = listNewIncomingCashOrder[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
@@ -367,11 +381,11 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
                     ),
                   );
                 },
-                title: Text(orderCustomer.namePartner),
+                title: Text(incomingCashOrder.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -380,7 +394,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
+                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -391,24 +405,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.access_time,
+                                  const Icon(Icons.recent_actors,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.history_toggle_off,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
+                                  Text(incomingCashOrder.nameContract),
                                 ],
                               )
                             ],
                           )),
                       Expanded(
-                          flex: 3,
+                          flex: 1,
                           child: Column(
                             children: [
                               Row(
@@ -416,17 +422,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
+                                  Text(doubleToString(incomingCashOrder.sum) + ' грн'),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.format_list_numbered_rtl,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() + ' поз'),
-                                ],
-                              )
                             ],
                           ))
                     ]),
@@ -443,7 +441,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     return ColumnBuilder(
         itemCount: countSendDocuments,
         itemBuilder: (context, index) {
-          final orderCustomer = listSendOrdersCustomer[index];
+          final incomingCashOrder = listSendIncomingCashOrder[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
@@ -454,11 +452,11 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
                     ),
                   );
                 },
-                title: Text(orderCustomer.namePartner),
+                title: Text(incomingCashOrder.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -467,7 +465,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
+                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -478,24 +476,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.access_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
-                                ],
-                              ),
-                              Row(
-                                children: [
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
+                                  Text(incomingCashOrder.nameCashbox),
                                 ],
                               ),
                             ],
                           )),
                       Expanded(
-                          flex: 3,
+                          flex: 2,
                           child: Column(
                             children: [
                               Row(
@@ -503,15 +493,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.format_list_numbered_rtl,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() + ' поз'),
+                                  Text(doubleToString(incomingCashOrder.sum) + ' грн'),
                                 ],
                               ),
                             ],
@@ -528,7 +510,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.more_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSendingTo1C)),
+                                  Text(shortDateToString(incomingCashOrder.dateSendingTo1C)),
                                 ],
                               )
                             ],
@@ -539,14 +521,14 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  orderCustomer.numberFrom1C != ''
+                                  incomingCashOrder.numberFrom1C != ''
                                       ? const Icon(Icons.repeat_one,
                                       color: Colors.green, size: 20)
                                       : const Icon(Icons.repeat_one,
                                       color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  orderCustomer.numberFrom1C != ''
-                                      ? Text(orderCustomer.numberFrom1C) :
+                                  incomingCashOrder.numberFrom1C != ''
+                                      ? Text(incomingCashOrder.numberFrom1C) :
                                   const Text('Нет данных!',
                                       style: TextStyle(color: Colors.red)),
                                 ],
@@ -567,7 +549,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     return ColumnBuilder(
         itemCount: countTrashDocuments,
         itemBuilder: (context, index) {
-          final orderCustomer = listTrashOrdersCustomer[index];
+          final incomingCashOrder = listTrashIncomingCashOrder[index];
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
@@ -578,11 +560,11 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
                     ),
                   );
                 },
-                title: Text(orderCustomer.namePartner),
+                title: Text(incomingCashOrder.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
@@ -591,7 +573,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(orderCustomer.nameContract)),
+                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -602,18 +584,41 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.access_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
-                                ],
-                              ),
-                              Row(
-                                children: [
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
+                                  Text(incomingCashOrder.nameCashbox),
+                                ],
+                              ),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(incomingCashOrder.sum) + ' грн'),
+                                ],
+                              ),
+                            ],
+                          ))
+                    ]),
+                    const SizedBox(height: 5),
+                    Row(children: [
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.more_time,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(shortDateToString(incomingCashOrder.dateSendingTo1C)),
                                 ],
                               )
                             ],
@@ -624,18 +629,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.blue, size: 20),
+                                  incomingCashOrder.numberFrom1C != ''
+                                      ? const Icon(Icons.repeat_one,
+                                      color: Colors.green, size: 20)
+                                      : const Icon(Icons.repeat_one,
+                                      color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) + ' грн'),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Icon(Icons.format_list_numbered_rtl,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() + ' поз'),
+                                  incomingCashOrder.numberFrom1C != ''
+                                      ? Text(incomingCashOrder.numberFrom1C) :
+                                  const Text('Нет данных!',
+                                      style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],
@@ -648,20 +651,5 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
           );
         });
   }
-
-  noDocuments() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: const [
-          Text(
-            'Заказов не обнаружено!',
-            style: TextStyle(fontSize: 25, color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+  
 }
