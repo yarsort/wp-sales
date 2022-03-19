@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_ref_cashbox.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/ref_cashbox.dart';
+import 'package:wp_sales/models/ref_organization.dart';
+import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
@@ -21,6 +28,8 @@ class ScreenItemIncomingCashOrder extends StatefulWidget {
 }
 
 class _ScreenItemIncomingCashOrderState extends State<ScreenItemIncomingCashOrder> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   /// Поле ввода: Организация
   TextEditingController textFieldOrganizationController =
@@ -202,8 +211,27 @@ class _ScreenItemIncomingCashOrderState extends State<ScreenItemIncomingCashOrde
 
   updateHeader() async {
 
+      // Это новый документ
       if (widget.incomingCashOrder.uid == '') {
         widget.incomingCashOrder.uid = const Uuid().v4();
+
+        final SharedPreferences prefs = await _prefs;
+
+        // Заполнение значений по-умолчанию
+        var uidOrganization = prefs.getString('settings_uidOrganization')??'';
+        Organization organization = await dbReadOrganizationUID(uidOrganization);
+        widget.incomingCashOrder.uidOrganization = organization.uid;
+        widget.incomingCashOrder.nameOrganization = organization.name;
+
+        var uidPartner = prefs.getString('settings_uidPartner')??'';
+        Partner partner = await dbReadPartnerUID(uidPartner);
+        widget.incomingCashOrder.uidPartner = partner.uid;
+        widget.incomingCashOrder.namePartner = partner.name;
+
+        var uidCashbox = prefs.getString('settings_uidCashbox')??'';
+        Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
+        widget.incomingCashOrder.uidCashbox = cashbox.uid;
+        widget.incomingCashOrder.nameCashbox = cashbox.name;
       }
 
       textFieldOrganizationController.text =

@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_ref_cashbox.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
+import 'package:wp_sales/models/ref_cashbox.dart';
+import 'package:wp_sales/models/ref_organization.dart';
+import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
@@ -28,6 +39,9 @@ class ScreenItemOrderCustomer extends StatefulWidget {
 }
 
 class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Количество строк товаров в заказе
   int countItems = 0;
   bool firstOpen = true;
@@ -214,10 +228,39 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
-  updateHeader() {
-    setState(() {
+  updateHeader() async {
+
+      // Это новый документ
       if (widget.orderCustomer.uid == '') {
         widget.orderCustomer.uid = const Uuid().v4();
+
+        final SharedPreferences prefs = await _prefs;
+
+        // Заполнение значений по-умолчанию
+        var uidOrganization = prefs.getString('settings_uidOrganization')??'';
+        Organization organization = await dbReadOrganizationUID(uidOrganization);
+        widget.orderCustomer.uidOrganization = organization.uid;
+        widget.orderCustomer.nameOrganization = organization.name;
+
+        var uidPartner = prefs.getString('settings_uidPartner')??'';
+        Partner partner = await dbReadPartnerUID(uidPartner);
+        widget.orderCustomer.uidPartner = partner.uid;
+        widget.orderCustomer.namePartner = partner.name;
+
+        var uidPrice = prefs.getString('settings_uidPrice')??'';
+        Price price = await dbReadPriceUID(uidPrice);
+        widget.orderCustomer.uidPrice = price.uid;
+        widget.orderCustomer.namePrice = price.name;
+
+        var uidCashbox = prefs.getString('settings_uidCashbox')??'';
+        Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
+        widget.orderCustomer.uidCashbox = cashbox.uid;
+        widget.orderCustomer.nameCashbox = cashbox.name;
+
+        var uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+        Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
+        widget.orderCustomer.uidWarehouse = warehouse.uid;
+        widget.orderCustomer.nameWarehouse = warehouse.name;
       }
 
       countItems = widget.orderCustomer.countItems;
@@ -275,7 +318,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         widget.orderCustomer.nameCurrency = '';
         widget.orderCustomer.uidCurrency = '';
       }
-    });
+
+      setState(() {});
   }
 
   showMessageError(String textMessage) {

@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_doc_return_order_customer.dart';
+import 'package:wp_sales/db/db_ref_organization.dart';
+import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
+import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
+import 'package:wp_sales/models/ref_organization.dart';
+import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
+import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
@@ -28,6 +37,9 @@ class ScreenItemReturnOrderCustomer extends StatefulWidget {
 }
 
 class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCustomer> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Количество строк товаров в заказе
   int countItems = 0;
   bool firstOpen = true;
@@ -224,6 +236,29 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
 
       if (widget.returnOrderCustomer.uid == '') {
         widget.returnOrderCustomer.uid = const Uuid().v4();
+
+        final SharedPreferences prefs = await _prefs;
+
+        // Заполнение значений по-умолчанию
+        var uidOrganization = prefs.getString('settings_uidOrganization')??'';
+        Organization organization = await dbReadOrganizationUID(uidOrganization);
+        widget.returnOrderCustomer.uidOrganization = organization.uid;
+        widget.returnOrderCustomer.nameOrganization = organization.name;
+
+        var uidPartner = prefs.getString('settings_uidPartner')??'';
+        Partner partner = await dbReadPartnerUID(uidPartner);
+        widget.returnOrderCustomer.uidPartner = partner.uid;
+        widget.returnOrderCustomer.namePartner = partner.name;
+
+        var uidPrice = prefs.getString('settings_uidPrice')??'';
+        Price price = await dbReadPriceUID(uidPrice);
+        widget.returnOrderCustomer.uidPrice = price.uid;
+        widget.returnOrderCustomer.namePrice = price.name;
+
+        var uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+        Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
+        widget.returnOrderCustomer.uidWarehouse = warehouse.uid;
+        widget.returnOrderCustomer.nameWarehouse = warehouse.name;
       }
 
       countItems = widget.returnOrderCustomer.countItems;
