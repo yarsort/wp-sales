@@ -118,7 +118,9 @@ Future<Cashbox> dbReadCashboxUID(String uid) async {
 Future<List<Cashbox>> dbReadAllCashbox() async {
   final db = await instance.database;
   const orderBy = '${ItemCashboxFields.name} ASC';
-  final result = await db.query(tableCashbox, orderBy: orderBy);
+  final result = await db.query(
+      tableCashbox,
+      orderBy: orderBy);
   return result.map((json) => Cashbox.fromJson(json)).toList();
 }
 
