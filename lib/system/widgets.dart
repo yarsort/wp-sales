@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_doc_return_order_customer.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_currency.dart';
 import 'package:wp_sales/db/db_ref_organization.dart';
@@ -35,6 +37,10 @@ class MainDrawer extends StatefulWidget {
 
 class _MainDrawerState extends State<MainDrawer> {
   int countOrderCustomer = 0;
+
+  int countReturnOrderCustomer = 0;
+
+  int countIncomingCashOrder = 0;
 
   int countProduct = 0;
 
@@ -132,7 +138,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       Icons.undo,
                       color: Colors.blue,
                     ),
-                    trailing: countNotification(0),
+                    trailing: countNotification(countReturnOrderCustomer),
                     onTap: () {
                       Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
@@ -148,7 +154,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       Icons.payment,
                       color: Colors.blue,
                     ),
-                    trailing: countNotification(0),
+                    trailing: countNotification(countIncomingCashOrder),
                     onTap: () {
                       Navigator.pop(context); // Закроем Drawer
                       Navigator.push(
@@ -368,6 +374,8 @@ class _MainDrawerState extends State<MainDrawer> {
 
   renewItem() async {
     countOrderCustomer = await dbGetCountSendOrderCustomer();
+    countReturnOrderCustomer = await dbGetCountSendReturnOrderCustomer();
+    countIncomingCashOrder = await dbGetCountIncomingCashOrder();
     countProduct = await dbGetCountProduct();
     countUnit = await dbGetCountUnit();
     countOrganization = await dbGetCountOrganization();

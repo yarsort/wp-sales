@@ -110,3 +110,21 @@ Future<AccumPartnerDept> dbReadPartnerDept({
     return AccumPartnerDept(); // Пустое значение
   }
 }
+
+Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDept() async {
+  final db = await instance.database;
+  const orderBy = '${ItemAccumPartnerDeptFields.balance} ASC';
+  final result = await db.query(
+      tableAccumPartnerDebts,
+      orderBy: orderBy);
+  return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}
+
+Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptForPayment() async {
+  final db = await instance.database;
+  final result = await db.query(
+      tableAccumPartnerDebts,
+      where: '${ItemAccumPartnerDeptFields.id} > ?',
+      whereArgs: [0],);
+  return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}

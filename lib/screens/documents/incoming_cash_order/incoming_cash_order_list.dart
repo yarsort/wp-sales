@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
+import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
+import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -14,15 +16,36 @@ class ScreenIncomingCashOrderList extends StatefulWidget {
 }
 
 class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderList> {
+  /// Поля ввода: Поиск
+  TextEditingController textFieldNewSearchController = TextEditingController();
+  TextEditingController textFieldSendSearchController = TextEditingController();
+  TextEditingController textFieldTrashSearchController =
+  TextEditingController();
+
+  /// Видимость панелей отбора документов
+  bool visibleListNewParameters = false;
+  bool visibleListSendParameters = false;
+  bool visibleListTrashParameters = false;
+
+  /// Количество документов в списках на текущий момент
   int countNewDocuments = 0;
   int countSendDocuments = 0;
   int countTrashDocuments = 0;
 
+  String uidPartner = '';
+  String uidContract = '';
+  IncomingCashOrder newIncomingCashOrder =
+  IncomingCashOrder(); // Шаблонный объект для отборов
+
+  /// Начало периода отбора
   DateTime startPeriodOrders =
   DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+  /// Конец периода отбора
   DateTime finishPeriodOrders = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
+  /// Списки документов
   List<IncomingCashOrder> listNewIncomingCashOrder = [];
   List<IncomingCashOrder> listSendIncomingCashOrder = [];
   List<IncomingCashOrder> listTrashIncomingCashOrder = [];
@@ -33,23 +56,30 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   DateTime lastDate = DateTime.now();
 
   /// Поле ввода: Период
-  TextEditingController textFieldPeriodController = TextEditingController();
+  TextEditingController textFieldNewPeriodController = TextEditingController();
+  TextEditingController textFieldSendPeriodController = TextEditingController();
+  TextEditingController textFieldTrashPeriodController =
+  TextEditingController();
 
   /// Поле ввода: Партнер
-  TextEditingController textFieldPartnerController = TextEditingController();
+  TextEditingController textFieldNewPartnerController = TextEditingController();
+  TextEditingController textFieldSendPartnerController =
+  TextEditingController();
+  TextEditingController textFieldTrashPartnerController =
+  TextEditingController();
 
   /// Поле ввода: Договор или торговая точка
-  TextEditingController textFieldContractController = TextEditingController();
-
-  /// Панель параметров отбора
-  bool expandedExpansionTile = false;
+  TextEditingController textFieldNewContractController =
+  TextEditingController();
+  TextEditingController textFieldSendContractController =
+  TextEditingController();
+  TextEditingController textFieldTrashContractController =
+  TextEditingController();
 
   @override
   void initState() {
-    loadNewDocuments();
-    loadSendDocuments();
-    loadTrashDocuments();
-    return super.initState();
+    super.initState();
+    loadData();
   }
 
   @override
@@ -77,8 +107,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       incomingCashOrder: newIncomingCashOrder),
                 ),
               );
-              await loadNewDocuments();
-              setState(() {});
+              loadData();
             }, icon: const Icon(Icons.add)),
           ],
         ),
@@ -87,21 +116,21 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listParameters(),
+                listNewParameters(),
                 yesNewDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listParameters(),
+                listSendParameters(),
                 yesSendDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listParameters(),
+                listTrashParameters(),
                 yesTrashDocuments(),
               ],
             ),
@@ -125,6 +154,13 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
         ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
+  }
+
+  loadData() async {
+    await loadNewDocuments();
+    await loadSendDocuments();
+    await loadTrashDocuments();
+    setState(() {});
   }
 
   loadNewDocuments() async {
@@ -168,196 +204,827 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
         'Количество удаленных документов: ' + countTrashDocuments.toString());
   }
 
-  listParameters() {
-    var validatePeriod = false;
-
-    return ExpansionTile(
-      key: const Key('ExpansionTileParameters'),
-      initiallyExpanded: expandedExpansionTile,
-      title: const Text('Параметры отбора'),
+  listNewParameters() {
+    return Column(
       children: [
-        /// Period
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            controller: textFieldPeriodController,
-            readOnly: true,
-            
+            onChanged: (String value) {
+              //filterSearchResults(value);
+            },
+            controller: textFieldNewSearchController,
             decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               border: const OutlineInputBorder(),
               labelStyle: const TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'Период',
-              errorText: validatePeriod ? 'Вы не указали период!' : null,
+              labelText: 'Поиск',
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min, //
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     onPressed: () async {
-                      var _datePick = await showDateRangePicker(
-                        context: context,
-                        initialDateRange:
-                        DateTimeRange(start: firstDate, end: lastDate),
-                        helpText: 'Выберите период',
-                        firstDate: DateTime(2021, 1, 1),
-                        lastDate: lastDate,
-                      );
+                      setState(() {
+                        visibleListNewParameters = !visibleListNewParameters;
+                      });
 
-                      if (_datePick != null) {
-                        setState(() {
-                          validatePeriod = false;
-                          textPeriod = shortDateToString(_datePick.start) +
-                              ' - ' +
-                              shortDateToString(_datePick.end);
-                          textFieldPeriodController.text = textPeriod;
-                        });
-                      }
                     },
-                    icon: const Icon(Icons.date_range, color: Colors.blue),
+                    icon: const Icon(Icons.search, color: Colors.blue),
                   ),
                   IconButton(
-                    onPressed: () async {},
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () async {
+                      setState(() {
+                        visibleListNewParameters = !visibleListNewParameters;
+                      });
+                    },
+                    icon: visibleListNewParameters
+                        ? const Icon(Icons.filter_list, color: Colors.blue)
+                        : const Icon(Icons.filter_list, color: Colors.red),
                   ),
                 ],
               ),
             ),
           ),
         ),
-
-        /// Partner
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldPartnerController,
-            readOnly: true,
-            
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Партнер',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {},
-                    icon: const Icon(Icons.people, color: Colors.blue),
-                  ),
-                  IconButton(
-                    onPressed: () async {},
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        /// Contract
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-          child: TextField(
-            controller: textFieldPartnerController,
-            readOnly: true,
-            
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              labelStyle: const TextStyle(
-                color: Colors.blueGrey,
-              ),
-              labelText: 'Договор (торговая точка)',
-              suffixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () async {},
-                    icon: const Icon(Icons.recent_actors, color: Colors.blue),
-                  ),
-                  IconButton(
-                    onPressed: () async {},
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        /// Button refresh
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+        Visibility(
+          visible: visibleListNewParameters,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 49) / 2,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      if (textFieldPeriodController.text.isEmpty) {
-                        expandedExpansionTile = false;
-                        setState(() {
-                          validatePeriod = true;
-                        });
-                        return;
-                      } else {
-                        expandedExpansionTile = false;
-                        setState(() {
-                          validatePeriod = false;
-                        });
-                      }
-                      await loadNewDocuments();
-                      await loadSendDocuments();
-                      await loadTrashDocuments();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.update, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Заполнить')
+              const Padding(
+                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                child: Text('Параметры отбора:',
+                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              ),
+
+              /// Period
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldNewPeriodController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Период',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min, //
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            var _datePick = await showDateRangePicker(
+                              context: context,
+                              initialDateRange: DateTimeRange(
+                                  start: firstDate, end: lastDate),
+                              helpText: 'Выберите период',
+                              firstDate: DateTime(2021, 1, 1),
+                              lastDate: lastDate,
+                            );
+
+                            if (_datePick != null) {
+                              setState(() {
+                                textPeriod =
+                                    shortDateToString(_datePick.start) +
+                                        ' - ' +
+                                        shortDateToString(_datePick.end);
+                                textFieldNewPeriodController.text = textPeriod;
+                              });
+                            }
+                          },
+                          icon:
+                          const Icon(Icons.date_range, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {},
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
                       ],
-                    )),
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(
-                width: 14,
-              ),
-              SizedBox(
-                height: 40,
-                width: (MediaQuery.of(context).size.width - 35) / 2,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red)),
-                    onPressed: () async {
-                      if (textFieldPeriodController.text.isEmpty) {
-                        setState(() {
-                          validatePeriod = true;
-                        });
-                        return;
-                      } else {
-                        setState(() {
-                          validatePeriod = false;
-                        });
-                      }
-                      await loadNewDocuments();
-                      await loadSendDocuments();
-                      await loadTrashDocuments();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.delete, color: Colors.white),
-                        SizedBox(width: 14),
-                        Text('Очистить'),
+
+              /// Partner
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldNewPartnerController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Партнер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ScreenPartnerSelection(
+                                            incomingCashOrder: newIncomingCashOrder)));
+                            setState(() {
+                              textFieldNewPartnerController.text =
+                                  newIncomingCashOrder.namePartner;
+                            });
+                          },
+                          icon: const Icon(Icons.people, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              textFieldNewPartnerController.text = '';
+                              newIncomingCashOrder.uidPartner = '';
+                              newIncomingCashOrder.namePartner = '';
+                            });
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
                       ],
-                    )),
+                    ),
+                  ),
+                ),
               ),
+
+              /// Contract
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldNewContractController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Договор (торговая точка)',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ScreenContractSelection(
+                                            incomingCashOrder: newIncomingCashOrder)));
+                            setState(() {
+                              textFieldNewContractController.text =
+                                  newIncomingCashOrder.nameContract;
+                            });
+                          },
+                          icon: const Icon(Icons.recent_actors,
+                              color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              textFieldNewContractController.text = '';
+                              newIncomingCashOrder.uidContract = '';
+                              newIncomingCashOrder.nameContract = '';
+                            });
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Button refresh
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: (MediaQuery.of(context).size.width - 49) / 2,
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            await loadNewDocuments();
+                            setState(() {
+                              visibleListNewParameters = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.update, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Заполнить')
+                            ],
+                          )),
+                    ),
+                    const SizedBox(
+                      width: 14,
+                    ),
+                    SizedBox(
+                      height: 40,
+                      width: (MediaQuery.of(context).size.width - 35) / 2,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            await loadNewDocuments();
+                            setState(() {
+                              textFieldNewPartnerController.text = '';
+                              textFieldNewContractController.text = '';
+                              textFieldNewPeriodController.text = '';
+
+                              newIncomingCashOrder.uidPartner = '';
+                              newIncomingCashOrder.namePartner = '';
+                              newIncomingCashOrder.uidContract = '';
+                              newIncomingCashOrder.nameContract = '';
+
+                              visibleListNewParameters = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.delete, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Очистить'),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  listSendParameters() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            onChanged: (String value) {
+              //filterSearchResults(value);
+            },
+            controller: textFieldSendSearchController,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Поиск',
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      setState(() {
+                        visibleListSendParameters = !visibleListSendParameters;
+                      });
+
+                    },
+                    icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      setState(() {
+                        visibleListSendParameters = !visibleListSendParameters;
+                      });
+                    },
+                    icon: visibleListSendParameters
+                        ? const Icon(Icons.filter_list, color: Colors.blue)
+                        : const Icon(Icons.filter_list, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Visibility(
+          visible: visibleListSendParameters,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                child: Text('Параметры отбора:',
+                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              ),
+
+              /// Period
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldSendPeriodController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Период',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min, //
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            var _datePick = await showDateRangePicker(
+                              context: context,
+                              initialDateRange: DateTimeRange(
+                                  start: firstDate, end: lastDate),
+                              helpText: 'Выберите период',
+                              firstDate: DateTime(2021, 1, 1),
+                              lastDate: lastDate,
+                            );
+
+                            if (_datePick != null) {
+                              setState(() {
+                                textPeriod =
+                                    shortDateToString(_datePick.start) +
+                                        ' - ' +
+                                        shortDateToString(_datePick.end);
+                                textFieldSendPeriodController.text = textPeriod;
+                              });
+                            }
+                          },
+                          icon:
+                          const Icon(Icons.date_range, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {},
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Partner
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldSendPartnerController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Партнер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ScreenPartnerSelection(
+                                            incomingCashOrder: newIncomingCashOrder)));
+                            setState(() {
+                              textFieldSendPartnerController.text =
+                                  newIncomingCashOrder.namePartner;
+                            });
+                          },
+                          icon: const Icon(Icons.people, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              textFieldSendPartnerController.text = '';
+                              newIncomingCashOrder.uidPartner = '';
+                              newIncomingCashOrder.namePartner = '';
+                            });
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Contract
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldSendContractController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Договор (торговая точка)',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ScreenContractSelection(
+                                            incomingCashOrder: newIncomingCashOrder)));
+                            setState(() {
+                              textFieldSendContractController.text =
+                                  newIncomingCashOrder.nameContract;
+                            });
+                          },
+                          icon: const Icon(Icons.recent_actors,
+                              color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              textFieldSendContractController.text = '';
+                              newIncomingCashOrder.uidContract = '';
+                              newIncomingCashOrder.nameContract = '';
+                            });
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Button refresh
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: (MediaQuery.of(context).size.width - 49) / 2,
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            await loadSendDocuments();
+                            setState(() {
+                              visibleListSendParameters = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.update, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Заполнить')
+                            ],
+                          )),
+                    ),
+                    const SizedBox(
+                      width: 14,
+                    ),
+                    SizedBox(
+                      height: 40,
+                      width: (MediaQuery.of(context).size.width - 35) / 2,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            await loadSendDocuments();
+                            setState(() {
+                              textFieldSendPartnerController.text = '';
+                              textFieldSendContractController.text = '';
+                              textFieldSendPeriodController.text = '';
+
+                              newIncomingCashOrder.uidPartner = '';
+                              newIncomingCashOrder.namePartner = '';
+                              newIncomingCashOrder.uidContract = '';
+                              newIncomingCashOrder.nameContract = '';
+
+                              visibleListSendParameters = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.delete, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Очистить'),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  listTrashParameters() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          child: TextField(
+            onChanged: (String value) {
+              //filterSearchResults(value);
+            },
+            controller: textFieldTrashSearchController,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
+              ),
+              labelText: 'Поиск',
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      setState(() {
+                        visibleListTrashParameters =
+                        !visibleListTrashParameters;
+                      });
+
+                    },
+                    icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      setState(() {
+                        visibleListTrashParameters =
+                        !visibleListTrashParameters;
+                      });
+                    },
+                    icon: visibleListTrashParameters
+                        ? const Icon(Icons.filter_list, color: Colors.blue)
+                        : const Icon(Icons.filter_list, color: Colors.red),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Visibility(
+          visible: visibleListTrashParameters,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                child: Text('Параметры отбора:',
+                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              ),
+
+              /// Period
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldTrashPeriodController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Период',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min, //
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            var _datePick = await showDateRangePicker(
+                              context: context,
+                              initialDateRange: DateTimeRange(
+                                  start: firstDate, end: lastDate),
+                              helpText: 'Выберите период',
+                              firstDate: DateTime(2021, 1, 1),
+                              lastDate: lastDate,
+                            );
+
+                            if (_datePick != null) {
+                              setState(() {
+                                textPeriod =
+                                    shortDateToString(_datePick.start) +
+                                        ' - ' +
+                                        shortDateToString(_datePick.end);
+                                textFieldTrashPeriodController.text =
+                                    textPeriod;
+                              });
+                            }
+                          },
+                          icon:
+                          const Icon(Icons.date_range, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {},
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Partner
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldTrashPartnerController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Партнер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ScreenPartnerSelection(
+                                            incomingCashOrder: newIncomingCashOrder)));
+                            setState(() {
+                              textFieldTrashPartnerController.text =
+                                  newIncomingCashOrder.namePartner;
+                            });
+                          },
+                          icon: const Icon(Icons.people, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              textFieldTrashPartnerController.text = '';
+                              newIncomingCashOrder.uidPartner = '';
+                              newIncomingCashOrder.namePartner = '';
+                            });
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Contract
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldTrashContractController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Договор (торговая точка)',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ScreenContractSelection(
+                                            incomingCashOrder: newIncomingCashOrder)));
+                            setState(() {
+                              textFieldTrashContractController.text =
+                                  newIncomingCashOrder.nameContract;
+                            });
+                          },
+                          icon: const Icon(Icons.recent_actors,
+                              color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              textFieldTrashContractController.text = '';
+                              newIncomingCashOrder.uidContract = '';
+                              newIncomingCashOrder.nameContract = '';
+                            });
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              /// Button refresh
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: (MediaQuery.of(context).size.width - 49) / 2,
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            await loadTrashDocuments();
+                            setState(() {
+                              visibleListTrashParameters = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.update, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Заполнить')
+                            ],
+                          )),
+                    ),
+                    const SizedBox(
+                      width: 14,
+                    ),
+                    SizedBox(
+                      height: 40,
+                      width: (MediaQuery.of(context).size.width - 35) / 2,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            await loadTrashDocuments();
+                            setState(() {
+                              textFieldTrashPartnerController.text = '';
+                              textFieldTrashContractController.text = '';
+                              textFieldTrashPeriodController.text = '';
+
+                              newIncomingCashOrder.uidPartner = '';
+                              newIncomingCashOrder.namePartner = '';
+                              newIncomingCashOrder.uidContract = '';
+                              newIncomingCashOrder.nameContract = '';
+
+                              visibleListTrashParameters = false;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.delete, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Очистить'),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(),
             ],
           ),
         ),
@@ -390,11 +1057,11 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   children: [
                     const Divider(),
                     Row(
-                      mainAxisSize: MainAxisSize.max,
                       children: [
-                        const Icon(Icons.domain, color: Colors.blue, size: 20),
+                        const Icon(Icons.recent_actors,
+                            color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
+                        Text(incomingCashOrder.nameContract),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -405,16 +1072,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.recent_actors,
+                                  const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(incomingCashOrder.nameContract),
+                                  Text(shortDateToString(incomingCashOrder.date)),
                                 ],
                               )
                             ],
                           )),
                       Expanded(
-                          flex: 1,
+                          flex: 2,
                           child: Column(
                             children: [
                               Row(
@@ -479,13 +1146,13 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(incomingCashOrder.nameCashbox),
+                                  Text(shortDateToString(incomingCashOrder.date)),
                                 ],
                               ),
                             ],
                           )),
                       Expanded(
-                          flex: 2,
+                          flex: 3,
                           child: Column(
                             children: [
                               Row(
@@ -507,10 +1174,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.more_time,
-                                      color: Colors.blue, size: 20),
+                                  incomingCashOrder.numberFrom1C != ''
+                                      ? const Icon(Icons.numbers,
+                                      color: Colors.green, size: 20)
+                                      : const Icon(Icons.numbers,
+                                      color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(incomingCashOrder.dateSendingTo1C)),
+                                  incomingCashOrder.numberFrom1C != ''
+                                      ? Text(shortDateToString(incomingCashOrder.dateSendingTo1C)) :
+                                  const Text('Даты нет!',
+                                      style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],
@@ -529,7 +1202,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const SizedBox(width: 5),
                                   incomingCashOrder.numberFrom1C != ''
                                       ? Text(incomingCashOrder.numberFrom1C) :
-                                  const Text('Нет данных!',
+                                  const Text('Номера нет!',
                                       style: TextStyle(color: Colors.red)),
                                 ],
                               )
@@ -569,11 +1242,11 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   children: [
                     const Divider(),
                     Row(
-                      mainAxisSize: MainAxisSize.max,
                       children: [
-                        const Icon(Icons.domain, color: Colors.blue, size: 20),
+                        const Icon(Icons.recent_actors,
+                            color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
+                        Text(incomingCashOrder.nameContract),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -587,9 +1260,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(incomingCashOrder.nameCashbox),
+                                  Text(shortDateToString(incomingCashOrder.date)),
                                 ],
-                              ),
+                              )
                             ],
                           )),
                       Expanded(
@@ -604,43 +1277,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   Text(doubleToString(incomingCashOrder.sum) + ' грн'),
                                 ],
                               ),
-                            ],
-                          ))
-                    ]),
-                    const SizedBox(height: 5),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.more_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(incomingCashOrder.dateSendingTo1C)),
-                                ],
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  incomingCashOrder.numberFrom1C != ''
-                                      ? const Icon(Icons.repeat_one,
-                                      color: Colors.green, size: 20)
-                                      : const Icon(Icons.repeat_one,
-                                      color: Colors.red, size: 20),
-                                  const SizedBox(width: 5),
-                                  incomingCashOrder.numberFrom1C != ''
-                                      ? Text(incomingCashOrder.numberFrom1C) :
-                                  const Text('Нет данных!',
-                                      style: TextStyle(color: Colors.red)),
-                                ],
-                              )
                             ],
                           ))
                     ]),

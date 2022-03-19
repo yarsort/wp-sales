@@ -397,7 +397,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
 
               /// Button refresh
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -672,7 +672,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
 
               /// Button refresh
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -950,7 +950,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
 
               /// Button refresh
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

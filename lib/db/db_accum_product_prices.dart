@@ -112,3 +112,12 @@ Future<double> dbReadProductPrice(
     return 0.0;
   }
 }
+
+Future<List<AccumProductPrice>> dbReadAllAccumProductPrice() async {
+  final db = await instance.database;
+  const orderBy = '${ItemAccumProductPricesFields.price} ASC';
+  final result = await db.query(
+      tableAccumProductPrices,
+      orderBy: orderBy);
+  return result.map((json) => AccumProductPrice.fromJson(json)).toList();
+}

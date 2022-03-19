@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
+import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -13,6 +15,8 @@ class ScreenHomePage extends StatefulWidget {
 
 class _ScreenHomePageState extends State<ScreenHomePage> {
   List<Contract> listForPaymentContracts = [];
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
 
   @override
   void initState() {
@@ -58,11 +62,33 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   }
 
   renewItem() async {
+    balance = 0.0;
+    balanceForPayment = 0.0;
     listForPaymentContracts.clear();
-    listForPaymentContracts =
-        await dbReadForPaymentContracts(limit: 5);
 
-    listForPaymentContracts.sort((a, b) => a.name.compareTo(b.name));
+    List<AccumPartnerDept> listAllDebts = await dbReadAllAccumPartnerDeptForPayment();
+    listAllDebts.sort((a, b) => b.balanceForPayment.compareTo(a.balanceForPayment));
+
+    var limitCount = 10;
+    for (var itemDebts in listAllDebts) {
+      balance = balance + itemDebts.balance;
+      balanceForPayment = balanceForPayment + itemDebts.balanceForPayment;
+
+      if (limitCount == 0) {
+        continue;
+      }
+
+      Contract itemContract = await dbReadContractUID(itemDebts.uidContract);
+      itemContract.balanceForPayment = itemDebts.balanceForPayment;
+      itemContract.balance = itemDebts.balance;
+
+      // Добавим в список для отображения на форме
+      listForPaymentContracts.add(itemContract);
+      limitCount--;
+    }
+
+    // Посортируем список по названию партнера
+    //listForPaymentContracts.sort((a, b) => a.namePartner.compareTo(b.namePartner));
 
     setState(() {});
   }
@@ -77,8 +103,6 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   }
 
   balanceCard() {
-    double balance = 126530.56;
-    double balanceForPayment = 56585.1;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
@@ -253,7 +277,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                           // bottomRight: Radius.circular(5)
                         ),
                       ),
-                      height: 40,
+                      //height: 40,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
