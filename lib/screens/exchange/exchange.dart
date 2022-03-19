@@ -28,6 +28,7 @@ import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
+import 'package:wp_sales/system/system.dart';
 
 class ScreenExchangeData extends StatefulWidget {
   const ScreenExchangeData({Key? key}) : super(key: key);
@@ -456,6 +457,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       await dbCreatePrice(Price.fromJson(item));
       countItem++;
     }
+    
+    PrintLog().log('Типы цен:' + countItem.toString() + ' шт');
 
     listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
     setState(() {

@@ -32,8 +32,6 @@ class IncomingCashOrderFields {
     nameCashbox,
     sum,
     comment,
-    dateSending,
-    datePaying,
     sendYesTo1C,
     sendNoTo1C,
     dateSendingTo1C,
@@ -58,8 +56,6 @@ class IncomingCashOrderFields {
   static const String nameCashbox = 'nameCashbox';// Наименование кассы
   static const String sum = 'sum';// Сумма документа
   static const String comment = 'comment';// Комментарий
-  static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
-  static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
   static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
   static const String sendNoTo1C = 'sendNoTo1C';  // Булево: "Отправлено в 1С" - для фильтрации в списках
   static const String dateSendingTo1C = 'dateSendingTo1C'; // Дата отправки заказа в 1С из мобильного устройства
@@ -90,8 +86,6 @@ Future createTableIncomingCashOrder(db) async {
       ${IncomingCashOrderFields.nameCashbox} $textType,
       ${IncomingCashOrderFields.sum} $realType,
       ${IncomingCashOrderFields.comment} $textType,
-      ${IncomingCashOrderFields.dateSending} $textType,
-      ${IncomingCashOrderFields.datePaying} $textType,
       ${IncomingCashOrderFields.sendYesTo1C} $integerType,
       ${IncomingCashOrderFields.sendNoTo1C} $integerType,
       ${IncomingCashOrderFields.dateSendingTo1C} $textType,

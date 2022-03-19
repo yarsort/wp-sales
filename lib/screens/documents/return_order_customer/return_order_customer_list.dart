@@ -83,9 +83,9 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   }
 
   void loadData() async {
-    await loadNewDocuments();
-    await loadSendDocuments();
-    await loadTrashDocuments();
+    await loadNewReturnDocuments();
+    await loadSendReturnDocuments();
+    await loadTrashReturnDocuments();
     setState(() {});
   }
 
@@ -114,7 +114,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       returnOrderCustomer: newReturnOrderCustomer),
                 ),
               );
-              await loadNewDocuments();
+              await loadNewReturnDocuments();
               setState(() {});
             }, icon: const Icon(Icons.add)),
           ],
@@ -124,23 +124,23 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listNewParameters(),
-                yesNewDocuments(),
+                listNewReturnParameters(),
+                yesNewReturnDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listSendParameters(),
-                yesSendDocuments()
+                listSendReturnParameters(),
+                yesSendReturnDocuments()
                 //countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listTrashParameters(),
-                yesTrashDocuments()
+                listTrashReturnParameters(),
+                yesTrashReturnDocuments()
                 //countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
               ],
             ),
@@ -150,7 +150,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  loadNewDocuments() async {
+  loadNewReturnDocuments() async {
     // Очистка списка заказов покупателя
     listNewReturnOrdersCustomer.clear();
     countNewDocuments = 0;
@@ -163,7 +163,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
 
-  loadSendDocuments() async {
+  loadSendReturnDocuments() async {
     // Очистка списка заказов покупателя
     listSendReturnOrdersCustomer.clear();
     countSendDocuments = 0;
@@ -177,7 +177,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
         'Количество отправленных документов: ' + countSendDocuments.toString());
   }
 
-  loadTrashDocuments() async {
+  loadTrashReturnDocuments() async {
     // Очистка списка заказов покупателя
     listTrashReturnOrdersCustomer.clear();
     countTrashDocuments = 0;
@@ -191,7 +191,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
         'Количество удаленных документов: ' + countTrashDocuments.toString());
   }
 
-  listNewParameters() {
+  listNewReturnParameters() {
     return Column(
       children: [
         Padding(
@@ -406,7 +406,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadNewDocuments();
+                            await loadNewReturnDocuments();
                             setState(() {
                               visibleListNewParameters = false;
                             });
@@ -431,7 +431,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
-                            await loadNewDocuments();
+                            await loadNewReturnDocuments();
                             setState(() {
                               textFieldNewPartnerController.text = '';
                               textFieldNewContractController.text = '';
@@ -466,7 +466,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  listSendParameters() {
+  listSendReturnParameters() {
     return Column(
       children: [
         Padding(
@@ -681,7 +681,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadSendDocuments();
+                            await loadSendReturnDocuments();
                             setState(() {
                               visibleListSendParameters = false;
                             });
@@ -706,7 +706,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
-                            await loadSendDocuments();
+                            await loadSendReturnDocuments();
                             setState(() {
                               textFieldSendPartnerController.text = '';
                               textFieldSendContractController.text = '';
@@ -741,7 +741,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  listTrashParameters() {
+  listTrashReturnParameters() {
     return Column(
       children: [
         Padding(
@@ -959,7 +959,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadTrashDocuments();
+                            await loadTrashReturnDocuments();
                             setState(() {
                               visibleListTrashParameters = false;
                             });
@@ -984,7 +984,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
-                            await loadTrashDocuments();
+                            await loadTrashReturnDocuments();
                             setState(() {
                               textFieldTrashPartnerController.text = '';
                               textFieldTrashContractController.text = '';
@@ -1019,7 +1019,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  yesNewDocuments() {
+  yesNewReturnDocuments() {
     return ColumnBuilder(
         itemCount: listNewReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
@@ -1113,7 +1113,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
         });
   }
 
-  yesSendDocuments() {
+  yesSendReturnDocuments() {
     // Отображение списка заказов покупателя
     return ColumnBuilder(
         itemCount: listSendReturnOrdersCustomer.length,
@@ -1248,7 +1248,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
         });
   }
 
-  yesTrashDocuments() {
+  yesTrashReturnDocuments() {
     // Отображение списка заказов покупателя
     return ColumnBuilder(
         itemCount: listTrashReturnOrdersCustomer.length,

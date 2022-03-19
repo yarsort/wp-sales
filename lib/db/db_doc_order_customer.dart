@@ -171,7 +171,7 @@ Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer, List<It
       /// Запись ТЧ "Товары"
       for (var itemOrderCustomer in itemsOrderCustomer) {
         itemOrderCustomer.idOrderCustomer = orderCustomer.id;
-        txn.insert(tableItemsOrderCustomer, itemOrderCustomer.toJson());
+        await txn.insert(tableItemsOrderCustomer, itemOrderCustomer.toJson());
       }
     });
     return orderCustomer;
@@ -225,7 +225,7 @@ Future<int> dbDeleteOrderCustomer(int id) async {
       );
       txn.delete(
         tableItemsOrderCustomer,
-        where: '${ItemOrderCustomerFields.id} = ?',
+        where: '${ItemOrderCustomerFields.idOrderCustomer} = ?',
         whereArgs: [id],
       );
     });

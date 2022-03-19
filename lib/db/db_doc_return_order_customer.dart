@@ -71,7 +71,6 @@ class ReturnOrderCustomerFields {
   static const String dateSendingTo1C = 'dateSendingTo1C'; // Дата отправки заказа в 1С из мобильного устройства
   static const String numberFrom1C = 'numberFrom1C';
   static const String countItems = 'countItems';
-
 }
 
 /// Поля для базы данных
@@ -160,25 +159,22 @@ Future createTableItemReturnOrderCustomer(db) async {
 }
 
 /// Операции с объектами: CRUD and more
-Future<ReturnOrderCustomer> dbCreateReturnOrderCustomer(ReturnOrderCustomer returnOrderCustomer, List<ItemReturnOrderCustomer> itemsReturnOrderCustomer) async {
+Future<ReturnOrderCustomer> dbCreateReturnOrderCustomer(ReturnOrderCustomer returnOrderCustomer,
+    List<ItemReturnOrderCustomer> itemsReturnOrderCustomer) async {
   final db = await instance.database;
   try {
     db.transaction((txn) async {
-      returnOrderCustomer.id =
-      await txn.insert(
-          tableReturnOrderCustomer,
-          returnOrderCustomer.toJson());
+      returnOrderCustomer.id = await txn.insert(tableReturnOrderCustomer, returnOrderCustomer.toJson());
 
-      // /// Запись ТЧ "Товары"
-      // for (var itemReturnOrderCustomer in itemsReturnOrderCustomer) {
-      //   itemReturnOrderCustomer.idReturnOrderCustomer = returnOrderCustomer.id;
-      //   txn.insert(tableItemsReturnOrderCustomer,itemReturnOrderCustomer.toJson());
-      // }
+      /// Запись ТЧ "Товары"
+      for (var itemReturnOrderCustomer in itemsReturnOrderCustomer) {
+        itemReturnOrderCustomer.idReturnOrderCustomer = returnOrderCustomer.id;
+        await txn.insert(tableItemsReturnOrderCustomer, itemReturnOrderCustomer.toJson());
+      }
     });
     return returnOrderCustomer;
   } catch (e) {
-    throw Exception('Ошибка записи объекта! '
-        '$e');
+    throw Exception('Ошибка записи объекта!');
   }
 }
 
@@ -205,7 +201,7 @@ Future<int> dbUpdateReturnOrderCustomer(ReturnOrderCustomer returnOrderCustomer,
 
       /// Добавление ТЧ "Товары"
       for (var itemReturnOrderCustomer in itemsReturnOrderCustomer) {
-        itemReturnOrderCustomer.id = returnOrderCustomer.id;
+        itemReturnOrderCustomer.idReturnOrderCustomer = returnOrderCustomer.id;
         txn.insert(tableItemsReturnOrderCustomer, itemReturnOrderCustomer.toJson());
         intOperation = intOperation + 1;
       }
@@ -227,7 +223,7 @@ Future<int> dbDeleteReturnOrderCustomer(int id) async {
       );
       txn.delete(
         tableItemsReturnOrderCustomer,
-        where: '${ItemReturnOrderCustomerFields.id} = ?',
+        where: '${ItemReturnOrderCustomerFields.idReturnOrderCustomer} = ?',
         whereArgs: [id],
       );
     });
