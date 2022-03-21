@@ -76,14 +76,20 @@ class _ScreenOrderCustomerSelectionState extends State<ScreenOrderCustomerSelect
 
     //  Если в подчиненном документе есть указанны договор, то отфильтруем по нему
     for (var itemOrderCustomer in tempListParentOrdersCustomer) {
-      if (widget.returnOrderCustomer?.uidContract != '') {
-
-        // Если контракт не такой как в документе, то пропустим его.
-        // Значит идет подбор заказов строго по договору.
+      // Если контракт не такой как в документе, то пропустим его.
+      // Значит идет подбор заказов строго по договору.
+      if (widget.returnOrderCustomer != null) {
         if (widget.returnOrderCustomer?.uidContract != itemOrderCustomer?.uidContract) {
           continue;
         }
       }
+      if (widget.incomingCashOrder != null) {
+        if (widget.incomingCashOrder?.uidContract != itemOrderCustomer?.uidContract) {
+          continue;
+        }
+      }
+
+      // Заполним список заказов
       listParentOrdersCustomer.add(itemOrderCustomer);
     }
 
@@ -108,14 +114,15 @@ class _ScreenOrderCustomerSelectionState extends State<ScreenOrderCustomerSelect
                     ? Colors.lightGreen[50]
                     : Colors.deepOrange[50],
                 onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
-                    ),
-                  );
-                  loadData();
+                  setState(() {
+                    if (widget.returnOrderCustomer != null) {
+                      widget.returnOrderCustomer?.uidParent = orderCustomer.uid;
+                    }
+                    if (widget.incomingCashOrder != null) {
+                      widget.incomingCashOrder?.uidParent = orderCustomer.uid;
+                    }
+                  });
+                  Navigator.pop(context);
                 },
                 title: Text(orderCustomer.namePartner),
                 subtitle: Column(

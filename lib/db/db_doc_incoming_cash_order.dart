@@ -138,13 +138,13 @@ Future<IncomingCashOrder> dbReadIncomingCashOrder(int id) async {
   }
 }
 
-Future<List<IncomingCashOrder>> dbReadIncomingCashOrderUIDParent(String uidPartner) async {
+Future<List<IncomingCashOrder>> dbReadIncomingCashOrderUIDParent(String uidParent) async {
   final db = await instance.database;
   final result = await db.query(
     tableIncomingCashOrder,
     columns: IncomingCashOrderFields.values,
     where: '${IncomingCashOrderFields.uidParent} = ?',
-    whereArgs: [uidPartner],
+    whereArgs: [uidParent],
   );
 
   return result.map((json) => IncomingCashOrder.fromJson(json)).toList();

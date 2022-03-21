@@ -94,14 +94,18 @@ Future<int> dbDeleteAllPartnerDept() async {
 
 Future<AccumPartnerDept> dbReadPartnerDept({
   required String uidPartner,
-  required String uidContract}) async {
+  required String uidContract,
+  required String uidDoc,}) async {
+
   final db = await instance.database;
   final maps = await db.query(
     tableAccumPartnerDebts,
     columns: ItemAccumPartnerDeptFields.values,
     where:
-    '${ItemAccumPartnerDeptFields.uidPartner} = ? AND ${ItemAccumPartnerDeptFields.uidContract} = ?',
-    whereArgs: [uidPartner, uidContract],
+    '${ItemAccumPartnerDeptFields.uidPartner} = ? '
+        'AND ${ItemAccumPartnerDeptFields.uidContract} = ?'
+        'AND ${ItemAccumPartnerDeptFields.uidDoc} = ?',
+    whereArgs: [uidPartner, uidContract, uidDoc],
   );
 
   if (maps.isNotEmpty) {

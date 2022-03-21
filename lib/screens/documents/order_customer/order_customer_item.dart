@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_doc_return_order_customer.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/db/db_ref_organization.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/db/db_ref_warehouse.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
@@ -16,6 +19,8 @@ import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
+import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
+import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
@@ -39,8 +44,9 @@ class ScreenItemOrderCustomer extends StatefulWidget {
 }
 
 class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
-
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  int countChangeDoc = 0;
 
   /// Количество строк товаров в заказе
   int countItems = 0;
@@ -48,6 +54,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Позиции товаров в заказе
   List<ItemOrderCustomer> itemsOrder = [];
+
+  /// Позиции товаров в заказе
+  List<dynamic> listDocsByParent = [];
 
   /// Поле ввода: Организация
   TextEditingController textFieldOrganizationController =
@@ -106,12 +115,18 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     super.initState();
     updateHeader();
     renewItems();
+    renewDocsByParent();
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        // Если не изменился счетчик изменений документа
+        if (countChangeDoc <= 1) {
+          return true;
+        }
+
         final value = await showDialog<bool>(
             context: context,
             builder: (context) {
@@ -183,8 +198,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenProductSelectionTreeView(
-                        listItemDoc: itemsOrder,
-                        orderCustomer: widget.orderCustomer),
+                          listItemDoc: itemsOrder,
+                          orderCustomer: widget.orderCustomer),
                     ),
                   );
                   renewItems();
@@ -212,13 +227,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  listItemsOrder(),
+                  listViewItemsOrder(),
                 ],
               ),
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
                   listServiceOrder(),
+                  listButtonsDocsByParent(),
+                  listViewDocsByParent(),
                 ],
               ),
             ],
@@ -229,97 +246,98 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   }
 
   updateHeader() async {
+    // Это новый документ
+    if (widget.orderCustomer.uid == '') {
+      widget.orderCustomer.uid = const Uuid().v4();
 
-      // Это новый документ
-      if (widget.orderCustomer.uid == '') {
-        widget.orderCustomer.uid = const Uuid().v4();
+      final SharedPreferences prefs = await _prefs;
 
-        final SharedPreferences prefs = await _prefs;
+      // Заполнение значений по-умолчанию
+      var uidOrganization = prefs.getString('settings_uidOrganization') ?? '';
+      Organization organization = await dbReadOrganizationUID(uidOrganization);
+      widget.orderCustomer.uidOrganization = organization.uid;
+      widget.orderCustomer.nameOrganization = organization.name;
 
-        // Заполнение значений по-умолчанию
-        var uidOrganization = prefs.getString('settings_uidOrganization')??'';
-        Organization organization = await dbReadOrganizationUID(uidOrganization);
-        widget.orderCustomer.uidOrganization = organization.uid;
-        widget.orderCustomer.nameOrganization = organization.name;
+      var uidPartner = prefs.getString('settings_uidPartner') ?? '';
+      Partner partner = await dbReadPartnerUID(uidPartner);
+      widget.orderCustomer.uidPartner = partner.uid;
+      widget.orderCustomer.namePartner = partner.name;
 
-        var uidPartner = prefs.getString('settings_uidPartner')??'';
-        Partner partner = await dbReadPartnerUID(uidPartner);
-        widget.orderCustomer.uidPartner = partner.uid;
-        widget.orderCustomer.namePartner = partner.name;
+      var uidPrice = prefs.getString('settings_uidPrice') ?? '';
+      Price price = await dbReadPriceUID(uidPrice);
+      widget.orderCustomer.uidPrice = price.uid;
+      widget.orderCustomer.namePrice = price.name;
 
-        var uidPrice = prefs.getString('settings_uidPrice')??'';
-        Price price = await dbReadPriceUID(uidPrice);
-        widget.orderCustomer.uidPrice = price.uid;
-        widget.orderCustomer.namePrice = price.name;
+      var uidCashbox = prefs.getString('settings_uidCashbox') ?? '';
+      Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
+      widget.orderCustomer.uidCashbox = cashbox.uid;
+      widget.orderCustomer.nameCashbox = cashbox.name;
 
-        var uidCashbox = prefs.getString('settings_uidCashbox')??'';
-        Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
-        widget.orderCustomer.uidCashbox = cashbox.uid;
-        widget.orderCustomer.nameCashbox = cashbox.name;
+      var uidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
+      Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
+      widget.orderCustomer.uidWarehouse = warehouse.uid;
+      widget.orderCustomer.nameWarehouse = warehouse.name;
+    }
 
-        var uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
-        Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
-        widget.orderCustomer.uidWarehouse = warehouse.uid;
-        widget.orderCustomer.nameWarehouse = warehouse.name;
-      }
+    countItems = widget.orderCustomer.countItems;
+    textFieldOrganizationController.text =
+        widget.orderCustomer.nameOrganization;
+    textFieldPartnerController.text = widget.orderCustomer.namePartner;
+    textFieldContractController.text = widget.orderCustomer.nameContract;
+    textFieldPriceController.text = widget.orderCustomer.namePrice;
+    textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
+    textFieldCashboxController.text = widget.orderCustomer.nameCashbox;
+    textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
+    textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
 
-      countItems = widget.orderCustomer.countItems;
-      textFieldOrganizationController.text =
-          widget.orderCustomer.nameOrganization;
-      textFieldPartnerController.text = widget.orderCustomer.namePartner;
-      textFieldContractController.text = widget.orderCustomer.nameContract;
-      textFieldPriceController.text = widget.orderCustomer.namePrice;
-      textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
-      textFieldCashboxController.text = widget.orderCustomer.nameCashbox;
-      textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
-      textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
+    textFieldDateSendingController.text =
+        shortDateToString(widget.orderCustomer.dateSending);
+    textFieldDatePayingController.text =
+        shortDateToString(widget.orderCustomer.datePaying);
+    textFieldCommentController.text = widget.orderCustomer.comment;
 
-      textFieldDateSendingController.text =
-          shortDateToString(widget.orderCustomer.dateSending);
-      textFieldDatePayingController.text =
-          shortDateToString(widget.orderCustomer.datePaying);
-      textFieldCommentController.text = widget.orderCustomer.comment;
+    // Технические данные
+    textFieldUUIDController.text = widget.orderCustomer.uid;
+    sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
+    sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
+    textFieldDateSendingTo1CController.text =
+        shortDateToString(widget.orderCustomer.dateSendingTo1C);
+    textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
 
-      // Технические данные
-      textFieldUUIDController.text = widget.orderCustomer.uid;
-      sendNoTo1C = widget.orderCustomer.sendNoTo1C == 1 ? true : false;
-      sendYesTo1C = widget.orderCustomer.sendYesTo1C == 1 ? true : false;
-      textFieldDateSendingTo1CController.text =
-          shortDateToString(widget.orderCustomer.dateSendingTo1C);
-      textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
+    // Проверка Организации
+    if ((textFieldPartnerController.text.trim() == '') ||
+        (textFieldOrganizationController.text.trim() == '')) {
+      textFieldContractController.text = '';
+      widget.orderCustomer.nameContract = '';
+      widget.orderCustomer.uidContract = '';
 
-      // Проверка Организации
-      if ((textFieldPartnerController.text.trim() == '') ||
-          (textFieldOrganizationController.text.trim() == '')) {
-        textFieldContractController.text = '';
-        widget.orderCustomer.nameContract = '';
-        widget.orderCustomer.uidContract = '';
+      textFieldPriceController.text = '';
+      widget.orderCustomer.namePrice = '';
+      widget.orderCustomer.uidPrice = '';
 
-        textFieldPriceController.text = '';
-        widget.orderCustomer.namePrice = '';
-        widget.orderCustomer.uidPrice = '';
+      textFieldCurrencyController.text = '';
+      widget.orderCustomer.nameCurrency = '';
+      widget.orderCustomer.uidCurrency = '';
 
-        textFieldCurrencyController.text = '';
-        widget.orderCustomer.nameCurrency = '';
-        widget.orderCustomer.uidCurrency = '';
+      textFieldCashboxController.text = '';
+      widget.orderCustomer.nameCashbox = '';
+      widget.orderCustomer.uidCashbox = '';
+    }
 
-        textFieldCashboxController.text = '';
-        widget.orderCustomer.nameCashbox = '';
-        widget.orderCustomer.uidCashbox = '';
-      }
+    // Проверка договора
+    if (textFieldContractController.text.trim() == '') {
+      textFieldPriceController.text = '';
+      widget.orderCustomer.namePrice = '';
+      widget.orderCustomer.uidPrice = '';
 
-      // Проверка договора
-      if (textFieldContractController.text.trim() == '') {
-        textFieldPriceController.text = '';
-        widget.orderCustomer.namePrice = '';
-        widget.orderCustomer.uidPrice = '';
+      textFieldCurrencyController.text = '';
+      widget.orderCustomer.nameCurrency = '';
+      widget.orderCustomer.uidCurrency = '';
+    }
 
-        textFieldCurrencyController.text = '';
-        widget.orderCustomer.nameCurrency = '';
-        widget.orderCustomer.uidCurrency = '';
-      }
-
-      setState(() {});
+    setState(() {
+      countChangeDoc++;
+    });
   }
 
   showMessageError(String textMessage) {
@@ -341,6 +359,27 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
+  nameGroup({String nameGroup = '', bool hideDivider = false}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 7, 14, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            nameGroup,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.blueGrey,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.start,
+          ),
+          if (!hideDivider) const Divider(),
+        ],
+      ),
+    );
+  }
+
   renewItems() async {
     countItems = 0;
 
@@ -358,6 +397,28 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     widget.orderCustomer.countItems = countItems;
 
     debugPrint('Количество товаров: ' + countItems.toString());
+
+    setState(() {});
+  }
+
+  renewDocsByParent() async {
+    countItems = 0;
+
+    listDocsByParent.clear();
+
+    if (widget.orderCustomer.id != 0) {
+      var tempList1 =
+          await dbReadIncomingCashOrderUIDParent(widget.orderCustomer.uid);
+      listDocsByParent.addAll(tempList1);
+      var tempList2 =
+          await dbReadReturnOrderCustomerUIDParent(widget.orderCustomer.uid);
+      listDocsByParent.addAll(tempList2);
+    }
+
+    // Количество документов в списке
+    countItems = listDocsByParent.length;
+
+    debugPrint('Количество подчиненных документов: ' + countItems.toString());
 
     setState(() {});
   }
@@ -552,8 +613,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenWarehouseSelection(
-                          orderCustomer: widget.orderCustomer,
-                          returnOrderCustomer: ReturnOrderCustomer(),)));
+                              orderCustomer: widget.orderCustomer,
+                              returnOrderCustomer: ReturnOrderCustomer(),
+                            )));
                 updateHeader();
               }),
 
@@ -579,9 +641,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.date_range,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                setState(() {
-                  textFieldDateSendingController.text = '';
+                setState(() async {
                   widget.orderCustomer.dateSending = DateTime(1900, 1, 1);
+                  await updateHeader();
                 });
               },
               onPressedEdit: () async {
@@ -609,9 +671,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.date_range,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                setState(() {
-                  textFieldDatePayingController.text = '';
+                setState(() async {
                   widget.orderCustomer.datePaying = DateTime(1900, 1, 1);
+                  await updateHeader();
                 });
               },
               onPressedEdit: () async {
@@ -629,6 +691,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                         shortDateToString(_datePick);
                     widget.orderCustomer.datePaying = _datePick;
                   });
+                  await updateHeader();
                 }
               }),
 
@@ -636,6 +699,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
+              onSubmitted: (value) async {
+                widget.orderCustomer.comment = value;
+                await updateHeader();
+              },
               maxLines: 3,
               keyboardType: TextInputType.text,
               controller: textFieldCommentController,
@@ -713,7 +780,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
-  listItemsOrder() {
+  listViewItemsOrder() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: ColumnBuilder(
@@ -723,230 +790,447 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             return Padding(
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
               child: Card(
-                elevation: 2,
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: PopupMenuButton<String>(
-                    onSelected: (String value) async {
-                      if (value == 'delete'){
-                          itemsOrder = List.from(itemsOrder)
-                            ..removeAt(index);
+                  elevation: 2,
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: PopupMenuButton<String>(
+                      onSelected: (String value) async {
+                        if (value == 'delete') {
+                          itemsOrder = List.from(itemsOrder)..removeAt(index);
                           setState(() {
-                            OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
-                            OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
+                            OrderCustomer()
+                                .allSum(widget.orderCustomer, itemsOrder);
+                            OrderCustomer()
+                                .allCount(widget.orderCustomer, itemsOrder);
                             updateHeader();
                           });
-                      }
-                      if (value == 'edit') {
-                        Product productItem = await dbReadProductUID(item.uid);
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ScreenAddItem(
-                                    listItemDoc: itemsOrder,
-                                    orderCustomer: widget.orderCustomer,
-                                    product: productItem),
-                          ),
-                        );
-                        setState(() {
-                          OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
-                          OrderCustomer().allCount(widget.orderCustomer, itemsOrder);
-                          updateHeader();
-                        });
-                      }
-                    },
-                    child: ListTile(
-                      title: Text(item.name),
-                      subtitle: Column(
-                        children: [
-                          const Divider(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                  flex: 1,
-                                  child: Text(doubleThreeToString(item.count))),
-                              Expanded(flex: 1, child: Text(item.nameUnit)),
-                              Expanded(
-                                  flex: 1, child: Text(doubleToString(item.price))),
-                              Expanded(
-                                  flex: 1, child: Text(doubleToString(item.sum))),
+                        }
+                        if (value == 'edit') {
+                          Product productItem =
+                              await dbReadProductUID(item.uid);
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScreenAddItem(
+                                  listItemDoc: itemsOrder,
+                                  orderCustomer: widget.orderCustomer,
+                                  product: productItem),
+                            ),
+                          );
+                          setState(() {
+                            OrderCustomer()
+                                .allSum(widget.orderCustomer, itemsOrder);
+                            OrderCustomer()
+                                .allCount(widget.orderCustomer, itemsOrder);
+                            updateHeader();
+                          });
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                        PopupMenuItem<String>(
+                          value: 'view',
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.search,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Просмотр'),
                             ],
                           ),
-                        ],
+                        ),
+                        PopupMenuItem<String>(
+                          value: 'edit',
+                          child: Row(children: const [
+                            Icon(
+                              Icons.edit,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text('Изменить')
+                          ]),
+                        ),
+                        PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Удалить'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      child: ListTile(
+                        title: Text(item.name),
+                        subtitle: Column(
+                          children: [
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    flex: 1,
+                                    child:
+                                        Text(doubleThreeToString(item.count))),
+                                Expanded(flex: 1, child: Text(item.nameUnit)),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(doubleToString(item.price))),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(doubleToString(item.sum))),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      PopupMenuItem<String>(
-                        value: 'view',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.search, color: Colors.blue,),
-                            SizedBox(width: 10,),
-                            Text('Просмотр'),
-                          ],
-                        ),
+                  )),
+            );
+          }),
+    );
+  }
+
+  listViewDocsByParent() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: ColumnBuilder(
+          itemCount: listDocsByParent.length,
+          itemBuilder: (context, index) {
+            final item = listDocsByParent[index];
+
+            var nameDoc = '';
+            if (item.runtimeType == IncomingCashOrder) {
+              if (item.numberFrom1C != '') {
+                nameDoc = 'Оплата заказа № ' + item.numberFrom1C;
+              } else {
+                nameDoc = 'Оплата заказа № <номер не получен>';
+              }
+            }
+            if (item.runtimeType == ReturnOrderCustomer) {
+              if (item.numberFrom1C != '') {
+                nameDoc = 'Возврат заказа № ' + item.numberFrom1C;
+              } else {
+                nameDoc = 'Возврат заказа № <номер не получен>';
+              }
+            }
+
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+              child: Card(
+                elevation: 3,
+                child: ListTile(
+                  //tileColor: Colors.cyan[50],
+                  onTap: () async {},
+                  title: Text(nameDoc),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          const Icon(Icons.domain,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(flex: 1, child: Text(item.nameContract)),
+                        ],
                       ),
-                      PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.edit, color: Colors.blue,),
-                            SizedBox(width: 10,),
-                            Text('Изменить')
-                          ]
-                        ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.delete, color: Colors.red,),
-                            SizedBox(width: 10,),
-                            Text('Удалить'),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(height: 5),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.access_time,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(shortDateToString(item.date)),
+                                  ],
+                                ),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.price_change,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(doubleToString(item.sum) + ' грн'),
+                                  ],
+                                ),
+                              ],
+                            ))
+                      ]),
                     ],
                   ),
-                )
+                ),
               ),
             );
           }),
     );
   }
 
-  listServiceOrder() {
+  listButtonsDocsByParent() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(14, 7, 14, 0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// UUID
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldUUIDController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Подчиненные документы',
+                style: TextStyle(
+                  fontSize: 16,
                   color: Colors.blueGrey,
+                  fontWeight: FontWeight.bold,
                 ),
-                labelText: 'UUID',
+                textAlign: TextAlign.start,
               ),
-            ),
-          ),
+              PopupMenuButton<String>(
+                onSelected: (String value) async {
+                  if (value == 'return_order_customer') {
+                    // Проверим что бы заказ был записан!
+                    if (widget.orderCustomer.id == 0) {
+                      showMessageError('Заказ не записан!');
+                      return;
+                    }
 
-          /// Date sending to 1C
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldDateSendingTo1CController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Дата отправки в 1С',
+                    // Создадим подчиненный документ
+                    var newReturnOrderCustomer = ReturnOrderCustomer();
+                    newReturnOrderCustomer.uidParent = widget.orderCustomer.uid;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemReturnOrderCustomer(
+                            returnOrderCustomer: newReturnOrderCustomer),
+                      ),
+                    );
+                    renewDocsByParent();
+                  }
+                  if (value == 'incoming_cash_order') {
+                    // Проверим что бы заказ был записан!
+                    if (widget.orderCustomer.id == 0) {
+                      showMessageError('Заказ не записан!');
+                      return;
+                    }
+
+                    // Создадим подчиненный документ
+                    var newIncomingCashOrder = IncomingCashOrder();
+                    newIncomingCashOrder.uidParent = widget.orderCustomer.uid;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemIncomingCashOrder(
+                            incomingCashOrder: newIncomingCashOrder),
+                      ),
+                    );
+                    renewDocsByParent();
+                  }
+                },
+                child: const Icon(Icons.add, color: Colors.blue),
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'return_order_customer',
+                    child: Row(children: const [
+                      Icon(
+                        Icons.undo,
+                        color: Colors.blue,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text('Возврат заказа')
+                    ]),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'incoming_cash_order',
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.payment,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('Оплата заказа'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
+            ],
           ),
-
-          /// Number sending to 1C
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldNumberFrom1CController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Номер документа в 1С',
-              ),
-            ),
+          const SizedBox(
+            height: 7,
           ),
-
-          /// Sending to 1C
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: sendYesTo1C,
-                  onChanged: (value) {
-                    setState(() {
-                      /// Если нельзя отправлять в 1С, то скажем об этом
-                      if (sendNoTo1C) {
-                        const snackBar = SnackBar(
-                          content: Text(
-                              'Ошибка! Установлен флаг: Не отправлять в 1С!'),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                        /// Снятие флага на повторную отправку в учетную систему
-                        sendYesTo1C = false;
-                      } else {
-                        /// Флаг отметки на отправку
-                        sendYesTo1C = !sendYesTo1C;
-                      }
-
-                      if (!sendYesTo1C) {
-                        /// Отметим статус заказа как неотправленный
-                        widget.orderCustomer.status = 1;
-
-                        /// Очистка даты отправки заказа вручную
-                        textFieldDateSendingTo1CController.text = '';
-                      } else {
-                        /// Отметим статус заказа как отправленный
-                        widget.orderCustomer.status = 2;
-
-                        /// Фиксация даты отправки заказа вручную
-                        textFieldDateSendingTo1CController.text =
-                            shortDateToString(DateTime.now());
-                      }
-                    });
-                  },
-                ),
-                const Text('Отправлено в учетную систему'),
-              ],
-            ),
-          ),
-
-          /// No Sending to 1C
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: sendNoTo1C,
-                  onChanged: (value) {
-                    setState(() {
-                      /// Если нельзя отправлять в 1С, то скажем об этом
-                      if (sendYesTo1C) {
-                        const snackBar = SnackBar(
-                          content: Text('Ошибка! Заказ уже отправлен в 1С!'),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        sendNoTo1C = false;
-                      } else {
-                        sendNoTo1C = !sendNoTo1C;
-                      }
-                    });
-                  },
-                ),
-                const Text('Не отправлять в учетную систему'),
-              ],
-            ),
-          ),
+          const Divider(),
         ],
       ),
+    );
+  }
+
+  listServiceOrder() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: ExpansionTile(
+          tilePadding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+          title: const Text(
+            'Параметры отправки документа',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.blueGrey,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.start,
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: TextField(
+                controller: textFieldUUIDController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'UUID',
+                ),
+              ),
+            ),
+
+            /// Date sending to 1C
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: TextField(
+                controller: textFieldDateSendingTo1CController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'Дата отправки в 1С',
+                ),
+              ),
+            ),
+
+            /// Number sending to 1C
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: TextField(
+                controller: textFieldNumberFrom1CController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'Номер документа в 1С',
+                ),
+              ),
+            ),
+
+            /// Sending to 1C
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: sendYesTo1C,
+                    onChanged: (value) {
+                      setState(() {
+                        countChangeDoc++;
+
+                        /// Если нельзя отправлять в 1С, то скажем об этом
+                        if (sendNoTo1C) {
+                          const snackBar = SnackBar(
+                            content: Text(
+                                'Ошибка! Установлен флаг: Не отправлять в 1С!'),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                          /// Снятие флага на повторную отправку в учетную систему
+                          sendYesTo1C = false;
+                        } else {
+                          /// Флаг отметки на отправку
+                          sendYesTo1C = !sendYesTo1C;
+                        }
+
+                        if (!sendYesTo1C) {
+                          /// Отметим статус заказа как неотправленный
+                          widget.orderCustomer.status = 1;
+
+                          /// Очистка даты отправки заказа вручную
+                          textFieldDateSendingTo1CController.text = '';
+                        } else {
+                          /// Отметим статус заказа как отправленный
+                          widget.orderCustomer.status = 2;
+
+                          /// Фиксация даты отправки заказа вручную
+                          textFieldDateSendingTo1CController.text =
+                              shortDateToString(DateTime.now());
+                        }
+                      });
+                    },
+                  ),
+                  const Text('Отправлено в учетную систему'),
+                ],
+              ),
+            ),
+
+            /// No Sending to 1C
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: sendNoTo1C,
+                    onChanged: (value) {
+                      setState(() {
+                        countChangeDoc++;
+
+                        /// Если нельзя отправлять в 1С, то скажем об этом
+                        if (sendYesTo1C) {
+                          const snackBar = SnackBar(
+                            content: Text('Ошибка! Заказ уже отправлен в 1С!'),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          sendNoTo1C = false;
+                        } else {
+                          sendNoTo1C = !sendNoTo1C;
+                        }
+                      });
+                    },
+                  ),
+                  const Text('Не отправлять в учетную систему'),
+                ],
+              ),
+            ),
+          ]),
     );
   }
 }

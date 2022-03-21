@@ -41,9 +41,10 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  int countChangeDoc = 0;
+
   /// Количество строк товаров в заказе
   int countItems = 0;
-  bool firstOpen = true;
 
   /// Позиции товаров в заказе
   List<ItemReturnOrderCustomer> itemsReturnOrder = [];
@@ -114,6 +115,12 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        // Если не изменился счетчик изменений документа
+        if (countChangeDoc <= 1) {
+          return true;
+        }
+
+        // Попробуем записать документ
         final value = await showDialog<bool>(
             context: context,
             builder: (context) {
@@ -235,96 +242,118 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
 
   updateHeader() async {
 
-      if (widget.returnOrderCustomer.uid == '') {
-        widget.returnOrderCustomer.uid = const Uuid().v4();
-
-        final SharedPreferences prefs = await _prefs;
-
-        // Заполнение значений по-умолчанию
-        var uidOrganization = prefs.getString('settings_uidOrganization')??'';
-        Organization organization = await dbReadOrganizationUID(uidOrganization);
-        widget.returnOrderCustomer.uidOrganization = organization.uid;
-        widget.returnOrderCustomer.nameOrganization = organization.name;
-
-        var uidPartner = prefs.getString('settings_uidPartner')??'';
-        Partner partner = await dbReadPartnerUID(uidPartner);
-        widget.returnOrderCustomer.uidPartner = partner.uid;
-        widget.returnOrderCustomer.namePartner = partner.name;
-
-        var uidPrice = prefs.getString('settings_uidPrice')??'';
-        Price price = await dbReadPriceUID(uidPrice);
-        widget.returnOrderCustomer.uidPrice = price.uid;
-        widget.returnOrderCustomer.namePrice = price.name;
-
-        var uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
-        Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
-        widget.returnOrderCustomer.uidWarehouse = warehouse.uid;
-        widget.returnOrderCustomer.nameWarehouse = warehouse.name;
-      }
-
-      countItems = widget.returnOrderCustomer.countItems;
-      textFieldOrganizationController.text =
-          widget.returnOrderCustomer.nameOrganization;
-      textFieldPartnerController.text = widget.returnOrderCustomer.namePartner;
-      textFieldContractController.text = widget.returnOrderCustomer.nameContract;
-      textFieldPriceController.text = widget.returnOrderCustomer.namePrice;
-      textFieldCurrencyController.text = widget.returnOrderCustomer.nameCurrency;
-      textFieldWarehouseController.text = widget.returnOrderCustomer.nameWarehouse;
-      textFieldSumController.text = doubleToString(widget.returnOrderCustomer.sum);
-
-      textFieldDateSendingController.text =
-          shortDateToString(widget.returnOrderCustomer.dateSending);
-      textFieldDatePayingController.text =
-          shortDateToString(widget.returnOrderCustomer.datePaying);
-      textFieldCommentController.text = widget.returnOrderCustomer.comment;
-
-      // Технические данные
-      textFieldUUIDController.text = widget.returnOrderCustomer.uid;
-      sendNoTo1C = widget.returnOrderCustomer.sendNoTo1C == 1 ? true : false;
-      sendYesTo1C = widget.returnOrderCustomer.sendYesTo1C == 1 ? true : false;
-      textFieldDateSendingTo1CController.text =
-          shortDateToString(widget.returnOrderCustomer.dateSendingTo1C);
-      textFieldNumberFrom1CController.text = widget.returnOrderCustomer.numberFrom1C;
-
+    // Заполнение реквизита заказа покупателя
+    if (widget.returnOrderCustomer.uidParent != '') {
       OrderCustomer orderCustomer = await dbReadOrderCustomerUID(widget.returnOrderCustomer.uidParent);
       if (orderCustomer.id != 0) {
         if (orderCustomer.numberFrom1C != '') {
-          textFieldOrderCustomerController.text = 'Заказ №'+orderCustomer.numberFrom1C;
+          textFieldOrderCustomerController.text = 'Заказ № '+orderCustomer.numberFrom1C;
         } else {
           textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
       }
 
-      // Проверка Организации
-      if ((textFieldPartnerController.text.trim() == '') ||
-          (textFieldOrganizationController.text.trim() == '')) {
-        textFieldContractController.text = '';
-        widget.returnOrderCustomer.nameContract = '';
-        widget.returnOrderCustomer.uidContract = '';
-
-        textFieldPriceController.text = '';
-        widget.returnOrderCustomer.namePrice = '';
-        widget.returnOrderCustomer.uidPrice = '';
-
-        textFieldCurrencyController.text = '';
-        widget.returnOrderCustomer.nameCurrency = '';
-        widget.returnOrderCustomer.uidCurrency = '';
-
-        textFieldCashboxController.text = '';
+      // Если идет заполнение на основании заказа
+      if (widget.returnOrderCustomer.uid == '') {
+        widget.returnOrderCustomer.uidOrganization = orderCustomer.uidOrganization;
+        widget.returnOrderCustomer.nameOrganization = orderCustomer.nameOrganization;
+        widget.returnOrderCustomer.uidPartner = orderCustomer.uidPartner;
+        widget.returnOrderCustomer.namePartner = orderCustomer.namePartner;
+        widget.returnOrderCustomer.uidContract = orderCustomer.uidContract;
+        widget.returnOrderCustomer.nameContract = orderCustomer.nameContract;
+        widget.returnOrderCustomer.uidPrice = orderCustomer.uidPrice;
+        widget.returnOrderCustomer.namePrice = orderCustomer.namePrice;
+        widget.returnOrderCustomer.uidWarehouse = orderCustomer.uidWarehouse;
+        widget.returnOrderCustomer.nameWarehouse = orderCustomer.nameWarehouse;
       }
+    } else {
 
-      // Проверка договора
-      if (textFieldContractController.text.trim() == '') {
-        textFieldPriceController.text = '';
-        widget.returnOrderCustomer.namePrice = '';
-        widget.returnOrderCustomer.uidPrice = '';
+      // Заполняем значениями из настроек (по-умолчанию)
+      final SharedPreferences prefs = await _prefs;
 
-        textFieldCurrencyController.text = '';
-        widget.returnOrderCustomer.nameCurrency = '';
-        widget.returnOrderCustomer.uidCurrency = '';
-      }
+      // Заполнение значений по-умолчанию
+      var uidOrganization = prefs.getString('settings_uidOrganization')??'';
+      Organization organization = await dbReadOrganizationUID(uidOrganization);
+      widget.returnOrderCustomer.uidOrganization = organization.uid;
+      widget.returnOrderCustomer.nameOrganization = organization.name;
 
-      setState(() {});
+      var uidPartner = prefs.getString('settings_uidPartner')??'';
+      Partner partner = await dbReadPartnerUID(uidPartner);
+      widget.returnOrderCustomer.uidPartner = partner.uid;
+      widget.returnOrderCustomer.namePartner = partner.name;
+
+      var uidPrice = prefs.getString('settings_uidPrice')??'';
+      Price price = await dbReadPriceUID(uidPrice);
+      widget.returnOrderCustomer.uidPrice = price.uid;
+      widget.returnOrderCustomer.namePrice = price.name;
+
+      var uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+      Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
+      widget.returnOrderCustomer.uidWarehouse = warehouse.uid;
+      widget.returnOrderCustomer.nameWarehouse = warehouse.name;
+    }
+
+    // Теперь запишем идентификатор объекта
+    if (widget.returnOrderCustomer.uid == '') {
+      widget.returnOrderCustomer.uid = const Uuid().v4();
+    }
+
+    // Расчет реквизитов на форме
+    countItems = widget.returnOrderCustomer.countItems;
+    textFieldOrganizationController.text = widget.returnOrderCustomer.nameOrganization;
+    textFieldPartnerController.text = widget.returnOrderCustomer.namePartner;
+    textFieldContractController.text = widget.returnOrderCustomer.nameContract;
+    textFieldPriceController.text = widget.returnOrderCustomer.namePrice;
+    textFieldCurrencyController.text = widget.returnOrderCustomer.nameCurrency;
+    textFieldWarehouseController.text = widget.returnOrderCustomer.nameWarehouse;
+    textFieldSumController.text = doubleToString(widget.returnOrderCustomer.sum);
+
+    textFieldDateSendingController.text =
+        shortDateToString(widget.returnOrderCustomer.dateSending);
+    textFieldDatePayingController.text =
+        shortDateToString(widget.returnOrderCustomer.datePaying);
+    textFieldCommentController.text = widget.returnOrderCustomer.comment;
+
+    // Технические данные
+    textFieldUUIDController.text = widget.returnOrderCustomer.uid;
+    sendNoTo1C = widget.returnOrderCustomer.sendNoTo1C == 1 ? true : false;
+    sendYesTo1C = widget.returnOrderCustomer.sendYesTo1C == 1 ? true : false;
+    textFieldDateSendingTo1CController.text =
+        shortDateToString(widget.returnOrderCustomer.dateSendingTo1C);
+    textFieldNumberFrom1CController.text = widget.returnOrderCustomer.numberFrom1C;
+
+    // Проверка Организации
+    if ((textFieldPartnerController.text.trim() == '') ||
+        (textFieldOrganizationController.text.trim() == '')) {
+      textFieldContractController.text = '';
+      widget.returnOrderCustomer.nameContract = '';
+      widget.returnOrderCustomer.uidContract = '';
+
+      textFieldPriceController.text = '';
+      widget.returnOrderCustomer.namePrice = '';
+      widget.returnOrderCustomer.uidPrice = '';
+
+      textFieldCurrencyController.text = '';
+      widget.returnOrderCustomer.nameCurrency = '';
+      widget.returnOrderCustomer.uidCurrency = '';
+
+      textFieldCashboxController.text = '';
+    }
+
+    // Проверка договора
+    if (textFieldContractController.text.trim() == '') {
+      textFieldPriceController.text = '';
+      widget.returnOrderCustomer.namePrice = '';
+      widget.returnOrderCustomer.uidPrice = '';
+
+      textFieldCurrencyController.text = '';
+      widget.returnOrderCustomer.nameCurrency = '';
+      widget.returnOrderCustomer.uidCurrency = '';
+    }
+
+    setState(() {
+      countChangeDoc++;
+    });
   }
 
   showMessageError(String textMessage) {
@@ -349,13 +378,10 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
   renewItems() async {
     countItems = 0;
 
-    if (firstOpen) {
-      itemsReturnOrder.clear();
+    itemsReturnOrder.clear();
 
-      if (widget.returnOrderCustomer.id != 0) {
-        itemsReturnOrder = await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
-      }
-      firstOpen = false;
+    if (widget.returnOrderCustomer.id != 0) {
+      itemsReturnOrder = await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
     }
 
     // Количество документов в списке
@@ -423,7 +449,11 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
               textEditingController: textFieldOrganizationController,
               onPressedEditIcon: Icons.person,
               onPressedDeleteIcon: Icons.delete,
-              onPressedDelete: () {},
+              onPressedDelete: () async {
+                widget.returnOrderCustomer.nameOrganization = '';
+                widget.returnOrderCustomer.uidOrganization = '';
+                await updateHeader();
+              },
               onPressedEdit: () async {
                 var result = await Navigator.push(
                     context,
@@ -509,7 +539,7 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.returnOrderCustomer.uidParent = '';
-                updateHeader();
+                await updateHeader();
               },
               onPressedEdit: () async {
                 await Navigator.push(
@@ -583,10 +613,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
               onPressedEditIcon: Icons.date_range,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                setState(() {
-                  textFieldDateSendingController.text = '';
-                  widget.returnOrderCustomer.dateSending = DateTime(1900, 1, 1);
-                });
+                widget.returnOrderCustomer.dateSending = DateTime(1900, 1, 1);
+                await updateHeader();
               },
               onPressedEdit: () async {
                 DateTime selectedDate = DateTime.now();
@@ -604,6 +632,7 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
                     widget.returnOrderCustomer.dateSending = _datePick;
                   });
                 }
+                await updateHeader();
               }),
 
           /// Date paying to partner
@@ -613,10 +642,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
               onPressedEditIcon: Icons.date_range,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
-                setState(() {
-                  textFieldDatePayingController.text = '';
-                  widget.returnOrderCustomer.datePaying = DateTime(1900, 1, 1);
-                });
+                widget.returnOrderCustomer.datePaying = DateTime(1900, 1, 1);
+                await updateHeader();
               },
               onPressedEdit: () async {
                 DateTime selectedDate = DateTime.now();
@@ -634,12 +661,17 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
                     widget.returnOrderCustomer.datePaying = _datePick;
                   });
                 }
+                await updateHeader();
               }),
 
           /// Comment
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
+              onSubmitted: (value) async {
+                widget.returnOrderCustomer.comment = value;
+                await updateHeader();
+              },
               maxLines: 3,
               keyboardType: TextInputType.text,
               controller: textFieldCommentController,
@@ -823,8 +855,18 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
 
   listServiceOrder() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+        title: const Text(
+          'Параметры отправки документа',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.blueGrey,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.start,
+        ),
         children: [
           /// UUID
           Padding(
@@ -886,6 +928,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
                   value: sendYesTo1C,
                   onChanged: (value) {
                     setState(() {
+                      countChangeDoc++;
+
                       /// Если нельзя отправлять в 1С, то скажем об этом
                       if (sendNoTo1C) {
                         const snackBar = SnackBar(
@@ -932,6 +976,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
                   value: sendNoTo1C,
                   onChanged: (value) {
                     setState(() {
+                      countChangeDoc++;
+
                       /// Если нельзя отправлять в 1С, то скажем об этом
                       if (sendYesTo1C) {
                         const snackBar = SnackBar(

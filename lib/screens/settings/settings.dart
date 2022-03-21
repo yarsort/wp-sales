@@ -732,7 +732,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   listFillingByDefault() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
       child: Column(
         children: [
           /// Organization

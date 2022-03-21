@@ -249,13 +249,13 @@ Future<ReturnOrderCustomer> dbReadReturnOrderCustomer(int id) async {
   }
 }
 
-Future<List<ReturnOrderCustomer>> dbReadReturnOrderCustomerUIDPartner(String uidPartner) async {
+Future<List<ReturnOrderCustomer>> dbReadReturnOrderCustomerUIDParent(String uidParent) async {
   final db = await instance.database;
   final result = await db.query(
     tableReturnOrderCustomer,
     columns: ReturnOrderCustomerFields.values,
-    where: '${ReturnOrderCustomerFields.uidPartner} = ?',
-    whereArgs: [uidPartner],
+    where: '${ReturnOrderCustomerFields.uidParent} = ?',
+    whereArgs: [uidParent],
   );
 
   return result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
