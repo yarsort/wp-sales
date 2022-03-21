@@ -52,17 +52,6 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Товар'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.filter_list,
-                    size: 26.0,
-                  ),
-                )),
-          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Главная'),
@@ -292,7 +281,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
               children: [
                 /// Записать запись
                 SizedBox(
-                  height: 40,
+                  height: 50,
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
@@ -318,7 +307,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
 
                 /// Отменить запись
                 SizedBox(
-                  height: 40,
+                  height: 50,
                   width: (MediaQuery.of(context).size.width - 35) / 2,
                   child: ElevatedButton(
                       style: ButtonStyle(
@@ -350,7 +339,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
       children: [
         /// Поле ввода: UID
         Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+          padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
           child: TextField(
             controller: textFieldUIDController,
             readOnly: true,

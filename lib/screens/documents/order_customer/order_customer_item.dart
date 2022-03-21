@@ -27,6 +27,7 @@ import 'package:wp_sales/screens/references/organizations/organization_selection
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/screens/references/price/price_selection.dart';
 import 'package:wp_sales/screens/references/product/add_item.dart';
+import 'package:wp_sales/screens/references/product/product_item.dart';
 import 'package:wp_sales/screens/references/product/product_selection_treeview.dart';
 import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 import 'package:wp_sales/system/system.dart';
@@ -138,7 +139,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     children: [
                       ElevatedButton(
                           onPressed: () async {
-                            var result = await saveDoc();
+                            var result = await saveDocument();
                             if (result) {
                               showMessage('Запись сохранена!');
                               Navigator.of(context).pop(true);
@@ -423,7 +424,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     setState(() {});
   }
 
-  saveDoc() async {
+  saveDocument() async {
     try {
       /// Сумма товаров в заказе
       OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
@@ -445,7 +446,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     }
   }
 
-  deleteDoc() async {
+  deleteDocument() async {
     try {
       if (widget.orderCustomer.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
@@ -464,9 +465,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     }
   }
 
-  eraseDoc() {
-    return true;
-  }
+  /// Страница Главные
 
   listHeaderOrder() {
     return Padding(
@@ -728,7 +727,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        var result = await saveDoc();
+                        var result = await saveDocument();
                         if (result) {
                           showMessage('Запись сохранена!');
                           Navigator.of(context).pop(true);
@@ -757,7 +756,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           backgroundColor:
                               MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
-                        var result = await deleteDoc();
+                        var result = await deleteDocument();
                         if (result) {
                           showMessage('Запись отправлена в корзину!');
                           Navigator.of(context).pop(true);
@@ -780,6 +779,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
+  /// Страница Товары
+
   listViewItemsOrder() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
@@ -795,6 +796,16 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     alignment: Alignment.topRight,
                     child: PopupMenuButton<String>(
                       onSelected: (String value) async {
+                        if (value == 'view') {
+                          Product productItem =
+                          await dbReadProductUID(item.uid);
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScreenProductItem(productItem: productItem),
+                            ),
+                          );
+                        }
                         if (value == 'delete') {
                           itemsOrder = List.from(itemsOrder)..removeAt(index);
                           setState(() {
@@ -903,6 +914,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     );
   }
 
+  /// Страница Служебные
+
   listViewDocsByParent() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -1007,6 +1020,28 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               ),
               PopupMenuButton<String>(
                 onSelected: (String value) async {
+
+                  if (widget.orderCustomer.nameOrganization == '') {
+                    showMessageError('Организация не заполнена!');
+                    return;
+                  }
+                  if (widget.orderCustomer.namePartner == '') {
+                    showMessageError('Партнер не заполнен!');
+                    return;
+                  }
+                  if (widget.orderCustomer.nameContract == '') {
+                    showMessageError('Контракт не заполнен!');
+                    return;
+                  }
+                  if (widget.orderCustomer.namePrice == '') {
+                    showMessageError('Тип цены не заполнен!');
+                    return;
+                  }
+                  if (widget.orderCustomer.nameWarehouse == '') {
+                    showMessageError('Склад не заполнен!');
+                    return;
+                  }
+
                   if (value == 'return_order_customer') {
                     // Проверим что бы заказ был записан!
                     if (widget.orderCustomer.id == 0) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
@@ -112,6 +113,18 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
     textFieldCodeController.text = widget.contractItem.code;
 
     setState(() {});
+  }
+
+  readBalance() async {
+    // Получить баланс заказа
+    var debts = await dbReadPartnerDept(
+        uidPartner: widget.contractItem.uidPartner,
+        uidContract: widget.contractItem.uid,
+        uidDoc: widget.contractItem.uidParent);
+
+    // Запись в реквизиты
+    widget.contractItem.balance = debts.balance;
+    widget.contractItem.balanceForPayment = debts.balanceForPayment;
   }
 
   saveItem() async {

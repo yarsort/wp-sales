@@ -114,7 +114,7 @@ class _ScreenItemIncomingCashOrderState
                     children: [
                       ElevatedButton(
                           onPressed: () async {
-                            var result = await saveDoc();
+                            var result = await saveDocument();
                             if (result) {
                               showMessage('Запись сохранена!');
                               Navigator.of(context).pop(true);
@@ -200,14 +200,14 @@ class _ScreenItemIncomingCashOrderState
     var debts = await dbReadPartnerDept(
         uidPartner: widget.incomingCashOrder.uidPartner,
         uidContract: widget.incomingCashOrder.uidContract,
-        uidDoc: widget.incomingCashOrder.uidPartner);
+        uidDoc: widget.incomingCashOrder.uidParent);
 
     // Запись в реквизиты
     textFieldBalanceController.text = doubleToString(debts.balance);
     textFieldBalanceForPaymentController.text = doubleToString(debts.balanceForPayment);
   }
 
-  saveDoc() async {
+  saveDocument() async {
     try {
       if (widget.incomingCashOrder.id != 0) {
         await dbUpdateIncomingCashOrder(widget.incomingCashOrder);
@@ -223,7 +223,7 @@ class _ScreenItemIncomingCashOrderState
     }
   }
 
-  deleteDoc() async {
+  deleteDocument() async {
     try {
       if (widget.incomingCashOrder.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
@@ -499,6 +499,7 @@ class _ScreenItemIncomingCashOrderState
                 Expanded(
                     flex: 1,
                     child: TextField(
+                      readOnly: true,
                       controller: textFieldBalanceController,
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -513,6 +514,7 @@ class _ScreenItemIncomingCashOrderState
                 Expanded(
                     flex: 1,
                     child: TextField(
+                      readOnly: true,
                       controller: textFieldBalanceForPaymentController,
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -540,7 +542,7 @@ class _ScreenItemIncomingCashOrderState
                   widget.incomingCashOrder.sum = double.parse(value);
                 },
                 keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true),
+                    decimal: true, signed: true),
                 controller: textFieldSumController,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(
@@ -623,7 +625,7 @@ class _ScreenItemIncomingCashOrderState
                       .width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        var result = await saveDoc();
+                        var result = await saveDocument();
                         if (result) {
                           showMessage('Запись сохранена!');
                           Navigator.of(context).pop(true);
@@ -655,7 +657,7 @@ class _ScreenItemIncomingCashOrderState
                           backgroundColor:
                           MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
-                        var result = await deleteDoc();
+                        var result = await deleteDocument();
                         if (result) {
                           showMessage('Запись отправлена в корзину!');
                           Navigator.of(context).pop(true);

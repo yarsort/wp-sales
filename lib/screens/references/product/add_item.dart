@@ -87,7 +87,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
                 /// Product name
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+                  padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
                   child: TextField(
                     maxLines: 3,
                     readOnly: true,
@@ -317,7 +317,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
                 /// Картинки товара
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+                  padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
                   child: SizedBox(
                     child: CachedNetworkImage(
                       placeholder: (context, url) => const SizedBox(

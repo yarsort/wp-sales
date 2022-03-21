@@ -214,9 +214,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListNewParameters = !visibleListNewParameters;
-                      });
 
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
@@ -489,9 +486,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListSendParameters = !visibleListSendParameters;
-                      });
 
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
@@ -764,10 +758,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListTrashParameters =
-                            !visibleListTrashParameters;
-                      });
 
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
