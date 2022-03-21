@@ -15,6 +15,7 @@ import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
+import 'package:wp_sales/screens/documents/order_customer/order_customer_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
@@ -511,14 +512,11 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
                 updateHeader();
               },
               onPressedEdit: () async {
-                OrderCustomer orderCustomer = OrderCustomer();
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => ScreenContractSelection(
-                            orderCustomer: orderCustomer)));
-                // Изменение договора
-                widget.returnOrderCustomer.uidParent = orderCustomer.uidContract;
+                        builder: (context) => ScreenOrderCustomerSelection(
+                            returnOrderCustomer: widget.returnOrderCustomer)));
                 updateHeader();
               }),
 
