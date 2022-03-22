@@ -15,6 +15,7 @@ const integerType = 'INTEGER NOT NULL';
 class ItemAccumProductRestsFields {
   static final List<String> values = [
     id,
+    idRegistrar,
     uidWarehouse,
     uidProduct,
     uidProductCharacteristic,
@@ -24,6 +25,7 @@ class ItemAccumProductRestsFields {
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id';// Инкремент
+  static const String idRegistrar = 'idRegistrar'; // Ссылка на регистратор записи
   static const String uidWarehouse = 'uidWarehouse';
   static const String uidProduct = 'uidProduct';
   static const String uidProductCharacteristic = 'uidProductCharacteristic';
@@ -36,6 +38,7 @@ Future createTableAccumProductRests(db) async {
   await db.execute('''
     CREATE TABLE $tableAccumProductRests (    
       ${ItemAccumProductRestsFields.id} $idType,
+      ${ItemAccumProductRestsFields.idRegistrar} $integerType,
       ${ItemAccumProductRestsFields.uidWarehouse} $textType,      
       ${ItemAccumProductRestsFields.uidProduct} $textType,
       ${ItemAccumProductRestsFields.uidProductCharacteristic} $textType,
@@ -95,7 +98,6 @@ Future<double> dbReadProductRest({
   final db = await instance.database;
   final maps = await db.query(
     tableAccumProductRests,
-    columns: ItemAccumProductRestsFields.values,
     where:
     '${ItemAccumProductRestsFields.uidWarehouse} = ? '
         'AND ${ItemAccumProductRestsFields.uidProduct} = ?'

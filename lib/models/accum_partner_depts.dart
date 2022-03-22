@@ -1,6 +1,7 @@
 
 class AccumPartnerDept {
   int id = 0;
+  int idRegistrar = 0;
   String uidOrganization = '';
   String uidPartner = '';
   String uidContract = '';
@@ -14,6 +15,8 @@ class AccumPartnerDept {
   AccumPartnerDept();
 
   AccumPartnerDept.fromJson(Map<String, dynamic> json) {
+    idRegistrar = json["idRegistrar"]??0;
+    uidOrganization = json["uidOrganization"]??'';
     uidOrganization = json["uidOrganization"]??'';
     uidPartner = json["uidPartner"]??'';
     uidContract = json["uidContract"]??'';
@@ -30,6 +33,7 @@ class AccumPartnerDept {
     if (id != 0) {
       data['id'] = id;
     }
+    data['idRegistrar'] = idRegistrar;
     data['uidOrganization'] = uidOrganization;
     data['uidPartner'] = uidPartner;
     data['uidContract'] = uidContract;

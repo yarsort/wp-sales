@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
+import 'package:wp_sales/models/accum_partner_depts.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
+import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
+import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenContractItem extends StatefulWidget {
@@ -17,6 +23,7 @@ class ScreenContractItem extends StatefulWidget {
 }
 
 class _ScreenContractItemState extends State<ScreenContractItem> {
+  List<AccumPartnerDept> listAccumPartnerDept = [];
 
   /// Поле ввода: Partner
   TextEditingController textFieldPartnerController = TextEditingController();
@@ -33,6 +40,12 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   /// Поле ввода: Date of payment
   TextEditingController textFieldSchedulePaymentController = TextEditingController();
 
+  /// Поле ввода: Баланс контракта или заказа покупателя
+  TextEditingController textFieldBalanceController = TextEditingController();
+
+  /// Поле ввода: Баланс контракта или заказа покупателя
+  TextEditingController textFieldBalanceForPaymentController = TextEditingController();
+
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
 
@@ -44,14 +57,15 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
   @override
   void initState() {
+    super.initState();
     renewItem();
-    return super.initState();
+    readBalance();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -70,6 +84,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Главная'),
+              Tab(text: 'К оплате'),
               Tab(text: 'Служебные'),
             ],
           ),
@@ -81,6 +96,49 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listHeaderOrder(),
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                /// Balance of contract
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: TextField(
+                            readOnly: true,
+                            controller: textFieldBalanceController,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(
+                                color: Colors.blueGrey,
+                              ),
+                              labelText: 'Баланс',
+                            ),
+                          )),
+                      const SizedBox(width: 14),
+                      Expanded(
+                          flex: 1,
+                          child: TextField(
+                            readOnly: true,
+                            controller: textFieldBalanceForPaymentController,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(
+                                color: Colors.blueGrey,
+                              ),
+                              labelText: 'Баланс (к оплате)',
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+                listOrderCustomer(),
               ],
             ),
             ListView(
@@ -116,15 +174,26 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   }
 
   readBalance() async {
+
+    listAccumPartnerDept = await dbReadAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+
     // Получить баланс заказа
-    var debts = await dbReadPartnerDept(
-        uidPartner: widget.contractItem.uidPartner,
-        uidContract: widget.contractItem.uid,
-        uidDoc: widget.contractItem.uidParent);
+    Map debts = await dbReadSumAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
 
     // Запись в реквизиты
-    widget.contractItem.balance = debts.balance;
-    widget.contractItem.balanceForPayment = debts.balanceForPayment;
+    double balance = debts['balance'];
+    double balanceForPayment = debts['balanceForPayment'];
+
+    // Запись в реквизиты
+    widget.contractItem.balance = balance;
+    widget.contractItem.balanceForPayment = balanceForPayment;
+
+    // Запись в реквизиты
+    textFieldBalanceController.text = doubleToString(balance);
+    textFieldBalanceForPaymentController.text = doubleToString(balanceForPayment);
+
+    setState(() {});
+
   }
 
   saveItem() async {
@@ -175,6 +244,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       ),
     );
   }
+
+  /// Вкладка Шапка
 
   listHeaderOrder() {
     return Padding(
@@ -306,6 +377,44 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             ),
           ),
 
+          /// Balance of contract
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: Row(
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: TextField(
+                      readOnly: true,
+                      controller: textFieldBalanceController,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(
+                          color: Colors.blueGrey,
+                        ),
+                        labelText: 'Баланс',
+                      ),
+                    )),
+                const SizedBox(width: 14),
+                Expanded(
+                    flex: 1,
+                    child: TextField(
+                      readOnly: true,
+                      controller: textFieldBalanceForPaymentController,
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(
+                          color: Colors.blueGrey,
+                        ),
+                        labelText: 'Баланс (к оплате)',
+                      ),
+                    )),
+              ],
+            ),
+          ),
+
           /// Divider
           const Padding(
             padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -387,6 +496,190 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       ),
     );
   }
+
+  /// Вкладка Заказы
+
+  listOrderCustomer() {
+    return ColumnBuilder(
+        itemCount: listAccumPartnerDept.length,
+        itemBuilder: (context, index) {
+          final itemDept = listAccumPartnerDept[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Card(
+              elevation: 2,
+              child: PopupMenuButton<String>(
+                onSelected: (String value) async {
+
+                  // Создадим подчиненный документ возврата заказа
+                  if (value == 'return_order_customer') {
+                    // Создадим объект
+                    var newReturnOrderCustomer = ReturnOrderCustomer();
+                    newReturnOrderCustomer.uidOrganization = itemDept.uidOrganization;
+                    newReturnOrderCustomer.uidPartner = itemDept.uidPartner;
+                    newReturnOrderCustomer.uidContract = itemDept.uidContract;
+                    newReturnOrderCustomer.uidParent = itemDept.uidDoc;
+                    newReturnOrderCustomer.numberFrom1C = itemDept.numberDoc;
+
+                    // Откроем форму документа
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemReturnOrderCustomer(
+                            returnOrderCustomer: newReturnOrderCustomer),
+                      ),
+                    );
+                  }
+
+                  // Создадим подчиненный документ оплаты заказа
+                  if (value == 'incoming_cash_order') {
+                    // Создадим объект
+                    var newIncomingCashOrder = IncomingCashOrder();
+                    newIncomingCashOrder.uidOrganization = itemDept.uidOrganization;
+                    newIncomingCashOrder.uidPartner = itemDept.uidPartner;
+                    newIncomingCashOrder.uidContract = itemDept.uidContract;
+                    newIncomingCashOrder.uidParent = itemDept.uidDoc;
+                    newIncomingCashOrder.numberFrom1C = itemDept.numberDoc;
+
+                    if (itemDept.balanceForPayment > 0) {
+                      newIncomingCashOrder.sum = itemDept.balanceForPayment;
+                    } else {
+                      showMessage('Сумма баланса меньше ноля!');
+                      return;
+                    }
+
+                    // Откроем форму документа
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemIncomingCashOrder(
+                            incomingCashOrder: newIncomingCashOrder),
+                      ),
+                    );
+                  }
+
+                  // Обновим список баланса после создания документа, если создание завершено
+                  readBalance();
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'return_order_customer',
+                    child: Row(children: const [
+                      Icon(
+                        Icons.undo,
+                        color: Colors.blue,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text('Возврат заказа')
+                    ]),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'incoming_cash_order',
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.payment,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('Оплата заказа'),
+                      ],
+                    ),
+                  ),
+                ],
+                child: ListTile(
+                  title: Text(itemDept.nameDoc + ' № ' + itemDept.numberDoc),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(children: [
+                        Expanded(
+                          flex: 4,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.person,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Flexible(
+                                      child:
+                                      Text(widget.contractItem.namePartner)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(widget.contractItem.phone),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.home,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Flexible(
+                                      child: Text(widget.contractItem.address)),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.green, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                      doubleToString(itemDept.balance)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.red, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(itemDept.balanceForPayment)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.schedule,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(widget.contractItem.schedulePayment
+                                      .toString()),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  /// Вкладка Служебные
 
   listService() {
     return Padding(

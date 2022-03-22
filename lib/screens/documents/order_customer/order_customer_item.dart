@@ -792,120 +792,117 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
               child: Card(
                   elevation: 2,
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: PopupMenuButton<String>(
-                      onSelected: (String value) async {
-                        if (value == 'view') {
-                          Product productItem =
-                          await dbReadProductUID(item.uid);
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ScreenProductItem(productItem: productItem),
-                            ),
-                          );
-                        }
-                        if (value == 'delete') {
-                          itemsOrder = List.from(itemsOrder)..removeAt(index);
-                          setState(() {
-                            OrderCustomer()
-                                .allSum(widget.orderCustomer, itemsOrder);
-                            OrderCustomer()
-                                .allCount(widget.orderCustomer, itemsOrder);
-                            updateHeader();
-                          });
-                        }
-                        if (value == 'edit') {
-                          Product productItem =
-                              await dbReadProductUID(item.uid);
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ScreenAddItem(
-                                  listItemDoc: itemsOrder,
-                                  orderCustomer: widget.orderCustomer,
-                                  product: productItem),
-                            ),
-                          );
-                          setState(() {
-                            OrderCustomer()
-                                .allSum(widget.orderCustomer, itemsOrder);
-                            OrderCustomer()
-                                .allCount(widget.orderCustomer, itemsOrder);
-                            updateHeader();
-                          });
-                        }
-                      },
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                        PopupMenuItem<String>(
-                          value: 'view',
-                          child: Row(
-                            children: const [
-                              Icon(
-                                Icons.search,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text('Просмотр'),
-                            ],
+                  child: PopupMenuButton<String>(
+                    onSelected: (String value) async {
+                      if (value == 'view') {
+                        Product productItem =
+                        await dbReadProductUID(item.uid);
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ScreenProductItem(productItem: productItem),
                           ),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Row(children: const [
+                        );
+                      }
+                      if (value == 'delete') {
+                        itemsOrder = List.from(itemsOrder)..removeAt(index);
+                        setState(() {
+                          OrderCustomer()
+                              .allSum(widget.orderCustomer, itemsOrder);
+                          OrderCustomer()
+                              .allCount(widget.orderCustomer, itemsOrder);
+                          updateHeader();
+                        });
+                      }
+                      if (value == 'edit') {
+                        Product productItem =
+                            await dbReadProductUID(item.uid);
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ScreenAddItem(
+                                listItemDoc: itemsOrder,
+                                orderCustomer: widget.orderCustomer,
+                                product: productItem),
+                          ),
+                        );
+                        setState(() {
+                          OrderCustomer()
+                              .allSum(widget.orderCustomer, itemsOrder);
+                          OrderCustomer()
+                              .allCount(widget.orderCustomer, itemsOrder);
+                          updateHeader();
+                        });
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      PopupMenuItem<String>(
+                        value: 'view',
+                        child: Row(
+                          children: const [
                             Icon(
-                              Icons.edit,
+                              Icons.search,
                               color: Colors.blue,
                             ),
                             SizedBox(
                               width: 10,
                             ),
-                            Text('Изменить')
-                          ]),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Row(
-                            children: const [
-                              Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text('Удалить'),
-                            ],
-                          ),
-                        ),
-                      ],
-                      child: ListTile(
-                        title: Text(item.name),
-                        subtitle: Column(
-                          children: [
-                            const Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                    flex: 1,
-                                    child:
-                                        Text(doubleThreeToString(item.count))),
-                                Expanded(flex: 1, child: Text(item.nameUnit)),
-                                Expanded(
-                                    flex: 1,
-                                    child: Text(doubleToString(item.price))),
-                                Expanded(
-                                    flex: 1,
-                                    child: Text(doubleToString(item.sum))),
-                              ],
-                            ),
+                            Text('Просмотр'),
                           ],
                         ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'edit',
+                        child: Row(children: const [
+                          Icon(
+                            Icons.edit,
+                            color: Colors.blue,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text('Изменить')
+                        ]),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Row(
+                          children: const [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text('Удалить'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    child: ListTile(
+                      title: Text(item.name),
+                      subtitle: Column(
+                        children: [
+                          const Divider(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child:
+                                      Text(doubleThreeToString(item.count))),
+                              Expanded(flex: 1, child: Text(item.nameUnit)),
+                              Expanded(
+                                  flex: 1,
+                                  child: Text(doubleToString(item.price))),
+                              Expanded(
+                                  flex: 1,
+                                  child: Text(doubleToString(item.sum))),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   )),

@@ -8,13 +8,17 @@ import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_organization.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/db/db_ref_price.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_selection.dart';
 import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -185,7 +189,6 @@ class _ScreenItemIncomingCashOrderState
     );
   }
 
-
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -249,61 +252,76 @@ class _ScreenItemIncomingCashOrderState
           widget.incomingCashOrder.uidParent);
       if (orderCustomer.id != 0) {
         if (orderCustomer.numberFrom1C != '') {
-          textFieldOrderCustomerController.text =
-              'Заказ № ' + orderCustomer.numberFrom1C;
+          textFieldOrderCustomerController.text = 'Заказ № ' + orderCustomer.numberFrom1C;
         } else {
-          textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
+          textFieldOrderCustomerController.text = 'Заказ покупателя';
         }
-      }
 
-      // Если идет заполнение на основании заказа
-      if (widget.incomingCashOrder.uid == '') {
-        widget.incomingCashOrder.uidOrganization =
-            orderCustomer.uidOrganization;
-        widget.incomingCashOrder.nameOrganization =
-            orderCustomer.nameOrganization;
+        widget.incomingCashOrder.uidOrganization = orderCustomer.uidOrganization;
         widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
-        widget.incomingCashOrder.namePartner = orderCustomer.namePartner;
         widget.incomingCashOrder.uidContract = orderCustomer.uidContract;
-        widget.incomingCashOrder.nameContract = orderCustomer.nameContract;
         widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
-        widget.incomingCashOrder.nameCashbox = orderCustomer.nameCashbox;
+      } else {
+        // Наименование заказа покупателя
+        textFieldOrderCustomerController.text = 'Заказ № <из системы>';
       }
-    } else {
-      // Заполняем значениями из настроек (по-умолчанию)
-      final SharedPreferences prefs = await _prefs;
-
-      // Заполнение значений по-умолчанию
-      var uidOrganization = prefs.getString('settings_uidOrganization') ?? '';
-      Organization organization = await dbReadOrganizationUID(uidOrganization);
-      widget.incomingCashOrder.uidOrganization = organization.uid;
-      widget.incomingCashOrder.nameOrganization = organization.name;
-
-      var uidPartner = prefs.getString('settings_uidPartner') ?? '';
-      Partner partner = await dbReadPartnerUID(uidPartner);
-      widget.incomingCashOrder.uidPartner = partner.uid;
-      widget.incomingCashOrder.namePartner = partner.name;
-
-      var uidCashbox = prefs.getString('settings_uidCashbox') ?? '';
-      Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
-      widget.incomingCashOrder.uidCashbox = cashbox.uid;
-      widget.incomingCashOrder.nameCashbox = cashbox.name;
     }
+
+    // Заполняем значениями из настроек (по-умолчанию)
+    final SharedPreferences prefs = await _prefs;
+
+    /// Заполнение значений по-умолчанию: из документа или из настроек
+
+    widget.incomingCashOrder.uidOrganization =
+    widget.incomingCashOrder.uidOrganization == ''
+        ? prefs.getString('settings_uidOrganization') ?? ''
+        : widget.incomingCashOrder.uidOrganization;
+
+    widget.incomingCashOrder.uidPartner =
+    widget.incomingCashOrder.uidPartner == ''
+        ? prefs.getString('settings_uidPartner') ?? ''
+        : widget.incomingCashOrder.uidPartner;
+
+    widget.incomingCashOrder.uidContract =
+    widget.incomingCashOrder.uidContract == ''
+        ? ''
+        : widget.incomingCashOrder.uidContract;
+
+    widget.incomingCashOrder.uidCashbox =
+    widget.incomingCashOrder.uidCashbox == ''
+        ? prefs.getString('settings_uidCashbox') ?? ''
+        : widget.incomingCashOrder.uidCashbox;
+
+    /// Для всех реквизитов теперь установим текстовые значения на форме по их UID
+
+    Organization organization =
+    await dbReadOrganizationUID(widget.incomingCashOrder.uidOrganization);
+    widget.incomingCashOrder.nameOrganization = organization.name;
+
+    Partner partner =
+    await dbReadPartnerUID(widget.incomingCashOrder.uidPartner);
+    widget.incomingCashOrder.namePartner = partner.name;
+
+    Contract contract =
+    await dbReadContractUID(widget.incomingCashOrder.uidContract);
+    widget.incomingCashOrder.nameContract = contract.name;
+
+    Cashbox cashbox =
+    await dbReadCashboxUID(widget.incomingCashOrder.uidCashbox);
+    widget.incomingCashOrder.nameCashbox = cashbox.name;
 
     // Теперь запишем идентификатор объекта
     if (widget.incomingCashOrder.uid == '') {
       widget.incomingCashOrder.uid = const Uuid().v4();
     }
 
-    // Расчет реквизитов на форме
-    textFieldOrganizationController.text =
-        widget.incomingCashOrder.nameOrganization;
+    // Расчет реквизитов наименований на форме
+    textFieldOrganizationController.text = widget.incomingCashOrder.nameOrganization;
     textFieldPartnerController.text = widget.incomingCashOrder.namePartner;
     textFieldContractController.text = widget.incomingCashOrder.nameContract;
     textFieldCurrencyController.text = widget.incomingCashOrder.nameCurrency;
     textFieldCashboxController.text = widget.incomingCashOrder.nameCashbox;
     textFieldSumController.text = doubleToString(widget.incomingCashOrder.sum);
-
     textFieldCommentController.text = widget.incomingCashOrder.comment;
 
     // Технические данные

@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_doc_return_order_customer.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_organization.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/db/db_ref_price.dart';
@@ -10,6 +11,7 @@ import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_organization.dart';
 import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/models/ref_price.dart';
@@ -29,7 +31,8 @@ import 'package:wp_sales/system/widgets.dart';
 class ScreenItemReturnOrderCustomer extends StatefulWidget {
   final ReturnOrderCustomer returnOrderCustomer;
 
-  const ScreenItemReturnOrderCustomer({Key? key, required this.returnOrderCustomer})
+  const ScreenItemReturnOrderCustomer(
+      {Key? key, required this.returnOrderCustomer})
       : super(key: key);
 
   @override
@@ -37,8 +40,8 @@ class ScreenItemReturnOrderCustomer extends StatefulWidget {
       _ScreenItemReturnOrderCustomerState();
 }
 
-class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCustomer> {
-
+class _ScreenItemReturnOrderCustomerState
+    extends State<ScreenItemReturnOrderCustomer> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   int countChangeDoc = 0;
@@ -60,7 +63,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
   TextEditingController textFieldContractController = TextEditingController();
 
   /// Поле ввода: Заказ покупателя
-  TextEditingController textFieldOrderCustomerController = TextEditingController();
+  TextEditingController textFieldOrderCustomerController =
+      TextEditingController();
 
   /// Поле ввода: Тип цены
   TextEditingController textFieldPriceController = TextEditingController();
@@ -241,64 +245,86 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
   }
 
   updateHeader() async {
-
     // Заполнение реквизита заказа покупателя
     if (widget.returnOrderCustomer.uidParent != '') {
-      OrderCustomer orderCustomer = await dbReadOrderCustomerUID(widget.returnOrderCustomer.uidParent);
+      OrderCustomer orderCustomer =
+          await dbReadOrderCustomerUID(widget.returnOrderCustomer.uidParent);
       if (orderCustomer.id != 0) {
         if (orderCustomer.numberFrom1C != '') {
-          textFieldOrderCustomerController.text = 'Заказ № '+orderCustomer.numberFrom1C;
+          textFieldOrderCustomerController.text = 'Заказ № ' + orderCustomer.numberFrom1C;
         } else {
-          textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
+          textFieldOrderCustomerController.text = 'Заказ покупателя';
         }
-      }
 
-      // Если идет заполнение на основании заказа
-      if (widget.returnOrderCustomer.uid == '') {
         widget.returnOrderCustomer.uidOrganization = orderCustomer.uidOrganization;
-        widget.returnOrderCustomer.nameOrganization = orderCustomer.nameOrganization;
-        widget.returnOrderCustomer.uidPartner = orderCustomer.uidPartner;
-        widget.returnOrderCustomer.namePartner = orderCustomer.namePartner;
-        widget.returnOrderCustomer.uidContract = orderCustomer.uidContract;
-        widget.returnOrderCustomer.nameContract = orderCustomer.nameContract;
-        widget.returnOrderCustomer.uidPrice = orderCustomer.uidPrice;
-        widget.returnOrderCustomer.namePrice = orderCustomer.namePrice;
-        widget.returnOrderCustomer.uidWarehouse = orderCustomer.uidWarehouse;
-        widget.returnOrderCustomer.nameWarehouse = orderCustomer.nameWarehouse;
+        widget.returnOrderCustomer.uidPartner      = orderCustomer.uidPartner;
+        widget.returnOrderCustomer.uidContract     = orderCustomer.uidContract;
+        widget.returnOrderCustomer.uidPrice        = orderCustomer.uidPrice;
+        widget.returnOrderCustomer.uidWarehouse    = orderCustomer.uidWarehouse;
+      } else {
+        // Наименование заказа покупателя
+        textFieldOrderCustomerController.text = 'Заказ № <из системы>';
       }
-    } else {
-
-      // Заполняем значениями из настроек (по-умолчанию)
-      final SharedPreferences prefs = await _prefs;
-
-      // Заполнение значений по-умолчанию
-      var uidOrganization = prefs.getString('settings_uidOrganization')??'';
-      Organization organization = await dbReadOrganizationUID(uidOrganization);
-      widget.returnOrderCustomer.uidOrganization = organization.uid;
-      widget.returnOrderCustomer.nameOrganization = organization.name;
-
-      var uidPartner = prefs.getString('settings_uidPartner')??'';
-      Partner partner = await dbReadPartnerUID(uidPartner);
-      widget.returnOrderCustomer.uidPartner = partner.uid;
-      widget.returnOrderCustomer.namePartner = partner.name;
-
-      var uidPrice = prefs.getString('settings_uidPrice')??'';
-      Price price = await dbReadPriceUID(uidPrice);
-      widget.returnOrderCustomer.uidPrice = price.uid;
-      widget.returnOrderCustomer.namePrice = price.name;
-
-      var uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
-      Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
-      widget.returnOrderCustomer.uidWarehouse = warehouse.uid;
-      widget.returnOrderCustomer.nameWarehouse = warehouse.name;
     }
+
+    // Заполняем значениями из настроек (по-умолчанию)
+    final SharedPreferences prefs = await _prefs;
+
+    /// Заполнение значений по-умолчанию: из документа или из настроек
+
+    widget.returnOrderCustomer.uidOrganization =
+    widget.returnOrderCustomer.uidOrganization == ''
+        ? prefs.getString('settings_uidOrganization') ?? ''
+        : widget.returnOrderCustomer.uidOrganization;
+
+    widget.returnOrderCustomer.uidPartner =
+    widget.returnOrderCustomer.uidPartner == ''
+        ? prefs.getString('settings_uidPartner') ?? ''
+        : widget.returnOrderCustomer.uidPartner;
+
+    widget.returnOrderCustomer.uidContract =
+    widget.returnOrderCustomer.uidContract == ''
+        ? ''
+        : widget.returnOrderCustomer.uidContract;
+
+    widget.returnOrderCustomer.uidPrice =
+    widget.returnOrderCustomer.uidPrice == ''
+        ? prefs.getString('settings_uidPrice') ?? ''
+        : widget.returnOrderCustomer.uidPrice;
+
+    widget.returnOrderCustomer.uidWarehouse =
+    widget.returnOrderCustomer.uidWarehouse == ''
+        ? prefs.getString('settings_uidWarehouse') ?? ''
+        : widget.returnOrderCustomer.uidWarehouse;
+
+    /// Для всех реквизитов теперь установим текстовые значения на форме по их UID
+
+    Organization organization =
+        await dbReadOrganizationUID(widget.returnOrderCustomer.uidOrganization);
+    widget.returnOrderCustomer.nameOrganization = organization.name;
+
+    Partner partner =
+        await dbReadPartnerUID(widget.returnOrderCustomer.uidPartner);
+    widget.returnOrderCustomer.namePartner = partner.name;
+
+    Contract contract =
+        await dbReadContractUID(widget.returnOrderCustomer.uidContract);
+    widget.returnOrderCustomer.nameContract = contract.name;
+
+    Price price =
+        await dbReadPriceUID(widget.returnOrderCustomer.uidPrice);
+    widget.returnOrderCustomer.namePrice = price.name;
+
+    Warehouse warehouse =
+        await dbReadWarehouseUID(widget.returnOrderCustomer.uidWarehouse);
+    widget.returnOrderCustomer.nameWarehouse = warehouse.name;
 
     // Теперь запишем идентификатор объекта
     if (widget.returnOrderCustomer.uid == '') {
       widget.returnOrderCustomer.uid = const Uuid().v4();
     }
 
-    // Расчет реквизитов на форме
+    // Расчет реквизитов наименований на форме
     countItems = widget.returnOrderCustomer.countItems;
     textFieldOrganizationController.text = widget.returnOrderCustomer.nameOrganization;
     textFieldPartnerController.text = widget.returnOrderCustomer.namePartner;
@@ -307,11 +333,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
     textFieldCurrencyController.text = widget.returnOrderCustomer.nameCurrency;
     textFieldWarehouseController.text = widget.returnOrderCustomer.nameWarehouse;
     textFieldSumController.text = doubleToString(widget.returnOrderCustomer.sum);
-
-    textFieldDateSendingController.text =
-        shortDateToString(widget.returnOrderCustomer.dateSending);
-    textFieldDatePayingController.text =
-        shortDateToString(widget.returnOrderCustomer.datePaying);
+    textFieldDateSendingController.text = shortDateToString(widget.returnOrderCustomer.dateSending);
+    textFieldDatePayingController.text = shortDateToString(widget.returnOrderCustomer.datePaying);
     textFieldCommentController.text = widget.returnOrderCustomer.comment;
 
     // Технические данные
@@ -320,7 +343,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
     sendYesTo1C = widget.returnOrderCustomer.sendYesTo1C == 1 ? true : false;
     textFieldDateSendingTo1CController.text =
         shortDateToString(widget.returnOrderCustomer.dateSendingTo1C);
-    textFieldNumberFrom1CController.text = widget.returnOrderCustomer.numberFrom1C;
+    textFieldNumberFrom1CController.text =
+        widget.returnOrderCustomer.numberFrom1C;
 
     // Проверка Организации
     if ((textFieldPartnerController.text.trim() == '') ||
@@ -381,7 +405,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
     itemsReturnOrder.clear();
 
     if (widget.returnOrderCustomer.id != 0) {
-      itemsReturnOrder = await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
+      itemsReturnOrder =
+          await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
     }
 
     // Количество документов в списке
@@ -396,16 +421,20 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
   Future<bool> saveDoc() async {
     try {
       /// Сумма товаров в заказе
-      ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
+      ReturnOrderCustomer()
+          .allSum(widget.returnOrderCustomer, itemsReturnOrder);
 
       /// Количество товаров в заказе
-      ReturnOrderCustomer().allCount(widget.returnOrderCustomer, itemsReturnOrder);
+      ReturnOrderCustomer()
+          .allCount(widget.returnOrderCustomer, itemsReturnOrder);
 
       if (widget.returnOrderCustomer.id != 0) {
-        await dbUpdateReturnOrderCustomer(widget.returnOrderCustomer, itemsReturnOrder);
+        await dbUpdateReturnOrderCustomer(
+            widget.returnOrderCustomer, itemsReturnOrder);
         return true;
       } else {
-        await dbCreateReturnOrderCustomer(widget.returnOrderCustomer, itemsReturnOrder);
+        await dbCreateReturnOrderCustomer(
+            widget.returnOrderCustomer, itemsReturnOrder);
         return true;
       }
     } on Exception catch (error) {
@@ -422,7 +451,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
         widget.returnOrderCustomer.status = 3;
 
         /// Обновим объект в базе данных
-        await dbUpdateReturnOrderCustomer(widget.returnOrderCustomer, itemsReturnOrder);
+        await dbUpdateReturnOrderCustomer(
+            widget.returnOrderCustomer, itemsReturnOrder);
         return true;
       } else {
         return true; // Значит, что запись вообще не была записана!
@@ -459,8 +489,8 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenOrganizationSelection(
-                          returnOrderCustomer: widget.returnOrderCustomer,
-                          orderCustomer: OrderCustomer(),
+                              returnOrderCustomer: widget.returnOrderCustomer,
+                              orderCustomer: OrderCustomer(),
                             )));
                 // Если изменили партнера, изменим его договор и валюту
                 if (result != null) {
@@ -759,95 +789,116 @@ class _ScreenItemReturnOrderCustomerState extends State<ScreenItemReturnOrderCus
             return Padding(
               padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
               child: Card(
-                elevation: 2,
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: PopupMenuButton<String>(
-                    onSelected: (String value) async {
-                      if (value == 'delete'){
-                        itemsReturnOrder = List.from(itemsReturnOrder)
+                  elevation: 2,
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: PopupMenuButton<String>(
+                      onSelected: (String value) async {
+                        if (value == 'delete') {
+                          itemsReturnOrder = List.from(itemsReturnOrder)
                             ..removeAt(index);
                           setState(() {
-                            ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
-                            ReturnOrderCustomer().allCount(widget.returnOrderCustomer, itemsReturnOrder);
+                            ReturnOrderCustomer().allSum(
+                                widget.returnOrderCustomer, itemsReturnOrder);
+                            ReturnOrderCustomer().allCount(
+                                widget.returnOrderCustomer, itemsReturnOrder);
                             updateHeader();
                           });
-                      }
-                      if (value == 'edit') {
-                        Product productItem = await dbReadProductUID(item.uid);
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ScreenAddItem(
-                                    returnOrderCustomer: widget.returnOrderCustomer,
-                                    listItemReturnDoc: itemsReturnOrder,
-                                    product: productItem),
-                          ),
-                        );
-                        setState(() {
-                          ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
-                          ReturnOrderCustomer().allCount(widget.returnOrderCustomer, itemsReturnOrder);
-                          updateHeader();
-                        });
-                      }
-                    },
-                    child: ListTile(
-                      title: Text(item.name),
-                      subtitle: Column(
-                        children: [
-                          const Divider(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                  flex: 1,
-                                  child: Text(doubleThreeToString(item.count))),
-                              Expanded(flex: 1, child: Text(item.nameUnit)),
-                              Expanded(
-                                  flex: 1, child: Text(doubleToString(item.price))),
-                              Expanded(
-                                  flex: 1, child: Text(doubleToString(item.sum))),
+                        }
+                        if (value == 'edit') {
+                          Product productItem =
+                              await dbReadProductUID(item.uid);
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScreenAddItem(
+                                  returnOrderCustomer:
+                                      widget.returnOrderCustomer,
+                                  listItemReturnDoc: itemsReturnOrder,
+                                  product: productItem),
+                            ),
+                          );
+                          setState(() {
+                            ReturnOrderCustomer().allSum(
+                                widget.returnOrderCustomer, itemsReturnOrder);
+                            ReturnOrderCustomer().allCount(
+                                widget.returnOrderCustomer, itemsReturnOrder);
+                            updateHeader();
+                          });
+                        }
+                      },
+                      child: ListTile(
+                        title: Text(item.name),
+                        subtitle: Column(
+                          children: [
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    flex: 1,
+                                    child:
+                                        Text(doubleThreeToString(item.count))),
+                                Expanded(flex: 1, child: Text(item.nameUnit)),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(doubleToString(item.price))),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(doubleToString(item.sum))),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                        PopupMenuItem<String>(
+                          value: 'view',
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.search,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Просмотр'),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      PopupMenuItem<String>(
-                        value: 'view',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.search, color: Colors.blue,),
-                            SizedBox(width: 10,),
-                            Text('Просмотр'),
-                          ],
                         ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.edit, color: Colors.blue,),
-                            SizedBox(width: 10,),
+                        PopupMenuItem<String>(
+                          value: 'edit',
+                          child: Row(children: const [
+                            Icon(
+                              Icons.edit,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
                             Text('Изменить')
-                          ]
+                          ]),
                         ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.delete, color: Colors.red,),
-                            SizedBox(width: 10,),
-                            Text('Удалить'),
-                          ],
+                        PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Удалить'),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              ),
+                      ],
+                    ),
+                  )),
             );
           }),
     );

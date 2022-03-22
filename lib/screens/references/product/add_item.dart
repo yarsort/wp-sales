@@ -84,7 +84,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
           children: [
             ListView(
               children: [
-
                 /// Product name
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
@@ -314,16 +313,16 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             ),
             ListView(
               children: [
-
                 /// Картинки товара
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
                   child: SizedBox(
                     child: CachedNetworkImage(
-                      placeholder: (context, url) => const SizedBox(
-                          height: 50,
-                          width: 50,
-                          child: CircularProgressIndicator()),
+                      placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: CircularProgressIndicator())),
                       imageUrl: pathImage,
                     ),
                   ),
@@ -331,9 +330,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
               ],
             ),
             ListView(
-              children: const [
-
-              ],
+              children: const [],
             )
           ],
         ),

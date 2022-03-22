@@ -15,6 +15,7 @@ const integerType = 'INTEGER NOT NULL';
 class ItemAccumPartnerDeptFields {
   static final List<String> values = [
     id,
+    idRegistrar,
     uidOrganization,
     uidPartner,
     uidContract,
@@ -28,6 +29,7 @@ class ItemAccumPartnerDeptFields {
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id'; // Инкремент
+  static const String idRegistrar = 'idRegistrar'; // Ссылка на регистратор записи
   static const String uidOrganization = 'uidOrganization';
   static const String uidPartner = 'uidPartner';
   static const String uidContract = 'uidContract';
@@ -44,6 +46,7 @@ Future createTableAccumPartnerDebts(db) async {
   await db.execute('''
     CREATE TABLE $tableAccumPartnerDebts (    
       ${ItemAccumPartnerDeptFields.id} $idType,
+      ${ItemAccumPartnerDeptFields.idRegistrar} $integerType,      
       ${ItemAccumPartnerDeptFields.uidOrganization} $textType,      
       ${ItemAccumPartnerDeptFields.uidPartner} $textType,
       ${ItemAccumPartnerDeptFields.uidContract} $textType,      
@@ -115,6 +118,73 @@ Future<AccumPartnerDept> dbReadPartnerDept({
   }
 }
 
+/// Получение суммы долга по контракту. Измерение: Контракт, Документ
+Future<Map> dbReadSumAccumPartnerDeptByContractDoc({
+  required String uidContract,
+  required String uidDoc,}) async {
+
+  final db = await instance.database;
+  final result = await db.query(
+    tableAccumPartnerDebts,
+    columns: ItemAccumPartnerDeptFields.values,
+    where:
+        '${ItemAccumPartnerDeptFields.uidContract} = ?'
+        'AND ${ItemAccumPartnerDeptFields.uidDoc} = ?',
+    whereArgs: [uidContract, uidDoc],
+  );
+
+  List<AccumPartnerDept> listAccumPartnerDept = result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+
+  // Сумируем все записи по отбору, потому что могут быть сторно у документов
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
+
+  for (var itemList in listAccumPartnerDept) {
+    balance = balance + itemList.balance;
+    balanceForPayment = balanceForPayment + itemList.balanceForPayment;
+  }
+
+  Map mapBalance = {};
+  mapBalance['uidContract'] = uidContract;
+  mapBalance['uidDoc'] = uidDoc;
+  mapBalance['balance'] = balance;
+  mapBalance['balanceForPayment'] = balanceForPayment;
+
+  return mapBalance;
+}
+
+/// Получение суммы долга по контракту. Измерение: Контракт
+Future<Map> dbReadSumAccumPartnerDeptByContract({
+  required String uidContract}) async {
+
+  final db = await instance.database;
+  final result = await db.query(
+    tableAccumPartnerDebts,
+    columns: ItemAccumPartnerDeptFields.values,
+    where:
+        '${ItemAccumPartnerDeptFields.uidContract} = ?',
+    whereArgs: [uidContract],
+  );
+
+  List<AccumPartnerDept> listAccumPartnerDept = result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+
+  // Сумируем все записи по отбору, потому что могут быть сторно у документов
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
+
+  for (var itemList in listAccumPartnerDept) {
+    balance = balance + itemList.balance;
+    balanceForPayment = balanceForPayment + itemList.balanceForPayment;
+  }
+
+  Map mapBalance = {};
+  mapBalance['uidContract'] = uidContract;
+  mapBalance['balance'] = balance;
+  mapBalance['balanceForPayment'] = balanceForPayment;
+
+  return mapBalance;
+}
+
 Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDept() async {
   final db = await instance.database;
   const orderBy = '${ItemAccumPartnerDeptFields.balance} ASC';
@@ -130,5 +200,14 @@ Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptForPayment() async {
       tableAccumPartnerDebts,
       where: '${ItemAccumPartnerDeptFields.id} > ?',
       whereArgs: [0],);
+  return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}
+
+Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByContract({required String uidContract}) async {
+  final db = await instance.database;
+  final result = await db.query(
+    tableAccumPartnerDebts,
+    where: '${ItemAccumPartnerDeptFields.uidContract} = ?',
+    whereArgs: [uidContract],);
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }

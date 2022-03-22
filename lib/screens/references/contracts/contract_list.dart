@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
+import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -189,109 +191,142 @@ class _ScreenContractListState extends State<ScreenContractList> {
             var contractItem = listContracts[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Card(
-                  elevation: 2,
-                  child: ListTile(
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ScreenContractItem(contractItem: contractItem),
-                        ),
-                      );
-                      setState(() {
-                        renewItem();
-                      });
-                    },
-                    title: Text(contractItem.name),
-                    subtitle: Column(
-                      children: [
-                        const Divider(),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.person,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(
-                                          child:
-                                              Text(contractItem.namePartner)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.phone,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(contractItem.phone),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.home,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(
-                                          child: Text(contractItem.address)),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.price_change,
-                                          color: Colors.green, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                          doubleToString(contractItem.balance)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.price_change,
-                                          color: Colors.red, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(doubleToString(
-                                          contractItem.balanceForPayment)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.schedule,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(contractItem.schedulePayment
-                                          .toString()),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ));
+                child: ContractItem(contractItem: contractItem,));
           },
         ),
       ),
     );
+  }
+}
+
+class ContractItem extends StatefulWidget {
+  final Contract contractItem;
+  const ContractItem({Key? key, required this.contractItem}) : super(key: key);
+
+  @override
+  State<ContractItem> createState() => _ContractItemState();
+}
+
+class _ContractItemState extends State<ContractItem> {
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    renewDataContract();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Card(
+          elevation: 2,
+          child: ListTile(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ScreenContractItem(contractItem: widget.contractItem),
+                ),
+              );
+            },
+            title: Text(widget.contractItem.name),
+            subtitle: Column(
+              children: [
+                const Divider(),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.person,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Flexible(
+                                  child:
+                                  Text(widget.contractItem.namePartner)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.phone,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Text(widget.contractItem.phone),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.home,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Flexible(
+                                  child: Text(widget.contractItem.address)),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.price_change,
+                                  color: Colors.green, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  doubleToString(balance)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.price_change,
+                                  color: Colors.red, size: 20),
+                              const SizedBox(width: 5),
+                              Text(doubleToString(balanceForPayment)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.schedule,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Text(widget.contractItem.schedulePayment
+                                  .toString()),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  renewDataContract() async {
+    // Получить баланс заказа
+    Map debts = await dbReadSumAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+
+    // Запись в реквизиты
+    balance = debts['balance'];
+    balanceForPayment = debts['balanceForPayment'];
+
+    setState(() {});
   }
 }
