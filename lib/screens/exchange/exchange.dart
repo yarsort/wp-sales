@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
@@ -444,6 +445,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
       countItem++;
     }
+
+    // После записи документов, обновим записи по регистраторам без номера документа
+    IncomingCashOrder
 
     listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
     setState(() {

@@ -1,6 +1,7 @@
 
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 
 /// Название таблиц базы данных
 const String tableAccumPartnerDebts   = '_AccumPartnerDebts';
@@ -198,7 +199,7 @@ Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptForPayment() async {
   final db = await instance.database;
   final result = await db.query(
       tableAccumPartnerDebts,
-      where: '${ItemAccumPartnerDeptFields.id} > ?',
+      where: '${ItemAccumPartnerDeptFields.balanceForPayment} > ?',
       whereArgs: [0],);
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }
@@ -210,4 +211,79 @@ Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByContract({required String
     where: '${ItemAccumPartnerDeptFields.uidContract} = ?',
     whereArgs: [uidContract],);
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}
+
+Future<bool> dbCreateAccumPartnerDeptsByRegistrar(IncomingCashOrder incomingCashOrder) async {
+  // Удалим старые записи для текущего регистратора
+  final db = await instance.database;
+  try {
+    db.transaction((txn) async {
+      /// Очистка записей регистратора
+      txn.delete(
+        tableAccumPartnerDebts,
+        where: '${ItemAccumPartnerDeptFields.idRegistrar} = ?',
+        whereArgs: [incomingCashOrder.id],
+      );
+
+      /// Добавление записей регистратора при отсутствии номера документа
+      if(incomingCashOrder.numberFrom1C.isEmpty) {
+
+        /// Если сумма документа больше ноля
+        if (incomingCashOrder.sum > 0) {
+        AccumPartnerDept accumDeptPartner = AccumPartnerDept()
+          ..idRegistrar = incomingCashOrder.id
+          ..uidOrganization = incomingCashOrder.uidOrganization
+          ..uidPartner = incomingCashOrder.uidPartner
+          ..uidContract = incomingCashOrder.uidContract
+          ..uidDoc = incomingCashOrder.uidParent
+          ..nameDoc = ''
+          ..numberDoc = ''
+          ..dateDoc = DateTime.parse('')
+          ..balanceForPayment = 0.0
+          ..balance = incomingCashOrder.sum;
+        await db.insert(
+            tableAccumPartnerDebts,
+            accumDeptPartner.toJson());
+        }
+      }
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/// Получение суммы долга по контракту. Измерение: Контракт, Документ
+Future<List> dbUpdateAccumPartnerDeptInNewDocument({
+  required String uidContract,
+  required String uidDoc,}) async {
+
+  final db = await instance.database;
+  final result = await db.query(
+    tableAccumPartnerDebts,
+    columns: ItemAccumPartnerDeptFields.values,
+    where:
+    '${ItemAccumPartnerDeptFields.uidContract} = ?'
+        'AND ${ItemAccumPartnerDeptFields.uidDoc} = ?',
+    whereArgs: [uidContract, uidDoc],
+  );
+
+  List<AccumPartnerDept> listAccumPartnerDept = result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+
+  // Сумируем все записи по отбору, потому что могут быть сторно у документов
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
+
+  for (var itemList in listAccumPartnerDept) {
+    balance = balance + itemList.balance;
+    balanceForPayment = balanceForPayment + itemList.balanceForPayment;
+  }
+
+  Map mapBalance = {};
+  mapBalance['uidContract'] = uidContract;
+  mapBalance['uidDoc'] = uidDoc;
+  mapBalance['balance'] = balance;
+  mapBalance['balanceForPayment'] = balanceForPayment;
+
+  return mapBalance;
 }

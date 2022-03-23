@@ -213,10 +213,24 @@ class _ScreenItemIncomingCashOrderState
   saveDocument() async {
     try {
       if (widget.incomingCashOrder.id != 0) {
+
+        // Обновим объект документа
         await dbUpdateIncomingCashOrder(widget.incomingCashOrder);
+
+        // При записи в регистр накопления "Взаиморасчеты" сумма долга снижается
+        // После записи новых данных обмена из учетной системы сумма удаляется
+        await dbCreateAccumPartnerDeptsByRegistrar(widget.incomingCashOrder);
+
         return true;
       } else {
+
+        // Создадим объект документа
         await dbCreateIncomingCashOrder(widget.incomingCashOrder);
+
+        // При записи в регистр накопления "Взаиморасчеты" сумма долга снижается
+        // После записи новых данных обмена из учетной системы сумма удаляется
+        await dbCreateAccumPartnerDeptsByRegistrar(widget.incomingCashOrder);
+
         return true;
       }
     } on Exception catch (error) {
