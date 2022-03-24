@@ -171,44 +171,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
           appBar: AppBar(
             centerTitle: true,
             title: const Text('Заказ'),
-            actions: [
-              IconButton(
-                onPressed: () async {
-                  if (widget.orderCustomer.nameOrganization == '') {
-                    showMessageError('Организация не заполнена!');
-                    return;
-                  }
-                  if (widget.orderCustomer.namePartner == '') {
-                    showMessageError('Партнер не заполнен!');
-                    return;
-                  }
-                  if (widget.orderCustomer.nameContract == '') {
-                    showMessageError('Контракт не заполнен!');
-                    return;
-                  }
-                  if (widget.orderCustomer.namePrice == '') {
-                    showMessageError('Тип цены не заполнен!');
-                    return;
-                  }
-                  if (widget.orderCustomer.nameWarehouse == '') {
-                    showMessageError('Склад не заполнен!');
-                    return;
-                  }
-
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScreenProductSelectionTreeView(
-                          listItemDoc: itemsOrder,
-                          orderCustomer: widget.orderCustomer),
-                    ),
-                  );
-                  renewItems();
-                  updateHeader();
-                },
-                icon: const Icon(Icons.add),
-              )
-            ],
             bottom: const TabBar(
               tabs: [
                 Tab(text: 'Главная'),
@@ -782,132 +744,210 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   /// Страница Товары
 
   listViewItemsOrder() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-      child: ColumnBuilder(
-          itemCount: itemsOrder.length,
-          itemBuilder: (context, index) {
-            final item = itemsOrder[index];
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-              child: Card(
-                  elevation: 2,
-                  child: PopupMenuButton<String>(
-                    onSelected: (String value) async {
-                      if (value == 'view') {
-                        Product productItem =
-                        await dbReadProductUID(item.uid);
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ScreenProductItem(productItem: productItem),
-                          ),
-                        );
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 14, 14, 0),
+          child: Row(children: [
+            /// Sum of document
+            Expanded(
+              flex: 3,
+              child: TextFieldWithText(
+                  textLabel: 'Сумма товаров',
+                  textEditingController: textFieldSumController,
+                  onPressedEditIcon: null,
+                  onPressedDeleteIcon: null,
+                  onPressedDelete: () async {},
+                  onPressedEdit: () async {}),
+            ),
+            Expanded(
+              flex: 1,
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.blue)),
+                    onPressed: () async {
+                      if (widget.orderCustomer.nameOrganization == '') {
+                        showMessageError('Организация не заполнена!');
+                        return;
                       }
-                      if (value == 'delete') {
-                        itemsOrder = List.from(itemsOrder)..removeAt(index);
-                        setState(() {
-                          OrderCustomer()
-                              .allSum(widget.orderCustomer, itemsOrder);
-                          OrderCustomer()
-                              .allCount(widget.orderCustomer, itemsOrder);
-                          updateHeader();
-                        });
+                      if (widget.orderCustomer.namePartner == '') {
+                        showMessageError('Партнер не заполнен!');
+                        return;
                       }
-                      if (value == 'edit') {
-                        Product productItem =
-                            await dbReadProductUID(item.uid);
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ScreenAddItem(
-                                listItemDoc: itemsOrder,
-                                orderCustomer: widget.orderCustomer,
-                                product: productItem),
-                          ),
-                        );
-                        setState(() {
-                          OrderCustomer()
-                              .allSum(widget.orderCustomer, itemsOrder);
-                          OrderCustomer()
-                              .allCount(widget.orderCustomer, itemsOrder);
-                          updateHeader();
-                        });
+                      if (widget.orderCustomer.nameContract == '') {
+                        showMessageError('Контракт не заполнен!');
+                        return;
                       }
+                      if (widget.orderCustomer.namePrice == '') {
+                        showMessageError('Тип цены не заполнен!');
+                        return;
+                      }
+                      if (widget.orderCustomer.nameWarehouse == '') {
+                        showMessageError('Склад не заполнен!');
+                        return;
+                      }
+
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenProductSelectionTreeView(
+                              listItemDoc: itemsOrder,
+                              orderCustomer: widget.orderCustomer),
+                        ),
+                      );
+
+                      /// Сумма товаров в заказе
+                      OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
+
+                      /// Количество товаров в заказе
+                      OrderCustomer()
+                          .allCount(widget.orderCustomer, itemsOrder);
+
+                      /// Обновление данных
+                      renewItems();
+                      updateHeader();
                     },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<String>>[
-                      PopupMenuItem<String>(
-                        value: 'view',
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.search,
-                              color: Colors.blue,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [Text('Подбор')],
+                    )),
+              ),
+            )
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: ColumnBuilder(
+              itemCount: itemsOrder.length,
+              itemBuilder: (context, index) {
+                final item = itemsOrder[index];
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+                  child: Card(
+                      elevation: 2,
+                      child: PopupMenuButton<String>(
+                        onSelected: (String value) async {
+                          if (value == 'view') {
+                            Product productItem =
+                                await dbReadProductUID(item.uid);
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ScreenProductItem(productItem: productItem),
+                              ),
+                            );
+                          }
+                          if (value == 'delete') {
+                            itemsOrder = List.from(itemsOrder)..removeAt(index);
+                            setState(() {
+                              OrderCustomer()
+                                  .allSum(widget.orderCustomer, itemsOrder);
+                              OrderCustomer()
+                                  .allCount(widget.orderCustomer, itemsOrder);
+                              updateHeader();
+                            });
+                          }
+                          if (value == 'edit') {
+                            Product productItem =
+                                await dbReadProductUID(item.uid);
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ScreenAddItem(
+                                    listItemDoc: itemsOrder,
+                                    orderCustomer: widget.orderCustomer,
+                                    product: productItem),
+                              ),
+                            );
+                            setState(() {
+                              OrderCustomer()
+                                  .allSum(widget.orderCustomer, itemsOrder);
+                              OrderCustomer()
+                                  .allCount(widget.orderCustomer, itemsOrder);
+                              updateHeader();
+                            });
+                          }
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          PopupMenuItem<String>(
+                            value: 'view',
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.search,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Просмотр'),
+                              ],
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text('Просмотр'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Row(children: const [
-                          Icon(
-                            Icons.edit,
-                            color: Colors.blue,
                           ),
-                          SizedBox(
-                            width: 10,
+                          PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(children: const [
+                              Icon(
+                                Icons.edit,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Изменить')
+                            ]),
                           ),
-                          Text('Изменить')
-                        ]),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.delete,
-                              color: Colors.red,
+                          PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Удалить'),
+                              ],
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text('Удалить'),
-                          ],
-                        ),
-                      ),
-                    ],
-                    child: ListTile(
-                      title: Text(item.name),
-                      subtitle: Column(
-                        children: [
-                          const Divider(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                  flex: 1,
-                                  child:
-                                      Text(doubleThreeToString(item.count))),
-                              Expanded(flex: 1, child: Text(item.nameUnit)),
-                              Expanded(
-                                  flex: 1,
-                                  child: Text(doubleToString(item.price))),
-                              Expanded(
-                                  flex: 1,
-                                  child: Text(doubleToString(item.sum))),
-                            ],
                           ),
                         ],
-                      ),
-                    ),
-                  )),
-            );
-          }),
+                        child: ListTile(
+                          title: Text(item.name),
+                          subtitle: Column(
+                            children: [
+                              const Divider(),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                          doubleThreeToString(item.count))),
+                                  Expanded(flex: 1, child: Text(item.nameUnit)),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Text(doubleToString(item.price))),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Text(doubleToString(item.sum))),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      )),
+                );
+              }),
+        ),
+      ],
     );
   }
 
@@ -1017,7 +1057,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               ),
               PopupMenuButton<String>(
                 onSelected: (String value) async {
-
                   if (widget.orderCustomer.nameOrganization == '') {
                     showMessageError('Организация не заполнена!');
                     return;
@@ -1127,7 +1166,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       child: ExpansionTile(
           tilePadding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
           title: const Text(
-            'Параметры отправки документа',
+            'Параметры документа',
             style: TextStyle(
               fontSize: 16,
               color: Colors.blueGrey,
@@ -1259,6 +1298,40 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     },
                   ),
                   const Text('Не отправлять в учетную систему'),
+                ],
+              ),
+            ),
+
+            /// Buttons Удалить
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  /// Удалить запись
+                  SizedBox(
+                    height: 40,
+                    width: (MediaQuery.of(context).size.width - 28),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.grey)),
+                        onPressed: () async {
+                          var result = await deleteDocument();
+                          if (result) {
+                            showMessage('Запись удалена!');
+                            Navigator.of(context).pop(true);
+                          }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.delete, color: Colors.white),
+                            SizedBox(width: 14),
+                            Text('Удалить'),
+                          ],
+                        )),
+                  ),
                 ],
               ),
             ),

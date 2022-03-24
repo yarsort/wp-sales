@@ -747,7 +747,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               },
               onPressedEdit: () async {
                 OrderCustomer orderCustomer = OrderCustomer();
-                var result = await Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenOrganizationSelection(

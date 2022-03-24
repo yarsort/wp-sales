@@ -1,5 +1,6 @@
 
 import 'package:sqflite/sqflite.dart';
+import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 
@@ -20,6 +21,7 @@ class IncomingCashOrderFields {
     date,
     uid,
     uidParent,
+    nameParent,
     uidOrganization,
     nameOrganization,
     uidPartner,
@@ -44,6 +46,7 @@ class IncomingCashOrderFields {
   static const String date = 'date';// Дата создания заказа
   static const String uid = 'uid';// UID для 1С и связи с ТЧ
   static const String uidParent = 'uidParent';// UID для 1С и связи с главным документом
+  static const String nameParent = 'nameParent';// Имя главного документа
   static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
   static const String nameOrganization = 'nameOrganization';// Имя организации
   static const String uidPartner = 'uidPartner';// Ссылка на контрагента
@@ -74,6 +77,7 @@ Future createTableIncomingCashOrder(db) async {
       ${IncomingCashOrderFields.date} $textType,
       ${IncomingCashOrderFields.uid} $textType,
       ${IncomingCashOrderFields.uidParent} $textType,
+      ${IncomingCashOrderFields.nameParent} $textType,
       ${IncomingCashOrderFields.uidOrganization} $textType,
       ${IncomingCashOrderFields.nameOrganization} $textType,
       ${IncomingCashOrderFields.uidPartner} $textType,
@@ -115,11 +119,23 @@ Future<int> dbUpdateIncomingCashOrder(IncomingCashOrder incomingCashOrder) async
 
 Future<int> dbDeleteIncomingCashOrder(int id) async {
   final db = await instance.database;
-  return await db.delete(
-    tableIncomingCashOrder,
-    where: '${IncomingCashOrderFields.id} = ?',
-    whereArgs: [id],
-  );
+  try {
+    db.transaction((txn) async {
+      txn.delete(
+        tableIncomingCashOrder,
+        where: '${IncomingCashOrderFields.id} = ?',
+        whereArgs: [id],
+      );
+      txn.delete(
+        tableAccumPartnerDebts,
+        where: '${ItemAccumPartnerDeptFields.idRegistrar} = ?',
+        whereArgs: [id],
+      );
+    });
+    return 1;
+  } catch (e) {
+    throw Exception('Ошибка удаления объекта с ID: $id!');
+  }
 }
 
 Future<IncomingCashOrder> dbReadIncomingCashOrder(int id) async {

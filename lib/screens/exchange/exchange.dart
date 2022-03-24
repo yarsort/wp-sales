@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
-import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
@@ -29,7 +28,6 @@ import 'package:wp_sales/models/ref_price.dart';
 import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
-import 'package:wp_sales/system/system.dart';
 
 class ScreenExchangeData extends StatefulWidget {
   const ScreenExchangeData({Key? key}) : super(key: key);
@@ -447,7 +445,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
 
     // После записи документов, обновим записи по регистраторам без номера документа
-    IncomingCashOrder
 
     listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
     setState(() {
@@ -461,8 +458,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       await dbCreatePrice(Price.fromJson(item));
       countItem++;
     }
-    
-    PrintLog().log('Типы цен:' + countItem.toString() + ' шт');
 
     listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
     setState(() {

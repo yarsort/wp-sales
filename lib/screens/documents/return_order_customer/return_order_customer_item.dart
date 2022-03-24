@@ -32,7 +32,7 @@ class ScreenItemReturnOrderCustomer extends StatefulWidget {
   final ReturnOrderCustomer returnOrderCustomer;
 
   const ScreenItemReturnOrderCustomer(
-      {Key? key, required this.returnOrderCustomer})
+      {Key? key, required this.returnOrderCustomer,})
       : super(key: key);
 
   @override
@@ -263,7 +263,7 @@ class _ScreenItemReturnOrderCustomerState
         widget.returnOrderCustomer.uidWarehouse    = orderCustomer.uidWarehouse;
       } else {
         // Наименование заказа покупателя
-        textFieldOrderCustomerController.text = 'Заказ № <из системы>';
+        textFieldOrderCustomerController.text = widget.returnOrderCustomer.nameParent;
       }
     }
 
@@ -910,7 +910,7 @@ class _ScreenItemReturnOrderCustomerState
       child: ExpansionTile(
         tilePadding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
         title: const Text(
-          'Параметры отправки документа',
+          'Параметры документа',
           style: TextStyle(
             fontSize: 16,
             color: Colors.blueGrey,

@@ -52,7 +52,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               children: [
                 //nameGroup('Статистика (общая)'),
                 balanceCard(),
-                nameGroup('Балансы (к оплате)'),
+                nameGroup('Балансы контрактов (к оплате)'),
                 debtsCard(),
                 //nameGroup('Документы на отправку'),
               ],
@@ -69,28 +69,50 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     listForPaymentContracts.clear();
 
     List<AccumPartnerDept> listAllDebts = await dbReadAllAccumPartnerDeptForPayment();
-    listAllDebts.sort((a, b) => b.balanceForPayment.compareTo(a.balanceForPayment));
+    List<AccumPartnerDept> listDebts = [];
 
-    var limitCount = 10;
+    // Свернем долги по договору
     for (var itemDebts in listAllDebts) {
-      balance = balance + itemDebts.balance;
-      balanceForPayment = balanceForPayment + itemDebts.balanceForPayment;
+
+      // Ищем контракт в списке и увеличиваем баланс по каждому из них
+      var indexItem = listDebts.indexWhere((element) => element.uidContract == itemDebts.uidContract);
+
+      // Если нашли долг в списке отобранных, иначе добавим новую апись в список
+      if (indexItem >= 0) {
+        var itemList = listDebts[indexItem];
+        itemList.balance = itemList.balance + itemDebts.balance;
+        itemList.balanceForPayment = itemList.balanceForPayment + itemDebts.balanceForPayment;
+      } else {
+        listDebts.add(itemDebts);
+      }
+    }
+
+    // Сортируем временный список долгов по балансу на оплату
+    listDebts.sort((a, b) => b.balanceForPayment.compareTo(a.balanceForPayment));
+
+    // Отобразим только 10 штук на экране, а остальные посуммируем
+    var limitCount = 10;
+    for (var itemDebts in listDebts) {
+      Contract itemContract = await dbReadContractUID(itemDebts.uidContract);
+
+      // Получить баланс заказа
+      Map debts = await dbReadSumAccumPartnerDeptByContract(
+          uidContract: itemDebts.uidContract);
+
+      itemContract.balance = debts['balance'];
+      itemContract.balanceForPayment = debts['balanceForPayment'];
+
+      balance = balance + debts['balance'];
+      balanceForPayment = balanceForPayment + debts['balanceForPayment'];
 
       if (limitCount == 0) {
         continue;
       }
 
-      Contract itemContract = await dbReadContractUID(itemDebts.uidContract);
-      itemContract.balanceForPayment = itemDebts.balanceForPayment;
-      itemContract.balance = itemDebts.balance;
-
       // Добавим в список для отображения на форме
       listForPaymentContracts.add(itemContract);
       limitCount--;
     }
-
-    // Посортируем список по названию партнера
-    //listForPaymentContracts.sort((a, b) => a.namePartner.compareTo(b.namePartner));
 
     setState(() {});
   }

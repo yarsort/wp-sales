@@ -1,10 +1,9 @@
-
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 
 /// Название таблиц базы данных
-const String tableAccumPartnerDebts   = '_AccumPartnerDebts';
+const String tableAccumPartnerDebts = '_AccumPartnerDebts';
 
 /// Типы данных таблиц базы данных
 const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
@@ -30,7 +29,8 @@ class ItemAccumPartnerDeptFields {
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
   static const String id = 'id'; // Инкремент
-  static const String idRegistrar = 'idRegistrar'; // Ссылка на регистратор записи
+  static const String idRegistrar =
+      'idRegistrar'; // Ссылка на регистратор записи
   static const String uidOrganization = 'uidOrganization';
   static const String uidPartner = 'uidPartner';
   static const String uidContract = 'uidContract';
@@ -62,10 +62,10 @@ Future createTableAccumPartnerDebts(db) async {
 }
 
 /// Операции с объектами: CRUD and more
-Future<AccumPartnerDept> dbCreatePartnerDept(AccumPartnerDept accumDeptPartner) async {
+Future<AccumPartnerDept> dbCreatePartnerDept(
+    AccumPartnerDept accumDeptPartner) async {
   final db = await instance.database;
-  final id =
-  await db.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
+  final id = await db.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
   accumDeptPartner.id = id;
   return accumDeptPartner;
 }
@@ -99,14 +99,13 @@ Future<int> dbDeleteAllPartnerDept() async {
 Future<AccumPartnerDept> dbReadPartnerDept({
   required String uidPartner,
   required String uidContract,
-  required String uidDoc,}) async {
-
+  required String uidDoc,
+}) async {
   final db = await instance.database;
   final maps = await db.query(
     tableAccumPartnerDebts,
     columns: ItemAccumPartnerDeptFields.values,
-    where:
-    '${ItemAccumPartnerDeptFields.uidPartner} = ? '
+    where: '${ItemAccumPartnerDeptFields.uidPartner} = ? '
         'AND ${ItemAccumPartnerDeptFields.uidContract} = ?'
         'AND ${ItemAccumPartnerDeptFields.uidDoc} = ?',
     whereArgs: [uidPartner, uidContract, uidDoc],
@@ -122,19 +121,19 @@ Future<AccumPartnerDept> dbReadPartnerDept({
 /// Получение суммы долга по контракту. Измерение: Контракт, Документ
 Future<Map> dbReadSumAccumPartnerDeptByContractDoc({
   required String uidContract,
-  required String uidDoc,}) async {
-
+  required String uidDoc,
+}) async {
   final db = await instance.database;
   final result = await db.query(
     tableAccumPartnerDebts,
     columns: ItemAccumPartnerDeptFields.values,
-    where:
-        '${ItemAccumPartnerDeptFields.uidContract} = ?'
+    where: '${ItemAccumPartnerDeptFields.uidContract} = ?'
         'AND ${ItemAccumPartnerDeptFields.uidDoc} = ?',
     whereArgs: [uidContract, uidDoc],
   );
 
-  List<AccumPartnerDept> listAccumPartnerDept = result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+  List<AccumPartnerDept> listAccumPartnerDept =
+      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -155,19 +154,18 @@ Future<Map> dbReadSumAccumPartnerDeptByContractDoc({
 }
 
 /// Получение суммы долга по контракту. Измерение: Контракт
-Future<Map> dbReadSumAccumPartnerDeptByContract({
-  required String uidContract}) async {
-
+Future<Map> dbReadSumAccumPartnerDeptByContract(
+    {required String uidContract}) async {
   final db = await instance.database;
   final result = await db.query(
     tableAccumPartnerDebts,
     columns: ItemAccumPartnerDeptFields.values,
-    where:
-        '${ItemAccumPartnerDeptFields.uidContract} = ?',
+    where: '${ItemAccumPartnerDeptFields.uidContract} = ?',
     whereArgs: [uidContract],
   );
 
-  List<AccumPartnerDept> listAccumPartnerDept = result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+  List<AccumPartnerDept> listAccumPartnerDept =
+      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -189,101 +187,65 @@ Future<Map> dbReadSumAccumPartnerDeptByContract({
 Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDept() async {
   final db = await instance.database;
   const orderBy = '${ItemAccumPartnerDeptFields.balance} ASC';
-  final result = await db.query(
-      tableAccumPartnerDebts,
-      orderBy: orderBy);
+  final result = await db.query(tableAccumPartnerDebts, orderBy: orderBy);
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }
 
 Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptForPayment() async {
   final db = await instance.database;
   final result = await db.query(
-      tableAccumPartnerDebts,
-      where: '${ItemAccumPartnerDeptFields.balanceForPayment} > ?',
-      whereArgs: [0],);
+    tableAccumPartnerDebts,
+    where: '${ItemAccumPartnerDeptFields.balanceForPayment} > ?',
+    whereArgs: [0],
+  );
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }
 
-Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByContract({required String uidContract}) async {
+Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByContract(
+    {required String uidContract}) async {
   final db = await instance.database;
   final result = await db.query(
     tableAccumPartnerDebts,
     where: '${ItemAccumPartnerDeptFields.uidContract} = ?',
-    whereArgs: [uidContract],);
+    whereArgs: [uidContract],
+  );
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }
 
-Future<bool> dbCreateAccumPartnerDeptsByRegistrar(IncomingCashOrder incomingCashOrder) async {
+Future<bool> dbCreateAccumPartnerDeptsByRegistrar(
+    IncomingCashOrder incomingCashOrder) async {
   // Удалим старые записи для текущего регистратора
   final db = await instance.database;
   try {
     db.transaction((txn) async {
       /// Очистка записей регистратора
-      txn.delete(
+      await txn.delete(
         tableAccumPartnerDebts,
         where: '${ItemAccumPartnerDeptFields.idRegistrar} = ?',
         whereArgs: [incomingCashOrder.id],
       );
 
-      /// Добавление записей регистратора при отсутствии номера документа
-      if(incomingCashOrder.numberFrom1C.isEmpty) {
+      /// Добавление записей регистратора при отсутствии номера документа и без статуса №3 (в корзину)
+      if (incomingCashOrder.numberFrom1C.isEmpty &&
+          incomingCashOrder.status != 3 &&
+          incomingCashOrder.status != 0 &&
+          incomingCashOrder.sum > 0) {
 
-        /// Если сумма документа больше ноля
-        if (incomingCashOrder.sum > 0) {
         AccumPartnerDept accumDeptPartner = AccumPartnerDept()
           ..idRegistrar = incomingCashOrder.id
           ..uidOrganization = incomingCashOrder.uidOrganization
           ..uidPartner = incomingCashOrder.uidPartner
           ..uidContract = incomingCashOrder.uidContract
           ..uidDoc = incomingCashOrder.uidParent
-          ..nameDoc = ''
-          ..numberDoc = ''
-          ..dateDoc = DateTime.parse('')
-          ..balanceForPayment = 0.0
-          ..balance = incomingCashOrder.sum;
-        await db.insert(
-            tableAccumPartnerDebts,
-            accumDeptPartner.toJson());
-        }
+          ..nameDoc = incomingCashOrder.nameParent
+          ..balanceForPayment = -incomingCashOrder.sum // Сторно
+          ..balance = -incomingCashOrder.sum; // Сторно
+
+        await txn.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());
       }
     });
     return true;
   } catch (e) {
     return false;
   }
-}
-
-/// Получение суммы долга по контракту. Измерение: Контракт, Документ
-Future<List> dbUpdateAccumPartnerDeptInNewDocument({
-  required String uidContract,
-  required String uidDoc,}) async {
-
-  final db = await instance.database;
-  final result = await db.query(
-    tableAccumPartnerDebts,
-    columns: ItemAccumPartnerDeptFields.values,
-    where:
-    '${ItemAccumPartnerDeptFields.uidContract} = ?'
-        'AND ${ItemAccumPartnerDeptFields.uidDoc} = ?',
-    whereArgs: [uidContract, uidDoc],
-  );
-
-  List<AccumPartnerDept> listAccumPartnerDept = result.map((json) => AccumPartnerDept.fromJson(json)).toList();
-
-  // Сумируем все записи по отбору, потому что могут быть сторно у документов
-  double balance = 0.0;
-  double balanceForPayment = 0.0;
-
-  for (var itemList in listAccumPartnerDept) {
-    balance = balance + itemList.balance;
-    balanceForPayment = balanceForPayment + itemList.balanceForPayment;
-  }
-
-  Map mapBalance = {};
-  mapBalance['uidContract'] = uidContract;
-  mapBalance['uidDoc'] = uidDoc;
-  mapBalance['balance'] = balance;
-  mapBalance['balanceForPayment'] = balanceForPayment;
-
-  return mapBalance;
 }

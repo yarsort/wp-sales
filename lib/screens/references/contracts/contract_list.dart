@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
@@ -191,7 +190,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
             var contractItem = listContracts[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: ContractItem(contractItem: contractItem,));
+                child: ContractItem(contractItem: contractItem));
           },
         ),
       ),
@@ -201,6 +200,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
 
 class ContractItem extends StatefulWidget {
   final Contract contractItem;
+
   const ContractItem({Key? key, required this.contractItem}) : super(key: key);
 
   @override

@@ -5,6 +5,7 @@ class ReturnOrderCustomer {
   DateTime date = DateTime.now(); // Дата создания возврата заказа
   String uid = '';              // UID для 1С и связи с ТЧ
   String uidParent = '';        // UID заказа покупателя, по которому возврат
+  String nameParent = '';       // Имя главного документа
   String uidOrganization = '';  // Ссылка на организацию
   String nameOrganization = ''; // Имя организации
   String uidPartner = '';       // Ссылка на контрагента
@@ -49,6 +50,7 @@ class ReturnOrderCustomer {
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
     uidParent = json['uidParent'] ?? '';
+    nameParent = json['nameParent'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
     nameOrganization = json['nameOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
@@ -81,6 +83,7 @@ class ReturnOrderCustomer {
     data['date'] = date.toIso8601String();
     data['uid'] = uid;
     data['uidParent'] = uidParent;
+    data['nameParent'] = nameParent;
     data['uidOrganization'] = uidOrganization;
     data['nameOrganization'] = nameOrganization;
     data['uidPartner'] = uidPartner;

@@ -175,7 +175,23 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
   readBalance() async {
 
-    listAccumPartnerDept = await dbReadAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+    List<AccumPartnerDept> listDebts = await dbReadAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+
+    // Свернем долги по договору
+    for (var itemDebts in listDebts) {
+
+      // Ищем контракт в списке и увеличиваем баланс по каждому из них
+      var indexItem = listAccumPartnerDept.indexWhere((element) => element.uidDoc == itemDebts.uidDoc);
+
+      // Если нашли долг в списке отобранных, иначе добавим новую апись в список
+      if (indexItem >= 0) {
+        var itemList = listAccumPartnerDept[indexItem];
+        itemList.balance = itemList.balance + itemDebts.balance;
+        itemList.balanceForPayment = itemList.balanceForPayment + itemDebts.balanceForPayment;
+      } else {
+        listAccumPartnerDept.add(itemDebts);
+      }
+    }
 
     // Получить баланс заказа
     Map debts = await dbReadSumAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
@@ -516,10 +532,13 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     // Создадим объект
                     var newReturnOrderCustomer = ReturnOrderCustomer();
                     newReturnOrderCustomer.uidOrganization = itemDept.uidOrganization;
-                    newReturnOrderCustomer.uidPartner = itemDept.uidPartner;
+                    newReturnOrderCustomer.uidPartner  = itemDept.uidPartner;
                     newReturnOrderCustomer.uidContract = itemDept.uidContract;
-                    newReturnOrderCustomer.uidParent = itemDept.uidDoc;
-                    newReturnOrderCustomer.numberFrom1C = itemDept.numberDoc;
+                    newReturnOrderCustomer.uidParent   = itemDept.uidDoc;
+
+                    if (itemDept.numberDoc.isNotEmpty) {
+                      newReturnOrderCustomer.nameParent  = itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                    }
 
                     // Откроем форму документа
                     await Navigator.push(
@@ -536,15 +555,18 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     // Создадим объект
                     var newIncomingCashOrder = IncomingCashOrder();
                     newIncomingCashOrder.uidOrganization = itemDept.uidOrganization;
-                    newIncomingCashOrder.uidPartner = itemDept.uidPartner;
+                    newIncomingCashOrder.uidPartner  = itemDept.uidPartner;
                     newIncomingCashOrder.uidContract = itemDept.uidContract;
-                    newIncomingCashOrder.uidParent = itemDept.uidDoc;
-                    newIncomingCashOrder.numberFrom1C = itemDept.numberDoc;
+                    newIncomingCashOrder.uidParent   = itemDept.uidDoc;
+
+                    if (itemDept.numberDoc.isNotEmpty) {
+                      newIncomingCashOrder.nameParent  = itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                    }
 
                     if (itemDept.balanceForPayment > 0) {
                       newIncomingCashOrder.sum = itemDept.balanceForPayment;
                     } else {
-                      showMessage('Сумма баланса меньше ноля!');
+                      showMessage('Сумма баланса равна или меньше ноля!');
                       return;
                     }
 
@@ -592,7 +614,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   ),
                 ],
                 child: ListTile(
-                  title: Text(itemDept.nameDoc + ' № ' + itemDept.numberDoc),
+                  title: Text(itemDept.nameDoc),
                   subtitle: Column(
                     children: [
                       const Divider(),
