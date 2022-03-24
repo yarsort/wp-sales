@@ -1044,18 +1044,29 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               elevation: 3,
               child: ListTile(
                 //tileColor: Colors.cyan[50],
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
                     ),
                   );
+                  loadData();
                 },
                 title: Text(incomingCashOrder.namePartner),
                 subtitle: Column(
                   children: [
                     const Divider(),
+
+                    Row(
+                      children: [
+                        const Icon(Icons.fact_check,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Text(incomingCashOrder.nameParent),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     Row(
                       children: [
                         const Icon(Icons.recent_actors,
@@ -1115,13 +1126,14 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               elevation: 3,
               child: ListTile(
                 tileColor: Colors.lightGreen[50],
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
                     ),
                   );
+                  loadData();
                 },
                 title: Text(incomingCashOrder.namePartner),
                 subtitle: Column(
@@ -1229,13 +1241,14 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               elevation: 3,
               child: ListTile(
                 tileColor: Colors.deepOrange[50],
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
                     ),
                   );
+                  loadData();
                 },
                 title: Text(incomingCashOrder.namePartner),
                 subtitle: Column(

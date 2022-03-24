@@ -175,6 +175,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
   readBalance() async {
 
+    listAccumPartnerDept.clear();
     List<AccumPartnerDept> listDebts = await dbReadAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
 
     // Свернем долги по договору
