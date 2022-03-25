@@ -19,6 +19,8 @@ class Contract {
   String uidCurrency = '';        // Ссылка валюты
   String nameCurrency = '';       // Имя валюты
   int schedulePayment = 0;        // Отсрочка платежа
+  String visitDayOfWeek = '';     // Дни недели посещения менеджером: 1234567
+  String visitDayOfMonth = '';    // Дни месяца посещения менеджером: 1-31(30,28,27)
 
   Contract();
 
@@ -41,6 +43,8 @@ class Contract {
     uidCurrency = json['uidCurrency'] ?? '';
     nameCurrency = json['nameCurrency'] ?? '';
     schedulePayment = json['schedulePayment']; // Отсрочка платежа в днях (int)
+    visitDayOfWeek = json['visitDayOfWeek'] ?? '';
+    visitDayOfMonth = json['visitDayOfMonth'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
@@ -65,6 +69,8 @@ class Contract {
     data['uidCurrency'] = uidCurrency;
     data['nameCurrency'] = nameCurrency;
     data['schedulePayment'] = schedulePayment;
+    data['visitDayOfWeek'] = visitDayOfWeek;
+    data['visitDayOfMonth'] = visitDayOfMonth;
     return data;
   }
 }

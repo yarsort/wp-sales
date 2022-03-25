@@ -153,6 +153,7 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
         },
         controller: textFieldSearchController,
         decoration: InputDecoration(
+          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
           border: const OutlineInputBorder(),
           labelStyle: const TextStyle(
             color: Colors.blueGrey,

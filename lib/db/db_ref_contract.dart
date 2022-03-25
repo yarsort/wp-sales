@@ -33,6 +33,8 @@ class ItemContractFields {
     uidCurrency,       // Ссылка валюты
     nameCurrency,      // Имя валюты
     schedulePayment,   // Отсрочка платежа
+    visitDayOfWeek,    // Дни недели посещения менеджером: 1234567
+    visitDayOfMonth,   // Дни месяца посещения менеджером: 1-31(30,28,27)
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -54,6 +56,8 @@ class ItemContractFields {
   static const String uidCurrency = 'uidCurrency';
   static const String nameCurrency = 'nameCurrency';
   static const String schedulePayment = 'schedulePayment';
+  static const String visitDayOfWeek = 'visitDayOfWeek';
+  static const String visitDayOfMonth = 'visitDayOfMonth';
 }
 
 /// Создание таблиц БД
@@ -77,7 +81,9 @@ Future createTableContract(db) async {
       ${ItemContractFields.namePrice} $textType,
       ${ItemContractFields.uidCurrency} $textType,
       ${ItemContractFields.nameCurrency} $textType,
-      ${ItemContractFields.schedulePayment} $integerType
+      ${ItemContractFields.schedulePayment} $integerType,
+      ${ItemContractFields.visitDayOfWeek} $textType,
+      ${ItemContractFields.visitDayOfMonth} $textType
       )
     ''');
 }

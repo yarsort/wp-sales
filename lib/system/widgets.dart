@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/db_doc_return_order_customer.dart';
@@ -36,32 +37,26 @@ class MainDrawer extends StatefulWidget {
 }
 
 class _MainDrawerState extends State<MainDrawer> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   int countOrderCustomer = 0;
-
   int countReturnOrderCustomer = 0;
-
   int countIncomingCashOrder = 0;
-
   int countProduct = 0;
-
   int countUnit = 0;
-
   int countOrganization = 0;
-
   int countPartner = 0;
-
   int countContract = 0;
-
   int countCurrency = 0;
-
   int countPrice = 0;
-
   int countWarehouse = 0;
+  String nameUser = '';
+  String emailUser = '';
 
   @override
   void initState() {
-    super.initState();
     renewItem();
+    super.initState();
   }
 
   @override
@@ -86,13 +81,13 @@ class _MainDrawerState extends State<MainDrawer> {
                             const FlutterLogo(size: 80),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('Стрижаков Ярослав',
-                                    style: TextStyle(
+                              children: [
+                                Text(nameUser,
+                                    style: const TextStyle(
                                         fontSize: 20, color: Colors.white)),
-                                SizedBox(height: 5),
-                                Text("home@dartflutter.ru",
-                                    style: TextStyle(
+                                const SizedBox(height: 5),
+                                Text(emailUser,
+                                    style: const TextStyle(
                                         fontSize: 14, color: Colors.white70)),
                               ],
                             ),
@@ -373,6 +368,12 @@ class _MainDrawerState extends State<MainDrawer> {
   }
 
   renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+
+    // Идентификатор пользователя в приложении для обмена данными
+    nameUser = prefs.getString('settings_NameUser') ?? 'Тестовый пользователь';
+    emailUser = prefs.getString('settings_EmailUser') ?? 'test@yarsoft.com.ua';
+
     countOrderCustomer = await dbGetCountSendOrderCustomer();
     countReturnOrderCustomer = await dbGetCountSendReturnOrderCustomer();
     countIncomingCashOrder = await dbGetCountIncomingCashOrder();
@@ -494,7 +495,7 @@ class TextFieldWithText extends StatelessWidget {
               minWidth: 2,
               minHeight: 2,
             ),
-            contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             border: const OutlineInputBorder(),
             labelStyle: const TextStyle(
               color: Colors.blueGrey,

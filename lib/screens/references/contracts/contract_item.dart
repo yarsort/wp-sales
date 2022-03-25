@@ -25,6 +25,14 @@ class ScreenContractItem extends StatefulWidget {
 class _ScreenContractItemState extends State<ScreenContractItem> {
   List<AccumPartnerDept> listAccumPartnerDept = [];
 
+  bool monday = false;
+  bool tuesday = false;
+  bool wednesday = false;
+  bool thursday = false;
+  bool friday = false;
+  bool saturday = false;
+  bool sunday = false;
+
   /// Поле ввода: Partner
   TextEditingController textFieldPartnerController = TextEditingController();
 
@@ -38,13 +46,15 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   TextEditingController textFieldAddressController = TextEditingController();
 
   /// Поле ввода: Date of payment
-  TextEditingController textFieldSchedulePaymentController = TextEditingController();
+  TextEditingController textFieldSchedulePaymentController =
+      TextEditingController();
 
   /// Поле ввода: Баланс контракта или заказа покупателя
   TextEditingController textFieldBalanceController = TextEditingController();
 
   /// Поле ввода: Баланс контракта или заказа покупателя
-  TextEditingController textFieldBalanceForPaymentController = TextEditingController();
+  TextEditingController textFieldBalanceForPaymentController =
+      TextEditingController();
 
   /// Поле ввода: Comment
   TextEditingController textFieldCommentController = TextEditingController();
@@ -149,7 +159,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             ),
           ],
         ),
-
       ),
     );
   }
@@ -163,39 +172,50 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
     textFieldNameController.text = widget.contractItem.name;
     textFieldPhoneController.text = widget.contractItem.phone;
     textFieldAddressController.text = widget.contractItem.address;
-    textFieldSchedulePaymentController.text = widget.contractItem.schedulePayment.toString();
+    textFieldSchedulePaymentController.text =
+        widget.contractItem.schedulePayment.toString();
     textFieldCommentController.text = widget.contractItem.comment;
 
     // Технические данные
     textFieldUIDController.text = widget.contractItem.uid;
     textFieldCodeController.text = widget.contractItem.code;
 
+    monday = widget.contractItem.visitDayOfWeek.contains('1');
+    tuesday = widget.contractItem.visitDayOfWeek.contains('2');
+    wednesday = widget.contractItem.visitDayOfWeek.contains('3');
+    thursday = widget.contractItem.visitDayOfWeek.contains('4');
+    friday = widget.contractItem.visitDayOfWeek.contains('5');
+    saturday = widget.contractItem.visitDayOfWeek.contains('6');
+    sunday = widget.contractItem.visitDayOfWeek.contains('7');
+
     setState(() {});
   }
 
   readBalance() async {
-
     listAccumPartnerDept.clear();
-    List<AccumPartnerDept> listDebts = await dbReadAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+    List<AccumPartnerDept> listDebts = await dbReadAccumPartnerDeptByContract(
+        uidContract: widget.contractItem.uid);
 
     // Свернем долги по договору
     for (var itemDebts in listDebts) {
-
       // Ищем контракт в списке и увеличиваем баланс по каждому из них
-      var indexItem = listAccumPartnerDept.indexWhere((element) => element.uidDoc == itemDebts.uidDoc);
+      var indexItem = listAccumPartnerDept
+          .indexWhere((element) => element.uidDoc == itemDebts.uidDoc);
 
       // Если нашли долг в списке отобранных, иначе добавим новую апись в список
       if (indexItem >= 0) {
         var itemList = listAccumPartnerDept[indexItem];
         itemList.balance = itemList.balance + itemDebts.balance;
-        itemList.balanceForPayment = itemList.balanceForPayment + itemDebts.balanceForPayment;
+        itemList.balanceForPayment =
+            itemList.balanceForPayment + itemDebts.balanceForPayment;
       } else {
         listAccumPartnerDept.add(itemDebts);
       }
     }
 
     // Получить баланс заказа
-    Map debts = await dbReadSumAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+    Map debts = await dbReadSumAccumPartnerDeptByContract(
+        uidContract: widget.contractItem.uid);
 
     // Запись в реквизиты
     double balance = debts['balance'];
@@ -207,10 +227,10 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
     // Запись в реквизиты
     textFieldBalanceController.text = doubleToString(balance);
-    textFieldBalanceForPaymentController.text = doubleToString(balanceForPayment);
+    textFieldBalanceForPaymentController.text =
+        doubleToString(balanceForPayment);
 
     setState(() {});
-
   }
 
   saveItem() async {
@@ -218,9 +238,22 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.name = textFieldNameController.text;
       widget.contractItem.phone = textFieldPhoneController.text;
       widget.contractItem.address = textFieldAddressController.text;
-      widget.contractItem.schedulePayment = int.parse(textFieldSchedulePaymentController.text);
+      widget.contractItem.schedulePayment =
+          int.parse(textFieldSchedulePaymentController.text);
       widget.contractItem.comment = textFieldCommentController.text;
 
+      // Дни недели для посещения партнера по договору
+      String dayOfWeek = '';
+      dayOfWeek = dayOfWeek + (monday ? '1' : '');
+      dayOfWeek = dayOfWeek + (tuesday ? '2' : '');
+      dayOfWeek = dayOfWeek + (wednesday ? '3' : '');
+      dayOfWeek = dayOfWeek + (thursday ? '4' : '');
+      dayOfWeek = dayOfWeek + (friday ? '5' : '');
+      dayOfWeek = dayOfWeek + (saturday ? '6' : '');
+      dayOfWeek = dayOfWeek + (sunday ? '7' : '');
+      widget.contractItem.visitDayOfWeek = dayOfWeek;
+
+      // Идентификатор записи
       if (widget.contractItem.id != 0) {
         await dbUpdateContract(widget.contractItem);
         return true;
@@ -238,7 +271,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   deleteItem() async {
     try {
       if (widget.contractItem.id != 0) {
-
         /// Обновим объект в базе данных
         await dbDeleteContract(widget.contractItem.id);
         return true;
@@ -255,7 +287,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content:Text(textMessage),
+        content: Text(textMessage),
         duration: const Duration(seconds: 2),
         backgroundColor: Colors.blue,
       ),
@@ -269,7 +301,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
         children: [
-
           /// Partner
           TextFieldWithText(
               textLabel: 'Партнер',
@@ -286,9 +317,12 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenPartnerSelection(
-                            contract: widget.contractItem, orderCustomer: null,)));
+                              contract: widget.contractItem,
+                              orderCustomer: null,
+                            )));
 
-                textFieldPartnerController.text = widget.contractItem.namePartner;
+                textFieldPartnerController.text =
+                    widget.contractItem.namePartner;
 
                 setState(() {});
               }),
@@ -432,12 +466,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             ),
           ),
 
-          /// Divider
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-            child: Divider(),
-          ),
-
           /// Comment
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -452,6 +480,129 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                 labelText: 'Комментарий',
               ),
             ),
+          ),
+
+          nameGroup(nameGroup: 'Дни посещения партнера'),
+
+          Row(
+            children: [
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: monday,
+                      onChanged: (value) {
+                        setState(() {
+                          monday = !monday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('ПН')),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: tuesday,
+                      onChanged: (value) {
+                        setState(() {
+                          tuesday = !tuesday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('ВТ')),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: wednesday,
+                      onChanged: (value) {
+                        setState(() {
+                          wednesday = !wednesday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('СР')),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: thursday,
+                      onChanged: (value) {
+                        setState(() {
+                          thursday = !thursday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('ЧТ')),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: friday,
+                      onChanged: (value) {
+                        setState(() {
+                          friday = !friday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('ПТ')),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: saturday,
+                      onChanged: (value) {
+                        setState(() {
+                          saturday = !saturday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('СБ')),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 70,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: sunday,
+                      onChanged: (value) {
+                        setState(() {
+                          sunday = !sunday;
+                        });
+                      },
+                    ),
+                    const Flexible(child: Text('ВС')),
+                  ],
+                ),
+              ),
+            ],
           ),
 
           /// Buttons Записать / Отменить
@@ -492,7 +643,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   width: (MediaQuery.of(context).size.width - 35) / 2,
                   child: ElevatedButton(
                       style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.red)),
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         Navigator.of(context).pop(true);
                       },
@@ -508,7 +660,24 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
+  nameGroup({String nameGroup = '', bool hideDivider = false}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(nameGroup,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.blueGrey,
+              fontWeight: FontWeight.bold,),
+            textAlign: TextAlign.start,),
+          if (!hideDivider) const Divider(),
         ],
       ),
     );
@@ -527,18 +696,19 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
               elevation: 2,
               child: PopupMenuButton<String>(
                 onSelected: (String value) async {
-
                   // Создадим подчиненный документ возврата заказа
                   if (value == 'return_order_customer') {
                     // Создадим объект
                     var newReturnOrderCustomer = ReturnOrderCustomer();
-                    newReturnOrderCustomer.uidOrganization = itemDept.uidOrganization;
-                    newReturnOrderCustomer.uidPartner  = itemDept.uidPartner;
+                    newReturnOrderCustomer.uidOrganization =
+                        itemDept.uidOrganization;
+                    newReturnOrderCustomer.uidPartner = itemDept.uidPartner;
                     newReturnOrderCustomer.uidContract = itemDept.uidContract;
-                    newReturnOrderCustomer.uidParent   = itemDept.uidDoc;
+                    newReturnOrderCustomer.uidParent = itemDept.uidDoc;
 
                     if (itemDept.numberDoc.isNotEmpty) {
-                      newReturnOrderCustomer.nameParent  = itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                      newReturnOrderCustomer.nameParent =
+                          itemDept.nameDoc + ' № ' + itemDept.numberDoc;
                     }
 
                     // Откроем форму документа
@@ -555,13 +725,15 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   if (value == 'incoming_cash_order') {
                     // Создадим объект
                     var newIncomingCashOrder = IncomingCashOrder();
-                    newIncomingCashOrder.uidOrganization = itemDept.uidOrganization;
-                    newIncomingCashOrder.uidPartner  = itemDept.uidPartner;
+                    newIncomingCashOrder.uidOrganization =
+                        itemDept.uidOrganization;
+                    newIncomingCashOrder.uidPartner = itemDept.uidPartner;
                     newIncomingCashOrder.uidContract = itemDept.uidContract;
-                    newIncomingCashOrder.uidParent   = itemDept.uidDoc;
+                    newIncomingCashOrder.uidParent = itemDept.uidDoc;
 
                     if (itemDept.numberDoc.isNotEmpty) {
-                      newIncomingCashOrder.nameParent  = itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                      newIncomingCashOrder.nameParent =
+                          itemDept.nameDoc + ' № ' + itemDept.numberDoc;
                     }
 
                     if (itemDept.balanceForPayment > 0) {
@@ -631,8 +803,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Flexible(
-                                      child:
-                                      Text(widget.contractItem.namePartner)),
+                                      child: Text(
+                                          widget.contractItem.namePartner)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -666,8 +838,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                   const Icon(Icons.price_change,
                                       color: Colors.green, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(
-                                      doubleToString(itemDept.balance)),
+                                  Text(doubleToString(itemDept.balance)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -676,7 +847,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                   const Icon(Icons.price_change,
                                       color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(itemDept.balanceForPayment)),
+                                  Text(doubleToString(
+                                      itemDept.balanceForPayment)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -715,7 +887,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             child: TextField(
               controller: textFieldUIDController,
               readOnly: true,
-
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
@@ -733,7 +904,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             child: TextField(
               controller: textFieldCodeController,
               readOnly: true,
-
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 border: OutlineInputBorder(),
@@ -757,7 +927,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   width: (MediaQuery.of(context).size.width - 28),
                   child: ElevatedButton(
                       style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.grey)),
                       onPressed: () async {
                         var result = await deleteItem();
                         if (result) {

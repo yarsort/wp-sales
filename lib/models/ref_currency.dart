@@ -20,8 +20,8 @@ class Currency {
     code = json['code'] ?? '';
     name = json['name'] ?? '';
     uidParent = json['uidParent'] ?? '';
-    course = json['course'] ?? 0.0;
-    multiplicity = json['multiplicity'] ?? 0.0;
+    course = json['course'].toDouble() ?? 0.0;
+    multiplicity = json['multiplicity'].toDouble() ?? 0.0;
     comment = json['comment'] ?? '';
   }
 

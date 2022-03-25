@@ -38,6 +38,15 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   bool useFTPExchange = false; // Обмен по FTP
   bool enabledTextFieldFTPExchange = false;
 
+  //
+  bool useRoutesToPartners = false;
+
+  /// имя пользователя для обмена данными
+  TextEditingController textFieldNameUserController = TextEditingController();
+
+  /// Почта пользователя для обмена данными
+  TextEditingController textFieldEmailUserController = TextEditingController();
+
   /// UID пользователя для обмена данными
   TextEditingController textFieldUIDUserController = TextEditingController();
 
@@ -170,7 +179,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
+                  nameGroup(nameGroup: 'Параметры пользователя',hideDivider: false),
                   listSettingsOther(),
+                  nameGroup(nameGroup: 'Виды обмена данными',hideDivider: false),
                   listSettingsExchange(),
                 ],
               ),
@@ -196,6 +207,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Идентификатор пользователя в приложении для обмена данными
+    textFieldNameUserController.text = prefs.getString('settings_NameUser') ?? 'Тестовый пользователь';
+    textFieldEmailUserController.text = prefs.getString('settings_EmailUser') ?? 'test@yarsoft.com.ua';
     textFieldUIDUserController.text = prefs.getString('settings_UIDUser') ?? '';
 
     //Обмен по ftp-серверу
@@ -217,6 +230,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')!;
     deniedEditPrice = prefs.getBool('settings_deniedEditPrice')!;
     deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
+    useRoutesToPartners = prefs.getBool('settings_useRoutesToPartners')!;
 
     // Заполнение значений по-умолчанию
     uidOrganization = prefs.getString('settings_uidOrganization')??'';
@@ -249,11 +263,16 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_useTestData', useTestData);
 
     /// Common settings
+    prefs.setString('settings_NameUser', textFieldNameUserController.text);
+    prefs.setString('settings_EmailUser', textFieldEmailUserController.text);
     prefs.setString('settings_UIDUser', textFieldUIDUserController.text);
+
+    /// Запреты и разрешения
     prefs.setBool('settings_deniedEditSettings', deniedEditSettings);
     prefs.setBool('settings_deniedEditTypePrice', deniedEditTypePrice);
     prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
     prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
+    prefs.setBool('settings_useRoutesToPartners', useRoutesToPartners);
 
     /// FTP
     prefs.setBool('settings_useFTPExchange', useFTPExchange);
@@ -406,7 +425,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   listSettingsExchange() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
         children: [
           /// Использование обмена через FTP
@@ -704,9 +723,45 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   listSettingsOther() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
         children: [
+          /// Имя пользователя
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: IntrinsicHeight(
+              child: TextField(
+                keyboardType: TextInputType.text,
+                controller: textFieldNameUserController,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'Имя пользователя',
+                ),
+              ),
+            ),
+          ),
+          /// Почта пользователя
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: IntrinsicHeight(
+              child: TextField(
+                keyboardType: TextInputType.emailAddress,
+                controller: textFieldEmailUserController,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'Почта пользователя',
+                ),
+              ),
+            ),
+          ),
           /// UID пользователя
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
