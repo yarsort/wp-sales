@@ -340,7 +340,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'UID партнера в 1С',
+              labelText: 'UID организации',
             ),
           ),
         ),
@@ -357,7 +357,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'Код в 1С',
+              labelText: 'Код',
             ),
           ),
         ),

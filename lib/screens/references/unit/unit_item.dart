@@ -300,7 +300,7 @@ class _ScreenUnitItemState extends State<ScreenUnitItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'UID записи в 1С',
+                labelText: 'UID единицы измерения',
               ),
             ),
           ),
@@ -317,7 +317,7 @@ class _ScreenUnitItemState extends State<ScreenUnitItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'Код в 1С',
+                labelText: 'Код',
               ),
             ),
           ),

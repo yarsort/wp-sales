@@ -30,6 +30,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('WP Sales'),
         actions: [
           IconButton(

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wp_sales/db/db_accum_partner_depts.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenPartnerItem extends StatefulWidget {
@@ -15,6 +19,9 @@ class ScreenPartnerItem extends StatefulWidget {
 }
 
 class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
+
+  List<Contract> tempItems = [];
+  List<Contract> listContracts = [];
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
@@ -67,7 +74,20 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       textFieldUIDController.text = widget.partnerItem.uid;
       textFieldCodeController.text = widget.partnerItem.code;
 
+      await readContracts();
+
       setState(() {});
+  }
+
+  readContracts() async {
+    listContracts.clear();
+    tempItems.clear();
+
+    if (widget.partnerItem.uid.isNotEmpty) {
+      listContracts = await dbReadContractsOfPartner(
+          widget.partnerItem.uid);
+      tempItems.addAll(listContracts);
+    }
   }
 
   @override
@@ -78,21 +98,10 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Партнер'),
-          actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20.0),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: const Icon(
-                    Icons.filter_list,
-                    size: 26.0,
-                  ),
-                )),
-          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Главная'),
-              Tab(text: 'Документы'),
+              Tab(text: 'Контракты'),
               Tab(text: 'Служебные'),
             ],
           ),
@@ -110,7 +119,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listDocuments(),
+                listViewContracts(),
               ],
             ),
             ListView(
@@ -176,7 +185,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
   listHeaderOrder() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
       child: Column(
         children: [
           /// Name
@@ -390,16 +399,25 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     );
   }
 
-  listDocuments() {
+  listViewContracts() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-      child: Container(),
+      padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: listContracts.length,
+        itemBuilder: (context, index) {
+          var contractItem = listContracts[index];
+          return Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: ContractItem(contractItem: contractItem));
+        },
+      ),
     );
   }
 
   listService() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
       child: Column(
         children: [
           /// Поле ввода: UID
@@ -415,7 +433,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'UID партнера в 1С',
+                labelText: 'UID партнера',
               ),
             ),
           ),
@@ -433,7 +451,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'Код в 1С',
+                labelText: 'Код',
               ),
             ),
           ),
@@ -473,5 +491,128 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
         ],
       ),
     );
+  }
+}
+
+
+class ContractItem extends StatefulWidget {
+  final Contract contractItem;
+
+  const ContractItem({Key? key, required this.contractItem}) : super(key: key);
+
+  @override
+  State<ContractItem> createState() => _ContractItemState();
+}
+
+class _ContractItemState extends State<ContractItem> {
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    renewDataContract();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+        child: Card(
+          elevation: 2,
+          child: ListTile(
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ScreenContractItem(contractItem: widget.contractItem),
+                ),
+              );
+            },
+            title: Text(widget.contractItem.name),
+            subtitle: Column(
+              children: [
+                const Divider(),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.phone,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Text(widget.contractItem.phone),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.home,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Flexible(
+                                  child: Text(widget.contractItem.address)),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.price_change,
+                                  color: Colors.green, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  doubleToString(balance)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.price_change,
+                                  color: Colors.red, size: 20),
+                              const SizedBox(width: 5),
+                              Text(doubleToString(balanceForPayment)),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            children: [
+                              const Icon(Icons.schedule,
+                                  color: Colors.blue, size: 20),
+                              const SizedBox(width: 5),
+                              Text(widget.contractItem.schedulePayment
+                                  .toString()),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  renewDataContract() async {
+    // Получить баланс заказа
+    Map debts = await dbReadSumAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+
+    // Запись в реквизиты
+    balance = debts['balance'];
+    balanceForPayment = debts['balanceForPayment'];
+
+    setState(() {});
   }
 }

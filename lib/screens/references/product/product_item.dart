@@ -348,7 +348,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'UID записи в 1С',
+              labelText: 'UID товара',
             ),
           ),
         ),
@@ -364,7 +364,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'Код в 1С',
+              labelText: 'Код',
             ),
           ),
         ),

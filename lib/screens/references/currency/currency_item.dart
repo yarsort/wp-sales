@@ -315,7 +315,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'UID записи в 1С',
+                labelText: 'UID валюты',
               ),
             ),
           ),
@@ -332,7 +332,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'Код в 1С',
+                labelText: 'Код',
               ),
             ),
           ),

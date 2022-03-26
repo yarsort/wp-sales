@@ -736,8 +736,12 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                           itemDept.nameDoc + ' № ' + itemDept.numberDoc;
                     }
 
-                    if (itemDept.balanceForPayment > 0) {
-                      newIncomingCashOrder.sum = itemDept.balanceForPayment;
+                    if (itemDept.balance > 0) {
+                      if (itemDept.balanceForPayment > 0) {
+                        newIncomingCashOrder.sum = itemDept.balanceForPayment;
+                      }else{
+                        newIncomingCashOrder.sum = itemDept.balance;
+                      }
                     } else {
                       showMessage('Сумма баланса равна или меньше ноля!');
                       return;
@@ -787,7 +791,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   ),
                 ],
                 child: ListTile(
-                  title: Text(itemDept.nameDoc),
+                  title: Text(itemDept.nameDoc + ' № ' + itemDept.numberDoc),
                   subtitle: Column(
                     children: [
                       const Divider(),
@@ -893,7 +897,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'UID партнера в 1С',
+                labelText: 'UID договора (контракта)',
               ),
             ),
           ),
@@ -910,7 +914,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
                 ),
-                labelText: 'Код в 1С',
+                labelText: 'Код',
               ),
             ),
           ),

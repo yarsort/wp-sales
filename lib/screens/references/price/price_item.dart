@@ -268,7 +268,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'UID записи в 1С',
+              labelText: 'UID типа цены',
             ),
           ),
         ),
@@ -284,7 +284,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
               labelStyle: TextStyle(
                 color: Colors.blueGrey,
               ),
-              labelText: 'Код в 1С',
+              labelText: 'Код',
             ),
           ),
         ),
