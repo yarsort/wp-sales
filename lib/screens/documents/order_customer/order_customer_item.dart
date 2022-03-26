@@ -490,11 +490,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                         builder: (context) => ScreenPartnerSelection(
                             orderCustomer: widget.orderCustomer)));
 
-                // Если изменили партнера, изменим его договор и валюту
-                widget.orderCustomer.nameContract = '';
-                widget.orderCustomer.uidContract = '';
-                widget.orderCustomer.namePrice = '';
-                widget.orderCustomer.uidPrice = '';
                 updateHeader();
               }),
 

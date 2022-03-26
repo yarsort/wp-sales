@@ -238,7 +238,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useWebExchange) {
-      downloadDataFromWebServer();
+      await downloadDataFromWebServer();
     }
 
     setState(() {
@@ -366,7 +366,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// 2. Отчеты для менеджера по запросу.
     /// 3. Запросы на какие-либо данные из учетной системы.
 
-    saveDownloadedData(listJSONFiles);
+    await saveDownloadedData(listJSONFiles);
   }
 
   // Получение данных из Web Server
@@ -387,12 +387,12 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Простой обмен
       //if (typeExchange == 'simple') {
-      saveFromJsonDataSimple(jsonData);
+      await saveFromJsonDataSimple(jsonData);
       //}
 
       // Обмен отчетами
       if (typeExchange == 'report') {
-        saveFromJsonDataReport(jsonData);
+        await saveFromJsonDataReport(jsonData);
       }
     }
   }

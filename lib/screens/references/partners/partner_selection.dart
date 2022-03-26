@@ -204,7 +204,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                         widget.orderCustomer?.namePartner = partnerItem.name;
 
                         // Автовыбор договора в документ заказа покупателя
-                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uidParent);
+                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uid);
                         for (var itemContract in listContracts) {
                           if(itemContract.uidOrganization != widget.orderCustomer?.uidOrganization){
                             continue;
@@ -219,7 +219,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                         widget.returnOrderCustomer?.namePartner = partnerItem.name;
 
                         // Автовыбор договора в документ возврата товаров
-                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uidParent);
+                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uid);
                         for (var itemContract in listContracts) {
                           if(itemContract.uidOrganization != widget.returnOrderCustomer?.uidOrganization){
                             continue;
@@ -234,7 +234,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                         widget.incomingCashOrder?.namePartner = partnerItem.name;
 
                         // Автовыбор договора в документ оплаты
-                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uidParent);
+                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uid);
                         for (var itemContract in listContracts) {
                           if(itemContract.uidOrganization != widget.incomingCashOrder?.uidOrganization){
                             continue;
