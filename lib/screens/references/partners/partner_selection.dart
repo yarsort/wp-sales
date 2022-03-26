@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
@@ -197,25 +198,59 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                 child: Card(
                   elevation: 2,
                   child: ListTile(
-                    onTap: () {
-                      setState(() {
-                        if (widget.orderCustomer != null) {
-                          widget.orderCustomer?.uidPartner = partnerItem.uid;
-                          widget.orderCustomer?.namePartner = partnerItem.name;
+                    onTap: () async {
+                      if (widget.orderCustomer != null) {
+                        widget.orderCustomer?.uidPartner = partnerItem.uid;
+                        widget.orderCustomer?.namePartner = partnerItem.name;
+
+                        // Автовыбор договора в документ заказа покупателя
+                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uidParent);
+                        for (var itemContract in listContracts) {
+                          if(itemContract.uidOrganization != widget.orderCustomer?.uidOrganization){
+                            continue;
+                          }
+                          widget.orderCustomer?.uidContract = itemContract.uid;
+                          widget.orderCustomer?.nameContract = itemContract.name;
                         }
-                        if (widget.returnOrderCustomer != null) {
-                          widget.returnOrderCustomer?.uidPartner = partnerItem.uid;
-                          widget.returnOrderCustomer?.namePartner = partnerItem.name;
+                      }
+
+                      if (widget.returnOrderCustomer != null) {
+                        widget.returnOrderCustomer?.uidPartner = partnerItem.uid;
+                        widget.returnOrderCustomer?.namePartner = partnerItem.name;
+
+                        // Автовыбор договора в документ возврата товаров
+                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uidParent);
+                        for (var itemContract in listContracts) {
+                          if(itemContract.uidOrganization != widget.returnOrderCustomer?.uidOrganization){
+                            continue;
+                          }
+                          widget.returnOrderCustomer?.uidContract = itemContract.uid;
+                          widget.returnOrderCustomer?.nameContract = itemContract.name;
                         }
-                        if (widget.incomingCashOrder != null) {
-                          widget.incomingCashOrder?.uidPartner = partnerItem.uid;
-                          widget.incomingCashOrder?.namePartner = partnerItem.name;
+                      }
+
+                      if (widget.incomingCashOrder != null) {
+                        widget.incomingCashOrder?.uidPartner = partnerItem.uid;
+                        widget.incomingCashOrder?.namePartner = partnerItem.name;
+
+                        // Автовыбор договора в документ оплаты
+                        List<Contract> listContracts = await dbReadContractsOfPartner(partnerItem.uidParent);
+                        for (var itemContract in listContracts) {
+                          if(itemContract.uidOrganization != widget.incomingCashOrder?.uidOrganization){
+                            continue;
+                          }
+                          widget.incomingCashOrder?.uidContract = itemContract.uid;
+                          widget.incomingCashOrder?.nameContract = itemContract.name;
                         }
-                        if (widget.contract != null) {
-                          widget.contract?.uidPartner = partnerItem.uid;
-                          widget.contract?.namePartner = partnerItem.name;
-                        }
-                      });
+                      }
+
+                      if (widget.contract != null) {
+                        widget.contract?.uidPartner = partnerItem.uid;
+                        widget.contract?.namePartner = partnerItem.name;
+                      }
+                      setState(() {});
+
+                      // Возврат
                       Navigator.pop(context);
                     },
                     title: Text(partnerItem.name),

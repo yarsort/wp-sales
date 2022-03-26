@@ -651,7 +651,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useWebExchange) {
-      uploadDataToWebServer();
+      await uploadDataToWebServer();
     }
 
     setState(() {

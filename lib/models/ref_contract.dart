@@ -12,6 +12,7 @@ class Contract {
   String phone = '';              // Контакты
   String address = '';            // Адрес
   String comment = '';            // Коммментарий
+  String uidOrganization = '';    // Ссылка на организацию
   String namePartner = '';        // Имя партнера
   String uidPartner = '';         // Ссылка на партнера
   String uidPrice = '';           // Ссылка тип цены
@@ -36,6 +37,7 @@ class Contract {
     phone = json['phone'] ?? '';
     address = json['address'] ?? '';
     comment = json['comment'] ?? '';
+    uidOrganization = json['uidOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
     namePartner = json['namePartner'] ?? '';
     uidPrice = json['uidPrice'] ?? '';
@@ -62,6 +64,7 @@ class Contract {
     data['phone'] = phone;
     data['address'] = address;
     data['comment'] = comment;
+    data['uidOrganization'] = uidOrganization;
     data['uidPartner'] = uidPartner;
     data['namePartner'] = namePartner;
     data['uidPrice'] = uidPrice;

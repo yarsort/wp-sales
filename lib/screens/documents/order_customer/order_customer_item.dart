@@ -440,7 +440,12 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               textEditingController: textFieldOrganizationController,
               onPressedEditIcon: Icons.person,
               onPressedDeleteIcon: Icons.delete,
-              onPressedDelete: () {},
+              onPressedDelete: () {
+                widget.orderCustomer.nameContract = '';
+                widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.namePrice = '';
+                widget.orderCustomer.uidPrice = '';
+              },
               onPressedEdit: () async {
                 var result = await Navigator.push(
                     context,
@@ -454,8 +459,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     widget.orderCustomer.uidContract = '';
                     widget.orderCustomer.namePrice = '';
                     widget.orderCustomer.uidPrice = '';
-                    widget.orderCustomer.nameCurrency = '';
-                    widget.orderCustomer.uidCurrency = '';
                   }
                 }
                 updateHeader();
@@ -470,9 +473,17 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 widget.orderCustomer.namePartner = '';
                 widget.orderCustomer.uidPartner = '';
+                widget.orderCustomer.nameContract = '';
+                widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.namePrice = '';
+                widget.orderCustomer.uidPrice = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
+                if(widget.orderCustomer.uidOrganization.isEmpty){
+                  showMessageError('Организация не выбрана!');
+                  return;
+                }
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -484,8 +495,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 widget.orderCustomer.uidContract = '';
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
-                widget.orderCustomer.nameCurrency = '';
-                widget.orderCustomer.uidCurrency = '';
                 updateHeader();
               }),
 
@@ -498,9 +507,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.namePrice = '';
+                widget.orderCustomer.uidPrice = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
+                if(widget.orderCustomer.uidPartner.isEmpty){
+                  showMessageError('Партнер не выбран!');
+                  return;
+                }
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -510,9 +525,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 // Если изменили контрак, изменим цену и валюту
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
-                widget.orderCustomer.nameCurrency = '';
-                widget.orderCustomer.uidCurrency = '';
-
                 await updateHeader();
               }),
 
