@@ -990,7 +990,24 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 elevation: 3,
                 child: ListTile(
                   //tileColor: Colors.cyan[50],
-                  onTap: () async {},
+                  onTap: () async {
+                    if (item.runtimeType == IncomingCashOrder) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: item),
+                        ),
+                      );
+                    }
+                    if (item.runtimeType == ReturnOrderCustomer) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenItemReturnOrderCustomer(returnOrderCustomer: item),
+                        ),
+                      );
+                    }
+                  },
                   title: Text(nameDoc),
                   subtitle: Column(
                     children: [

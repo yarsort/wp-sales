@@ -73,24 +73,41 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
     listContracts.clear();
     tempItems.clear();
 
+    // Временные данные
+    List<Contract> tListContracts = [];
+    String tUidOrganization = '';
+
+    // Получение данных: Заказ покупателя
     if (widget.orderCustomer != null) {
-      listContracts = await dbReadContractsOfPartner(
+      tUidOrganization = widget.orderCustomer?.uidOrganization??'';
+      tListContracts = await dbReadContractsOfPartner(
           widget.orderCustomer?.uidPartner ?? '');
-      tempItems.addAll(listContracts);
     }
 
+    // Получение данных: Возврат товаров от покупателя
     if (widget.returnOrderCustomer != null) {
-      listContracts = await dbReadContractsOfPartner(
+      tUidOrganization = widget.returnOrderCustomer?.uidOrganization??'';
+      tListContracts = await dbReadContractsOfPartner(
           widget.returnOrderCustomer?.uidPartner ?? '');
-      tempItems.addAll(listContracts);
     }
 
+    // Получение данных: Оплата товаров
     if (widget.incomingCashOrder != null) {
-      listContracts = await dbReadContractsOfPartner(
+      tUidOrganization = widget.incomingCashOrder?.uidOrganization??'';
+      tListContracts = await dbReadContractsOfPartner(
           widget.incomingCashOrder?.uidPartner ?? '');
-      tempItems.addAll(listContracts);
     }
 
+    // Фильтрация по организации из документа
+    for (var itemContracts in tListContracts) {
+      if (itemContracts.uidOrganization != tUidOrganization) {
+        continue;
+      }
+      listContracts.add(itemContracts);
+      tempItems.add(itemContracts);
+    }
+
+    // Обновление формы
     setState(() {});
   }
 

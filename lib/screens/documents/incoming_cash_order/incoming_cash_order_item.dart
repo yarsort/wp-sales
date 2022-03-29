@@ -278,11 +278,11 @@ class _ScreenItemIncomingCashOrderState
           textFieldOrderCustomerController.text = widget.incomingCashOrder.nameParent;
         }
 
-        widget.incomingCashOrder.uidOrganization =
-            orderCustomer.uidOrganization;
+        widget.incomingCashOrder.uidOrganization = orderCustomer.uidOrganization;
         widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
         widget.incomingCashOrder.uidContract = orderCustomer.uidContract;
         widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
+        widget.incomingCashOrder.sum = orderCustomer.sum;
       } else {
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text =

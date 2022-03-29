@@ -8,7 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
+import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
+import 'package:wp_sales/db/db_doc_return_order_customer.dart';
 import 'package:wp_sales/db/db_ref_cashbox.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_currency.dart';
@@ -21,7 +23,9 @@ import 'package:wp_sales/db/db_ref_warehouse.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
+import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
+import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/models/ref_cashbox.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_currency.dart';
@@ -63,6 +67,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         actions: [
           IconButton(
               onPressed: () {
+                if (_loading) {
+                  showMessage('Обмен в процессе...');
+                  return;
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -159,6 +167,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         width: (MediaQuery.of(context).size.width - 49) / 2,
         child: ElevatedButton(
             onPressed: () async {
+              if (_loading) {
+                return;
+              }
               await uploadData();
               await downloadData();
               setState(() {});
@@ -216,9 +227,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Начало получения данных
   Future<void> downloadData() async {
-    if (_loading) {
-      return;
-    }
 
     listLogs.clear();
 
@@ -240,6 +248,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (useWebExchange) {
       await downloadDataFromWebServer();
     }
+
+
 
     setState(() {
       _loading = false;
@@ -571,7 +581,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
     }
 
-    /// Цены товаров
+    /// Цены товаровок
+    ///
     if (jsonData['Currency'] != null) {
       await dbDeleteAllProductPrice();
       countItem = 0;
@@ -589,15 +600,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     countItem = 0;
     if (jsonData['ReceivedDocuments'] != null) {
       for (var item in jsonData['ReceivedDocuments']) {
-        if (item.typeDoc == 'ЗаказПокупателя') {
+        if (item['typeDoc'] == 'ЗаказПокупателя') {
           // Получим заказ
-          var orderCustomer = await dbReadOrderCustomerUID(item.uidDoc);
+          var orderCustomer = await dbReadOrderCustomerUID(item['uidDoc']);
 
           // Получим товары заказа
           var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
 
           // Запишем номер документа из учетной системы
-          orderCustomer.numberFrom1C = item.numberDoc;
+          orderCustomer.numberFrom1C = item['numberDoc'];
 
           // Запишем обновления заказа
           await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
@@ -820,43 +831,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       dataNumber['typeDoc'] = 'orderCustomer';
       numberDocs.add(dataNumber);
 
-      var data = {};
-      data['status'] = itemDoc.status;
-      data['date'] = itemDoc.date.toIso8601String();
-      data['uid'] = itemDoc.uid;
-      data['uidOrganization'] = itemDoc.uidOrganization;
-      data['nameOrganization'] = itemDoc.nameOrganization;
-      data['uidPartner'] = itemDoc.uidPartner;
-      data['namePartner'] = itemDoc.namePartner;
-      data['uidContract'] = itemDoc.uidContract;
-      data['nameContract'] = itemDoc.nameContract;
-      data['uidPrice'] = itemDoc.uidPrice;
-      data['namePrice'] = itemDoc.namePrice;
-      data['nameWarehouse'] = itemDoc.nameWarehouse;
-      data['uidWarehouse'] = itemDoc.uidWarehouse;
-      data['uidCurrency'] = itemDoc.uidCurrency;
-      data['nameCurrency'] = itemDoc.nameCurrency;
-      data['uidCashbox'] = itemDoc.uidCashbox;
-      data['nameCashbox'] = itemDoc.nameCashbox;
-      data['sum'] = itemDoc.sum;
-      data['comment'] = itemDoc.comment;
-      data['dateSending'] = itemDoc.dateSending.toIso8601String();
-      data['datePaying'] = itemDoc.datePaying.toIso8601String();
-      data['countItems'] = itemDoc.countItems;
+      // Конвертация данных шапки
+      var data = itemDoc.toJson();
 
+      // Конвертация товаров
       var listDataProduct = [];
       List<ItemOrderCustomer> listItemOrderCustomer =
           await dbReadItemsOrderCustomer(itemDoc.id);
       for (var itemOrderCustomer in listItemOrderCustomer) {
-        var dataProduct = {};
-        dataProduct['uid'] = itemOrderCustomer.uid;
-        dataProduct['name'] = itemOrderCustomer.name;
-        dataProduct['uidUnit'] = itemOrderCustomer.uidUnit;
-        dataProduct['nameUnit'] = itemOrderCustomer.nameUnit;
-        dataProduct['count'] = itemOrderCustomer.count;
-        dataProduct['price'] = itemOrderCustomer.price;
-        dataProduct['discount'] = itemOrderCustomer.discount;
-        dataProduct['sum'] = itemOrderCustomer.sum;
+        var dataProduct = itemOrderCustomer.toJson();
         listDataProduct.add(dataProduct);
       }
 
@@ -866,56 +849,65 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Добавим документ в список
       dataList.add(data);
     }
-
     return dataList;
   }
 
   Future<List> createListDocsReturnOrderCustomer(
       List<dynamic> numberDocs) async {
-    ///TODO: Сделать выгрузку на тип документа: Возврат товаров от покупателя
-    return [];
-
     // Получим данные для выгрузки
-    List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
+    List<ReturnOrderCustomer> listDocs = await dbReadAllNewReturnOrderCustomer();
 
-    // Каждый документы выгрузим в JSON
+    // Каждый документ выгрузим в JSON
     List dataList = [];
     for (var itemDoc in listDocs) {
       var dataNumber = {};
 
       // Добавим номер (UID) документа
       dataNumber['uid'] = itemDoc.uid;
-      dataNumber['typeDoc'] = 'orderCustomer';
+      dataNumber['typeDoc'] = 'returnOrderCustomer';
       numberDocs.add(dataNumber);
 
-      // Добавим документ в список
-      dataList.add(itemDoc.toJson());
-    }
+      // Конвертация данных шапки
+      var data = itemDoc.toJson();
 
+      // Конвертация товаров
+      var listDataProduct = [];
+      List<ItemReturnOrderCustomer> listItemOrderCustomer =
+      await dbReadItemsReturnOrderCustomer(itemDoc.id);
+      for (var itemOrderCustomer in listItemOrderCustomer) {
+        var dataProduct = itemOrderCustomer.toJson();
+        listDataProduct.add(dataProduct);
+      }
+
+      // Добавим товары документа
+      data['products'] = listDataProduct;
+
+      // Добавим документ в список
+      dataList.add(data);
+    }
     return dataList;
   }
 
   Future<List> createListDocsIncomingCashOrder(List<dynamic> numberDocs) async {
-    ///TODO: Сделать выгрузку на тип документа: Приходный кассовый ордер
-    return [];
-
     // Получим данные для выгрузки
-    List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
+    List<IncomingCashOrder> listDocs = await dbReadAllNewIncomingCashOrder();
 
-    // Каждый документы выгрузим в JSON
+    // Каждый документ выгрузим в JSON
     List dataList = [];
     for (var itemDoc in listDocs) {
       var dataNumber = {};
 
       // Добавим номер (UID) документа
       dataNumber['uid'] = itemDoc.uid;
-      dataNumber['typeDoc'] = 'orderCustomer';
+      dataNumber['typeDoc'] = 'incomingCashOrder';
       numberDocs.add(dataNumber);
 
-      // Добавим документ в список
-      dataList.add(itemDoc.toJson());
-    }
+      // Конвертация данных
+      var data = itemDoc.toJson();
 
+      // Добавим документ в список
+      dataList.add(data);
+    }
     return dataList;
   }
 }
