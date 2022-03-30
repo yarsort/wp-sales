@@ -36,6 +36,8 @@ class _ScreenProductSelectionTreeViewState
     extends State<ScreenProductSelectionTreeView> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  bool showProductHierarchy = true;
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
       TextEditingController();
@@ -143,35 +145,57 @@ class _ScreenProductSelectionTreeViewState
     listProductsUID.clear();
 
     ///Первым в список добавим каталог товаров, если он есть
-    if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
-      listProducts.add(parentProduct);
+    if (showProductHierarchy) {
+      if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
+        listProducts.add(parentProduct);
+      }
     }
 
     /// Если включены тестовые данные
     if (useTestData) {
+
       for (var message in listDataProduct) {
         Product newItem = Product.fromJson(message);
 
         /// Добавим товар
         listDataProducts.add(newItem);
       }
-      //showMessage('Тестовые данные загружены!');
+
     } else {
+
       /// Загрузка данных из БД
-      listDataProducts = await dbReadProductsByParent(parentProduct.uid);
+      if(showProductHierarchy) {
+        // Покажем товары текущего родителя
+        listDataProducts = await dbReadProductsByParent(parentProduct.uid);
+      } else {
+        // Покажем все товары
+        listDataProducts = await dbReadAllProducts();
+      }
+
       debugPrint(
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
 
     for (var newItem in listDataProducts) {
+
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
       if (newItem.uid == parentProduct.uid) {
         continue;
       }
-      // Если у товара родитель не является текущим выбранным каталогом
-      if (newItem.uidParent != parentProduct.uid) {
-        continue;
+
+      // Если надо показывать иерархию элементов
+      if(showProductHierarchy) {
+        // Если у товара родитель не является текущим выбранным каталогом
+        if (newItem.uidParent != parentProduct.uid) {
+          continue;
+        }
+      } else {
+        // Без иерархии показывать каталоги нельзя!
+        if(newItem.isGroup == 1) {
+          continue;
+        }
       }
+
       // Добавим товар
       listProducts.add(newItem);
       listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
@@ -328,11 +352,22 @@ class _ScreenProductSelectionTreeViewState
                 onPressed: () async {
                   parentProduct = Product();
                   treeParentItems.clear();
-
                   textFieldSearchCatalogController.text = '';
                   renewItem();
                 },
                 icon: const Icon(Icons.delete, color: Colors.red),
+              ),
+              IconButton(
+                onPressed: () async {
+                  setState(() {
+                    showProductHierarchy = !showProductHierarchy;
+                    parentProduct = Product();
+                    treeParentItems.clear();
+                    textFieldSearchCatalogController.text = '';
+                  });
+                  renewItem();
+                },
+                icon: const Icon(Icons.source, color: Colors.blue),
               ),
             ],
           ),
@@ -582,7 +617,7 @@ class _ProductItemState extends State<ProductItem> {
                 ),
               ),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Row(
                   children: [
                     Text(

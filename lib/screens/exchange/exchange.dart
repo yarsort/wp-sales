@@ -600,8 +600,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     countItem = 0;
     if (jsonData['ReceivedDocuments'] != null) {
       for (var item in jsonData['ReceivedDocuments']) {
-        if (item['typeDoc'] == 'ЗаказПокупателя') {
-          // Получим заказ
+        if (item['typeDoc'] == 'orderCustomer') {
+          // Получим объект
           var orderCustomer = await dbReadOrderCustomerUID(item['uidDoc']);
 
           // Получим товары заказа
@@ -612,6 +612,31 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
           // Запишем обновления заказа
           await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
+        }
+
+        if (item['typeDoc'] == 'incomingCashOrder') {
+          // Получим объект
+          var incomingCashOrder = await dbReadIncomingCashOrderUID(item['uidDoc']);
+
+          // Запишем номер документа из учетной системы
+          incomingCashOrder.numberFrom1C = item['numberDoc'];
+
+          // Запишем обновления записи
+          await dbUpdateIncomingCashOrder(incomingCashOrder);
+        }
+
+        if (item['typeDoc'] == 'returnOrderCustomer') {
+          // Получим объект
+          var returnOrderCustomer = await dbReadReturnOrderCustomer(item['uidDoc']);
+
+          // Получим товары
+          var itemsOrder = await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
+
+          // Запишем номер документа из учетной системы
+          returnOrderCustomer.numberFrom1C = item['numberDoc'];
+
+          // Запишем обновления записи
+          await dbUpdateReturnOrderCustomer(returnOrderCustomer, itemsOrder);
         }
         countItem++;
       }
