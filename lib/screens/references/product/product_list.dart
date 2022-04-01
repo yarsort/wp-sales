@@ -703,6 +703,10 @@ class _ProductItemState extends State<ProductItem> {
         uidProduct: widget.product.uid,
         uidProductCharacteristic: '');
 
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        // Your state change code goes here
+      });
+    }
   }
 }

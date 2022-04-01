@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
@@ -667,6 +666,10 @@ class _ProductItemState extends State<ProductItem> {
         uidProduct: widget.product.uid,
         uidProductCharacteristic: '');
 
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        // Your state change code goes here
+      });
+    }
   }
 }

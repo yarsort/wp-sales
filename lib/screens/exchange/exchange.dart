@@ -315,7 +315,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     for (var fileFTPPath in listDirectoryContentOnlyNames) {
       // Каждый файл обмена содержит в своем имени идентификатор получателя
       if (fileFTPPath.contains(settingsUIDUser)) {
-        if (fileFTPPath.contains('update_')) {
+        if (fileFTPPath.contains('full_')) {
+          listDownload.add(fileFTPPath);
+        }
+        if (fileFTPPath.contains('numbers_')) {
+          listDownload.add(fileFTPPath);
+        }
+        if (fileFTPPath.contains('report_')) {
           listDownload.add(fileFTPPath);
         }
       }
@@ -395,10 +401,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Прочитаем тип обмена из полученных данных
       var typeExchange = jsonData['typeExchange'];
 
-      // Простой обмен
-      //if (typeExchange == 'simple') {
-      await saveFromJsonDataSimple(jsonData);
-      //}
+      // Обмен данными
+      if (typeExchange == 'full') {
+        await saveFromJsonDataFull(jsonData);
+      }
+
+      // Обмен данными в легкой форме: долги, остатки, цены, номера
+      if (typeExchange == 'lite') {
+        await saveFromJsonDataFull(jsonData);
+      }
 
       // Обмен отчетами
       if (typeExchange == 'report') {
@@ -408,7 +419,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   // Обработка полученных данных из JSON: Обычный
-  Future<void> saveFromJsonDataSimple(jsonData) async {
+  Future<void> saveFromJsonDataFull(jsonData) async {
     int countItem = 0;
 
     /// Организации
