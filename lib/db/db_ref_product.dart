@@ -148,7 +148,7 @@ Future<List<Product>> dbReadProductsForSearch(String searchString) async {
   final db = await instance.database;
   const orderBy = '${ItemProductFields.name} ASC';
   final result = await db.query(tableProduct,
-      where: '${ItemProductFields.name} LIKE ?',
+      where: 'LOWER(${ItemProductFields.name}) LIKE LOWER(?)',
       whereArgs: ['%$searchString%'],
       orderBy: orderBy);
   return result.map((json) => Product.fromJson(json)).toList();

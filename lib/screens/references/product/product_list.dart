@@ -29,6 +29,8 @@ class ScreenProductList extends StatefulWidget {
 class _ScreenProductListState extends State<ScreenProductList> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  bool showProductHierarchy = true;
+
   bool visibleParameters = false;
   String uidWarehouse = '';
   String uidPrice = '';
@@ -64,6 +66,9 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
   // Остатки товаров
   List<AccumProductRest> listProductRest = [];
+
+  // Весь список товаров для работы поиска
+  List<Product> dummySearchList = [];
 
   // Текущий выбранный каталог иерархии товаров
   Product parentProduct = Product();
@@ -144,41 +149,85 @@ class _ScreenProductListState extends State<ScreenProductList> {
     listProducts.clear();
     tempItems.clear();
     listProductsUID.clear();
+    dummySearchList.clear();
 
     ///Первым в список добавим каталог товаров, если он есть
-    if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
-      listProducts.add(parentProduct);
+    if (showProductHierarchy) {
+      if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
+        listProducts.add(parentProduct);
+      }
     }
 
     /// Если включены тестовые данные
     if (useTestData) {
+
       for (var message in listDataProduct) {
         Product newItem = Product.fromJson(message);
 
         /// Добавим товар
         listDataProducts.add(newItem);
       }
-      //showMessage('Тестовые данные загружены!');
+
     } else {
+
       /// Загрузка данных из БД
-      listDataProducts = await dbReadProductsByParent(parentProduct.uid);
+      if(showProductHierarchy) {
+        // Покажем товары текущего родителя
+        listDataProducts = await dbReadProductsByParent(parentProduct.uid);
+      } else {
+        // Покажем все товары
+        listDataProducts = await dbReadAllProducts();
+      }
+
       debugPrint(
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
 
+    /// Заполним для поиска товаров
+    for (var itemList in listDataProducts) {
+      if (itemList.isGroup == 1) {
+        continue;
+      }
+      dummySearchList.add(itemList);
+    }
+
+    /// Заполним список товаров для отображения на форме
     for (var newItem in listDataProducts) {
+
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
       if (newItem.uid == parentProduct.uid) {
         continue;
       }
-      // Если у товара родитель не является текущим выбранным каталогом
-      if (newItem.uidParent != parentProduct.uid) {
-        continue;
+
+      // Если надо показывать иерархию элементов
+      if(showProductHierarchy) {
+        // Если у товара родитель не является текущим выбранным каталогом
+        if (newItem.uidParent != parentProduct.uid) {
+          continue;
+        }
+      } else {
+        // Без иерархии показывать каталоги нельзя!
+        if(newItem.isGroup == 1) {
+          continue;
+        }
       }
+
       // Добавим товар
       listProducts.add(newItem);
       listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
     }
+
+    // /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
+    // /// Возможно они попали по ошибке назначения UID родителя
+    // if (parentProduct.uid != '') {
+    //   var tempLength = listProducts.length - 1;
+    //   while (tempLength > 0) {
+    //     if (listProducts[tempLength].uidParent != parentProduct.uid) {
+    //       listProducts.remove(listProducts[tempLength]);
+    //     }
+    //     tempLength--;
+    //   }
+    // }
 
     /// Сортировка списка: сначала каталоги, потом элементы
     listProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
@@ -193,42 +242,40 @@ class _ScreenProductListState extends State<ScreenProductList> {
     /// Уберем пробелы
     query = query.trim();
 
-    /// Искать можно только при наличии 3 и более символов
-    if (query.length <= 2) {
-      setState(() {
-        listProducts.clear();
-        listProducts.addAll(tempItems);
-      });
-      return;
-    }
-
-    List<Product> dummySearchList = await dbReadProductsForSearch(query);
-
+    /// Если нечего искать, то заполним
     if (query.isNotEmpty) {
-      List<Product> dummyListData = <Product>[];
-
-      for (var item in dummySearchList) {
-        /// Группы в поиске не отображать
-        if (item.isGroup == 1) {
-          return;
-        }
-
-        /// Поиск по имени
-        if (item.name.toLowerCase().contains(query.toLowerCase())) {
-          dummyListData.add(item);
-        }
-      }
-      setState(() {
-        listProducts.clear();
-        listProducts.addAll(dummyListData);
-      });
-      return;
+      listProducts.clear();
     } else {
-      setState(() {
-        listProducts.clear();
-        listProducts.addAll(tempItems);
-      });
+      listProducts.clear();
+      listProducts.addAll(dummySearchList);
+      return;
     }
+
+    List<Product> dummyListData = [];
+
+    for (var item in dummySearchList) {
+      /// Группы в поиске не отображать
+      if (item.isGroup == 1) {
+        return;
+      }
+
+      /// Поиск по имени
+      if (item.name.toLowerCase().contains(query.toLowerCase())) {
+        dummyListData.add(item);
+      }
+    }
+
+    ///  Заполним список найденными или всеми товарами
+    if (dummyListData.isNotEmpty) {
+      listProducts.clear();
+      listProducts.addAll(dummyListData);
+    } else {
+      listProducts.clear();
+      listProducts.addAll(dummySearchList);
+    }
+
+    /// Обновим данные формы
+    setState(() {});
   }
 
   listParameters() {
@@ -261,14 +308,22 @@ class _ScreenProductListState extends State<ScreenProductList> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      parentProduct = Product();
-                      treeParentItems.clear();
-
                       textFieldSearchCatalogController.text = '';
-                      visibleParameters = false;
                       renewItem();
                     },
-                    icon: const Icon(Icons.delete, color: Colors.blue),
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      setState(() {
+                        showProductHierarchy = !showProductHierarchy;
+                        parentProduct = Product();
+                        treeParentItems.clear();
+                        textFieldSearchCatalogController.text = '';
+                      });
+                      renewItem();
+                    },
+                    icon: const Icon(Icons.source, color: Colors.blue),
                   ),
                   IconButton(
                     onPressed: () async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_product_prices.dart';
 import 'package:wp_sales/db/db_accum_product_rests.dart';
@@ -69,6 +70,9 @@ class _ScreenProductSelectionTreeViewState
 
   // Остатки товаров
   List<AccumProductRest> listProductRest = [];
+
+  // Весь список товаров для работы поиска
+  List<Product> dummySearchList = [];
 
   // Текущий выбранный каталог иерархии товаров
   Product parentProduct = Product();
@@ -143,6 +147,7 @@ class _ScreenProductSelectionTreeViewState
     listProducts.clear();
     tempItems.clear();
     listProductsUID.clear();
+    dummySearchList.clear();
 
     ///Первым в список добавим каталог товаров, если он есть
     if (showProductHierarchy) {
@@ -176,6 +181,15 @@ class _ScreenProductSelectionTreeViewState
           'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
 
+    /// Заполним для поиска товаров
+    for (var itemList in listDataProducts) {
+      if (itemList.isGroup == 1) {
+        continue;
+      }
+      dummySearchList.add(itemList);
+    }
+
+    /// Заполним список товаров для отображения на форме
     for (var newItem in listDataProducts) {
 
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
@@ -278,55 +292,57 @@ class _ScreenProductSelectionTreeViewState
   }
 
   void filterSearchCatalogResults(String query) async {
+
     /// Уберем пробелы
     query = query.trim();
 
-    /// Искать можно только при наличии 3 и более символов
-    if (query.length <= 2) {
-      setState(() {
-        listProducts.clear();
-        listProducts.addAll(tempItems);
-      });
-      return;
-    }
-
-    List<Product> dummySearchList = await dbReadProductsForSearch(query);
-
+    /// Если нечего искать, то заполним
     if (query.isNotEmpty) {
-      List<Product> dummyListData = <Product>[];
-
-      for (var item in dummySearchList) {
-        /// Группы в поиске не отображать
-        if (item.isGroup == 1) {
-          return;
-        }
-
-        /// Поиск по имени
-        if (item.name.toLowerCase().contains(query.toLowerCase())) {
-          dummyListData.add(item);
-        }
-      }
-      setState(() {
         listProducts.clear();
-        listProducts.addAll(dummyListData);
-      });
-      return;
     } else {
-      setState(() {
         listProducts.clear();
-        listProducts.addAll(tempItems);
-      });
+        listProducts.addAll(dummySearchList);
+      return;
     }
+
+    List<Product> dummyListData = [];
+
+    for (var item in dummySearchList) {
+      /// Группы в поиске не отображать
+      if (item.isGroup == 1) {
+        return;
+      }
+
+      /// Поиск по имени
+      if (item.name.toLowerCase().contains(query.toLowerCase())) {
+        dummyListData.add(item);
+      }
+    }
+
+    ///  Заполним список найденными или всеми товарами
+    if (dummyListData.isNotEmpty) {
+      listProducts.clear();
+      listProducts.addAll(dummyListData);
+    } else {
+      listProducts.clear();
+      listProducts.addAll(dummySearchList);
+    }
+
+    /// Обновим данные формы
+    setState(() {});
   }
 
   searchTextFieldCatalog() {
     var validateSearch = false;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
         onChanged: (String value) {
           filterSearchCatalogResults(value);
+
+          if (value.trim().isEmpty){
+            renewItem();
+          }
         },
         controller: textFieldSearchCatalogController,
         decoration: InputDecoration(
@@ -350,8 +366,6 @@ class _ScreenProductSelectionTreeViewState
               ),
               IconButton(
                 onPressed: () async {
-                  parentProduct = Product();
-                  treeParentItems.clear();
                   textFieldSearchCatalogController.text = '';
                   renewItem();
                 },
