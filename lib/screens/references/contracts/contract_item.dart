@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/db_accum_partner_depts.dart';
-import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/models/accum_partner_depts.dart';
-import 'package:wp_sales/models/doc_incoming_cash_order.dart';
-import 'package:wp_sales/models/doc_return_order_customer.dart';
-import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
 import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
-import 'package:wp_sales/screens/references/partners/partner_selection.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenContractItem extends StatefulWidget {
@@ -35,6 +30,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   bool friday = false;
   bool saturday = false;
   bool sunday = false;
+
+  /// Поле ввода: Organization
+  TextEditingController textFieldOrganizationController = TextEditingController();
 
   /// Поле ввода: Partner
   TextEditingController textFieldPartnerController = TextEditingController();
@@ -171,6 +169,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.uid = const Uuid().v4();
     }
 
+    Organization organization = await dbReadOrganizationUID(widget.contractItem.uidOrganization);
+    textFieldOrganizationController.text = organization.name;
+
     textFieldPartnerController.text = widget.contractItem.namePartner;
     textFieldNameController.text = widget.contractItem.name;
     textFieldPhoneController.text = widget.contractItem.phone;
@@ -251,15 +252,15 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.deniedReturn = deniedReturn;
 
       // Дни недели для посещения партнера по договору
-      String dayOfWeek = '';
-      dayOfWeek = dayOfWeek + (monday ? '1' : '');
-      dayOfWeek = dayOfWeek + (tuesday ? '2' : '');
-      dayOfWeek = dayOfWeek + (wednesday ? '3' : '');
-      dayOfWeek = dayOfWeek + (thursday ? '4' : '');
-      dayOfWeek = dayOfWeek + (friday ? '5' : '');
-      dayOfWeek = dayOfWeek + (saturday ? '6' : '');
-      dayOfWeek = dayOfWeek + (sunday ? '7' : '');
-      widget.contractItem.visitDayOfWeek = dayOfWeek;
+      String dayOfTheWeek = '';
+      dayOfTheWeek = dayOfTheWeek + (monday ? '1' : '');
+      dayOfTheWeek = dayOfTheWeek + (tuesday ? '2' : '');
+      dayOfTheWeek = dayOfTheWeek + (wednesday ? '3' : '');
+      dayOfTheWeek = dayOfTheWeek + (thursday ? '4' : '');
+      dayOfTheWeek = dayOfTheWeek + (friday ? '5' : '');
+      dayOfTheWeek = dayOfTheWeek + (saturday ? '6' : '');
+      dayOfTheWeek = dayOfTheWeek + (sunday ? '7' : '');
+      widget.contractItem.visitDayOfWeek = dayOfTheWeek; // :)
 
       // Идентификатор записи
       if (widget.contractItem.id != 0) {
@@ -292,16 +293,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
     }
   }
 
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.blue,
-      ),
-    );
-  }
-
   /// Вкладка Шапка
 
   listHeaderOrder() {
@@ -309,6 +300,31 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
         children: [
+
+          /// Organization
+          TextFieldWithText(
+              textLabel: 'Организация',
+              textEditingController: textFieldOrganizationController,
+              onPressedEditIcon: Icons.person,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                widget.contractItem.uidOrganization = '';
+                textFieldOrganizationController.text = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenOrganizationSelection(
+                          orderCustomer: orderCustomer,
+                        )));
+                widget.contractItem.uidOrganization = orderCustomer.uidOrganization;
+                textFieldOrganizationController.text = orderCustomer.nameOrganization;
+
+                setState(() {});
+              }),
+
           /// Partner
           TextFieldWithText(
               textLabel: 'Партнер',
@@ -687,7 +703,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                       onPressed: () async {
                         var result = await saveItem();
                         if (result) {
-                          showMessage('Запись сохранена!');
+                          showMessage('Запись сохранена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -814,7 +830,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                         newIncomingCashOrder.sum = itemDept.balance;
                       }
                     } else {
-                      showMessage('Сумма баланса равна или меньше ноля!');
+                      showMessage('Сумма баланса равна или меньше ноля!', context);
                       return;
                     }
 
@@ -1007,7 +1023,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                       onPressed: () async {
                         var result = await deleteItem();
                         if (result) {
-                          showMessage('Запись удалена!');
+                          showMessage('Запись удалена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },

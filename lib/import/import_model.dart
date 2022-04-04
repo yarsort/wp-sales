@@ -1,3 +1,9 @@
+export 'package:wp_sales/models/accum_partner_depts.dart';
+export 'package:wp_sales/models/doc_incoming_cash_order.dart';
+export 'package:wp_sales/models/ref_contract.dart';
+export 'package:wp_sales/models/ref_currency.dart';
+export 'package:wp_sales/models/ref_unit.dart';
+export 'package:wp_sales/screens/settings/settings.dart';
 export 'package:wp_sales/models/doc_order_customer.dart';
 export 'package:wp_sales/models/doc_return_order_customer.dart';
 export 'package:wp_sales/models/ref_cashbox.dart';

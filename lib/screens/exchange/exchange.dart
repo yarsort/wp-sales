@@ -1,42 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/db_accum_partner_depts.dart';
-import 'package:wp_sales/db/db_accum_product_prices.dart';
-import 'package:wp_sales/db/db_accum_product_rests.dart';
-import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
-import 'package:wp_sales/db/db_doc_order_customer.dart';
-import 'package:wp_sales/db/db_doc_return_order_customer.dart';
-import 'package:wp_sales/db/db_ref_cashbox.dart';
-import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/db/db_ref_currency.dart';
-import 'package:wp_sales/db/db_ref_organization.dart';
-import 'package:wp_sales/db/db_ref_partner.dart';
-import 'package:wp_sales/db/db_ref_price.dart';
-import 'package:wp_sales/db/db_ref_product.dart';
-import 'package:wp_sales/db/db_ref_unit.dart';
-import 'package:wp_sales/db/db_ref_warehouse.dart';
-import 'package:wp_sales/models/accum_partner_depts.dart';
-import 'package:wp_sales/models/accum_product_prices.dart';
-import 'package:wp_sales/models/accum_product_rests.dart';
-import 'package:wp_sales/models/doc_incoming_cash_order.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/doc_return_order_customer.dart';
-import 'package:wp_sales/models/ref_cashbox.dart';
-import 'package:wp_sales/models/ref_contract.dart';
-import 'package:wp_sales/models/ref_currency.dart';
-import 'package:wp_sales/models/ref_organization.dart';
-import 'package:wp_sales/models/ref_partner.dart';
-import 'package:wp_sales/models/ref_price.dart';
-import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/models/ref_unit.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
-import 'package:wp_sales/screens/settings/settings.dart';
-import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
 
 class ScreenExchangeData extends StatefulWidget {
   const ScreenExchangeData({Key? key}) : super(key: key);
@@ -401,7 +370,35 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Обработка полученных данных из JSON: Обычный
   Future<void> saveFromJsonDataFull(jsonData) async {
+    /// Количество полученных элементов для индикации прогресса
     int countItem = 0;
+
+    /// Прочитаем настройки подключения
+    final SharedPreferences prefs = await _prefs;
+
+    var settingsMap = jsonData['Settings'];
+
+    /// Настройки пользователя (по-умолчанию)
+    String settingsUidOrganization = prefs.getString('settings_uidOrganization') ?? '';
+    if(settingsUidOrganization.isEmpty){
+      prefs.setString('settings_uidOrganization', settingsMap['settings_uidOrganization']);
+    }
+    // String settingsUidPartner = prefs.getString('settings_uidPartner') ?? '';
+    // if(settingsUidPartner.isEmpty){
+    //   prefs.setString('settings_uidPartner', settingsMap['settings_uidPartner']);
+    // }
+    String settingsUidPrice = prefs.getString('settings_uidPrice') ?? '';
+    if(settingsUidPrice.isEmpty){
+      prefs.setString('settings_uidPrice', settingsMap['settings_uidPrice']);
+    }
+    String settingsUidCashbox = prefs.getString('settings_uidCashbox') ?? '';
+    if(settingsUidCashbox.isEmpty){
+      prefs.setString('settings_uidCashbox', settingsMap['settings_uidCashbox']);
+    }
+    String settingsUidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
+    if(settingsUidWarehouse.isEmpty){
+      prefs.setString('settings_uidWarehouse', settingsMap['settings_uidWarehouse']);
+    }
 
     /// Организации
     if (jsonData['Organizations'] != null) {

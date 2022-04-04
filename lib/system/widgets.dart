@@ -169,7 +169,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       );
                     }),
                 ListTile(
-                    title: const Text("Договоры партнеров"),
+                    title: const Text("Контракты партнеров"),
                     leading: const Icon(
                       Icons.source,
                       color: Colors.blue,
