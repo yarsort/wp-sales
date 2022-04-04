@@ -25,6 +25,9 @@ class ScreenContractItem extends StatefulWidget {
 class _ScreenContractItemState extends State<ScreenContractItem> {
   List<AccumPartnerDept> listAccumPartnerDept = [];
 
+  bool deniedSale = false;
+  bool deniedReturn = false;
+
   bool monday = false;
   bool tuesday = false;
   bool wednesday = false;
@@ -79,7 +82,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Договор партнера'),
+          title: const Text('Контракт партнера'),
           actions: [
             Padding(
                 padding: const EdgeInsets.only(right: 20.0),
@@ -180,6 +183,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
     textFieldUIDController.text = widget.contractItem.uid;
     textFieldCodeController.text = widget.contractItem.code;
 
+    deniedSale = widget.contractItem.deniedSale;
+    deniedReturn = widget.contractItem.deniedReturn;
+
     monday = widget.contractItem.visitDayOfWeek.contains('1');
     tuesday = widget.contractItem.visitDayOfWeek.contains('2');
     wednesday = widget.contractItem.visitDayOfWeek.contains('3');
@@ -241,6 +247,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.schedulePayment =
           int.parse(textFieldSchedulePaymentController.text);
       widget.contractItem.comment = textFieldCommentController.text;
+      widget.contractItem.deniedSale = deniedSale;
+      widget.contractItem.deniedReturn = deniedReturn;
 
       // Дни недели для посещения партнера по договору
       String dayOfWeek = '';
@@ -482,127 +490,187 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
             ),
           ),
 
+          /// Запреты и разрешения
+          nameGroup(nameGroup: 'Запреты по контракту'),
+
+          /// Продажа товаров запрещена
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedSale,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedSale = !deniedSale;
+                    });
+                  },
+                ),
+                const Flexible(
+                    child: Text(
+                  'Продажа товаров запрещена!')),
+              ],
+            ),
+          ),
+
+          /// Возврат товаров запрещен
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedReturn,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedReturn = !deniedReturn;
+                    });
+                  },
+                ),
+                const Flexible(
+                    child: Text(
+                  'Возврат товаров запрещен!')),
+              ],
+            ),
+          ),
+
           nameGroup(nameGroup: 'Дни посещения партнера'),
 
-          Row(
-            children: [
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: monday,
-                      onChanged: (value) {
-                        setState(() {
-                          monday = !monday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('ПН')),
-                  ],
+          /// ПН, ВТ, СР, ЧТ
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: monday,
+                        onChanged: (value) {
+                          setState(() {
+                            monday = !monday;
+                          });
+                        },
+                      ),
+                      const Flexible(child: Text('ПН')),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: tuesday,
-                      onChanged: (value) {
-                        setState(() {
-                          tuesday = !tuesday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('ВТ')),
-                  ],
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: tuesday,
+                        onChanged: (value) {
+                          setState(() {
+                            tuesday = !tuesday;
+                          });
+                        },
+                      ),
+                      const Flexible(child: Text('ВТ')),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: wednesday,
-                      onChanged: (value) {
-                        setState(() {
-                          wednesday = !wednesday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('СР')),
-                  ],
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: wednesday,
+                        onChanged: (value) {
+                          setState(() {
+                            wednesday = !wednesday;
+                          });
+                        },
+                      ),
+                      const Flexible(child: Text('СР')),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: thursday,
-                      onChanged: (value) {
-                        setState(() {
-                          thursday = !thursday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('ЧТ')),
-                  ],
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: thursday,
+                        onChanged: (value) {
+                          setState(() {
+                            thursday = !thursday;
+                          });
+                        },
+                      ),
+                      const Flexible(child: Text('ЧТ')),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          Row(
-            children: [
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: friday,
-                      onChanged: (value) {
-                        setState(() {
-                          friday = !friday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('ПТ')),
-                  ],
+
+          /// ПТ, СБ, ВС
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: friday,
+                        onChanged: (value) {
+                          setState(() {
+                            friday = !friday;
+                          });
+                        },
+                      ),
+                      const Flexible(child: Text('ПТ')),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: saturday,
-                      onChanged: (value) {
-                        setState(() {
-                          saturday = !saturday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('СБ')),
-                  ],
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: saturday,
+                        onChanged: (value) {
+                          setState(() {
+                            saturday = !saturday;
+                          });
+                        },
+                      ),
+                      const Flexible(
+                          child: Text(
+                        'СБ',
+                        style: TextStyle(color: Colors.red),
+                      )),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 70,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: sunday,
-                      onChanged: (value) {
-                        setState(() {
-                          sunday = !sunday;
-                        });
-                      },
-                    ),
-                    const Flexible(child: Text('ВС')),
-                  ],
+                SizedBox(
+                  width: 70,
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: sunday,
+                        onChanged: (value) {
+                          setState(() {
+                            sunday = !sunday;
+                          });
+                        },
+                      ),
+                      const Flexible(
+                          child: Text(
+                        'ВС',
+                        style: TextStyle(color: Colors.red),
+                      )),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           /// Buttons Записать / Отменить
@@ -671,12 +739,15 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(nameGroup,
+          Text(
+            nameGroup,
             style: const TextStyle(
               fontSize: 16,
               color: Colors.blueGrey,
-              fontWeight: FontWeight.bold,),
-            textAlign: TextAlign.start,),
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.start,
+          ),
           if (!hideDivider) const Divider(),
         ],
       ),
@@ -739,7 +810,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     if (itemDept.balance > 0) {
                       if (itemDept.balanceForPayment > 0) {
                         newIncomingCashOrder.sum = itemDept.balanceForPayment;
-                      }else{
+                      } else {
                         newIncomingCashOrder.sum = itemDept.balance;
                       }
                     } else {

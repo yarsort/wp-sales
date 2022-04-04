@@ -252,6 +252,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
     textFieldWarehouseController.text = warehouse.name;
 
+    // При первом заполнении может быть не указан способ обмена
+    if (!useFTPExchange && !useWebExchange){
+      useFTPExchange = true;
+    }
+
     setState(() {});
   }
 

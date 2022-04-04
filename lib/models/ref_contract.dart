@@ -22,6 +22,8 @@ class Contract {
   int schedulePayment = 0;        // Отсрочка платежа
   String visitDayOfWeek = '';     // Дни недели посещения менеджером: 1234567
   String visitDayOfMonth = '';    // Дни месяца посещения менеджером: 1-31(30,28,27)
+  bool deniedSale = false;        // Запрещено продавать по договору
+  bool deniedReturn = false;      // Запрещено возвращать по договору
 
   Contract();
 
@@ -47,6 +49,8 @@ class Contract {
     schedulePayment = json['schedulePayment']; // Отсрочка платежа в днях (int)
     visitDayOfWeek = json['visitDayOfWeek'] ?? '';
     visitDayOfMonth = json['visitDayOfMonth'] ?? '';
+    deniedSale = json['deniedSale'] == 1;
+    deniedReturn = json['deniedReturn']  == 1;
   }
 
   Map<String, dynamic> toJson() {
@@ -74,6 +78,8 @@ class Contract {
     data['schedulePayment'] = schedulePayment;
     data['visitDayOfWeek'] = visitDayOfWeek;
     data['visitDayOfMonth'] = visitDayOfMonth;
+    data['deniedSale'] = deniedSale ? 1 : 0;
+    data['deniedReturn'] = deniedReturn ? 1 : 0;
     return data;
   }
 }

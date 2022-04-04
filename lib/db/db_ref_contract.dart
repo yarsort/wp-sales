@@ -30,6 +30,8 @@ class ItemContractFields {
     schedulePayment,   // Отсрочка платежа
     visitDayOfWeek,    // Дни недели посещения менеджером: 1234567
     visitDayOfMonth,   // Дни месяца посещения менеджером: 1-31(30,28,27)
+    deniedSale,        // Запрещено продавать по договору
+    deniedReturn,      // Запрещено возвращать по договору
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -54,6 +56,8 @@ class ItemContractFields {
   static const String schedulePayment = 'schedulePayment';
   static const String visitDayOfWeek = 'visitDayOfWeek';
   static const String visitDayOfMonth = 'visitDayOfMonth';
+  static const String deniedSale = 'deniedSale';
+  static const String deniedReturn = 'deniedReturn';
 }
 
 /// Создание таблиц БД
@@ -80,7 +84,9 @@ Future createTableContract(db) async {
       ${ItemContractFields.nameCurrency} $textType,
       ${ItemContractFields.schedulePayment} $integerType,
       ${ItemContractFields.visitDayOfWeek} $textType,
-      ${ItemContractFields.visitDayOfMonth} $textType
+      ${ItemContractFields.visitDayOfMonth} $textType,
+      ${ItemContractFields.deniedSale} $integerType,
+      ${ItemContractFields.deniedReturn} $integerType
       )
     ''');
 }

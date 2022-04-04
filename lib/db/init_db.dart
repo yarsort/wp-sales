@@ -37,11 +37,11 @@ class DatabaseHelper {
       if (_database!.isOpen) {
         return _database!;
       } else {
-        _database = await _initDB('WPSalesDB4.db');
+        _database = await _initDB('WPSalesDB1.db');
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDB4.db');
+    _database = await _initDB('WPSalesDB1.db');
     return _database!;
   }
 
