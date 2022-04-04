@@ -704,6 +704,8 @@ class _ProductItemState extends State<ProductItem> {
       countOnWarehouse = 0.000;
     }
 
+    //debugPrint('Товар: '+widget.product.name+'. Цена: '+price.toString()+'. Остаток: '+countOnWarehouse.toString());
+
     if (mounted) {
       setState(() {
         // Your state change code goes here
