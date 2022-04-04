@@ -441,10 +441,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedEditIcon: Icons.person,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () {
+                widget.orderCustomer.nameOrganization = '';
+                widget.orderCustomer.uidOrganization = '';
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
+                updateHeader();
               },
               onPressedEdit: () async {
                 var result = await Navigator.push(

@@ -7,12 +7,6 @@ import 'package:wp_sales/models/ref_partner.dart';
 /// Название таблиц базы данных
 const String tablePartner   = '_ReferencePartner';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ItemPartnerFields {
   static final List<String> values = [

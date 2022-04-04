@@ -1,15 +1,8 @@
-
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/accum_product_rests.dart';
 
 /// Название таблиц базы данных
-const String tableAccumProductRests   = '_AccumProductRests';
-
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
+const String tableAccumProductRests = '_AccumProductRests';
 
 /// Поля для базы данных
 class ItemAccumProductRestsFields {
@@ -24,8 +17,9 @@ class ItemAccumProductRestsFields {
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
-  static const String id = 'id';// Инкремент
-  static const String idRegistrar = 'idRegistrar'; // Ссылка на регистратор записи
+  static const String id = 'id'; // Инкремент
+  static const String idRegistrar =
+      'idRegistrar'; // Ссылка на регистратор записи
   static const String uidWarehouse = 'uidWarehouse';
   static const String uidProduct = 'uidProduct';
   static const String uidProductCharacteristic = 'uidProductCharacteristic';
@@ -49,10 +43,10 @@ Future createTableAccumProductRests(db) async {
 }
 
 /// Операции с объектами: CRUD and more
-Future<AccumProductRest> dbCreateProductRest(AccumProductRest accumProductRest) async {
+Future<AccumProductRest> dbCreateProductRest(
+    AccumProductRest accumProductRest) async {
   final db = await instance.database;
-  final id =
-  await db.insert(tableAccumProductRests, accumProductRest.toJson());
+  final id = await db.insert(tableAccumProductRests, accumProductRest.toJson());
   accumProductRest.id = id;
   return accumProductRest;
 }
@@ -67,16 +61,14 @@ Future<int> dbUpdateProductRest(AccumProductRest accumProductRest) async {
   );
 }
 
-Future<int> dbDeleteProductRest({
-  required String uidWarehouse,
-  required String uidProduct,
-  required String uidProductCharacteristic}) async {
-
+Future<int> dbDeleteProductRest(
+    {required String uidWarehouse,
+    required String uidProduct,
+    required String uidProductCharacteristic}) async {
   final db = await instance.database;
   return await db.delete(
     tableAccumProductRests,
-    where:
-    '${ItemAccumProductRestsFields.uidWarehouse} = ? '
+    where: '${ItemAccumProductRestsFields.uidWarehouse} = ? '
         'AND ${ItemAccumProductRestsFields.uidProduct} = ?'
         'AND ${ItemAccumProductRestsFields.uidProductCharacteristic} = ?',
     whereArgs: [uidWarehouse, uidProduct, uidProductCharacteristic],
@@ -90,16 +82,14 @@ Future<int> dbDeleteAllProductRest() async {
   );
 }
 
-Future<double> dbReadProductRest({
-  required String uidWarehouse,
-  required String uidProduct,
-  required String uidProductCharacteristic}) async {
-
+Future<double> dbReadProductRest(
+    {required String uidWarehouse,
+    required String uidProduct,
+    required String uidProductCharacteristic}) async {
   final db = await instance.database;
   final maps = await db.query(
     tableAccumProductRests,
-    where:
-    '${ItemAccumProductRestsFields.uidWarehouse} = ? '
+    where: '${ItemAccumProductRestsFields.uidWarehouse} = ? '
         'AND ${ItemAccumProductRestsFields.uidProduct} = ?'
         'AND ${ItemAccumProductRestsFields.uidProductCharacteristic} = ?',
     whereArgs: [uidWarehouse, uidProduct, uidProductCharacteristic],
@@ -115,5 +105,14 @@ Future<double> dbReadProductRest({
 Future<List<AccumProductRest>> readAllProductRest() async {
   final db = await instance.database;
   final result = await db.query(tableAccumProductRests);
+  return result.map((json) => AccumProductRest.fromJson(json)).toList();
+}
+
+Future<List<AccumProductRest>> dbReadAccumProductRestByUIDProducts(
+    listProductsUID) async {
+  final db = await instance.database;
+  final result = await db.query(tableAccumProductRests,
+      where:
+          'uidProduct IN (${listProductsUID.map((e) => "'$e'").join(', ')})');
   return result.map((json) => AccumProductRest.fromJson(json)).toList();
 }

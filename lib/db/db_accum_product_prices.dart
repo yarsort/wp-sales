@@ -1,15 +1,8 @@
-
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/accum_product_prices.dart';
 
 /// Название таблиц базы данных
 const String tableAccumProductPrices   = '_AccumProductPrices';
-
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
 
 /// Поля для базы данных
 class ItemAccumProductPricesFields {
@@ -119,5 +112,14 @@ Future<List<AccumProductPrice>> dbReadAllAccumProductPrice() async {
   final result = await db.query(
       tableAccumProductPrices,
       orderBy: orderBy);
+  return result.map((json) => AccumProductPrice.fromJson(json)).toList();
+}
+
+Future<List<AccumProductPrice>> dbReadAccumProductPriceByUIDProducts(listProductsUID) async {
+  final db = await instance.database;
+  final result = await db.query(
+      tableAccumProductPrices,
+      where:
+      'uidProduct IN (${listProductsUID.map((e) => "'$e'").join(', ')})');
   return result.map((json) => AccumProductPrice.fromJson(json)).toList();
 }

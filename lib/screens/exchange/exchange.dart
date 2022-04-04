@@ -36,6 +36,7 @@ import 'package:wp_sales/models/ref_product.dart';
 import 'package:wp_sales/models/ref_unit.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';
 import 'package:wp_sales/screens/settings/settings.dart';
+import 'package:wp_sales/system/system.dart';
 
 class ScreenExchangeData extends StatefulWidget {
   const ScreenExchangeData({Key? key}) : super(key: key);
@@ -68,7 +69,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           IconButton(
               onPressed: () {
                 if (_loading) {
-                  showMessage('Обмен в процессе...');
+                  showMessage('Обмен в процессе...', context);
                   return;
                 }
                 Navigator.push(
@@ -127,26 +128,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   renewItem() {}
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.blue,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  showErrorMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
 
   progressIndicator() {
     return Visibility(
@@ -239,9 +220,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
-      showMessage('Загрузка данных из FTP.');
+      showMessage('Загрузка данных из FTP.', context);
       await downloadDataFromFTP();
-      showMessage('Завершение загрузки из FTP.');
+      showMessage('Завершение загрузки из FTP.', context);
     }
 
     bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
@@ -270,7 +251,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
-      showMessage('В настройках не указан UID  пользователя!');
+      showMessage('В настройках не указан UID  пользователя!', context);
       return;
     }
 
@@ -293,7 +274,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var res = await ftpClient.connect();
     if (!res) {
-      showErrorMessage('Ошибка подключения к серверу FTP!');
+      showErrorMessage('Ошибка подключения к серверу FTP!', context);
       return;
     } else {
       // showMessage('Подключение выполнено успешно!');
@@ -303,7 +284,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (settingsFTPWorkCatalog.trim() != '') {
       bool res = await ftpClient.changeDirectory(settingsFTPWorkCatalog);
       if (!res) {
-        showMessage('Ошибка установки рабочего каталога!');
+        showMessage('Ошибка установки рабочего каталога!', context);
         await ftpClient.disconnect();
         return;
       }
@@ -684,7 +665,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
-      showMessage('Начало отправки на FTP.');
+      showMessage('Начало отправки на FTP.', context);
 
       // Добавим файлы
       String pathZipFile = await generateDataSimple();
@@ -693,7 +674,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Отправим на FTP-сервер
       await uploadDataToFTP(listToUpload);
 
-      showMessage('Завершение отправки на FTP.');
+      showMessage('Завершение отправки на FTP.', context);
     }
 
     bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
@@ -720,7 +701,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
-      showMessage('В настройках не указан UID  пользователя!');
+      showMessage('В настройках не указан UID  пользователя!', context);
       return false;
     }
 
@@ -743,7 +724,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var res = await ftpClient.connect();
     if (!res) {
-      showErrorMessage('Ошибка подключения к серверу FTP!');
+      showErrorMessage('Ошибка подключения к серверу FTP!', context);
       return false;
     } else {
       //showMessage('Подключение выполнено успешно!');
@@ -753,7 +734,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (settingsFTPWorkCatalog.trim() != '') {
       bool res = await ftpClient.changeDirectory(settingsFTPWorkCatalog);
       if (!res) {
-        showMessage('Ошибка установки рабочего каталога!');
+        showMessage('Ошибка установки рабочего каталога!', context);
         await ftpClient.disconnect();
         return false;
       }
@@ -793,7 +774,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsUidUser = prefs.getString('settings_UIDUser') ?? '';
     String settingsNameUser = prefs.getString('settings_nameUser') ?? '';
     if (settingsUidUser.trim() == '') {
-      showMessage('В настройках не указан UID  пользователя!');
+      showMessage('В настройках не указан UID  пользователя!', context);
       return '';
     }
 
@@ -848,7 +829,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var res = await FTPConnect.zipFiles(paths, pathLocalZipFile);
     if (!res) {
-      showErrorMessage('Ошибка архивирования файла для отправки');
+      showErrorMessage('Ошибка архивирования файла для отправки', context);
     }
     return pathLocalZipFile;
   }

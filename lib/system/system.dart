@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 doubleToString(double sum) {
@@ -18,6 +19,26 @@ shortDateToString(DateTime date) {
   // Отформатируем дату
   var f = DateFormat('dd.MM.yyyy');
   return (f.format(date).toString());
+}
+
+showMessage(String textMessage, context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: Colors.blue,
+      content: Text(textMessage),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
+showErrorMessage(String textMessage, context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: Colors.red,
+      content: Text(textMessage),
+      duration: const Duration(seconds: 2),
+    ),
+  );
 }
 
 /// Тестовые данные

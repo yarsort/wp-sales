@@ -6,12 +6,6 @@ import 'package:wp_sales/models/ref_currency.dart';
 /// Название таблиц базы данных
 const String tableCurrency   = '_ReferenceCurrency';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ItemCurrencyFields {
   static final List<String> values = [

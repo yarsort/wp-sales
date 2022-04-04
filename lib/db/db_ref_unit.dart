@@ -6,12 +6,6 @@ import 'package:wp_sales/models/ref_unit.dart';
 /// Название таблиц базы данных
 const String tableUnit   = '_ReferenceUnit';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ItemUnitFields {
   static final List<String> values = [

@@ -1,33 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
-import 'package:wp_sales/db/db_doc_order_customer.dart';
-import 'package:wp_sales/db/db_doc_return_order_customer.dart';
-import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/db/db_ref_currency.dart';
-import 'package:wp_sales/db/db_ref_organization.dart';
-import 'package:wp_sales/db/db_ref_partner.dart';
-import 'package:wp_sales/db/db_ref_price.dart';
-import 'package:wp_sales/db/db_ref_product.dart';
-import 'package:wp_sales/db/db_ref_unit.dart';
-import 'package:wp_sales/db/db_ref_warehouse.dart';
-import 'package:wp_sales/screens/auth/login.dart';
-import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_list.dart';
-import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
-import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_list.dart';
-import 'package:wp_sales/screens/exchange/exchange.dart';
-import 'package:wp_sales/screens/references/contracts/contract_list.dart';
-import 'package:wp_sales/screens/references/currency/currency_list.dart';
-import 'package:wp_sales/screens/references/organizations/organization_list.dart';
-import 'package:wp_sales/screens/references/partners/partner_list.dart';
-import 'package:wp_sales/screens/references/price/price_list.dart';
-import 'package:wp_sales/screens/references/product/product_list.dart';
-import 'package:wp_sales/screens/references/unit/unit_list.dart';
-import 'package:wp_sales/screens/references/warehouses/warehouse_list.dart';
-import 'package:wp_sales/screens/settings/about.dart';
-import 'package:wp_sales/screens/settings/help.dart';
-import 'package:wp_sales/screens/settings/settings.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/import/import_screens.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({Key? key}) : super(key: key);

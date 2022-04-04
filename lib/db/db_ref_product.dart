@@ -6,12 +6,6 @@ import 'package:wp_sales/models/ref_product.dart';
 /// Название таблиц базы данных
 const String tableProduct   = '_ReferenceProduct';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ItemProductFields {
   static final List<String> values = [

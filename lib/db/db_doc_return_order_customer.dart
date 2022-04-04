@@ -7,12 +7,6 @@ import 'package:wp_sales/models/doc_return_order_customer.dart';
 const String tableReturnOrderCustomer   = '_DocumentReturnOrderCustomer';
 const String tableItemsReturnOrderCustomer   = '_DocumentReturnOrderCustomer_VT1'; // Товары
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ReturnOrderCustomerFields {
   static final List<String> values = [

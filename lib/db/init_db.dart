@@ -17,6 +17,12 @@ import 'package:wp_sales/db/db_ref_product_characteristic.dart';
 import 'package:wp_sales/db/db_ref_unit.dart';
 import 'package:wp_sales/db/db_ref_warehouse.dart';
 
+/// Типы данных таблиц базы данных
+const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+const textType = 'TEXT NOT NULL';
+const realType = 'REAL NOT NULL';
+const integerType = 'INTEGER NOT NULL';
+
 final DatabaseHelper instance = DatabaseHelper._init();
 
 class DatabaseHelper {

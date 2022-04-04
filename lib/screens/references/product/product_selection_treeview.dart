@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/db_accum_product_prices.dart';
-import 'package:wp_sales/db/db_accum_product_rests.dart';
-import 'package:wp_sales/db/db_doc_order_customer.dart';
-import 'package:wp_sales/db/db_ref_product.dart';
-import 'package:wp_sales/models/accum_product_prices.dart';
-import 'package:wp_sales/models/accum_product_rests.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/doc_return_order_customer.dart';
-import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/screens/references/product/add_item.dart';
-import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/system/widgets.dart';
+
+// Цены товаров
+List<AccumProductPrice> listProductPrice = [];
+
+// Остатки товаров
+List<AccumProductRest> listProductRest = [];
 
 class ScreenProductSelectionTreeView extends StatefulWidget {
   final List<ItemOrderCustomer>? listItemDoc;
@@ -37,6 +35,9 @@ class _ScreenProductSelectionTreeViewState
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool showProductHierarchy = true;
+
+  String uidWarehouse = '';
+  String uidPrice = '';
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
@@ -64,12 +65,6 @@ class _ScreenProductSelectionTreeViewState
   // Список идентификаторов товаров для поиска цен и остатков
   List<String> listProductsUID = [];
 
-  // Цены товаров
-  List<AccumProductPrice> listProductPrice = [];
-
-  // Остатки товаров
-  List<AccumProductRest> listProductRest = [];
-
   // Весь список товаров для работы поиска
   List<Product> dummySearchList = [];
 
@@ -79,6 +74,21 @@ class _ScreenProductSelectionTreeViewState
   @override
   void initState() {
     super.initState();
+
+    if (widget.orderCustomer != null) {
+      uidPrice = widget.orderCustomer?.uidPrice??'';
+    }
+    if (widget.returnOrderCustomer != null) {
+      uidPrice = widget.returnOrderCustomer?.uidPrice??'';
+    }
+
+    if (widget.orderCustomer != null) {
+      uidWarehouse = widget.orderCustomer?.uidWarehouse??'';
+    }
+    if (widget.returnOrderCustomer != null) {
+      uidWarehouse = widget.returnOrderCustomer?.uidWarehouse??'';
+    }
+
     renewItem();
     renewPurchasedItem();
   }
@@ -188,6 +198,10 @@ class _ScreenProductSelectionTreeViewState
       dummySearchList.add(itemList);
     }
 
+    /// Сортировка списка: сначала каталоги, потом элементы
+    listDataProducts.sort((a, b) => a.name.compareTo(b.name));
+    listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
+
     /// Заполним список товаров для отображения на форме
     for (var newItem in listDataProducts) {
 
@@ -211,28 +225,44 @@ class _ScreenProductSelectionTreeViewState
 
       // Добавим товар
       listProducts.add(newItem);
-      listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
+
+      // Добавим товар для получения остатков и цен
+      if (newItem.isGroup == 0) {
+        listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
+      }
     }
-
-    // /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
-    // /// Возможно они попали по ошибке назначения UID родителя
-    // if (parentProduct.uid != '') {
-    //   var tempLength = listProducts.length - 1;
-    //   while (tempLength > 0) {
-    //     if (listProducts[tempLength].uidParent != parentProduct.uid) {
-    //       listProducts.remove(listProducts[tempLength]);
-    //     }
-    //     tempLength--;
-    //   }
-    // }
-
-    /// Сортировка списка: сначала каталоги, потом элементы
-    listProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
 
     /// Поместим найденные товары в группу для возврата из поиска
     tempItems.addAll(listProducts);
 
+    /// Получим остатки и цены по найденным товарам
+    await readPriceAndRests();
+
     setState(() {});
+  }
+
+  readPriceAndRests() async {
+
+    listProductPrice.clear();
+    listProductRest.clear();
+
+    //Нет данных - нет вывода на форму
+    if (listProductsUID.isEmpty) {
+      return;
+    }
+
+    // Цены товаров
+    listProductPrice =
+    await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    debugPrint('Цены товаров: '+listProductPrice.length.toString());
+
+    // Остатки товаров
+    listProductRest =
+    await dbReadAccumProductRestByUIDProducts(listProductsUID);
+
+    debugPrint('Остатки товаров: '+listProductRest.length.toString());
+    // debugPrint(listProductRest.join(', '));
+
   }
 
   void renewPurchasedItem() async {
@@ -396,22 +426,6 @@ class _ScreenProductSelectionTreeViewState
           itemCount: listProducts.length,
           itemBuilder: (context, index) {
             var productItem = listProducts[index];
-
-            String uidPrice = '';
-            if (widget.orderCustomer != null) {
-              uidPrice = widget.orderCustomer?.uidPrice??'';
-            }
-            if (widget.returnOrderCustomer != null) {
-              uidPrice = widget.returnOrderCustomer?.uidPrice??'';
-            }
-
-            String uidWarehouse = '';
-            if (widget.orderCustomer != null) {
-              uidWarehouse = widget.orderCustomer?.uidWarehouse??'';
-            }
-            if (widget.returnOrderCustomer != null) {
-              uidWarehouse = widget.returnOrderCustomer?.uidWarehouse??'';
-            }
 
             return Card(
               elevation: 2,
@@ -583,6 +597,8 @@ class ProductItem extends StatefulWidget {
 class _ProductItemState extends State<ProductItem> {
   double countOnWarehouse = 0.0;
   double price = 0.0;
+  String uidPrice = '';
+  String uidWarehouse = '';
 
   @override
   void initState() {
@@ -592,7 +608,6 @@ class _ProductItemState extends State<ProductItem> {
 
   @override
   Widget build(BuildContext context) {
-
     return ListTile(
       onTap: () => widget.tap(),
       //onLongPress: popTap == null ? null : popTap,
@@ -656,15 +671,27 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   renewItem() async {
-    price = await dbReadProductPrice(
-        uidPrice: widget.uidPriceProductItem,
-        uidProduct: widget.product.uid,
-        uidProductCharacteristic: '');
+    var indexItemPrice = listProductPrice.indexWhere((element) =>
+    element.uidProduct == widget.product.uid &&
+        element.uidPrice == widget.uidPriceProductItem);
+    if (indexItemPrice >= 0) {
+      var itemList = listProductPrice[indexItemPrice];
+      price = itemList.price;
+    } else {
+      price = 0.0;
+    }
 
-    countOnWarehouse = await dbReadProductRest(
-        uidWarehouse: widget.uidWarehouseProductItem,
-        uidProduct: widget.product.uid,
-        uidProductCharacteristic: '');
+    var indexItemRest = listProductRest.indexWhere((element) =>
+    element.uidProduct == widget.product.uid &&
+        element.uidWarehouse == widget.uidWarehouseProductItem);
+    if (indexItemRest >= 0) {
+      var itemList = listProductRest[indexItemRest];
+      countOnWarehouse = itemList.count;
+    } else {
+      countOnWarehouse = 0.000;
+    }
+
+    debugPrint('Товар: '+widget.product.name+'. Цена: '+price.toString()+'. Остаток: '+countOnWarehouse.toString());
 
     if (mounted) {
       setState(() {

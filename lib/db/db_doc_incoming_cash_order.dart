@@ -7,12 +7,6 @@ import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 /// Название таблиц базы данных
 const String tableIncomingCashOrder   = '_DocumentIncomingCashOrder';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class IncomingCashOrderFields {
   static final List<String> values = [

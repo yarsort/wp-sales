@@ -7,12 +7,6 @@ import 'package:wp_sales/models/ref_warehouse.dart';
 /// Название таблиц базы данных
 const String tableWarehouse   = '_ReferenceWarehouse';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ItemWarehouseFields {
   static final List<String> values = [

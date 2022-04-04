@@ -1,0 +1,10 @@
+export 'package:wp_sales/models/doc_order_customer.dart';
+export 'package:wp_sales/models/doc_return_order_customer.dart';
+export 'package:wp_sales/models/ref_cashbox.dart';
+export 'package:wp_sales/models/ref_organization.dart';
+export 'package:wp_sales/models/ref_partner.dart';
+export 'package:wp_sales/models/ref_price.dart';
+export 'package:wp_sales/models/ref_warehouse.dart';
+export 'package:wp_sales/models/accum_product_prices.dart';
+export 'package:wp_sales/models/accum_product_rests.dart';
+export 'package:wp_sales/models/ref_product.dart';

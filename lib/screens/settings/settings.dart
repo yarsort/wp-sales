@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ftpconnect/ftpconnect.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/db_ref_cashbox.dart';
-import 'package:wp_sales/db/db_ref_organization.dart';
-import 'package:wp_sales/db/db_ref_partner.dart';
-import 'package:wp_sales/db/db_ref_price.dart';
-import 'package:wp_sales/db/db_ref_warehouse.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/ref_cashbox.dart';
-import 'package:wp_sales/models/ref_organization.dart';
-import 'package:wp_sales/models/ref_partner.dart';
-import 'package:wp_sales/models/ref_price.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
-import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
-import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
-import 'package:wp_sales/screens/references/partners/partner_selection.dart';
-import 'package:wp_sales/screens/references/price/price_selection.dart';
-import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
+import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenSettings extends StatefulWidget {
@@ -195,6 +183,17 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        backgroundColor: Colors.green,
+        content: Text(textMessage),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  showErrorMessage(String textMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
         content: Text(textMessage),
         duration: const Duration(seconds: 2),
       ),
@@ -650,6 +649,48 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+          /// Buttons Тестирование обмена
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 28),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.grey)),
+                      onPressed: () async {
+                        /// Получение данных обмена
+                        final FTPConnect ftpClient = FTPConnect(textFieldFTPServerController.text,
+                            port: int.parse(textFieldFTPPortController.text),
+                            user: textFieldFTPUserController.text,
+                            pass: textFieldFTPPasswordController.text,
+                            timeout: 600,
+                            debug: true);
+
+                        var res = await ftpClient.connect();
+                        if (!res) {
+                          showErrorMessage('Ошибка подключения к серверу FTP!');
+                          return;
+                        } else {
+                          showMessage('Подключение выполнено успешно!');
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.update, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Тест обмена'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
+          ),
           const Divider(),
 
           /// Использование обмена через Web-сервис
@@ -764,7 +805,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
           ),
           /// UID пользователя
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
                 keyboardType: TextInputType.text,

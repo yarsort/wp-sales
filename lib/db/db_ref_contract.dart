@@ -6,12 +6,6 @@ import 'init_db.dart';
 /// Название таблиц базы данных
 const String tableContract   = '_ReferenceContract';
 
-/// Типы данных таблиц базы данных
-const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-const textType = 'TEXT NOT NULL';
-const realType = 'REAL NOT NULL';
-const integerType = 'INTEGER NOT NULL';
-
 /// Поля для базы данных
 class ItemContractFields {
   static final List<String> values = [

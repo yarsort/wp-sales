@@ -1,21 +1,17 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/db/db_accum_product_prices.dart';
-import 'package:wp_sales/db/db_accum_product_rests.dart';
-import 'package:wp_sales/db/db_ref_price.dart';
-import 'package:wp_sales/db/db_ref_product.dart';
-import 'package:wp_sales/db/db_ref_warehouse.dart';
-import 'package:wp_sales/models/accum_product_prices.dart';
-import 'package:wp_sales/models/accum_product_rests.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/ref_price.dart';
-import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/models/ref_warehouse.dart';
-import 'package:wp_sales/screens/references/price/price_selection.dart';
-import 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
-import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/system/widgets.dart';
+
+// Цены товаров
+List<AccumProductPrice> listProductPrice = [];
+
+// Остатки товаров
+List<AccumProductRest> listProductRest = [];
 
 class ScreenProductList extends StatefulWidget {
   const ScreenProductList({
@@ -61,12 +57,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
   // Список идентификаторов товаров для поиска цен и остатков
   List<String> listProductsUID = [];
 
-  // Цены товаров
-  List<AccumProductPrice> listProductPrice = [];
-
-  // Остатки товаров
-  List<AccumProductRest> listProductRest = [];
-
   // Весь список товаров для работы поиска
   List<Product> dummySearchList = [];
 
@@ -87,7 +77,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('Подбор товаров'),
+          title: const Text('Товары'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Каталог'),
@@ -118,22 +108,13 @@ class _ScreenProductListState extends State<ScreenProductList> {
   fillSetting() async {
     final SharedPreferences prefs = await _prefs;
 
-    uidPrice = prefs.getString('settings_uidPrice')??'';
+    uidPrice = prefs.getString('settings_uidPrice') ?? '';
     Price price = await dbReadPriceUID(uidPrice);
     textFieldPriceController.text = price.name;
 
-    uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+    uidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
     Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
     textFieldWarehouseController.text = warehouse.name;
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   void renewItem() async {
@@ -160,18 +141,15 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
     /// Если включены тестовые данные
     if (useTestData) {
-
       for (var message in listDataProduct) {
         Product newItem = Product.fromJson(message);
 
         /// Добавим товар
         listDataProducts.add(newItem);
       }
-
     } else {
-
       /// Загрузка данных из БД
-      if(showProductHierarchy) {
+      if (showProductHierarchy) {
         // Покажем товары текущего родителя
         listDataProducts = await dbReadProductsByParent(parentProduct.uid);
       } else {
@@ -191,51 +169,71 @@ class _ScreenProductListState extends State<ScreenProductList> {
       dummySearchList.add(itemList);
     }
 
+    /// Сортировка списка: сначала каталоги, потом элементы
+    listDataProducts.sort((a, b) => a.name.compareTo(b.name));
+    listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
+
     /// Заполним список товаров для отображения на форме
     for (var newItem in listDataProducts) {
-
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
       if (newItem.uid == parentProduct.uid) {
         continue;
       }
 
       // Если надо показывать иерархию элементов
-      if(showProductHierarchy) {
+      if (showProductHierarchy) {
         // Если у товара родитель не является текущим выбранным каталогом
         if (newItem.uidParent != parentProduct.uid) {
           continue;
         }
       } else {
         // Без иерархии показывать каталоги нельзя!
-        if(newItem.isGroup == 1) {
+        if (newItem.isGroup == 1) {
           continue;
         }
       }
 
       // Добавим товар
       listProducts.add(newItem);
-      listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
+
+      // Добавим товар для получения остатков и цен
+      if (newItem.isGroup == 0) {
+        listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
+      }
     }
-
-    // /// Временная проверка на удаление товаров, которые не принадлежат каталогу товаров
-    // /// Возможно они попали по ошибке назначения UID родителя
-    // if (parentProduct.uid != '') {
-    //   var tempLength = listProducts.length - 1;
-    //   while (tempLength > 0) {
-    //     if (listProducts[tempLength].uidParent != parentProduct.uid) {
-    //       listProducts.remove(listProducts[tempLength]);
-    //     }
-    //     tempLength--;
-    //   }
-    // }
-
-    /// Сортировка списка: сначала каталоги, потом элементы
-    listProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
 
     /// Поместим найденные товары в группу для возврата из поиска
     tempItems.addAll(listProducts);
 
+    /// Получим остатки и цены по найденным товарам
+    await readPriceAndRests();
+
     setState(() {});
+  }
+
+  readPriceAndRests() async {
+
+    listProductPrice.clear();
+    listProductRest.clear();
+
+    //Нет данных - нет вывода на форму
+    if (listProductsUID.isEmpty) {
+      return;
+    }
+
+    // Цены товаров
+    listProductPrice =
+        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+
+    // debugPrint('Цены товаров: '+listProductPrice.length.toString());
+
+    // Остатки товаров
+    listProductRest =
+        await dbReadAccumProductRestByUIDProducts(listProductsUID);
+
+    // debugPrint('Остатки товаров: '+listProductRest.length.toString());
+    // debugPrint(listProductRest.join(', '));
+
   }
 
   void filterSearchCatalogResults(String query) async {
@@ -623,13 +621,6 @@ class _ProductItemState extends State<ProductItem> {
 
   @override
   Widget build(BuildContext context) {
-    if (uidPrice == '') {
-      uidPrice = widget.uidPriceProductItem;
-    }
-    if (uidWarehouse == '') {
-      uidWarehouse = widget.uidWarehouseProductItem;
-    }
-
     return ListTile(
       onTap: () => widget.tap(),
       //onLongPress: popTap == null ? null : popTap,
@@ -667,7 +658,7 @@ class _ProductItemState extends State<ProductItem> {
                 ),
               ),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Row(
                   children: [
                     Text(
@@ -693,15 +684,25 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   renewItem() async {
-    price = await dbReadProductPrice(
-        uidPrice: widget.uidPriceProductItem,
-        uidProduct: widget.product.uid,
-        uidProductCharacteristic: '');
+    var indexItemPrice = listProductPrice.indexWhere((element) =>
+        element.uidProduct == widget.product.uid &&
+        element.uidPrice == widget.uidPriceProductItem);
+    if (indexItemPrice >= 0) {
+      var itemList = listProductPrice[indexItemPrice];
+      price = itemList.price;
+    } else {
+      price = 0.0;
+    }
 
-    countOnWarehouse = await dbReadProductRest(
-        uidWarehouse: widget.uidWarehouseProductItem,
-        uidProduct: widget.product.uid,
-        uidProductCharacteristic: '');
+    var indexItemRest = listProductRest.indexWhere((element) =>
+    element.uidProduct == widget.product.uid &&
+        element.uidWarehouse == widget.uidWarehouseProductItem);
+    if (indexItemRest >= 0) {
+      var itemList = listProductRest[indexItemRest];
+      countOnWarehouse = itemList.count;
+    } else {
+      countOnWarehouse = 0.000;
+    }
 
     if (mounted) {
       setState(() {
