@@ -48,6 +48,7 @@ class _ScreenItemReturnOrderCustomerState
 
   /// Количество строк товаров в заказе
   int countItems = 0;
+  bool firstOpen = true;
 
   /// Позиции товаров в заказе
   List<ItemReturnOrderCustomer> itemsReturnOrder = [];
@@ -138,7 +139,7 @@ class _ScreenItemReturnOrderCustomerState
                           onPressed: () async {
                             var result = await saveDoc();
                             if (result) {
-                              showMessage('Запись сохранена!');
+                              showMessage('Запись сохранена!', context);
                               Navigator.of(context).pop(true);
                             }
                           },
@@ -172,23 +173,23 @@ class _ScreenItemReturnOrderCustomerState
               IconButton(
                 onPressed: () async {
                   if (widget.returnOrderCustomer.nameOrganization == '') {
-                    showMessageError('Организация не заполнена!');
+                    showErrorMessage('Организация не заполнена!', context);
                     return;
                   }
                   if (widget.returnOrderCustomer.namePartner == '') {
-                    showMessageError('Партнер не заполнен!');
+                    showErrorMessage('Партнер не заполнен!', context);
                     return;
                   }
                   if (widget.returnOrderCustomer.nameContract == '') {
-                    showMessageError('Контракт не заполнен!');
+                    showErrorMessage('Контракт не заполнен!', context);
                     return;
                   }
                   if (widget.returnOrderCustomer.namePrice == '') {
-                    showMessageError('Тип цены не заполнен!');
+                    showErrorMessage('Тип цены не заполнен!', context);
                     return;
                   }
                   if (widget.returnOrderCustomer.nameWarehouse == '') {
-                    showMessageError('Склад не заполнен!');
+                    showErrorMessage('Склад не заполнен!', context);
                     return;
                   }
 
@@ -271,34 +272,26 @@ class _ScreenItemReturnOrderCustomerState
     final SharedPreferences prefs = await _prefs;
 
     /// Заполнение значений по-умолчанию: из документа или из настроек
+    if (widget.returnOrderCustomer.uidOrganization.isEmpty){
+      widget.returnOrderCustomer.uidOrganization = prefs.getString('settings_uidOrganization') ?? '';
+    }
+    if (widget.returnOrderCustomer.uidPartner.isEmpty){
+      widget.returnOrderCustomer.uidPartner = prefs.getString('settings_uidPartner') ?? '';
+    }
+    if (widget.returnOrderCustomer.uidPrice.isEmpty){
+      widget.returnOrderCustomer.uidPrice = prefs.getString('settings_uidPrice') ?? '';
+    }
 
-    widget.returnOrderCustomer.uidOrganization =
-    widget.returnOrderCustomer.uidOrganization == ''
-        ? prefs.getString('settings_uidOrganization') ?? ''
-        : widget.returnOrderCustomer.uidOrganization;
-
-    widget.returnOrderCustomer.uidPartner =
-    widget.returnOrderCustomer.uidPartner == ''
-        ? prefs.getString('settings_uidPartner') ?? ''
-        : widget.returnOrderCustomer.uidPartner;
-
-    widget.returnOrderCustomer.uidContract =
-    widget.returnOrderCustomer.uidContract == ''
-        ? ''
-        : widget.returnOrderCustomer.uidContract;
-
-    widget.returnOrderCustomer.uidPrice =
-    widget.returnOrderCustomer.uidPrice == ''
-        ? prefs.getString('settings_uidPrice') ?? ''
-        : widget.returnOrderCustomer.uidPrice;
-
-    widget.returnOrderCustomer.uidWarehouse =
-    widget.returnOrderCustomer.uidWarehouse == ''
-        ? prefs.getString('settings_uidWarehouse') ?? ''
-        : widget.returnOrderCustomer.uidWarehouse;
+    // Сначала проверка на склад возврата
+    if (widget.returnOrderCustomer.uidWarehouse.isEmpty){
+      widget.returnOrderCustomer.uidWarehouse = prefs.getString('settings_uidWarehouseReturn') ?? '';
+    }
+    // Проверка на основной склад
+    if (widget.returnOrderCustomer.uidWarehouse.isEmpty){
+      widget.returnOrderCustomer.uidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
+    }
 
     /// Для всех реквизитов теперь установим текстовые значения на форме по их UID
-
     Organization organization =
         await dbReadOrganizationUID(widget.returnOrderCustomer.uidOrganization);
     widget.returnOrderCustomer.nameOrganization = organization.name;
@@ -346,6 +339,18 @@ class _ScreenItemReturnOrderCustomerState
     textFieldNumberFrom1CController.text =
         widget.returnOrderCustomer.numberFrom1C;
 
+    // Заполнение реквизита заказа покупателя
+    OrderCustomer orderCustomer =
+    await dbReadOrderCustomerUID(widget.returnOrderCustomer.uidParent);
+    if (orderCustomer.id != 0) {
+      if (orderCustomer.numberFrom1C != '') {
+        textFieldOrderCustomerController.text =
+            'Заказ № ' + orderCustomer.numberFrom1C;
+      } else {
+        textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
+      }
+    }
+
     // Проверка Организации
     if ((textFieldPartnerController.text.trim() == '') ||
         (textFieldOrganizationController.text.trim() == '')) {
@@ -380,33 +385,16 @@ class _ScreenItemReturnOrderCustomerState
     });
   }
 
-  showMessageError(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   renewItems() async {
     countItems = 0;
 
-    itemsReturnOrder.clear();
+    if (firstOpen) {
+      itemsReturnOrder.clear();
 
-    if (widget.returnOrderCustomer.id != 0) {
-      itemsReturnOrder =
-          await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
+      if (widget.returnOrderCustomer.id != 0) {
+        itemsReturnOrder = await dbReadItemsReturnOrderCustomer(widget.returnOrderCustomer.id);
+      }
+      firstOpen = false;
     }
 
     // Количество документов в списке
@@ -438,7 +426,7 @@ class _ScreenItemReturnOrderCustomerState
         return true;
       }
     } on Exception catch (error) {
-      showMessage('Ошибка записи документа!');
+      showMessage('Ошибка записи документа!', context);
       debugPrint(error.toString());
       return false;
     }
@@ -552,7 +540,7 @@ class _ScreenItemReturnOrderCustomerState
                         builder: (context) => ScreenContractSelection(
                             returnOrderCustomer: widget.returnOrderCustomer)));
 
-                // Если изменили контрак, изменим цену и валюту
+                // Если изменили контракт, изменим цену и валюту
                 widget.returnOrderCustomer.namePrice = '';
                 widget.returnOrderCustomer.uidPrice = '';
                 widget.returnOrderCustomer.nameCurrency = '';
@@ -729,7 +717,7 @@ class _ScreenItemReturnOrderCustomerState
                       onPressed: () async {
                         var result = await saveDoc();
                         if (result) {
-                          showMessage('Запись сохранена!');
+                          showMessage('Запись сохранена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -758,7 +746,7 @@ class _ScreenItemReturnOrderCustomerState
                       onPressed: () async {
                         var result = await deleteDoc();
                         if (result) {
-                          showMessage('Запись отправлена в корзину!');
+                          showMessage('Запись отправлена в корзину!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -780,127 +768,203 @@ class _ScreenItemReturnOrderCustomerState
   }
 
   listItemsOrder() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-      child: ColumnBuilder(
-          itemCount: itemsReturnOrder.length,
-          itemBuilder: (context, index) {
-            final item = itemsReturnOrder[index];
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-              child: Card(
-                  elevation: 2,
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: PopupMenuButton<String>(
-                      onSelected: (String value) async {
-                        if (value == 'delete') {
-                          itemsReturnOrder = List.from(itemsReturnOrder)
-                            ..removeAt(index);
-                          setState(() {
-                            ReturnOrderCustomer().allSum(
-                                widget.returnOrderCustomer, itemsReturnOrder);
-                            ReturnOrderCustomer().allCount(
-                                widget.returnOrderCustomer, itemsReturnOrder);
-                            updateHeader();
-                          });
-                        }
-                        if (value == 'edit') {
-                          Product productItem =
-                              await dbReadProductUID(item.uid);
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ScreenAddItem(
-                                  returnOrderCustomer:
-                                      widget.returnOrderCustomer,
-                                  listItemReturnDoc: itemsReturnOrder,
-                                  product: productItem),
-                            ),
-                          );
-                          setState(() {
-                            ReturnOrderCustomer().allSum(
-                                widget.returnOrderCustomer, itemsReturnOrder);
-                            ReturnOrderCustomer().allCount(
-                                widget.returnOrderCustomer, itemsReturnOrder);
-                            updateHeader();
-                          });
-                        }
-                      },
-                      child: ListTile(
-                        title: Text(item.name),
-                        subtitle: Column(
-                          children: [
-                            const Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 14, 14, 0),
+          child: Row(children: [
+            /// Sum of document
+            Expanded(
+              flex: 3,
+              child: TextFieldWithText(
+                  textLabel: 'Сумма товаров',
+                  textEditingController: textFieldSumController,
+                  onPressedEditIcon: null,
+                  onPressedDeleteIcon: null,
+                  onPressedDelete: () async {},
+                  onPressedEdit: () async {}),
+            ),
+            Expanded(
+              flex: 1,
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                        MaterialStateProperty.all(Colors.blue)),
+                    onPressed: () async {
+                      if (widget.returnOrderCustomer.nameOrganization == '') {
+                        showErrorMessage('Организация не заполнена!', context);
+                        return;
+                      }
+                      if (widget.returnOrderCustomer.namePartner == '') {
+                        showErrorMessage('Партнер не заполнен!', context);
+                        return;
+                      }
+                      if (widget.returnOrderCustomer.nameContract == '') {
+                        showErrorMessage('Контракт не заполнен!', context);
+                        return;
+                      }
+                      if (widget.returnOrderCustomer.namePrice == '') {
+                        showErrorMessage('Тип цены не заполнен!', context);
+                        return;
+                      }
+                      if (widget.returnOrderCustomer.nameWarehouse == '') {
+                        showErrorMessage('Склад не заполнен!', context);
+                        return;
+                      }
+
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScreenProductSelectionTreeView(
+                              listItemReturnDoc: itemsReturnOrder,
+                              returnOrderCustomer: widget.returnOrderCustomer),
+                        ),
+                      );
+
+                      /// Сумма товаров в заказе
+                      ReturnOrderCustomer().allSum(widget.returnOrderCustomer, itemsReturnOrder);
+
+                      /// Количество товаров в заказе
+                      ReturnOrderCustomer()
+                          .allCount(widget.returnOrderCustomer, itemsReturnOrder);
+
+                      /// Обновление данных
+                      renewItems();
+                      updateHeader();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [Text('Подбор')],
+                    )),
+              ),
+            )
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: ColumnBuilder(
+              itemCount: itemsReturnOrder.length,
+              itemBuilder: (context, index) {
+                final item = itemsReturnOrder[index];
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
+                  child: Card(
+                      elevation: 2,
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: PopupMenuButton<String>(
+                          onSelected: (String value) async {
+                            if (value == 'delete') {
+                              itemsReturnOrder = List.from(itemsReturnOrder)
+                                ..removeAt(index);
+                              setState(() {
+                                ReturnOrderCustomer().allSum(
+                                    widget.returnOrderCustomer, itemsReturnOrder);
+                                ReturnOrderCustomer().allCount(
+                                    widget.returnOrderCustomer, itemsReturnOrder);
+                                updateHeader();
+                              });
+                            }
+                            if (value == 'edit') {
+                              Product productItem =
+                                  await dbReadProductUID(item.uid);
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ScreenAddItem(
+                                      returnOrderCustomer:
+                                          widget.returnOrderCustomer,
+                                      listItemReturnDoc: itemsReturnOrder,
+                                      product: productItem),
+                                ),
+                              );
+                              setState(() {
+                                ReturnOrderCustomer().allSum(
+                                    widget.returnOrderCustomer, itemsReturnOrder);
+                                ReturnOrderCustomer().allCount(
+                                    widget.returnOrderCustomer, itemsReturnOrder);
+                                updateHeader();
+                              });
+                            }
+                          },
+                          child: ListTile(
+                            title: Text(item.name),
+                            subtitle: Column(
                               children: [
-                                Expanded(
-                                    flex: 1,
-                                    child:
-                                        Text(doubleThreeToString(item.count))),
-                                Expanded(flex: 1, child: Text(item.nameUnit)),
-                                Expanded(
-                                    flex: 1,
-                                    child: Text(doubleToString(item.price))),
-                                Expanded(
-                                    flex: 1,
-                                    child: Text(doubleToString(item.sum))),
+                                const Divider(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                        flex: 1,
+                                        child:
+                                            Text(doubleThreeToString(item.count))),
+                                    Expanded(flex: 1, child: Text(item.nameUnit)),
+                                    Expanded(
+                                        flex: 1,
+                                        child: Text(doubleToString(item.price))),
+                                    Expanded(
+                                        flex: 1,
+                                        child: Text(doubleToString(item.sum))),
+                                  ],
+                                ),
                               ],
+                            ),
+                          ),
+                          itemBuilder: (BuildContext context) =>
+                              <PopupMenuEntry<String>>[
+                            PopupMenuItem<String>(
+                              value: 'view',
+                              child: Row(
+                                children: const [
+                                  Icon(
+                                    Icons.search,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text('Просмотр'),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Row(children: const [
+                                Icon(
+                                  Icons.edit,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Изменить')
+                              ]),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: const [
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text('Удалить'),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                        PopupMenuItem<String>(
-                          value: 'view',
-                          child: Row(
-                            children: const [
-                              Icon(
-                                Icons.search,
-                                color: Colors.blue,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text('Просмотр'),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Row(children: const [
-                            Icon(
-                              Icons.edit,
-                              color: Colors.blue,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text('Изменить')
-                          ]),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Row(
-                            children: const [
-                              Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text('Удалить'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-            );
-          }),
+                      )),
+                );
+              }),
+        ),
+      ],
     );
   }
 

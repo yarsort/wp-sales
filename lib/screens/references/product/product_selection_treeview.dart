@@ -467,6 +467,8 @@ class _ScreenProductSelectionTreeViewState
                             builder: (context) => ScreenAddItem(
                                 listItemDoc: widget.listItemDoc,
                                 orderCustomer: widget.orderCustomer,
+                                returnOrderCustomer: widget.returnOrderCustomer,
+                                listItemReturnDoc: widget.listItemReturnDoc,
                                 product: productItem),
                           ),
                         );

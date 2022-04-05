@@ -209,6 +209,21 @@ Future<int> dbUpdateReturnOrderCustomer(ReturnOrderCustomer returnOrderCustomer,
   }
 }
 
+Future<int> dbUpdateReturnOrderCustomerWithoutItems(ReturnOrderCustomer returnOrderCustomer) async {
+  final db = await instance.database;
+  try {
+    await db.update(
+      tableReturnOrderCustomer,
+      returnOrderCustomer.toJson(),
+      where: '${ReturnOrderCustomerFields.id} = ?',
+      whereArgs: [returnOrderCustomer.id],
+    );
+    return returnOrderCustomer.id;
+  } catch (e) {
+    throw Exception('Ошибка записи объекта!');
+  }
+}
+
 Future<int> dbDeleteReturnOrderCustomer(int id) async {
   final db = await instance.database;
   try {

@@ -41,6 +41,24 @@ showErrorMessage(String textMessage, context) {
   );
 }
 
+nameGroup({String nameGroup = '', bool hideDivider = false}) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(nameGroup,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.blueGrey,
+            fontWeight: FontWeight.bold,),
+          textAlign: TextAlign.start,),
+        if (!hideDivider) const Divider(),
+      ],
+    ),
+  );
+}
+
 /// Тестовые данные
 final listDataOrderCustomer = [
   {

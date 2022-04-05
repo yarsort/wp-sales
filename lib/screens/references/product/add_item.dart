@@ -1,12 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wp_sales/db/db_accum_product_prices.dart';
-import 'package:wp_sales/db/db_accum_product_rests.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/doc_return_order_customer.dart';
-import 'package:wp_sales/models/ref_product.dart';
-import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
 
 class ScreenAddItem extends StatefulWidget {
   final List<ItemReturnOrderCustomer>? listItemReturnDoc;
@@ -34,6 +30,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   bool visibleImage = true;
 
   String pathImage = '';
+
+  List<AccumProductPrice> listAccumProductPrice = [];
+  List<AccumProductRest> listAccumProductRest = [];
+
+  List listPrices = [];
+  List listRests = [];
 
   /// Поле ввода: Product name
   TextEditingController textFieldProductNameController =
@@ -76,7 +78,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             tabs: [
               Tab(text: 'Главная'),
               Tab(text: 'Картинки'),
-              Tab(text: 'Служебные'),
+              Tab(text: 'Прочее'),
             ],
           ),
         ),
@@ -92,6 +94,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     readOnly: true,
                     controller: textFieldProductNameController,
                     decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(
                         color: Colors.blueGrey,
@@ -108,6 +111,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     readOnly: true,
                     controller: textFieldPriceNameController,
                     decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(
                         color: Colors.blueGrey,
@@ -124,6 +128,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     readOnly: true,
                     controller: textFieldWarehouseNameController,
                     decoration: const InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(
                         color: Colors.blueGrey,
@@ -144,6 +149,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           readOnly: true,
                           controller: textFieldPriceController,
                           decoration: const InputDecoration(
+                            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: OutlineInputBorder(),
                             labelStyle: TextStyle(
                               color: Colors.blueGrey,
@@ -163,6 +169,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           readOnly: true,
                           controller: textFieldSumController,
                           decoration: const InputDecoration(
+                            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: OutlineInputBorder(),
                             labelStyle: TextStyle(
                               color: Colors.blueGrey,
@@ -185,6 +192,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           readOnly: true,
                           controller: textFieldWarehouseController,
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: const OutlineInputBorder(),
                             labelStyle: const TextStyle(
                               color: Colors.blueGrey,
@@ -215,6 +223,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                 RegExp(r'^\d*\.?\d{0,3}'))
                           ],
                           decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: const OutlineInputBorder(),
                             labelStyle: const TextStyle(
                               color: Colors.blueGrey,
@@ -330,7 +339,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
               ],
             ),
             ListView(
-              children: const [],
+              children: [
+                nameGroup(nameGroup: 'Цены'),
+                listViewPrices(),
+                nameGroup(nameGroup: 'Остатки'),
+                listViewRests(),
+              ],
             )
           ],
         ),
@@ -339,37 +353,73 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   }
 
   renewItem() async {
+
+    listPrices.clear();
+    listRests.clear();
+
     textFieldProductNameController.text = widget.product.name;
     pathImage =
         'https://3z6mv8219w2s2w196j1dkzga-wpengine.netdna-ssl.com/wp-content/uploads/2021/06/WEF-Investments-In-Nature-Based-Solutions-Have-To-Triple-By-2030-To-Address-Climate-Change-Biodiversity-Loss.jpg';
 
+    String uidProduct = widget.product.uid;
+
     String uidWarehouse = '';
     String nameWarehouse = '';
+
     String uidPrice = '';
     String namePrice = '';
 
+    /// Получим все типы цен и все остатки по выбранному товару
+    List<String> listProductsUID = [];
+    listProductsUID.add(uidProduct);
+    listAccumProductPrice = await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    listAccumProductRest = await dbReadAccumProductRestByUIDProducts(listProductsUID);
+
+    for (var listItem in listAccumProductPrice) {
+      var data = {};
+      var priceType = await dbReadPriceUID(listItem.uidPrice);
+      data['name'] = priceType.name;
+      data['price'] = listItem.price;
+      listPrices.add(data);
+    }
+
+    for (var listItem in listAccumProductRest) {
+      var data = {};
+      var warehouseType = await dbReadWarehouseUID(listItem.uidWarehouse);
+      data['name'] = warehouseType.name;
+      data['count'] = listItem.count;
+      listRests.add(data);
+    }
+
+    /// Заполним отборы типы цены и склада из документа, если он есть
     if (widget.orderCustomer != null) {
       namePrice = widget.orderCustomer?.namePrice ?? '';
       uidPrice = widget.orderCustomer?.uidPrice ?? '';
       nameWarehouse = widget.orderCustomer?.nameWarehouse ?? '';
       uidWarehouse = widget.orderCustomer?.uidWarehouse ?? '';
     }
+    if (widget.returnOrderCustomer != null) {
+      namePrice = widget.returnOrderCustomer?.namePrice ?? '';
+      uidPrice = widget.returnOrderCustomer?.uidPrice ?? '';
+      nameWarehouse = widget.returnOrderCustomer?.nameWarehouse ?? '';
+      uidWarehouse = widget.returnOrderCustomer?.uidWarehouse ?? '';
+    }
 
     textFieldPriceNameController.text = namePrice;
     textFieldWarehouseNameController.text = nameWarehouse;
 
-    // Остаток на складе.
+    /// Остаток на складе.
     var countOnWarehouse = await dbReadProductRest(
         uidWarehouse: uidWarehouse,
-        uidProduct: widget.product.uid,
+        uidProduct: uidProduct,
         uidProductCharacteristic: '');
 
     textFieldWarehouseController.text = doubleThreeToString(countOnWarehouse);
 
-    // Цена товара.
+    /// Цена товара.
     var price = await dbReadProductPrice(
         uidPrice: uidPrice,
-        uidProduct: widget.product.uid,
+        uidProduct: uidProduct,
         uidProductCharacteristic: '');
 
     textFieldPriceController.text = doubleToString(price);
@@ -417,6 +467,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         textFieldSumController.text = doubleToString(price);
       }
     }
+
+    setState(() {});
   }
 
   calculateCount() {
@@ -461,35 +513,72 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     var value = double.parse(
         doubleThreeToString(double.parse(textFieldCountController.text)));
 
-    // Найдем индекс строки товара в заказе по товару который добавляем
-    var indexItem = widget.listItemDoc
-            ?.indexWhere((element) => element.uid == widget.product.uid) ??
-        -1;
+    /// Добавление товаров в заказе покупателя
+    if (widget.listItemDoc != null) {
+      // Найдем индекс строки товара в заказе по товару который добавляем
+      var indexItem = widget.listItemDoc
+          ?.indexWhere((element) => element.uid == widget.product.uid) ??
+          -1;
 
-    // Если нашли товар в списке товаров заказа
-    if (indexItem >= 0) {
-      var itemList = widget.listItemDoc?[indexItem];
-      itemList?.count = value;
-      itemList?.sum = itemList.price * itemList.count;
-    } else {
-      // Добавим новый товар в заказ
-      var priceProduct = double.parse(
-          doubleThreeToString(double.parse(textFieldPriceController.text)));
+      // Если нашли товар в списке товаров заказа
+      if (indexItem >= 0) {
+        var itemList = widget.listItemDoc?[indexItem];
+        itemList?.count = value;
+        itemList?.sum = itemList.price * itemList.count;
+      } else {
+        // Добавим новый товар в заказ
+        var priceProduct = double.parse(
+            doubleThreeToString(double.parse(textFieldPriceController.text)));
 
-      ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
-          id: 0,
-          idOrderCustomer: widget.orderCustomer?.id ?? 0,
-          uid: widget.product.uid,
-          name: widget.product.name,
-          uidUnit: widget.product.uidUnit,
-          nameUnit: widget.product.nameUnit,
-          count: value,
-          price: priceProduct,
-          discount: 0.0,
-          sum: priceProduct * value);
+        ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
+            id: 0,
+            idOrderCustomer: widget.orderCustomer?.id ?? 0,
+            uid: widget.product.uid,
+            name: widget.product.name,
+            uidUnit: widget.product.uidUnit,
+            nameUnit: widget.product.nameUnit,
+            count: value,
+            price: priceProduct,
+            discount: 0.0,
+            sum: priceProduct * value);
 
-      widget.listItemDoc?.add(itemOrderCustomer);
+        widget.listItemDoc?.add(itemOrderCustomer);
+      }
     }
+
+    /// Добавление товаров в возврате товаров от покупателя
+    if (widget.listItemReturnDoc != null) {
+      // Найдем индекс строки товара в заказе по товару который добавляем
+      var indexItem = widget.listItemReturnDoc
+          ?.indexWhere((element) => element.uid == widget.product.uid) ??
+          -1;
+
+      // Если нашли товар в списке товаров заказа
+      if (indexItem >= 0) {
+        var itemList = widget.listItemReturnDoc?[indexItem];
+        itemList?.count = value;
+        itemList?.sum = itemList.price * itemList.count;
+      } else {
+        // Добавим новый товар в заказ
+        var priceProduct = double.parse(
+            doubleThreeToString(double.parse(textFieldPriceController.text)));
+
+        ItemReturnOrderCustomer itemReturnOrderCustomer = ItemReturnOrderCustomer(
+            id: 0,
+            idReturnOrderCustomer: widget.returnOrderCustomer?.id ?? 0,
+            uid: widget.product.uid,
+            name: widget.product.name,
+            uidUnit: widget.product.uidUnit,
+            nameUnit: widget.product.nameUnit,
+            count: value,
+            price: priceProduct,
+            discount: 0.0,
+            sum: priceProduct * value);
+
+        widget.listItemReturnDoc?.add(itemReturnOrderCustomer);
+      }
+    }
+
   }
 
   addProductToReturnOrderCustomer() {
@@ -526,5 +615,57 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
       widget.listItemReturnDoc?.add(itemReturnOrderCustomer);
     }
+  }
+
+  listViewPrices() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(9, 0, 9, 0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: listPrices.length,
+        itemBuilder: (context, index) {
+          var itemList = listPrices[index];
+          return Card(
+            elevation: 2,
+            child: ListTile(
+              title: Text(itemList['name']),
+              subtitle: Row(
+                children: [
+                  const Text('Цена: '),
+                  Text(doubleToString(itemList['price'])),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  listViewRests() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(9, 0, 9, 0),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: listRests.length,
+        itemBuilder: (context, index) {
+          var itemList = listRests[index];
+          return Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  title: Text(itemList['name']),
+                  subtitle: Row(
+                    children: [
+                      const Text('Остаток: '),
+                      Text(doubleThreeToString(itemList['count'])),
+                    ],
+                  ),
+                ),
+              ));
+        },
+      ),
+    );
   }
 }

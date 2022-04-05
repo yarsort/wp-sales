@@ -275,7 +275,7 @@ class _ScreenItemIncomingCashOrderState
           textFieldOrderCustomerController.text =
               'Заказ № ' + orderCustomer.numberFrom1C;
         } else {
-          textFieldOrderCustomerController.text = widget.incomingCashOrder.nameParent;
+          textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
 
         widget.incomingCashOrder.uidOrganization = orderCustomer.uidOrganization;

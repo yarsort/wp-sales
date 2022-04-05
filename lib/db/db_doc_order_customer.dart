@@ -174,6 +174,21 @@ Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer, List<It
   }
 }
 
+Future<int> dbUpdateOrderCustomerWithoutItems(OrderCustomer orderCustomer) async {
+  final db = await instance.database;
+  try {
+    await db.update(
+      tableOrderCustomer,
+      orderCustomer.toJson(),
+      where: '${OrderCustomerFields.id} = ?',
+      whereArgs: [orderCustomer.id],
+    );
+    return orderCustomer.id;
+  } catch (e) {
+    throw Exception('Ошибка записи объекта!');
+  }
+}
+
 Future<int> dbUpdateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
   final db = await instance.database;
   int intOperation = 0;

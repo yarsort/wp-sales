@@ -69,6 +69,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   TextEditingController textFieldWarehouseController = TextEditingController();
   String uidWarehouse = '';
 
+  // Поле ввода: Склад для возвратов
+  TextEditingController textFieldWarehouseReturnController = TextEditingController();
+  String uidWarehouseReturn = '';
+
   // Поле ввода: Валюта
   TextEditingController textFieldCurrencyController = TextEditingController();
   String uidCurrency = '';
@@ -76,6 +80,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   // Поле ввода: Кассы
   TextEditingController textFieldCashboxController = TextEditingController();
   String uidCashbox = '';
+
+  /// Картинки
+  // Поле ввода: Путь к картинкам в Интернете
+  TextEditingController textFieldPathPicturesController = TextEditingController();
+
 
   @override
   void initState() {
@@ -155,6 +164,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   listSettingsTypeData(),
                   nameGroup(nameGroup: 'Запреты и разрешения'),
                   listSettingsMain(),
+                  nameGroup(nameGroup: 'Картинки из Интернета'),
+                  listSettingsPictures(),
                 ],
               ),
               ListView(
@@ -176,26 +187,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.green,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  showErrorMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -252,6 +243,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
     textFieldWarehouseController.text = warehouse.name;
 
+    uidWarehouseReturn = prefs.getString('settings_uidWarehouseReturn')??'';
+    Warehouse warehouseReturn = await dbReadWarehouseUID(uidWarehouseReturn);
+    textFieldWarehouseReturnController.text = warehouseReturn.name;
+
+    // Картинки в Интернете. Путь + UID товара + '.jpg'
+    textFieldPathPicturesController.text = prefs.getString('settings_pathPictures')??'';
+
     // При первом заполнении может быть не указан способ обмена
     if (!useFTPExchange && !useWebExchange){
       useFTPExchange = true;
@@ -292,30 +290,16 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setString('settings_uidPrice', uidPrice);
     prefs.setString('settings_uidCashbox', uidCashbox);
     prefs.setString('settings_uidWarehouse', uidWarehouse);
+    prefs.setString('settings_uidWarehouseReturn', uidWarehouseReturn);
+
+    /// Картинки
+    prefs.setString('settings_pathPictures', textFieldPathPicturesController.text);
 
     /// Web-service
     prefs.setBool('settings_useWebExchange', useWebExchange);
     prefs.setString('settings_WEBServer', textFieldWEBServerController.text);
 
-    showMessage('Настройки сохранены!');
-  }
-
-  nameGroup({String nameGroup = '', bool hideDivider = false}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(nameGroup,
-              style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.blueGrey,
-                  fontWeight: FontWeight.bold,),
-          textAlign: TextAlign.start,),
-          if (!hideDivider) const Divider(),
-        ],
-      ),
-    );
+    showMessage('Настройки сохранены!', context);
   }
 
   listSettingsTypeData() {
@@ -678,10 +662,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
                         var res = await ftpClient.connect();
                         if (!res) {
-                          showErrorMessage('Ошибка подключения к серверу FTP!');
+                          showErrorMessage('Ошибка подключения к серверу FTP!', context);
                           return;
                         } else {
-                          showMessage('Подключение выполнено успешно!');
+                          showMessage('Подключение выполнено успешно!', context);
                         }
                       },
                       child: Row(
@@ -831,6 +815,47 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     );
   }
 
+  listSettingsPictures() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      child: Column(
+        children: [
+          /// Ссылка Интернет на каталог с картинками товаров
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: IntrinsicHeight(
+              child: TextField(
+                keyboardType: TextInputType.text,
+                controller: textFieldPathPicturesController,
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  border: const OutlineInputBorder(),
+                  labelStyle: const TextStyle(
+                    color: Colors.blueGrey,
+                  ),
+                  labelText: 'Ссылка на сайт',
+                  suffixIcon: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          textFieldPathPicturesController.text = '';
+                        },
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   listFillingByDefault() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 7, 0, 0),
@@ -923,7 +948,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
           /// Warehouse
           TextFieldWithText(
-              textLabel: 'Склад отгрузки',
+              textLabel: 'Склад отгрузки товаров',
               textEditingController: textFieldWarehouseController,
               onPressedEditIcon: Icons.gite,
               onPressedDeleteIcon: Icons.delete,
@@ -940,6 +965,27 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                             orderCustomer: orderCustomer)));
                 textFieldWarehouseController.text = orderCustomer.nameWarehouse;
                 uidWarehouse = orderCustomer.uidWarehouse;
+              }),
+
+          /// Warehouse for return
+          TextFieldWithText(
+              textLabel: 'Склад для возвратов товаров',
+              textEditingController: textFieldWarehouseReturnController,
+              onPressedEditIcon: Icons.gite,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                textFieldWarehouseReturnController.text = '';
+                uidWarehouseReturn = '';
+              },
+              onPressedEdit: () async {
+                OrderCustomer orderCustomer = OrderCustomer();
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenWarehouseSelection(
+                            orderCustomer: orderCustomer)));
+                textFieldWarehouseReturnController.text = orderCustomer.nameWarehouse;
+                uidWarehouseReturn = orderCustomer.uidWarehouse;
               }),
         ],
       ),

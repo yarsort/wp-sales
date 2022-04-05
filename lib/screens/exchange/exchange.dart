@@ -303,6 +303,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         // Логируем про загруженный файл
         //listLogs.add('Получен файл обмена: $localFile');
 
+        bool resDel = await ftpClient.deleteFile(pathFile);
+        if(!resDel) {
+          listLogs.add('Ошибка удаления файл обмена из FTP: $pathFile');
+        }
+
         // Добавим для дальнейшей обработки
         listLocalDownloaded.add(localFile.path.toString());
       } else {
@@ -581,7 +586,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
       setState(() {
-        _valueProgress = 0.9;
+        _valueProgress = 1.0;
       });
     }
 
@@ -669,12 +674,34 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       listToUpload.add(pathZipFile);
 
       // Отправим на FTP-сервер
-      await uploadDataToFTP(listToUpload);
+      var res = await uploadDataToFTP(listToUpload);
+      if (res) {
+
+        /// Установим статус отправлено у записей
+        // Заказ покупателя
+        List<OrderCustomer> listDocsOrderCustomer = await dbReadAllNewOrderCustomer();
+        for (var itemDoc in listDocsOrderCustomer) {
+          itemDoc.status = 2;
+          await dbUpdateOrderCustomerWithoutItems(itemDoc);
+        }
+        // Возврат заказа покупателя
+        List<ReturnOrderCustomer> listDocsReturnOrderCustomer = await dbReadAllNewReturnOrderCustomer();
+        for (var itemDoc in listDocsReturnOrderCustomer) {
+          itemDoc.status = 2;
+          await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
+        }
+        // Приходный кассовый ордер
+        List<IncomingCashOrder> listDocsIncomingCashOrder = await dbReadAllNewIncomingCashOrder();
+        for (var itemDoc in listDocsIncomingCashOrder) {
+          itemDoc.status = 2;
+          await dbUpdateIncomingCashOrder(itemDoc);
+        }
+      }
 
       showMessage('Завершение отправки на FTP.', context);
     }
 
-    bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
+    bool useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
     if (useWebExchange) {
       await uploadDataToWebServer();
     }
@@ -769,7 +796,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     /// Определение пользвателя обмена
     String settingsUidUser = prefs.getString('settings_UIDUser') ?? '';
-    String settingsNameUser = prefs.getString('settings_nameUser') ?? '';
+    String settingsNameUser = prefs.getString('settings_NameUser') ?? '';
+    String settingsEmailUser = prefs.getString('settings_EmailUser') ?? '';
+
     if (settingsUidUser.trim() == '') {
       showMessage('В настройках не указан UID  пользователя!', context);
       return '';
@@ -783,6 +812,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     dataSettings["dateSending"] = DateTime.now().toIso8601String();
     dataSettings["uidUser"] = settingsUidUser;
     dataSettings["nameUser"] = settingsNameUser;
+    dataSettings["emailUser"] = settingsEmailUser;
 
     // Номер документов для которых надо получить номера из учетной системы
     // Наличие номера говорит о том, что запись была зарегистрирована
