@@ -58,6 +58,10 @@ class _ScreenItemIncomingCashOrderState
   TextEditingController textFieldOrderCustomerController =
       TextEditingController();
 
+  /// Поле ввода: Документ расчета
+  TextEditingController textFieldSettlementDocumentController =
+  TextEditingController();
+
   /// Поле ввода: Касса
   TextEditingController textFieldCashboxController = TextEditingController();
 
@@ -272,8 +276,7 @@ class _ScreenItemIncomingCashOrderState
           await dbReadOrderCustomerUID(widget.incomingCashOrder.uidParent);
       if (orderCustomer.id != 0) {
         if (orderCustomer.numberFrom1C != '') {
-          textFieldOrderCustomerController.text =
-              'Заказ № ' + orderCustomer.numberFrom1C;
+          textFieldOrderCustomerController.text = 'Заказ № ' + orderCustomer.numberFrom1C;
         } else {
           textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
@@ -287,6 +290,10 @@ class _ScreenItemIncomingCashOrderState
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text =
             widget.incomingCashOrder.nameParent;
+
+        // Наименование документа расчета
+        textFieldSettlementDocumentController.text =
+            widget.incomingCashOrder.nameSettlementDocument;
       }
     }
 
@@ -343,6 +350,7 @@ class _ScreenItemIncomingCashOrderState
         widget.incomingCashOrder.nameOrganization;
     textFieldPartnerController.text = widget.incomingCashOrder.namePartner;
     textFieldContractController.text = widget.incomingCashOrder.nameContract;
+    textFieldSettlementDocumentController.text = widget.incomingCashOrder.nameSettlementDocument;
     textFieldCurrencyController.text = widget.incomingCashOrder.nameCurrency;
     textFieldCashboxController.text = widget.incomingCashOrder.nameCashbox;
     textFieldSumController.text = doubleToString(widget.incomingCashOrder.sum);
@@ -376,6 +384,9 @@ class _ScreenItemIncomingCashOrderState
       widget.incomingCashOrder.nameContract = '';
       widget.incomingCashOrder.uidContract = '';
 
+      widget.incomingCashOrder.nameSettlementDocument = '';
+      widget.incomingCashOrder.uidSettlementDocument = '';
+
       textFieldCurrencyController.text = '';
       widget.incomingCashOrder.nameCurrency = '';
       widget.incomingCashOrder.uidCurrency = '';
@@ -388,6 +399,10 @@ class _ScreenItemIncomingCashOrderState
     // Проверка договора
     if (textFieldContractController.text.trim() == '') {
       textFieldCurrencyController.text = '';
+
+      widget.incomingCashOrder.nameSettlementDocument = '';
+      widget.incomingCashOrder.uidSettlementDocument = '';
+
       widget.incomingCashOrder.nameCurrency = '';
       widget.incomingCashOrder.uidCurrency = '';
     }
@@ -502,6 +517,15 @@ class _ScreenItemIncomingCashOrderState
                             incomingCashOrder: widget.incomingCashOrder)));
                 updateHeader();
               }),
+
+          /// Settlement document
+          TextFieldWithText(
+              textLabel: 'Документ расчета',
+              textEditingController: textFieldSettlementDocumentController,
+              onPressedEditIcon: null,
+              onPressedDeleteIcon: null,
+              onPressedDelete: () {},
+              onPressedEdit: () {}),
 
           /// Cashbox
           TextFieldWithText(

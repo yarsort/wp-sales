@@ -16,6 +16,8 @@ class ReturnOrderCustomerFields {
     uid,
     uidParent,
     nameParent,
+    uidSettlementDocument,
+    nameSettlementDocument,
     uidOrganization,
     nameOrganization,
     uidPartner,
@@ -46,6 +48,8 @@ class ReturnOrderCustomerFields {
   static const String uid = 'uid';// UID для 1С и связи с ТЧ
   static const String uidParent = 'uidParent';// UID для 1С и связи с главным документом
   static const String nameParent = 'nameParent';// Имя главного документа
+  static const String uidSettlementDocument = 'uidSettlementDocument'; // UID документа расчета
+  static const String nameSettlementDocument = 'nameSettlementDocument'; // Имя документа расчета
   static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
   static const String nameOrganization = 'nameOrganization';// Имя организации
   static const String uidPartner = 'uidPartner';// Ссылка на контрагента
@@ -109,7 +113,9 @@ Future createTableReturnOrderCustomer(db) async {
       ${ReturnOrderCustomerFields.date} $textType,
       ${ReturnOrderCustomerFields.uid} $textType,
       ${ReturnOrderCustomerFields.uidParent} $textType,
-      ${ReturnOrderCustomerFields.nameParent} $textType,      
+      ${ReturnOrderCustomerFields.nameParent} $textType,
+      ${ReturnOrderCustomerFields.uidSettlementDocument} $textType,
+      ${ReturnOrderCustomerFields.nameSettlementDocument} $textType,      
       ${ReturnOrderCustomerFields.uidOrganization} $textType,
       ${ReturnOrderCustomerFields.nameOrganization} $textType,
       ${ReturnOrderCustomerFields.uidPartner} $textType,

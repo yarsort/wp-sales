@@ -461,6 +461,21 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
     }
 
+    /// Долги по контрактам по документам расчета
+    if (jsonData['DeptsPartnersByDocuments'] != null) {
+      await dbDeleteAllPartnerDept();
+      countItem = 0;
+      for (var item in jsonData['DeptsPartnersByDocuments']) {
+        await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
+        countItem++;
+      }
+      // После записи документов, обновим записи по регистраторам без номера документа
+      listLogs.add('Взаиморасчеты по документам расчета: ' + countItem.toString() + ' шт');
+      setState(() {
+        _valueProgress = 0.55;
+      });
+    }
+
     /// Типы цен
     if (jsonData['Prices'] != null) {
       await dbDeleteAllPrice();

@@ -19,6 +19,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   List<Contract> listForPaymentContracts = [];
   double balance = 0.0;
   double balanceForPayment = 0.0;
+  int countNewOrderCustomer = 0;
+  int countSendOrderCustomer = 0;
 
   @override
   void initState() {
@@ -114,7 +116,6 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
       listForPaymentContracts.add(itemContract);
       limitCount--;
     }
-
     setState(() {});
   }
 
@@ -129,137 +130,275 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
   balanceCard() {
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(5),
-                  bottomRight: Radius.circular(5)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 2,
-                  offset: Offset(1, 1), // Shadow position
-                ),
-              ],
-            ),
-            height: 120,
-            width: MediaQuery.of(context).size.width / 2 - 22,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Color.fromRGBO(100, 181, 246, 1.0),
-                    borderRadius: BorderRadius.only(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5),
-                      // bottomLeft: Radius.circular(5),
-                      // bottomRight: Radius.circular(5)
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
                     ),
-                  ),
-                  height: 40,
-                  width: MediaQuery.of(context).size.width / 2 - 18,
-                  child: const Center(
-                    child: Text(
-                      'Баланс',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
+                  ],
                 ),
-                const Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-                    child: Icon(
-                      Icons.balance,
-                      color: Colors.blue,
+                height: 120,
+                width: MediaQuery.of(context).size.width / 2 - 22,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          // bottomLeft: Radius.circular(5),
+                          // bottomRight: Radius.circular(5)
+                        ),
+                      ),
+                      height: 35,
+                      width: MediaQuery.of(context).size.width / 2 - 18,
+                      child: const Center(
+                        child: Text(
+                          'Баланс',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: Icon(
+                          Icons.balance,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        '₴ ' + doubleToString(balance),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '₴ ' + doubleToString(balance),
-                    style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            ),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
+                    ),
+                  ],
+                ),
+                height: 120,
+                width: MediaQuery.of(context).size.width / 2 - 22,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          //bottomLeft: Radius.circular(5),
+                          //bottomRight: Radius.circular(5)
+                        ),
+                      ),
+                      height: 35,
+                      width: MediaQuery.of(context).size.width / 2 - 18,
+                      child: const Center(
+                        child: Text(
+                          'Баланс к оплате',
+                          style: TextStyle(fontSize: 16,color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: Icon(
+                          Icons.balance,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        '₴ ' + doubleToString(balanceForPayment),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
           ),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                  bottomLeft: Radius.circular(5),
-                  bottomRight: Radius.circular(5)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 2,
-                  offset: Offset(1, 1), // Shadow position
-                ),
-              ],
-            ),
-            height: 120,
-            width: MediaQuery.of(context).size.width / 2 - 22,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Color.fromRGBO(100, 181, 246, 1.0),
-                    borderRadius: BorderRadius.only(
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(7, 14, 7, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(5),
                       topRight: Radius.circular(5),
-                      //bottomLeft: Radius.circular(5),
-                      //bottomRight: Radius.circular(5)
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
                     ),
-                  ),
-                  height: 40,
-                  width: MediaQuery.of(context).size.width / 2 - 18,
-                  child: const Center(
-                    child: Text(
-                      'Баланс к оплате',
-                      style: TextStyle(fontSize: 16,color: Colors.white),
-                    ),
-                  ),
+                  ],
                 ),
-                const Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
-                    child: Icon(
-                      Icons.balance,
-                      color: Colors.red,
+                //height: 130,
+                width: MediaQuery.of(context).size.width / 2 - 22,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          // bottomLeft: Radius.circular(5),
+                          // bottomRight: Radius.circular(5)
+                        ),
+                      ),
+                      height: 35,
+                      width: MediaQuery.of(context).size.width / 2 - 18,
+                      child: const Center(
+                        child: Text(
+                          'Заказы',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 14, 7, 7),
+                      child: Text(
+                        '₴ ' + doubleToString(balanceForPayment),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 0, 7, 14),
+                      child: Text(
+                        countNewOrderCustomer.toString() + ' из ' + countSendOrderCustomer.toString(),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '₴ ' + doubleToString(balanceForPayment),
-                    style: const TextStyle(
-                        fontSize: 20,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
+                    ),
+                  ],
+                ),
+                //height: 120,
+                width: MediaQuery.of(context).size.width / 2 - 22,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          //bottomLeft: Radius.circular(5),
+                          //bottomRight: Radius.circular(5)
+                        ),
+                      ),
+                      height: 35,
+                      width: MediaQuery.of(context).size.width / 2 - 18,
+                      child: const Center(
+                        child: Text(
+                          'ПКО (оплаты)',
+                          style: TextStyle(fontSize: 16,color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 14, 7, 7),
+                      child: Text(
+                        '₴ ' + doubleToString(balanceForPayment),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 0, 7, 14),
+                      child: Text(
+                        countNewOrderCustomer.toString() + ' из ' + countSendOrderCustomer.toString(),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
     );
   }
 

@@ -2,6 +2,7 @@ export 'package:wp_sales/system/system.dart';
 export 'package:wp_sales/db/db_accum_partner_depts.dart';
 export 'package:wp_sales/db/db_accum_product_prices.dart';
 export 'package:wp_sales/db/db_accum_product_rests.dart';
+export 'package:wp_sales/db/db_inforg_return_percents.dart';
 export 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 export 'package:wp_sales/db/db_doc_order_customer.dart';
 export 'package:wp_sales/db/db_doc_return_order_customer.dart';

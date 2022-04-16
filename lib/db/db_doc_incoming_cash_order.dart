@@ -16,6 +16,8 @@ class IncomingCashOrderFields {
     uid,
     uidParent,
     nameParent,
+    uidSettlementDocument,
+    nameSettlementDocument,
     uidOrganization,
     nameOrganization,
     uidPartner,
@@ -41,6 +43,8 @@ class IncomingCashOrderFields {
   static const String uid = 'uid';// UID для 1С и связи с ТЧ
   static const String uidParent = 'uidParent';// UID для 1С и связи с главным документом
   static const String nameParent = 'nameParent';// Имя главного документа
+  static const String uidSettlementDocument = 'uidSettlementDocument'; // UID документа расчета
+  static const String nameSettlementDocument = 'nameSettlementDocument'; // Имя документа расчета
   static const String uidOrganization = 'uidOrganization';// Ссылка на организацию
   static const String nameOrganization = 'nameOrganization';// Имя организации
   static const String uidPartner = 'uidPartner';// Ссылка на контрагента
@@ -72,6 +76,8 @@ Future createTableIncomingCashOrder(db) async {
       ${IncomingCashOrderFields.uid} $textType,
       ${IncomingCashOrderFields.uidParent} $textType,
       ${IncomingCashOrderFields.nameParent} $textType,
+      ${IncomingCashOrderFields.uidSettlementDocument} $textType,
+      ${IncomingCashOrderFields.nameSettlementDocument} $textType,
       ${IncomingCashOrderFields.uidOrganization} $textType,
       ${IncomingCashOrderFields.nameOrganization} $textType,
       ${IncomingCashOrderFields.uidPartner} $textType,

@@ -6,6 +6,8 @@ class ReturnOrderCustomer {
   String uid = '';              // UID для 1С и связи с ТЧ
   String uidParent = '';        // UID заказа покупателя, по которому возврат
   String nameParent = '';       // Имя главного документа
+  String uidSettlementDocument = ''; // UID документа расчета
+  String nameSettlementDocument = ''; // Имя документа расчета
   String uidOrganization = '';  // Ссылка на организацию
   String nameOrganization = ''; // Имя организации
   String uidPartner = '';       // Ссылка на контрагента

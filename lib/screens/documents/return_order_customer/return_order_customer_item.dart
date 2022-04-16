@@ -67,6 +67,10 @@ class _ScreenItemReturnOrderCustomerState
   TextEditingController textFieldOrderCustomerController =
       TextEditingController();
 
+  /// Поле ввода: Документ расчета
+  TextEditingController textFieldSettlementDocumentController =
+  TextEditingController();
+
   /// Поле ввода: Тип цены
   TextEditingController textFieldPriceController = TextEditingController();
 
@@ -254,7 +258,7 @@ class _ScreenItemReturnOrderCustomerState
         if (orderCustomer.numberFrom1C != '') {
           textFieldOrderCustomerController.text = 'Заказ № ' + orderCustomer.numberFrom1C;
         } else {
-          textFieldOrderCustomerController.text = 'Заказ покупателя';
+          textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
 
         widget.returnOrderCustomer.uidOrganization = orderCustomer.uidOrganization;
@@ -322,6 +326,7 @@ class _ScreenItemReturnOrderCustomerState
     textFieldOrganizationController.text = widget.returnOrderCustomer.nameOrganization;
     textFieldPartnerController.text = widget.returnOrderCustomer.namePartner;
     textFieldContractController.text = widget.returnOrderCustomer.nameContract;
+    textFieldSettlementDocumentController.text = widget.returnOrderCustomer.nameSettlementDocument;
     textFieldPriceController.text = widget.returnOrderCustomer.namePrice;
     textFieldCurrencyController.text = widget.returnOrderCustomer.nameCurrency;
     textFieldWarehouseController.text = widget.returnOrderCustomer.nameWarehouse;
@@ -358,6 +363,9 @@ class _ScreenItemReturnOrderCustomerState
       widget.returnOrderCustomer.nameContract = '';
       widget.returnOrderCustomer.uidContract = '';
 
+      widget.returnOrderCustomer.nameSettlementDocument = '';
+      widget.returnOrderCustomer.uidSettlementDocument = '';
+
       textFieldPriceController.text = '';
       widget.returnOrderCustomer.namePrice = '';
       widget.returnOrderCustomer.uidPrice = '';
@@ -372,6 +380,10 @@ class _ScreenItemReturnOrderCustomerState
     // Проверка договора
     if (textFieldContractController.text.trim() == '') {
       textFieldPriceController.text = '';
+
+      widget.returnOrderCustomer.nameSettlementDocument = '';
+      widget.returnOrderCustomer.uidSettlementDocument = '';
+
       widget.returnOrderCustomer.namePrice = '';
       widget.returnOrderCustomer.uidPrice = '';
 
@@ -567,6 +579,15 @@ class _ScreenItemReturnOrderCustomerState
                             returnOrderCustomer: widget.returnOrderCustomer)));
                 updateHeader();
               }),
+
+          /// Settlement document
+          TextFieldWithText(
+              textLabel: 'Документ расчета',
+              textEditingController: textFieldSettlementDocumentController,
+              onPressedEditIcon: null,
+              onPressedDeleteIcon: null,
+              onPressedDelete: () {},
+              onPressedEdit: () {}),
 
           /// Price
           TextFieldWithText(
