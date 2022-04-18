@@ -32,7 +32,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   bool sunday = false;
 
   /// Поле ввода: Organization
-  TextEditingController textFieldOrganizationController = TextEditingController();
+  TextEditingController textFieldOrganizationController =
+      TextEditingController();
 
   /// Поле ввода: Partner
   TextEditingController textFieldPartnerController = TextEditingController();
@@ -169,7 +170,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.uid = const Uuid().v4();
     }
 
-    Organization organization = await dbReadOrganizationUID(widget.contractItem.uidOrganization);
+    Organization organization =
+        await dbReadOrganizationUID(widget.contractItem.uidOrganization);
     textFieldOrganizationController.text = organization.name;
 
     textFieldPartnerController.text = widget.contractItem.namePartner;
@@ -300,7 +302,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
       child: Column(
         children: [
-
           /// Organization
           TextFieldWithText(
               textLabel: 'Организация',
@@ -317,10 +318,12 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenOrganizationSelection(
-                          orderCustomer: orderCustomer,
-                        )));
-                widget.contractItem.uidOrganization = orderCustomer.uidOrganization;
-                textFieldOrganizationController.text = orderCustomer.nameOrganization;
+                              orderCustomer: orderCustomer,
+                            )));
+                widget.contractItem.uidOrganization =
+                    orderCustomer.uidOrganization;
+                textFieldOrganizationController.text =
+                    orderCustomer.nameOrganization;
 
                 setState(() {});
               }),
@@ -522,9 +525,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     });
                   },
                 ),
-                const Flexible(
-                    child: Text(
-                  'Продажа товаров запрещена!')),
+                const Flexible(child: Text('Продажа товаров запрещена!')),
               ],
             ),
           ),
@@ -542,9 +543,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     });
                   },
                 ),
-                const Flexible(
-                    child: Text(
-                  'Возврат товаров запрещен!')),
+                const Flexible(child: Text('Возврат товаров запрещен!')),
               ],
             ),
           ),
@@ -791,12 +790,23 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                         itemDept.uidOrganization;
                     newReturnOrderCustomer.uidPartner = itemDept.uidPartner;
                     newReturnOrderCustomer.uidContract = itemDept.uidContract;
-                    newReturnOrderCustomer.uidParent = itemDept.uidDoc;
 
-                    if (itemDept.numberDoc.isNotEmpty) {
-                      newReturnOrderCustomer.nameParent =
-                          itemDept.nameDoc + ' № ' + itemDept.numberDoc;
-                    }
+                    newReturnOrderCustomer.uidParent = itemDept.uidDoc;
+                    newReturnOrderCustomer.nameParent =
+                        itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                    newReturnOrderCustomer.uidSettlementDocument =
+                        itemDept.uidSettlementDocument;
+                    newReturnOrderCustomer.nameSettlementDocument =
+                        itemDept.nameSettlementDocument;
+
+                    // if (itemDept.uidDoc.isEmpty) {
+                    //   newReturnOrderCustomer.uidParent =
+                    //       itemDept.uidSettlementDocument;
+                    //   newReturnOrderCustomer.nameParent =
+                    //       itemDept.nameSettlementDocument +
+                    //           ' № ' +
+                    //           itemDept.numberDoc;
+                    // }
 
                     // Откроем форму документа
                     await Navigator.push(
@@ -818,10 +828,22 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     newIncomingCashOrder.uidContract = itemDept.uidContract;
                     newIncomingCashOrder.uidParent = itemDept.uidDoc;
 
-                    if (itemDept.numberDoc.isNotEmpty) {
-                      newIncomingCashOrder.nameParent =
-                          itemDept.nameDoc + ' № ' + itemDept.numberDoc;
-                    }
+                    newIncomingCashOrder.uidParent = itemDept.uidDoc;
+                    newIncomingCashOrder.nameParent =
+                        itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                    newIncomingCashOrder.uidSettlementDocument =
+                        itemDept.uidSettlementDocument;
+                    newIncomingCashOrder.nameSettlementDocument =
+                        itemDept.nameSettlementDocument;
+
+                    // if (itemDept.uidDoc.isEmpty) {
+                    //   newIncomingCashOrder.uidParent =
+                    //       itemDept.uidSettlementDocument;
+                    //   newIncomingCashOrder.nameParent =
+                    //       itemDept.nameSettlementDocument +
+                    //           ' № ' +
+                    //           itemDept.numberDoc;
+                    // }
 
                     if (itemDept.balance > 0) {
                       if (itemDept.balanceForPayment > 0) {
@@ -830,7 +852,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                         newIncomingCashOrder.sum = itemDept.balance;
                       }
                     } else {
-                      showMessage('Сумма баланса равна или меньше ноля!', context);
+                      showMessage(
+                          'Сумма баланса равна или меньше ноля!', context);
                       return;
                     }
 
@@ -878,26 +901,41 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   ),
                 ],
                 child: ListTile(
-                  title: Text(itemDept.nameDoc + ' № ' + itemDept.numberDoc),
+                  title: itemDept.nameDoc != ''
+                      ? Text(itemDept.nameDoc)
+                      : const Text('Нет данных заказа'),
                   subtitle: Column(
                     children: [
                       const Divider(),
+                      Row(children: [
+                        Flexible(child: Text(itemDept.nameSettlementDocument)),
+                      ]),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.person,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: Text(widget.contractItem.namePartner)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.home, color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: widget.contractItem.address != ''
+                                  ? Text(widget.contractItem.address)
+                                  : const Text('Адрес не указан')),
+                        ],
+                      ),
                       Row(children: [
                         Expanded(
                           flex: 4,
                           child: Column(
                             children: [
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.person,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Flexible(
-                                      child: Text(
-                                          widget.contractItem.namePartner)),
-                                ],
-                              ),
                               const SizedBox(height: 5),
                               Row(
                                 children: [
@@ -910,13 +948,13 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                               const SizedBox(height: 5),
                               Row(
                                 children: [
-                                  const Icon(Icons.home,
+                                  const Icon(Icons.schedule,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Flexible(
-                                      child: Text(widget.contractItem.address)),
+                                  Text(widget.contractItem.schedulePayment
+                                      .toString() + ' дней'),
                                 ],
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -940,16 +978,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                   const SizedBox(width: 5),
                                   Text(doubleToString(
                                       itemDept.balanceForPayment)),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.schedule,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(widget.contractItem.schedulePayment
-                                      .toString()),
                                 ],
                               ),
                             ],

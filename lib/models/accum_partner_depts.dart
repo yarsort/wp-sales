@@ -7,6 +7,8 @@ class AccumPartnerDept {
   String uidContract = '';
   String uidDoc = '';
   String nameDoc = '';
+  String uidSettlementDocument = '';
+  String nameSettlementDocument = '';
   String numberDoc = '';
   DateTime dateDoc = DateTime(1900, 1, 1);
   double balanceForPayment = 0.0;
@@ -22,8 +24,10 @@ class AccumPartnerDept {
     uidContract = json["uidContract"]??'';
     uidDoc = json["uidDoc"]??'';
     nameDoc = json["nameDoc"]??'';
+    uidSettlementDocument = json["uidSettlementDocument"]??'';
+    nameSettlementDocument = json["nameSettlementDocument"]??'';
     numberDoc = json["numberDoc"]??'';
-    dateDoc = DateTime.parse(json['dateDoc']);
+    dateDoc = DateTime.parse(json['dateDoc']??'1900-01-01');
     balanceForPayment = json["balanceForPayment"].toDouble()??0.0;
     balance = json["balance"].toDouble()??0.0;
   }
@@ -39,6 +43,8 @@ class AccumPartnerDept {
     data['uidContract'] = uidContract;
     data['uidDoc'] = uidDoc;
     data['nameDoc'] = nameDoc;
+    data['uidSettlementDocument'] = uidSettlementDocument;
+    data['nameSettlementDocument'] = nameSettlementDocument;
     data['numberDoc'] = numberDoc;
     data['dateDoc'] = dateDoc.toIso8601String();
     data['balance'] = balance;

@@ -15,6 +15,8 @@ class ItemAccumPartnerDeptFields {
     uidContract,
     uidDoc,
     nameDoc,
+    uidSettlementDocument,
+    nameSettlementDocument,
     numberDoc,
     dateDoc,
     balance,
@@ -30,6 +32,8 @@ class ItemAccumPartnerDeptFields {
   static const String uidContract = 'uidContract';
   static const String uidDoc = 'uidDoc';
   static const String nameDoc = 'nameDoc';
+  static const String uidSettlementDocument = 'uidSettlementDocument';
+  static const String nameSettlementDocument = 'nameSettlementDocument';
   static const String numberDoc = 'numberDoc';
   static const String dateDoc = 'dateDoc';
   static const String balance = 'balance';
@@ -47,6 +51,8 @@ Future createTableAccumPartnerDebts(db) async {
       ${ItemAccumPartnerDeptFields.uidContract} $textType,      
       ${ItemAccumPartnerDeptFields.uidDoc} $textType,
       ${ItemAccumPartnerDeptFields.nameDoc} $textType,
+      ${ItemAccumPartnerDeptFields.uidSettlementDocument} $textType,
+      ${ItemAccumPartnerDeptFields.nameSettlementDocument} $textType,
       ${ItemAccumPartnerDeptFields.numberDoc} $textType,
       ${ItemAccumPartnerDeptFields.dateDoc} $textType,      
       ${ItemAccumPartnerDeptFields.balance} $realType,

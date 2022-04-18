@@ -1057,7 +1057,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                 subtitle: Column(
                   children: [
                     const Divider(),
-
                     Row(
                       children: [
                         const Icon(Icons.fact_check,
@@ -1072,7 +1071,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                         const Icon(Icons.recent_actors,
                             color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Text(incomingCashOrder.nameContract),
+                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1105,6 +1104,14 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                               ),
                             ],
                           ))
+                    ]),
+                    const SizedBox(height: 5),
+                    if (incomingCashOrder.comment != '') Row(
+                        children: [
+                      const Icon(Icons.text_fields,
+                          color: Colors.blue, size: 20),
+                      const SizedBox(width: 5),
+                      Text(incomingCashOrder.comment),
                     ]),
                   ],
                 ),
@@ -1221,6 +1228,14 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             ],
                           ))
                     ]),
+                    const SizedBox(height: 5),
+                    if (incomingCashOrder.comment != '') Row(
+                        children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(incomingCashOrder.comment),
+                        ]),
                   ],
                 ),
               ),
@@ -1293,6 +1308,14 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             ],
                           ))
                     ]),
+                    const SizedBox(height: 5),
+                    if (incomingCashOrder.comment != '') Row(
+                        children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(incomingCashOrder.comment),
+                        ]),
                   ],
                 ),
               ),

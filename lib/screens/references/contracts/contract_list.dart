@@ -327,6 +327,8 @@ class _ContractItemState extends State<ContractItem> {
     balance = debts['balance'];
     balanceForPayment = debts['balanceForPayment'];
 
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 }

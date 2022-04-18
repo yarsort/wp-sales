@@ -1275,6 +1275,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             ],
                           ))
                     ]),
+                    const SizedBox(height: 5),
+                    if (orderCustomer.comment != '') Row(
+                        children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(orderCustomer.comment),
+                        ]),
                   ],
                 ),
               ),
@@ -1410,6 +1418,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             ],
                           ))
                     ]),
+                    const SizedBox(height: 5),
+                    if (orderCustomer.comment != '') Row(
+                        children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(orderCustomer.comment),
+                        ]),
                   ],
                 ),
               ),
@@ -1505,6 +1521,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             ],
                           ))
                     ]),
+                    const SizedBox(height: 5),
+                    if (orderCustomer.comment != '') Row(
+                        children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(orderCustomer.comment),
+                        ]),
                   ],
                 ),
               ),

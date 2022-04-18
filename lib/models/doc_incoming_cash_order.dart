@@ -34,6 +34,8 @@ class IncomingCashOrder {
     uid = json['uid'] ?? '';
     uidParent = json['uidParent'] ?? '';
     nameParent = json['nameParent'] ?? '';
+    uidSettlementDocument = json['uidSettlementDocument'] ?? '';
+    nameSettlementDocument = json['nameSettlementDocument'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
     nameOrganization = json['nameOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
@@ -62,6 +64,8 @@ class IncomingCashOrder {
     data['uid'] = uid;
     data['uidParent'] = uidParent;
     data['nameParent'] = nameParent;
+    data['uidSettlementDocument'] = uidSettlementDocument;
+    data['nameSettlementDocument'] = nameSettlementDocument;
     data['uidOrganization'] = uidOrganization;
     data['nameOrganization'] = nameOrganization;
     data['uidPartner'] = uidPartner;

@@ -290,12 +290,12 @@ class _ScreenItemIncomingCashOrderState
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text =
             widget.incomingCashOrder.nameParent;
-
-        // Наименование документа расчета
-        textFieldSettlementDocumentController.text =
-            widget.incomingCashOrder.nameSettlementDocument;
       }
     }
+
+    // Наименование документа расчета
+    textFieldSettlementDocumentController.text =
+        widget.incomingCashOrder.nameSettlementDocument;
 
     // Заполняем значениями из настроек (по-умолчанию)
     final SharedPreferences prefs = await _prefs;
