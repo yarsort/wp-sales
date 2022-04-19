@@ -183,6 +183,15 @@ Future<List<Contract>> dbReadForPaymentContracts({int limit = 10}) async {
   return result.map((json) => Contract.fromJson(json)).toList();
 }
 
+Future<List<Contract>> dbReadContractsByUID(
+    listContractUID) async {
+  final db = await instance.database;
+  final result = await db.query(tableContract,
+      where:
+      'uid IN (${listContractUID.map((e) => "'$e'").join(', ')})');
+  return result.map((json) => Contract.fromJson(json)).toList();
+}
+
 Future<int> dbGetCountContract() async {
   final db = await instance.database;
   var result = Sqflite.firstIntValue(

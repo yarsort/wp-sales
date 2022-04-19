@@ -18,6 +18,8 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool deniedEditWarehouses = false;
+
   List<Warehouse> tempItems = [];
   List<Warehouse> listWarehouses = [];
 
@@ -40,7 +42,7 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedEditWarehouses ? FloatingActionButton(
         onPressed: () async {
           var newItem = Warehouse();
           await Navigator.push(
@@ -58,7 +60,7 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -66,6 +68,9 @@ class _ScreenWarehouseListState extends State<ScreenWarehouseList> {
 
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditWarehouses = prefs.getBool('settings_deniedEditWarehouses') ?? false;
 
     // Очистка списка заказов покупателя
     listWarehouses.clear();

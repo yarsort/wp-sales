@@ -121,6 +121,22 @@ Future<Product> dbReadProductUID(String uid) async {
   }
 }
 
+Future<Product> dbReadProductByBarcode(String barcode) async {
+  final db = await instance.database;
+  final maps = await db.query(
+    tableProduct,
+    columns: ItemProductFields.values,
+    where: '${ItemProductFields.barcode} = ?',
+    whereArgs: [barcode],
+  );
+
+  if (maps.isNotEmpty) {
+    return Product.fromJson(maps.first);
+  } else {
+    return Product();
+  }
+}
+
 Future<List<Product>> dbReadAllProducts() async {
   final db = await instance.database;
   const orderBy = '${ItemProductFields.name} ASC';

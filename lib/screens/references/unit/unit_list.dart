@@ -18,6 +18,8 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool deniedEditUnits = false;
+
   List<Unit> tempItems = [];
   List<Unit> listUnit = [];
 
@@ -40,7 +42,7 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedEditUnits ? FloatingActionButton(
         onPressed: () async {
           var newItem = Unit();
           await Navigator.push(
@@ -56,13 +58,16 @@ class _ScreenUnitListState extends State<ScreenUnitList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
   void renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditUnits = prefs.getBool('settings_deniedEditUnits') ?? false;
 
     // Очистка списка заказов покупателя
     listUnit.clear();

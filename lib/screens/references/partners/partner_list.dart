@@ -18,6 +18,8 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool deniedEditPartners = false;
+
   List<Partner> tempItems = [];
   List<Partner> listPartners = [];
 
@@ -40,7 +42,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedEditPartners ? FloatingActionButton(
         onPressed: () async {
           var newItem = Partner();
           await Navigator.push(
@@ -58,13 +60,16 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
   void renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditPartners = prefs.getBool('settings_deniedEditPartners') ?? false;
 
     // Очистка списка заказов покупателя
     listPartners.clear();

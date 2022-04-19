@@ -18,6 +18,8 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool deniedEditOrganizations = false;
+
   List<Organization> tempItems = [];
   List<Organization> listOrganizations = [];
 
@@ -40,7 +42,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedEditOrganizations ? FloatingActionButton(
         onPressed: () async {
           var newItem = Organization();
           await Navigator.push(
@@ -59,7 +61,7 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -75,6 +77,9 @@ class _ScreenOrganizationListState extends State<ScreenOrganizationList> {
   void renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditOrganizations = prefs.getBool('settings_deniedEditOrganizations') ?? false;
 
     // Очистка списка заказов покупателя
     listOrganizations.clear();

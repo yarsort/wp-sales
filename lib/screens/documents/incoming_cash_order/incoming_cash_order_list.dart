@@ -1274,7 +1274,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                         const Icon(Icons.recent_actors,
                             color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Text(incomingCashOrder.nameContract),
+                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),

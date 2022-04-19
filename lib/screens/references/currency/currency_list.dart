@@ -18,6 +18,8 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool deniedEditCurrency = false;
+
   List<Currency> tempItems = [];
   List<Currency> listCurrency = [];
 
@@ -40,7 +42,7 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedEditCurrency ? FloatingActionButton(
         onPressed: () async {
           var newItem = Currency();
           await Navigator.push(
@@ -58,13 +60,16 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
   void renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditCurrency = prefs.getBool('settings_deniedEditCurrency') ?? false;
 
     // Очистка списка заказов покупателя
     listCurrency.clear();

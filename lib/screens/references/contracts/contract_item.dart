@@ -942,7 +942,10 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                   const Icon(Icons.phone,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(widget.contractItem.phone),
+                                  Flexible(
+                                      child: widget.contractItem.phone != ''
+                                          ? Text(widget.contractItem.phone)
+                                          : const Text('Телефон не указан')),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -952,7 +955,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(widget.contractItem.schedulePayment
-                                      .toString() + ' дней'),
+                                      .toString() + ' дня(ей) отсрочки'),
                                 ],
                               ),
                             ],

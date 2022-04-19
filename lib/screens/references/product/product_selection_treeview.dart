@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
@@ -33,6 +35,8 @@ class ScreenProductSelectionTreeView extends StatefulWidget {
 class _ScreenProductSelectionTreeViewState
     extends State<ScreenProductSelectionTreeView> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  bool loadingData = false;
 
   bool showProductHierarchy = true;
 
@@ -70,6 +74,8 @@ class _ScreenProductSelectionTreeViewState
 
   // Текущий выбранный каталог иерархии товаров
   Product parentProduct = Product();
+
+  String? barcode;
 
   @override
   void initState() {
@@ -115,7 +121,9 @@ class _ScreenProductSelectionTreeViewState
               physics: const BouncingScrollPhysics(),
               children: [
                 searchTextFieldCatalog(),
-                listViewCatalogTree(),
+                !loadingData ? listViewCatalogTree() : const Center(
+                  child: CircularProgressIndicator(),
+                ),
               ],
             ),
             ListView(
@@ -134,11 +142,50 @@ class _ScreenProductSelectionTreeViewState
     );
   }
 
+  Future<void> scanBarcodeNormal() async {
+    String barcodeScanRes;
+
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      debugPrint(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      barcode = barcodeScanRes;
+    });
+
+    Product productItem = await dbReadProductByBarcode(barcodeScanRes);
+    if (productItem.id != 0) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScreenAddItem(
+              listItemDoc: widget.listItemDoc,
+              orderCustomer: widget.orderCustomer,
+              returnOrderCustomer: widget.returnOrderCustomer,
+              listItemReturnDoc: widget.listItemReturnDoc,
+              product: productItem),
+        ),
+      );
+    } else {
+      showMessage('Товар с штрихкодом: ' + barcodeScanRes + ' не найден!');
+    }
+  }
+
   showMessage(String textMessage) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(textMessage),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -146,6 +193,10 @@ class _ScreenProductSelectionTreeViewState
   void renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData')!;
+
+    setState(() {
+      loadingData = true;
+    });
 
     // Главный каталог всегда будет стаким идентификатором
     if (parentProduct.uid == '') {
@@ -238,7 +289,9 @@ class _ScreenProductSelectionTreeViewState
     /// Получим остатки и цены по найденным товарам
     await readPriceAndRests();
 
-    setState(() {});
+    setState(() {
+      loadingData = false;
+    });
   }
 
   readPriceAndRests() async {
@@ -400,17 +453,54 @@ class _ScreenProductSelectionTreeViewState
                 },
                 icon: const Icon(Icons.delete, color: Colors.red),
               ),
-              IconButton(
-                onPressed: () async {
-                  setState(() {
-                    showProductHierarchy = !showProductHierarchy;
-                    parentProduct = Product();
-                    treeParentItems.clear();
-                    textFieldSearchCatalogController.text = '';
-                  });
-                  renewItem();
+              PopupMenuButton<String>(
+                onSelected: (String value) async {
+                  if (value == 'showProductHierarchy') {
+                    setState(() {
+                      showProductHierarchy = !showProductHierarchy;
+                      parentProduct = Product();
+                      treeParentItems.clear();
+                      textFieldSearchCatalogController.text = '';
+                    });
+                    renewItem();
+                  }
+                  if (value == 'scanProduct') {
+                    scanBarcodeNormal();
+                  }
                 },
-                icon: const Icon(Icons.source, color: Colors.blue),
+                icon: const Icon(Icons.more_vert, color: Colors.blue),
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'showProductHierarchy',
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.source,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('Выключить иерархию'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'scanProduct',
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.qr_code_scanner,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('Сканировать товар'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

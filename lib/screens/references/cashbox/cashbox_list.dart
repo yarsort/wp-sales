@@ -15,6 +15,8 @@ class ScreenCashboxList extends StatefulWidget {
 class _ScreenCashboxListState extends State<ScreenCashboxList> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  bool deniedEditCashboxes = false;
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -40,7 +42,7 @@ class _ScreenCashboxListState extends State<ScreenCashboxList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedEditCashboxes ? FloatingActionButton(
         onPressed: () async {
           var newItem = Cashbox();
           await Navigator.push(
@@ -58,7 +60,7 @@ class _ScreenCashboxListState extends State<ScreenCashboxList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -66,6 +68,9 @@ class _ScreenCashboxListState extends State<ScreenCashboxList> {
 
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditCashboxes = prefs.getBool('settings_deniedEditCashboxes') ?? false;
 
     // Очистка списка заказов покупателя
     listCashboxes.clear();

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/models/ref_contract.dart';
+import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
 
@@ -15,6 +15,13 @@ class ScreenContractList extends StatefulWidget {
 
 class _ScreenContractListState extends State<ScreenContractList> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  bool loadingItems = false;
+
+  // Флаг отображения списка контрактов с балансом
+  bool onlyWithBalance = false;
+
+  bool deniedEditContracts = false;
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
@@ -41,32 +48,44 @@ class _ScreenContractListState extends State<ScreenContractList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var newItem = Contract();
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ScreenContractItem(contractItem: newItem),
-            ),
-          );
-          setState(() {
-            renewItem();
-          });
-        },
-        tooltip: 'Добавить договор',
-        child: const Text(
-          "+",
-          style: TextStyle(fontSize: 25),
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButton: deniedEditContracts
+          ? FloatingActionButton(
+              onPressed: () async {
+                var newItem = Contract();
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ScreenContractItem(contractItem: newItem),
+                  ),
+                );
+                setState(() {
+                  renewItem();
+                });
+              },
+              tooltip: 'Добавить договор',
+              child: const Text(
+                "+",
+                style: TextStyle(fontSize: 25),
+              ),
+            )
+          : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
   void renewItem() async {
 
+    setState(() {
+      loadingItems = true;
+    });
+
     final SharedPreferences prefs = await _prefs;
+
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedEditContracts =
+        prefs.getBool('settings_deniedEditContracts') ?? false;
 
     // Очистка списка заказов покупателя
     listContracts.clear();
@@ -79,12 +98,35 @@ class _ScreenContractListState extends State<ScreenContractList> {
         listContracts.add(newItem);
       }
     } else {
-      listContracts = await dbReadAllContracts();
+      // Показать только с балансами
+      if (onlyWithBalance) {
+        List<AccumPartnerDept> listAccumPartnerDept = await dbReadAllAccumPartnerDept();
+        List listContractUID = [];
+        for (var partnerDebts in listAccumPartnerDept) {
+          // Если контракта нет в списке
+          if (!listContractUID.contains(partnerDebts.uidContract)) {
+            listContractUID.add(partnerDebts.uidContract);
+          }
+        }
+        listContracts = await dbReadContractsByUID(listContractUID);
+
+      } else {
+        listContracts = await dbReadAllContracts();
+      }
+
     }
+
+    listContracts.sort((a, b) => a.name.compareTo(b.name));
 
     tempItems.addAll(listContracts);
 
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        loadingItems = false;
+      });
+    } else {
+      loadingItems = false;
+    }
   }
 
   void filterSearchResults(String query) {
@@ -107,8 +149,13 @@ class _ScreenContractListState extends State<ScreenContractList> {
       List<Contract> dummyListData = <Contract>[];
 
       for (var item in dummySearchList) {
-        /// Поиск по имени партнера
+        /// Поиск по имени контракта
         if (item.name.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+
+        /// Поиск по имени партнера
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
           dummyListData.add(item);
         }
 
@@ -138,44 +185,64 @@ class _ScreenContractListState extends State<ScreenContractList> {
   searchTextField() {
     var validateSearch = false;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
-      child: TextField(
-        onChanged: (String value) {
-          filterSearchResults(value);
-        },
-        controller: textFieldSearchController,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-          border: const OutlineInputBorder(),
-          labelStyle: const TextStyle(
-            color: Colors.blueGrey,
-          ),
-          labelText: 'Поиск',
-          errorText: validateSearch ? 'Вы не указали строку поиска!' : null,
-          suffixIcon: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: () async {
-                  var value = textFieldSearchController.text;
-                  filterSearchResults(value);
-                },
-                icon: const Icon(Icons.search, color: Colors.blue),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+          child: TextField(
+            onChanged: (String value) {
+              filterSearchResults(value);
+            },
+            controller: textFieldSearchController,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: const OutlineInputBorder(),
+              labelStyle: const TextStyle(
+                color: Colors.blueGrey,
               ),
-              IconButton(
-                onPressed: () async {
-                  textFieldSearchController.text = '';
-                  var value = textFieldSearchController.text;
-                  filterSearchResults(value);
-                },
-                icon: const Icon(Icons.delete, color: Colors.red),
+              labelText: 'Поиск',
+              errorText: validateSearch ? 'Вы не указали строку поиска!' : null,
+              suffixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      var value = textFieldSearchController.text;
+                      filterSearchResults(value);
+                    },
+                    icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldSearchController.text = '';
+                      var value = textFieldSearchController.text;
+                      filterSearchResults(value);
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: onlyWithBalance,
+                  onChanged: (value) {
+                    setState(() {
+                      onlyWithBalance = !onlyWithBalance;
+                      renewItem();
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Только с балансом')),
+              ],
+            )),
+      ],
     );
   }
 
@@ -183,16 +250,18 @@ class _ScreenContractListState extends State<ScreenContractList> {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
-        child: ListView.builder(
+        child: !loadingItems ? ListView.builder(
           shrinkWrap: true,
           itemCount: listContracts.length,
           itemBuilder: (context, index) {
             var contractItem = listContracts[index];
             return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: ContractItem(contractItem: contractItem));
+                child: ContractItem(
+                  contractItem: contractItem,
+                ));
           },
-        ),
+        ) : const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -201,7 +270,9 @@ class _ScreenContractListState extends State<ScreenContractList> {
 class ContractItem extends StatefulWidget {
   final Contract contractItem;
 
-  const ContractItem({Key? key, required this.contractItem}) : super(key: key);
+  const ContractItem(
+      {Key? key, required this.contractItem})
+      : super(key: key);
 
   @override
   State<ContractItem> createState() => _ContractItemState();
@@ -219,6 +290,10 @@ class _ContractItemState extends State<ContractItem> {
 
   @override
   Widget build(BuildContext context) {
+    return cardContract();
+  }
+
+  cardContract() {
     return Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         child: Card(
@@ -250,8 +325,7 @@ class _ContractItemState extends State<ContractItem> {
                                   color: Colors.blue, size: 20),
                               const SizedBox(width: 5),
                               Flexible(
-                                  child:
-                                  Text(widget.contractItem.namePartner)),
+                                  child: Text(widget.contractItem.namePartner)),
                             ],
                           ),
                           const SizedBox(height: 5),
@@ -285,8 +359,7 @@ class _ContractItemState extends State<ContractItem> {
                               const Icon(Icons.price_change,
                                   color: Colors.green, size: 20),
                               const SizedBox(width: 5),
-                              Text(
-                                  doubleToString(balance)),
+                              Text(doubleToString(balance)),
                             ],
                           ),
                           const SizedBox(height: 5),
@@ -321,13 +394,14 @@ class _ContractItemState extends State<ContractItem> {
 
   renewDataContract() async {
     // Получить баланс заказа
-    Map debts = await dbReadSumAccumPartnerDeptByContract(uidContract: widget.contractItem.uid);
+    Map debts = await dbReadSumAccumPartnerDeptByContract(
+        uidContract: widget.contractItem.uid);
 
     // Запись в реквизиты
     balance = debts['balance'];
     balanceForPayment = debts['balanceForPayment'];
 
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
   }
