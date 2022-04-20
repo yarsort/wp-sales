@@ -342,20 +342,20 @@ Future<int> dbGetCountOrderCustomer() async {
 Future<int> dbGetCountNewOrderCustomer() async {
   final db = await instance.database;
   final result = await db.query(tableOrderCustomer,
-      where: '${OrderCustomerFields.status} = ?', whereArgs: [0]);
+      where: '${OrderCustomerFields.status} = ?', whereArgs: [1]);
   return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
 }
 
 Future<int> dbGetCountSendOrderCustomer() async {
   final db = await instance.database;
   final result = await db.query(tableOrderCustomer,
-      where: '${OrderCustomerFields.status} = ?', whereArgs: [1]);
+      where: '${OrderCustomerFields.status} = ?', whereArgs: [2]);
   return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
 }
 
 Future<int> dbGetCountTrashOrderCustomer() async {
   final db = await instance.database;
   final result = await db.query(tableOrderCustomer,
-      where: '${OrderCustomerFields.status} = ?', whereArgs: [2]);
+      where: '${OrderCustomerFields.status} = ?', whereArgs: [3]);
   return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
 }

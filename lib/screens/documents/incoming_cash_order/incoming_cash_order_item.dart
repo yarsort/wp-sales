@@ -127,7 +127,7 @@ class _ScreenItemIncomingCashOrderState
                           onPressed: () async {
                             var result = await saveDocument();
                             if (result) {
-                              showMessage('Запись сохранена!');
+                              showMessage('Запись сохранена!', context);
                               Navigator.of(context).pop(true);
                             }
                           },
@@ -186,25 +186,6 @@ class _ScreenItemIncomingCashOrderState
     );
   }
 
-  showMessageError(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   readBalance() async {
     // Получить баланс заказа
     Map debts = await dbReadSumAccumPartnerDeptByContractDoc(
@@ -217,8 +198,13 @@ class _ScreenItemIncomingCashOrderState
         doubleToString(debts['balanceForPayment']);
   }
 
-  saveDocument() async {
+  Future<bool> saveDocument() async {
     try {
+      if (widget.incomingCashOrder.status == 2) {
+        showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
+        return false;
+      }
+
       if (widget.incomingCashOrder.id != 0) {
         // Обновим объект документа
         await dbUpdateIncomingCashOrder(widget.incomingCashOrder);
@@ -239,13 +225,13 @@ class _ScreenItemIncomingCashOrderState
         return true;
       }
     } on Exception catch (error) {
-      showMessage('Ошибка записи документа!');
+      showMessage('Ошибка записи документа!', context);
       debugPrint(error.toString());
       return false;
     }
   }
 
-  deleteDocument() async {
+  Future<bool> deleteDocument() async {
     try {
       if (widget.incomingCashOrder.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
@@ -682,7 +668,7 @@ class _ScreenItemIncomingCashOrderState
                       onPressed: () async {
                         var result = await saveDocument();
                         if (result) {
-                          showMessage('Запись сохранена!');
+                          showMessage('Запись сохранена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -711,7 +697,7 @@ class _ScreenItemIncomingCashOrderState
                       onPressed: () async {
                         var result = await deleteDocument();
                         if (result) {
-                          showMessage('Запись отправлена в корзину!');
+                          showMessage('Запись отправлена в корзину!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -902,7 +888,7 @@ class _ScreenItemIncomingCashOrderState
                       onPressed: () async {
                         var result = await deleteDocument();
                         if (result) {
-                          showMessage('Запись удалена!');
+                          showMessage('Запись удалена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },

@@ -420,6 +420,11 @@ class _ScreenItemReturnOrderCustomerState
 
   Future<bool> saveDoc() async {
     try {
+      if (widget.returnOrderCustomer.status == 2) {
+        showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
+        return false;
+      }
+
       /// Сумма товаров в заказе
       ReturnOrderCustomer()
           .allSum(widget.returnOrderCustomer, itemsReturnOrder);

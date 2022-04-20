@@ -141,7 +141,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           onPressed: () async {
                             var result = await saveDocument();
                             if (result) {
-                              showMessage('Запись сохранена!');
+                              showMessage('Запись сохранена!', context);
                               Navigator.of(context).pop(true);
                             }
                           },
@@ -267,6 +267,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         shortDateToString(widget.orderCustomer.dateSendingTo1C);
     textFieldNumberFrom1CController.text = widget.orderCustomer.numberFrom1C;
 
+    sendYesTo1C = widget.orderCustomer.status == 2;
+
     // Проверка Организации
     if ((textFieldPartnerController.text.trim() == '') ||
         (textFieldOrganizationController.text.trim() == '')) {
@@ -301,25 +303,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     setState(() {
       countChangeDoc++;
     });
-  }
-
-  showMessageError(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   nameGroup({String nameGroup = '', bool hideDivider = false}) {
@@ -386,8 +369,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     setState(() {});
   }
 
-  saveDocument() async {
+  Future<bool> saveDocument() async {
     try {
+      if (widget.orderCustomer.status == 2) {
+        showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
+        return false;
+      }
+
       /// Сумма товаров в заказе
       OrderCustomer().allSum(widget.orderCustomer, itemsOrder);
 
@@ -402,13 +390,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         return true;
       }
     } on Exception catch (error) {
-      showMessage('Ошибка записи документа!');
+      showMessage('Ошибка записи документа!', context);
       debugPrint(error.toString());
       return false;
     }
   }
 
-  deleteDocument() async {
+  Future<bool> deleteDocument() async {
     try {
       if (widget.orderCustomer.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
@@ -484,7 +472,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               },
               onPressedEdit: () async {
                 if(widget.orderCustomer.uidOrganization.isEmpty){
-                  showMessageError('Организация не выбрана!');
+                  showErrorMessage('Организация не выбрана!', context);
                   return;
                 }
                 await Navigator.push(
@@ -511,7 +499,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               },
               onPressedEdit: () async {
                 if(widget.orderCustomer.uidPartner.isEmpty){
-                  showMessageError('Партнер не выбран!');
+                  showErrorMessage('Партнер не выбран!', context);
                   return;
                 }
                 await Navigator.push(
@@ -701,7 +689,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       onPressed: () async {
                         var result = await saveDocument();
                         if (result) {
-                          showMessage('Запись сохранена!');
+                          showMessage('Запись сохранена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -730,7 +718,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       onPressed: () async {
                         var result = await deleteDocument();
                         if (result) {
-                          showMessage('Запись отправлена в корзину!');
+                          showMessage('Запись отправлена в корзину!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -779,24 +767,28 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                         backgroundColor:
                             MaterialStateProperty.all(Colors.blue)),
                     onPressed: () async {
+                      if (widget.orderCustomer.status == 2) {
+                        showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
+                        return;
+                      }
                       if (widget.orderCustomer.nameOrganization == '') {
-                        showMessageError('Организация не заполнена!');
+                        showErrorMessage('Организация не заполнена!', context);
                         return;
                       }
                       if (widget.orderCustomer.namePartner == '') {
-                        showMessageError('Партнер не заполнен!');
+                        showErrorMessage('Партнер не заполнен!', context);
                         return;
                       }
                       if (widget.orderCustomer.nameContract == '') {
-                        showMessageError('Контракт не заполнен!');
+                        showErrorMessage('Контракт не заполнен!', context);
                         return;
                       }
                       if (widget.orderCustomer.namePrice == '') {
-                        showMessageError('Тип цены не заполнен!');
+                        showErrorMessage('Тип цены не заполнен!', context);
                         return;
                       }
                       if (widget.orderCustomer.nameWarehouse == '') {
-                        showMessageError('Склад не заполнен!');
+                        showErrorMessage('Склад не заполнен!', context);
                         return;
                       }
 
@@ -992,7 +984,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               child: Card(
                 elevation: 3,
                 child: ListTile(
-                  //tileColor: Colors.cyan[50],
                   onTap: () async {
                     if (item.runtimeType == IncomingCashOrder) {
                       await Navigator.push(
@@ -1085,30 +1076,30 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               PopupMenuButton<String>(
                 onSelected: (String value) async {
                   if (widget.orderCustomer.nameOrganization == '') {
-                    showMessageError('Организация не заполнена!');
+                    showErrorMessage('Организация не заполнена!', context);
                     return;
                   }
                   if (widget.orderCustomer.namePartner == '') {
-                    showMessageError('Партнер не заполнен!');
+                    showErrorMessage('Партнер не заполнен!', context);
                     return;
                   }
                   if (widget.orderCustomer.nameContract == '') {
-                    showMessageError('Контракт не заполнен!');
+                    showErrorMessage('Контракт не заполнен!', context);
                     return;
                   }
                   if (widget.orderCustomer.namePrice == '') {
-                    showMessageError('Тип цены не заполнен!');
+                    showErrorMessage('Тип цены не заполнен!', context);
                     return;
                   }
                   if (widget.orderCustomer.nameWarehouse == '') {
-                    showMessageError('Склад не заполнен!');
+                    showErrorMessage('Склад не заполнен!', context);
                     return;
                   }
 
                   if (value == 'return_order_customer') {
                     // Проверим что бы заказ был записан!
                     if (widget.orderCustomer.id == 0) {
-                      showMessageError('Заказ не записан!');
+                      showErrorMessage('Заказ не записан!', context);
                       return;
                     }
 
@@ -1127,7 +1118,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   if (value == 'incoming_cash_order') {
                     // Проверим что бы заказ был записан!
                     if (widget.orderCustomer.id == 0) {
-                      showMessageError('Заказ не записан!');
+                      showErrorMessage('Заказ не записан!', context);
                       return;
                     }
 
@@ -1346,7 +1337,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                         onPressed: () async {
                           var result = await deleteDocument();
                           if (result) {
-                            showMessage('Запись удалена!');
+                            showMessage('Запись удалена!', context);
                             Navigator.of(context).pop(true);
                           }
                         },

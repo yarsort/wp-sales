@@ -177,6 +177,9 @@ class _ScreenProductSelectionTreeViewState
         ),
       );
     } else {
+      if (barcodeScanRes == '-1') {
+        return;
+      }
       showMessage('Товар с штрихкодом: ' + barcodeScanRes + ' не найден!');
     }
   }

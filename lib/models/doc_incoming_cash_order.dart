@@ -1,7 +1,7 @@
 /// Документы.ПриходныйКассовыйОрдер
 class IncomingCashOrder {
   int id = 0;                   // Инкремент
-  int status = 1;               // 0 - новый, 1 - отправлено, 2 - удален
+  int status = 1;               // 1 - новый, 2 - отправлено, 3 - удален
   DateTime date = DateTime.now(); // Дата создания заказа
   String uid = '';              // UID для 1С и связи с ТЧ
   String uidParent = '';        // UID для 1С с главным документом

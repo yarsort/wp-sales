@@ -227,20 +227,20 @@ Future<int> dbGetCountIncomingCashOrder() async {
 Future<int> dbGetCountNewIncomingCashOrder() async {
   final db = await instance.database;
   final result = await db.query(tableIncomingCashOrder,
-      where: '${IncomingCashOrderFields.status} = ?', whereArgs: [0]);
+      where: '${IncomingCashOrderFields.status} = ?', whereArgs: [1]);
   return result.map((json) => IncomingCashOrder.fromJson(json)).toList().length;
 }
 
 Future<int> dbGetCountSendIncomingCashOrder() async {
   final db = await instance.database;
   final result = await db.query(tableIncomingCashOrder,
-      where: '${IncomingCashOrderFields.status} = ?', whereArgs: [1]);
+      where: '${IncomingCashOrderFields.status} = ?', whereArgs: [2]);
   return result.map((json) => IncomingCashOrder.fromJson(json)).toList().length;
 }
 
 Future<int> dbGetCountTrashIncomingCashOrder() async {
   final db = await instance.database;
   final result = await db.query(tableIncomingCashOrder,
-      where: '${IncomingCashOrderFields.status} = ?', whereArgs: [2]);
+      where: '${IncomingCashOrderFields.status} = ?', whereArgs: [3]);
   return result.map((json) => IncomingCashOrder.fromJson(json)).toList().length;
 }

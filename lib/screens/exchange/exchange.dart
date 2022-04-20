@@ -112,26 +112,72 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   actionButtons() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-      child: SizedBox(
-        height: 50,
-        width: (MediaQuery.of(context).size.width - 49) / 2,
-        child: ElevatedButton(
-            onPressed: () async {
-              if (_loading) {
-                return;
-              }
-              await uploadData();
-              await downloadData();
-              setState(() {});
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.sync, color: Colors.white),
-                SizedBox(width: 14),
-                Text('Выполнить обмен')
-              ],
-            )),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton(
+              onPressed: () async {
+                if (_loading) {
+                  showMessage('Обмен в процессе...', context);
+                  return;
+                }
+
+                // Начало обмена
+                setState(() {
+                  _loading = true;
+                  _visibleIndicator = true;
+                });
+
+                // Процесс обмена
+                await uploadData();
+                //await downloadData();
+
+                // Окончание обмена
+                setState(() {
+                  _loading = false;
+                  _visibleIndicator = false;
+                });
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.sync, color: Colors.white),
+                  SizedBox(width: 14),
+                  Text('Отправить')
+                ],
+              )),
+          ElevatedButton(
+              onPressed: () async {
+                if (_loading) {
+                  showMessage('Обмен в процессе...', context);
+                  return;
+                }
+
+                // Начало обмена
+                setState(() {
+                  _loading = true;
+                  _visibleIndicator = true;
+                });
+
+                // Процесс обмена
+                await uploadData();
+                await downloadData();
+
+                // Окончание обмена
+                setState(() {
+                  _loading = false;
+                  _visibleIndicator = false;
+                });
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.sync, color: Colors.white),
+                  SizedBox(width: 14),
+                  Text('Получить')
+                ],
+              )),
+        ],
       ),
     );
   }
@@ -666,16 +712,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Начало отправки данных
   Future<void> uploadData() async {
-    if (_loading) {
-      return;
-    }
 
     listLogs.clear();
-
-    setState(() {
-      _loading = true;
-      _visibleIndicator = true;
-    });
 
     final SharedPreferences prefs = await _prefs;
     List<String> listToUpload = [];
@@ -720,11 +758,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (useWebExchange) {
       await uploadDataToWebServer();
     }
-
-    setState(() {
-      _loading = false;
-      _visibleIndicator = false;
-    });
   }
 
   // Получение данных из FTP Server
