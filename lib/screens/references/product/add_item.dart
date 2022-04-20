@@ -128,7 +128,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     readOnly: true,
                     controller: textFieldWarehouseNameController,
                     decoration: const InputDecoration(
-                      contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(
                         color: Colors.blueGrey,
@@ -149,7 +149,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           readOnly: true,
                           controller: textFieldPriceController,
                           decoration: const InputDecoration(
-                            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: OutlineInputBorder(),
                             labelStyle: TextStyle(
                               color: Colors.blueGrey,
@@ -169,7 +169,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           readOnly: true,
                           controller: textFieldSumController,
                           decoration: const InputDecoration(
-                            contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: OutlineInputBorder(),
                             labelStyle: TextStyle(
                               color: Colors.blueGrey,
