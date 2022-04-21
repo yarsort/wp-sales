@@ -6,7 +6,6 @@ import 'package:wp_sales/screens/documents/order_customer/order_customer_item.da
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
-import 'package:wp_sales/screens/exchange/exchange.dart';
 
 class ScreenOrderCustomerList extends StatefulWidget {
   const ScreenOrderCustomerList({Key? key}) : super(key: key);
