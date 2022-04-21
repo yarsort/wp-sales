@@ -133,7 +133,7 @@ Future<Map> dbReadSumAccumPartnerDeptByContractDoc({
   );
 
   List<AccumPartnerDept> listAccumPartnerDept =
-      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+  result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -165,7 +165,7 @@ Future<Map> dbReadSumAccumPartnerDeptByContract(
   );
 
   List<AccumPartnerDept> listAccumPartnerDept =
-      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+  result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -193,12 +193,49 @@ Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDept() async {
 
 Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptForPayment() async {
   final db = await instance.database;
-  final result = await db.query(
-    tableAccumPartnerDebts,
-    where: '${ItemAccumPartnerDeptFields.balanceForPayment} > ?',
-    whereArgs: [0],
-  );
+  final result = await db.rawQuery("SELECT "
+      "${ItemAccumPartnerDeptFields.uidContract}, "
+      "SUM(${ItemAccumPartnerDeptFields.balanceForPayment}) AS balanceForPayment, "
+      "SUM(${ItemAccumPartnerDeptFields.balance}) AS balance "
+      "FROM $tableAccumPartnerDebts "
+      "WHERE ${ItemAccumPartnerDeptFields.balanceForPayment} > 0 "
+      "GROUP BY ${ItemAccumPartnerDeptFields.uidContract} "
+      "ORDER BY ${ItemAccumPartnerDeptFields.balanceForPayment} DESC, "
+      "         ${ItemAccumPartnerDeptFields.balance} DESC, "
+      "         ${ItemAccumPartnerDeptFields.uidContract} "
+      "LIMIT 30;");
+
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}
+
+Future<Map> dbReadAllAccumDeptsSums() async {
+  final db = await instance.database;
+  final result = await db.rawQuery("SELECT "
+      "SUM(${ItemAccumPartnerDeptFields.balanceForPayment}) AS balanceForPayment, "
+      "SUM(${ItemAccumPartnerDeptFields.balance}) AS balance "
+      "FROM $tableAccumPartnerDebts "
+      "WHERE ${ItemAccumPartnerDeptFields.balanceForPayment} > 0 "
+      "GROUP BY ${ItemAccumPartnerDeptFields.uidContract} "
+      "ORDER BY ${ItemAccumPartnerDeptFields.balanceForPayment} DESC, "
+      "         ${ItemAccumPartnerDeptFields.balance} DESC;");
+
+  List<AccumPartnerDept> listAccumPartnerDept =
+  result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+
+  // Сумируем все записи по отбору, потому что могут быть сторно у документов
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
+
+  for (var itemList in listAccumPartnerDept) {
+    balance = balance + itemList.balance;
+    balanceForPayment = balanceForPayment + itemList.balanceForPayment;
+  }
+
+  Map mapBalance = {};
+  mapBalance['balance'] = balance;
+  mapBalance['balanceForPayment'] = balanceForPayment;
+
+  return mapBalance;
 }
 
 Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByContract(
@@ -230,7 +267,6 @@ Future<bool> dbCreateAccumPartnerDeptsByRegistrar(
           incomingCashOrder.status != 3 &&
           incomingCashOrder.status != 0 &&
           incomingCashOrder.sum > 0) {
-
         AccumPartnerDept accumDeptPartner = AccumPartnerDept()
           ..idRegistrar = incomingCashOrder.id
           ..uidOrganization = incomingCashOrder.uidOrganization

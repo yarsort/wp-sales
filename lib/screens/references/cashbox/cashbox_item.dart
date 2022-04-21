@@ -101,6 +101,7 @@ class _ScreenCashboxItemState extends State<ScreenCashboxItem> {
     try {
       widget.cashboxItem.name = textFieldNameController.text;
       widget.cashboxItem.comment = textFieldCommentController.text;
+      widget.cashboxItem.dateEdit = DateTime.now();
 
       if (widget.cashboxItem.id != 0) {
         await dbUpdateCashbox(widget.cashboxItem);

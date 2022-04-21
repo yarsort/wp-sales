@@ -18,7 +18,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  bool deniedEditPartners = false;
+  bool deniedAddPartner = false;
 
   List<Partner> tempItems = [];
   List<Partner> listPartners = [];
@@ -42,7 +42,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: deniedEditPartners ? FloatingActionButton(
+      floatingActionButton: deniedAddPartner ? FloatingActionButton(
         onPressed: () async {
           var newItem = Partner();
           await Navigator.push(
@@ -69,7 +69,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Настройки редактирования
-    deniedEditPartners = prefs.getBool('settings_deniedEditPartners') ?? false;
+    deniedAddPartner = prefs.getBool('settings_deniedAddPartner') ?? false;
 
     // Очистка списка заказов покупателя
     listPartners.clear();

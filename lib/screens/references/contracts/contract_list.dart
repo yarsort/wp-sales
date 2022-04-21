@@ -21,7 +21,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
   // Флаг отображения списка контрактов с балансом
   bool onlyWithBalance = false;
 
-  bool deniedEditContracts = false;
+  bool deniedAddContract = false;
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
@@ -48,7 +48,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: deniedEditContracts
+      floatingActionButton: deniedAddContract
           ? FloatingActionButton(
               onPressed: () async {
                 var newItem = Contract();
@@ -84,8 +84,8 @@ class _ScreenContractListState extends State<ScreenContractList> {
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Настройки редактирования
-    deniedEditContracts =
-        prefs.getBool('settings_deniedEditContracts') ?? false;
+    deniedAddContract =
+        prefs.getBool('settings_deniedAddContract') ?? false;
 
     // Очистка списка заказов покупателя
     listContracts.clear();
@@ -116,7 +116,7 @@ class _ScreenContractListState extends State<ScreenContractList> {
 
     }
 
-    listContracts.sort((a, b) => a.name.compareTo(b.name));
+    listContracts.sort((a, b) => a.namePartner.compareTo(b.namePartner));
 
     tempItems.addAll(listContracts);
 
@@ -308,26 +308,24 @@ class _ContractItemState extends State<ContractItem> {
                 ),
               );
             },
-            title: Text(widget.contractItem.name),
+            title: Text(widget.contractItem.namePartner),
             subtitle: Column(
               children: [
                 const Divider(),
+                Row(
+                  children: [
+                    const Icon(Icons.source,
+                        color: Colors.blue, size: 20),
+                    const SizedBox(width: 5),
+                    Flexible(flex: 1 ,child: Text(widget.contractItem.name)),
+                  ],
+                ),
                 Row(
                   children: [
                     Expanded(
                       flex: 4,
                       child: Column(
                         children: [
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(Icons.person,
-                                  color: Colors.blue, size: 20),
-                              const SizedBox(width: 5),
-                              Flexible(
-                                  child: Text(widget.contractItem.namePartner)),
-                            ],
-                          ),
                           const SizedBox(height: 5),
                           Row(
                             children: [
@@ -346,7 +344,8 @@ class _ContractItemState extends State<ContractItem> {
                               Flexible(
                                   child: Text(widget.contractItem.address)),
                             ],
-                          )
+                          ),
+                          const SizedBox(height: 5),
                         ],
                       ),
                     ),

@@ -250,6 +250,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       widget.contractItem.schedulePayment =
           int.parse(textFieldSchedulePaymentController.text);
       widget.contractItem.comment = textFieldCommentController.text;
+      widget.contractItem.dateEdit = DateTime.now();
+
       widget.contractItem.deniedSale = deniedSale;
       widget.contractItem.deniedReturn = deniedReturn;
 

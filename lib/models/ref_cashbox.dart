@@ -8,6 +8,7 @@ class Cashbox {
   String name = '';               // Имя
   String uidParent = '';          // Ссылка на группу
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   Cashbox();
 
@@ -19,6 +20,7 @@ class Cashbox {
     name = json['name'] ?? '';
     uidParent = json['uidParent'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -32,6 +34,7 @@ class Cashbox {
     data['name'] = name;
     data['uidParent'] = uidParent;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }

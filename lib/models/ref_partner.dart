@@ -12,6 +12,7 @@ class Partner {
   String phone = '';              // Контакты
   String address = '';            // Адрес
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
   int schedulePayment = 0;        // Отсрочка платежа
 
   Partner();
@@ -28,6 +29,7 @@ class Partner {
     phone = json['phone'] ?? '';
     address = json['address'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
     schedulePayment = json['schedulePayment'] ?? 0; // Отсрочка платежа в днях (int)
   }
 
@@ -46,6 +48,7 @@ class Partner {
     data['phone'] = phone;
     data['address'] = address;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     data['schedulePayment'] = schedulePayment;
     return data;
   }

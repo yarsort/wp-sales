@@ -100,6 +100,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
     try {
       widget.priceItem.name = textFieldNameController.text;
       widget.priceItem.comment = textFieldCommentController.text;
+      widget.priceItem.dateEdit = DateTime.now();
 
       if (widget.priceItem.id != 0) {
         await dbUpdatePrice(widget.priceItem);

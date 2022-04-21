@@ -112,6 +112,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
       widget.currencyItem.comment = textFieldCommentController.text;
       widget.currencyItem.course = double.parse(textFieldCourseController.text);
       widget.currencyItem.multiplicity = double.parse(textFieldMultiplicityController.text);
+      widget.currencyItem.dateEdit = DateTime.now();
 
       if (widget.currencyItem.id != 0) {
         await dbUpdateCurrency(widget.currencyItem);

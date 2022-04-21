@@ -29,70 +29,117 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    if (!mounted){
+      return;
+    }
+    super.setState(fn);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Обмен данными'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                if (_loading) {
-                  showMessage('Обмен в процессе...', context);
-                  return;
-                }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ScreenSettings(),
+    return WillPopScope(
+      onWillPop: () async {
+        if (!_loading) {
+          return true;
+        }
+        final value = await showDialog<bool>(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: const Text('Прекратить обмен данными?'),
+                actions: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop(true);
+                          },
+                          child: const SizedBox(
+                              width: 60, child: Center(child: Text('Да')))),
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            Navigator.of(context).pop(false);
+                          },
+                          child: const SizedBox(
+                            width: 60,
+                            child: Center(child: Text('Нет')),
+                          )),
+                    ],
                   ),
-                );
-              },
-              icon: const Icon(Icons.settings))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 7, 0, 7),
-        child: Column(
-          children: [
-            progressIndicator(),
-            Expanded(
-              child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: listLogs.length,
-                  itemBuilder: (context, index) {
-                    var logItem = listLogs[index];
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: Card(
-                        elevation: 2,
-                        child: ListTile(
-                          onTap: () {},
-                          leading: const SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: Center(
-                              child: Icon(
-                                Icons.info,
-                                color: Colors.blue,
+                ],
+              );
+            });
+        return value == true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('Обмен данными'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  if (_loading) {
+                    showMessage('Обмен в процессе...', context);
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ScreenSettings(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.settings))
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 7, 0, 7),
+          child: Column(
+            children: [
+              progressIndicator(),
+              Expanded(
+                child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: listLogs.length,
+                    itemBuilder: (context, index) {
+                      var logItem = listLogs[index];
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        child: Card(
+                          elevation: 2,
+                          child: ListTile(
+                            onTap: () {},
+                            leading: const SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: Center(
+                                child: Icon(
+                                  Icons.info,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              logItem,
+                              style: const TextStyle(
+                                fontSize: 14,
                               ),
                             ),
                           ),
-                          title: Text(
-                            logItem,
-                            style: const TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
                         ),
-                      ),
-                    );
-                  }),
-            ),
-          ],
+                      );
+                    }),
+              ),
+            ],
+          ),
         ),
+        bottomNavigationBar: actionButtons(),
       ),
-      bottomNavigationBar: actionButtons(),
     );
   }
 
@@ -224,6 +271,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   // Начало получения данных
   Future<void> downloadData() async {
 
+    if (!_loading) {
+      return;
+    }
+
     listLogs.clear();
 
     setState(() {
@@ -245,8 +296,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       await downloadDataFromWebServer();
     }
 
-
-
     setState(() {
       _loading = false;
       _visibleIndicator = false;
@@ -255,6 +304,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Получение данных из FTP Server
   Future<void> downloadDataFromFTP() async {
+    if (!_loading) {
+      return;
+    }
+
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
 
@@ -387,10 +440,18 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   // Получение данных из Web Server
-  Future<void> downloadDataFromWebServer() async {}
+  Future<void> downloadDataFromWebServer() async {
+    if (!_loading) {
+      return;
+    }
+  }
 
   // Обработка полученных данных из JSON: разделение потоков
   Future<void> saveDownloadedData(List<String> listJSONFiles) async {
+    if (!_loading) {
+      return;
+    }
+
     /// Обработка данных обмена: чтение и запись данных
     //  Прочитаем каждый файл и запишем данных
     for (String pathFile in listJSONFiles) {
@@ -421,6 +482,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Обработка полученных данных из JSON: Обычный
   Future<void> saveFromJsonDataFull(jsonData) async {
+    if (!_loading) {
+      return;
+    }
+
     /// Количество полученных элементов для индикации прогресса
     int countItem = 0;
 
@@ -703,15 +768,27 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   // Обработка полученных данных из JSON: Отчеты
-  Future<void> saveFromJsonDataReport(jsonData) async {}
+  Future<void> saveFromJsonDataReport(jsonData) async {
+    if (!_loading) {
+      return;
+    }
+  }
 
   // Запись данных в JSON: Обычный
-  Future<void> saveToJsonDataReport(jsonData) async {}
+  Future<void> saveToJsonDataReport(jsonData) async {
+    if (!_loading) {
+      return;
+    }
+  }
 
   /// Отправка данных в учетные системы
 
   // Начало отправки данных
   Future<void> uploadData() async {
+
+    if (!_loading) {
+      return;
+    }
 
     listLogs.clear();
 
@@ -762,6 +839,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Получение данных из FTP Server
   Future<bool> uploadDataToFTP(List<String> listToUpload) async {
+    if (!_loading) {
+      return false;
+    }
+
     // Если файлов для отправки нет, значит все ОК
     if (listToUpload.isEmpty) {
       return true;
@@ -833,7 +914,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   }
 
   // Отправка данных на Web Server
-  Future<void> uploadDataToWebServer() async {}
+  Future<void> uploadDataToWebServer() async {
+    if (!_loading) {
+      return;
+    }
+  }
 
   /// Генерация данных
 

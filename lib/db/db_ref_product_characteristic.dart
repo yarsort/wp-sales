@@ -15,6 +15,7 @@ class ItemProductCharacteristicFields {
     name,
     uidProduct,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -24,7 +25,7 @@ class ItemProductCharacteristicFields {
   static const String name = 'name';
   static const String uidProduct = 'uidProduct';
   static const String comment = 'comment';
-
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -36,7 +37,8 @@ Future createTableProductCharacteristic(db) async {
       ${ItemProductCharacteristicFields.code} $textType,      
       ${ItemProductCharacteristicFields.name} $textType,
       ${ItemProductCharacteristicFields.uidProduct} $textType, 
-      ${ItemProductCharacteristicFields.comment} $textType            
+      ${ItemProductCharacteristicFields.comment} $textType,
+      ${ItemProductCharacteristicFields.dateEdit} $textType            
       )
     ''');
 }

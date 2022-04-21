@@ -17,6 +17,7 @@ class ItemUnitFields {
     uidParent,
     multiplicity,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -28,6 +29,7 @@ class ItemUnitFields {
   static const String uidParent = 'uidParent';
   static const String multiplicity = 'multiplicity';
   static const String comment = 'comment';
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -41,7 +43,8 @@ Future createTableUnit(db) async {
       ${ItemUnitFields.name} $textType,
       ${ItemUnitFields.uidParent} $textType,      
       ${ItemUnitFields.multiplicity} $realType,
-      ${ItemUnitFields.comment} $textType            
+      ${ItemUnitFields.comment} $textType,
+      ${ItemUnitFields.dateEdit} $textType           
       )
     ''');
 }

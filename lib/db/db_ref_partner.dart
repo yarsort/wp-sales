@@ -21,6 +21,7 @@ class ItemPartnerFields {
     phone,
     address,
     comment,
+    dateEdit,
     schedulePayment,
   ];
 
@@ -36,6 +37,7 @@ class ItemPartnerFields {
   static const String phone = 'phone';
   static const String address = 'address';
   static const String comment = 'comment';
+  static const String dateEdit = 'dateEdit';
   static const String schedulePayment = 'schedulePayment';
 }
 
@@ -53,6 +55,7 @@ Future createTablePartner(db) async {
       ${ItemPartnerFields.phone} $textType,
       ${ItemPartnerFields.address} $textType,
       ${ItemPartnerFields.comment} $textType,
+      ${ItemPartnerFields.dateEdit} $textType,
       ${ItemPartnerFields.schedulePayment} $integerType            
       )
     ''');

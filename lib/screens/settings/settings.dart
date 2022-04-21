@@ -26,7 +26,17 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   bool useFTPExchange = false; // Обмен по FTP
   bool enabledTextFieldFTPExchange = false;
 
-  //
+  bool deniedAddOrganization = false; // Запретить добавлять организации
+  bool deniedAddPartner = false; // Запретить добавлять партнеров
+  bool deniedAddContract = false; // Запретить добавлять контракты
+  bool deniedAddProduct = false; // Запретить добавлять товары
+  bool deniedAddUnit = false; // Запретить добавлять единицы измерения товаров
+  bool deniedAddPrice = false; // Запретить добавлять типы цен
+  bool deniedAddCurrency = false; // Запретить добавлять валюты
+  bool deniedAddWarehouse = false; // Запретить добавлять склады
+  bool deniedAddCashbox = false; // Запретить добавлять кассы
+
+  // Использовать маршруты
   bool useRoutesToPartners = false;
 
   /// имя пользователя для обмена данными
@@ -160,12 +170,14 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
+                  nameGroup(nameGroup: 'Загрузка картинок в подборе'),
+                  listSettingsPictures(),
                   nameGroup(nameGroup: 'Тип данных приложения'),
                   listSettingsTypeData(),
-                  nameGroup(nameGroup: 'Запреты и разрешения'),
+                  nameGroup(nameGroup: 'Редактирование данных'),
                   listSettingsMain(),
-                  nameGroup(nameGroup: 'Картинки из Интернета'),
-                  listSettingsPictures(),
+                  nameGroup(nameGroup: 'Добавление данных'),
+                  listSettingsAddData(),
                 ],
               ),
               ListView(
@@ -222,6 +234,17 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
     useRoutesToPartners = prefs.getBool('settings_useRoutesToPartners')!;
 
+    // Разрешение на добавление новых элементов в справочники
+    deniedAddOrganization = prefs.getBool('settings_deniedAddOrganization')!;
+    deniedAddPartner = prefs.getBool('settings_deniedAddPartner')!;
+    deniedAddContract = prefs.getBool('settings_deniedAddContract')!;
+    deniedAddProduct = prefs.getBool('settings_deniedAddProduct')!;
+    deniedAddUnit = prefs.getBool('settings_deniedAddUnit')!;
+    deniedAddPrice = prefs.getBool('settings_deniedAddPrice')!;
+    deniedAddCurrency = prefs.getBool('settings_deniedAddCurrency')!;
+    deniedAddWarehouse = prefs.getBool('settings_deniedAddWarehouse')!;
+    deniedAddCashbox = prefs.getBool('settings_deniedAddCashbox')!;
+
     // Заполнение значений по-умолчанию
     uidOrganization = prefs.getString('settings_uidOrganization')??'';
     Organization organization = await dbReadOrganizationUID(uidOrganization);
@@ -275,6 +298,17 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
     prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
     prefs.setBool('settings_useRoutesToPartners', useRoutesToPartners);
+
+    /// Запрет добавления новых елементов
+    prefs.setBool('settings_deniedAddOrganization', deniedAddOrganization);
+    prefs.setBool('settings_deniedAddPartner', deniedAddPartner);
+    prefs.setBool('settings_deniedAddContract', deniedAddContract);
+    prefs.setBool('settings_deniedAddProduct', deniedAddProduct);
+    prefs.setBool('settings_deniedAddUnit', deniedAddUnit);
+    prefs.setBool('settings_deniedAddPrice', deniedAddPrice);
+    prefs.setBool('settings_deniedAddCurrency', deniedAddCurrency);
+    prefs.setBool('settings_deniedAddWarehouse', deniedAddWarehouse);
+    prefs.setBool('settings_deniedAddCashbox', deniedAddCashbox);
 
     /// FTP
     prefs.setBool('settings_useFTPExchange', useFTPExchange);
@@ -411,6 +445,169 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     );
   }
 
+  listSettingsAddData() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+      child: Column(
+        children: [
+          /// Запрет на добавление: Организация
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddOrganization,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddOrganization = !deniedAddOrganization;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление организаций')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Партнер
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddPartner,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddPartner = !deniedAddPartner;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление партнеров')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Контракт
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddContract,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddContract = !deniedAddContract;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление контрактов')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Товар
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddProduct,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddProduct = !deniedAddProduct;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление товаров')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Единица измерения
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddUnit,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddUnit = !deniedAddUnit;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление единиц')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Тип цен
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddPrice,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddPrice = !deniedAddPrice;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление типов цен')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Валюты
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddCurrency,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddCurrency = !deniedAddCurrency;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление валюты')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Кассы
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddCashbox,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddCashbox = !deniedAddCashbox;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление касс')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Склады
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddWarehouse,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddWarehouse = !deniedAddWarehouse;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление складов')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   listSettingsExchange() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -465,7 +662,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                      IconButton(
                         onPressed: () {
                           textFieldFTPUserController.text = '';
-                          
+
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -504,7 +701,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPPortController.text = '';
-                          
+
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -521,7 +718,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             child: IntrinsicHeight(
               child: TextField(
                 onChanged: (value) {
-                  
+
                 },
                 enabled: enabledTextFieldFTPExchange,
                 keyboardType: TextInputType.text,
@@ -545,7 +742,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPUserController.text = '';
-                          
+
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -562,7 +759,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             child: IntrinsicHeight(
               child: TextField(
                 onChanged: (value) {
-                  
+
                 },
                 enabled: enabledTextFieldFTPExchange,
                 obscureText: true,
@@ -589,7 +786,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPPasswordController.text = '';
-                          
+
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -697,7 +894,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       useFTPExchange = !useWebExchange;
                       enabledTextFieldFTPExchange = !useWebExchange;
 
-                      
+
                     });
                   },
                 ),
@@ -711,7 +908,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             child: IntrinsicHeight(
               child: TextField(
                 onChanged: (value) {
-                  
+
                 },
                 enabled: enabledTextFieldWebExchange,
                 keyboardType: TextInputType.text,
@@ -735,7 +932,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldWEBServerController.text = '';
-                          
+
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -833,7 +1030,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   labelStyle: const TextStyle(
                     color: Colors.blueGrey,
                   ),
-                  labelText: 'Ссылка на сайт',
+                  labelText: 'Ссылка на каталог картинок',
                   suffixIcon: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,

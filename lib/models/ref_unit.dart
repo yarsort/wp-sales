@@ -9,6 +9,7 @@ class Unit {
   String uidParent = '';          // Ссылка на группу
   double multiplicity = 0.0;      // Кратность
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   Unit();
 
@@ -21,6 +22,7 @@ class Unit {
     uidParent = json['uidParent'] ?? '';
     multiplicity = json['multiplicity'] ?? 1.0;
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -35,6 +37,7 @@ class Unit {
     data['uidParent'] = uidParent;
     data['multiplicity'] = multiplicity;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }

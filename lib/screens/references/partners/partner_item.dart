@@ -142,6 +142,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       widget.partnerItem.address = textFieldAddressController.text;
       widget.partnerItem.schedulePayment = int.parse(textFieldSchedulePaymentController.text);
       widget.partnerItem.comment = textFieldCommentController.text;
+      widget.partnerItem.dateEdit = DateTime.now();
 
       if (widget.partnerItem.id != 0) {
         await dbUpdatePartner(widget.partnerItem);

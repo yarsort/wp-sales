@@ -16,6 +16,7 @@ class ItemPriceFields {
     name,
     uidParent,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -26,7 +27,7 @@ class ItemPriceFields {
   static const String name = 'name';
   static const String uidParent = 'uidParent';
   static const String comment = 'comment';
-
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -39,7 +40,8 @@ Future createTablePrice(db) async {
       ${ItemPriceFields.code} $textType,      
       ${ItemPriceFields.name} $textType,
       ${ItemPriceFields.uidParent} $textType,
-      ${ItemPriceFields.comment} $textType            
+      ${ItemPriceFields.comment} $textType,
+      ${ItemPriceFields.dateEdit} $textType           
       )
     ''');
 }

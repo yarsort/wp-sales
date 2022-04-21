@@ -111,6 +111,7 @@ class _ScreenOrganizationItemState extends State<ScreenOrganizationItem> {
       widget.organizationItem.phone = textFieldPhoneController.text;
       widget.organizationItem.address = textFieldAddressController.text;
       widget.organizationItem.comment = textFieldCommentController.text;
+      widget.organizationItem.dateEdit = DateTime.now();
 
       if (widget.organizationItem.id != 0) {
         await dbUpdateOrganization(widget.organizationItem);

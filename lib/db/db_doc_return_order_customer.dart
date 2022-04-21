@@ -32,6 +32,7 @@ class ReturnOrderCustomerFields {
     nameCurrency,
     sum,
     comment,
+    coordinates,
     dateSending,
     datePaying,
     sendYesTo1C,
@@ -64,6 +65,7 @@ class ReturnOrderCustomerFields {
   static const String nameCurrency = 'nameCurrency';// Наименование валюты
   static const String sum = 'sum';// Сумма документа
   static const String comment = 'comment';// Комментарий
+  static const String coordinates = 'coordinates';// Координаты
   static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
   static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
   static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
@@ -130,6 +132,7 @@ Future createTableReturnOrderCustomer(db) async {
       ${ReturnOrderCustomerFields.nameCurrency} $textType,
       ${ReturnOrderCustomerFields.sum} $realType,
       ${ReturnOrderCustomerFields.comment} $textType,
+      ${ReturnOrderCustomerFields.coordinates} $textType,
       ${ReturnOrderCustomerFields.dateSending} $textType,
       ${ReturnOrderCustomerFields.datePaying} $textType,
       ${ReturnOrderCustomerFields.sendYesTo1C} $integerType,

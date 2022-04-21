@@ -18,7 +18,7 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  bool deniedEditCurrency = false;
+  bool deniedAddCurrency = false;
 
   List<Currency> tempItems = [];
   List<Currency> listCurrency = [];
@@ -42,7 +42,7 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: deniedEditCurrency ? FloatingActionButton(
+      floatingActionButton: deniedAddCurrency ? FloatingActionButton(
         onPressed: () async {
           var newItem = Currency();
           await Navigator.push(
@@ -69,7 +69,7 @@ class _ScreenCurrencyListState extends State<ScreenCurrencyList> {
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Настройки редактирования
-    deniedEditCurrency = prefs.getBool('settings_deniedEditCurrency') ?? false;
+    deniedAddCurrency = prefs.getBool('settings_deniedAddCurrency') ?? false;
 
     // Очистка списка заказов покупателя
     listCurrency.clear();

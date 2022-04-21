@@ -111,6 +111,7 @@ class _ScreenWarehouseItemState extends State<ScreenWarehouseItem> {
       widget.warehouseItem.phone = textFieldPhoneController.text;
       widget.warehouseItem.address = textFieldAddressController.text;
       widget.warehouseItem.comment = textFieldCommentController.text;
+      widget.warehouseItem.dateEdit = DateTime.now();
 
       if (widget.warehouseItem.id != 0) {
         await dbUpdateWarehouse(widget.warehouseItem);

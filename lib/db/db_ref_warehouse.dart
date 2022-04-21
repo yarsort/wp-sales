@@ -19,6 +19,7 @@ class ItemWarehouseFields {
     phone,
     address,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -31,6 +32,7 @@ class ItemWarehouseFields {
   static const String phone = 'phone';
   static const String address = 'address';
   static const String comment = 'comment';
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -45,7 +47,8 @@ Future createTableWarehouse(db) async {
       ${ItemWarehouseFields.uidParent} $textType,
       ${ItemWarehouseFields.phone} $textType,
       ${ItemWarehouseFields.address} $textType,      
-      ${ItemWarehouseFields.comment} $textType            
+      ${ItemWarehouseFields.comment} $textType,
+      ${ItemWarehouseFields.dateEdit} $textType            
       )
     ''');
 }

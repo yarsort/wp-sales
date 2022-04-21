@@ -7,6 +7,7 @@ class ProductCharacteristic {
   String name = '';               // Имя
   String uidProduct = '';          // Ссылка на родителя (Товар)
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   ProductCharacteristic();
 
@@ -17,6 +18,7 @@ class ProductCharacteristic {
     name = json['name'] ?? '';
     uidProduct = json['uidProduct'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -29,6 +31,7 @@ class ProductCharacteristic {
     data['name'] = name;
     data['uidProduct'] = uidProduct;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }

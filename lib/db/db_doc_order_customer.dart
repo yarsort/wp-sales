@@ -30,6 +30,7 @@ class OrderCustomerFields {
     nameCashbox,
     sum,
     comment,
+    coordinates,
     dateSending,
     datePaying,
     sendYesTo1C,
@@ -60,6 +61,7 @@ class OrderCustomerFields {
   static const String nameCashbox = 'nameCashbox';// Наименование кассы
   static const String sum = 'sum';// Сумма документа
   static const String comment = 'comment';// Комментарий
+  static const String coordinates = 'coordinates';// Координаты
   static const String dateSending = 'dateSending';// Дата планируемой отгрузки заказа
   static const String datePaying = 'datePaying';// Дата планируемой оплаты заказа
   static const String sendYesTo1C = 'sendYesTo1C'; // Булево: "Отправлено в 1С" - для фильтрации в списках
@@ -125,6 +127,7 @@ Future createTableOrderCustomer(db) async {
       ${OrderCustomerFields.nameCashbox} $textType,
       ${OrderCustomerFields.sum} $realType,
       ${OrderCustomerFields.comment} $textType,
+      ${OrderCustomerFields.coordinates} $textType,
       ${OrderCustomerFields.dateSending} $textType,
       ${OrderCustomerFields.datePaying} $textType,
       ${OrderCustomerFields.sendYesTo1C} $integerType,

@@ -20,6 +20,7 @@ class ItemContractFields {
     phone,             // Контакты
     address,           // Адрес
     comment,           // Коммментарий
+    dateEdit,          // Дата редактирования
     uidOrganization,   // Имя организации
     namePartner,       // Имя партнера
     uidPartner,        // Ссылка на партнера
@@ -46,6 +47,7 @@ class ItemContractFields {
   static const String phone = 'phone';
   static const String address = 'address';
   static const String comment = 'comment';
+  static const String dateEdit = 'dateEdit';
   static const String uidOrganization = 'uidOrganization';
   static const String namePartner = 'namePartner';
   static const String uidPartner = 'uidPartner';
@@ -75,6 +77,7 @@ Future createTableContract(db) async {
       ${ItemContractFields.phone} $textType,
       ${ItemContractFields.address} $textType,
       ${ItemContractFields.comment} $textType,
+      ${ItemContractFields.dateEdit} $textType,
       ${ItemContractFields.uidOrganization} $textType,
       ${ItemContractFields.namePartner} $textType,
       ${ItemContractFields.uidPartner} $textType,

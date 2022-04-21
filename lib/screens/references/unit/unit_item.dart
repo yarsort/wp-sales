@@ -108,8 +108,9 @@ class _ScreenUnitItemState extends State<ScreenUnitItem> {
   saveItem() async {
     try {
       widget.unitItem.name = textFieldNameController.text;
-      widget.unitItem.comment = textFieldCommentController.text;
       widget.unitItem.multiplicity = double.parse(textFieldMultiplicityController.text);
+      widget.unitItem.comment = textFieldCommentController.text;
+      widget.unitItem.dateEdit = DateTime.now();
 
       if (widget.unitItem.multiplicity == 0.0) {
         widget.unitItem.multiplicity = 1.0;

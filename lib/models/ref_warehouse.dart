@@ -10,6 +10,7 @@ class Warehouse {
   String phone = '';              // Контакты
   String address = '';            // Адрес
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   Warehouse();
 
@@ -23,6 +24,7 @@ class Warehouse {
     phone = json['phone'] ?? '';
     address = json['address'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -38,6 +40,7 @@ class Warehouse {
     data['phone'] = phone;
     data['address'] = address;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }

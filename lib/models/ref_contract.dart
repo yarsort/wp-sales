@@ -12,6 +12,7 @@ class Contract {
   String phone = '';              // Контакты
   String address = '';            // Адрес
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
   String uidOrganization = '';    // Ссылка на организацию
   String namePartner = '';        // Имя партнера
   String uidPartner = '';         // Ссылка на партнера
@@ -39,6 +40,7 @@ class Contract {
     phone = json['phone'] ?? '';
     address = json['address'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
     uidOrganization = json['uidOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
     namePartner = json['namePartner'] ?? '';

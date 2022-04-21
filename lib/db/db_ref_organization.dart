@@ -17,6 +17,7 @@ class ItemOrganizationFields {
     phone,
     address,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -29,7 +30,7 @@ class ItemOrganizationFields {
   static const String phone = 'phone';
   static const String address = 'address';
   static const String comment = 'comment';
-
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -44,7 +45,8 @@ Future createTableOrganization(db) async {
       ${ItemOrganizationFields.uidParent} $textType,
       ${ItemOrganizationFields.phone} $textType,
       ${ItemOrganizationFields.address} $textType,
-      ${ItemOrganizationFields.comment} $textType            
+      ${ItemOrganizationFields.comment} $textType,
+      ${ItemOrganizationFields.dateEdit} $textType            
       )
     ''');
 }

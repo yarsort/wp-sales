@@ -15,6 +15,7 @@ class ItemCashboxFields {
     name,
     uidParent,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -25,7 +26,7 @@ class ItemCashboxFields {
   static const String name = 'name';
   static const String uidParent = 'uidParent';
   static const String comment = 'comment';
-
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -38,7 +39,8 @@ Future createTableCashbox(db) async {
       ${ItemCashboxFields.code} $textType,      
       ${ItemCashboxFields.name} $textType,
       ${ItemCashboxFields.uidParent} $textType,
-      ${ItemCashboxFields.comment} $textType            
+      ${ItemCashboxFields.comment} $textType,
+      ${ItemCashboxFields.dateEdit} $textType            
       )
     ''');
 }

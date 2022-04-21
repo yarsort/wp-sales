@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/system/widgets.dart';
 
+import 'import/import_model.dart';
 import 'screens/references/contracts/contract_item.dart';
 
 class ScreenHomePage extends StatefulWidget {
@@ -17,6 +19,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   List<Contract> listForPaymentContracts = [];
   double balance = 0.0;
   double balanceForPayment = 0.0;
+
+  double sumOrderCustomerToday = 0.0;
+  double sumIncomingCashOrderToday = 0.0;
+
   int countNewOrderCustomer = 0;
   int countSendOrderCustomer = 0;
   int countNewIncomingCashOrder = 0;
@@ -114,9 +120,6 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
       itemContract.balance = debts['balance'];
       itemContract.balanceForPayment = debts['balanceForPayment'];
 
-      balance = balance + debts['balance'];
-      balanceForPayment = balanceForPayment + debts['balanceForPayment'];
-
       if (limitCount == 0) {
         continue;
       }
@@ -126,6 +129,15 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
       limitCount--;
     }
 
+    // Прочитаем сумму всех долгов
+    var debts = await dbReadAllAccumDeptsSums();
+    balance = balance + debts['balance'];
+    balanceForPayment = balanceForPayment + debts['balanceForPayment'];
+
+    // Суммы документов
+    await readSumDocumentToday();
+
+    // Прочитаем количество документов
     await readCountDocuments();
 
     if (mounted) {
@@ -136,10 +148,57 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   }
 
   readCountDocuments() async {
-    countNewOrderCustomer = await dbGetCountNewOrderCustomer();
     countSendOrderCustomer = await dbGetCountSendOrderCustomer();
-    countNewIncomingCashOrder = await dbGetCountNewIncomingCashOrder();
     countSendIncomingCashOrder = await dbGetCountSendIncomingCashOrder();
+  }
+
+  readSumDocumentToday() async {
+
+      String whereString = '';
+      List whereList = [];
+
+      String dayStart = DateTime.now().toString().substring(8,10);
+      String monthStart = DateTime.now().toString().substring(5,7);
+      String yearStart = DateTime.now().toString().substring(0,4);
+
+      String dayFinish = DateTime.now().toString().substring(8,10);
+      String monthFinish = DateTime.now().toString().substring(5,7);
+      String yearFinish = DateTime.now().toString().substring(0,4);
+
+      String dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+      String dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+
+      // Фильтр: по статусу
+      whereList.add('status = 1');
+      whereList.add('(date >= ? AND date <= ?)');
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      // Очистка данных
+      sumIncomingCashOrderToday = 0.0;
+      sumIncomingCashOrderToday = 0.0;
+      countNewOrderCustomer = 0;
+      countNewIncomingCashOrder = 0;
+
+      // Экземпляр базы даных
+      final db = await instance.database;
+
+      // Запрос на заказ покупателя
+      final resultOrderCustomer = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
+      List<OrderCustomer> listSendOrdersCustomer = resultOrderCustomer.map((json) => OrderCustomer.fromJson(json)).toList();
+      for (var orderCustomer in listSendOrdersCustomer) {
+        sumOrderCustomerToday = sumOrderCustomerToday + orderCustomer.sum;
+        countNewOrderCustomer = countNewOrderCustomer + 1;
+      }
+
+      // Запрос на оплаты
+      final resultIncomingCashOrder = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
+      List<OrderCustomer> listSendIncomingCashOrder = resultIncomingCashOrder.map((json) => OrderCustomer.fromJson(json)).toList();
+      for (var incomingCashOrder in listSendIncomingCashOrder) {
+        sumIncomingCashOrderToday = sumIncomingCashOrderToday + incomingCashOrder.sum;
+        countNewIncomingCashOrder = countNewIncomingCashOrder + 1;
+      }
   }
 
   nameGroup(String nameGroup) {
@@ -290,7 +349,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
           ),
         ),
 
-        /// Коилчество документов
+        /// Количество документов
         Padding(
           padding: const EdgeInsets.fromLTRB(7, 14, 7, 0),
           child: Row(
@@ -331,7 +390,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       width: MediaQuery.of(context).size.width / 2 - 18,
                       child: const Center(
                         child: Text(
-                          'Заказы',
+                          'Заказы (шт)',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
@@ -386,7 +445,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       width: MediaQuery.of(context).size.width / 2 - 18,
                       child: const Center(
                         child: Text(
-                          'ПКО (оплаты)',
+                          'ПКО (шт)',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
@@ -397,6 +456,122 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                         countNewIncomingCashOrder.toString() +
                             ' из ' +
                             countSendIncomingCashOrder.toString(),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+
+        /// Суммы за сегодня
+        Padding(
+          padding: const EdgeInsets.fromLTRB(7, 14, 7, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
+                    ),
+                  ],
+                ),
+                //height: 130,
+                width: MediaQuery.of(context).size.width / 2 - 22,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          // bottomLeft: Radius.circular(5),
+                          // bottomRight: Radius.circular(5)
+                        ),
+                      ),
+                      height: 35,
+                      width: MediaQuery.of(context).size.width / 2 - 18,
+                      child: const Center(
+                        child: Text(
+                          'Заказы (грн)',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+                      child: Text(
+                        doubleToString(sumOrderCustomerToday),
+                        style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 2,
+                      offset: Offset(1, 1), // Shadow position
+                    ),
+                  ],
+                ),
+                //height: 120,
+                width: MediaQuery.of(context).size.width / 2 - 22,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(100, 181, 246, 1.0),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5),
+                          //bottomLeft: Radius.circular(5),
+                          //bottomRight: Radius.circular(5)
+                        ),
+                      ),
+                      height: 35,
+                      width: MediaQuery.of(context).size.width / 2 - 18,
+                      child: const Center(
+                        child: Text(
+                          'ПКО (грн)',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+                      child: Text(
+                        doubleToString(sumIncomingCashOrderToday),
                         style: const TextStyle(
                             fontSize: 20,
                             color: Colors.blue,

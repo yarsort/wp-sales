@@ -18,6 +18,8 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool deniedAddPrice = false;
+
   List<Price> tempItems = [];
   List<Price> listPrices = [];
 
@@ -40,7 +42,7 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
           listViewItems(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: deniedAddPrice ? FloatingActionButton(
         onPressed: () async {
           var newItem = Price();
           await Navigator.push(
@@ -58,7 +60,7 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
           "+",
           style: TextStyle(fontSize: 25),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ) : null, // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -66,6 +68,9 @@ class _ScreenPriceListState extends State<ScreenPriceList> {
 
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData') ?? false;
+
+    // Настройки редактирования
+    deniedAddPrice = prefs.getBool('settings_deniedAddUnit') ?? false;
 
     // Очистка списка заказов покупателя
     listPrices.clear();

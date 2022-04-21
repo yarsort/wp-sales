@@ -18,6 +18,7 @@ class ItemCurrencyFields {
     course,
     multiplicity,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -30,7 +31,7 @@ class ItemCurrencyFields {
   static const String course = 'course';
   static const String multiplicity = 'multiplicity';
   static const String comment = 'comment';
-
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -45,7 +46,8 @@ Future createTableCurrency(db) async {
       ${ItemCurrencyFields.uidParent} $textType,
       ${ItemCurrencyFields.course} $realType,
       ${ItemCurrencyFields.multiplicity} $realType,
-      ${ItemCurrencyFields.comment} $textType            
+      ${ItemCurrencyFields.comment} $textType,
+      ${ItemCurrencyFields.dateEdit} $textType            
       )
     ''');
 }

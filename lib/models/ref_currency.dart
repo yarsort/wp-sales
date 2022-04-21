@@ -10,6 +10,7 @@ class Currency {
   double course = 0.0;            // Курс валюты
   double multiplicity = 0.0;      // Кратность валюты
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   Currency();
 
@@ -23,6 +24,7 @@ class Currency {
     course = json['course'].toDouble() ?? 0.0;
     multiplicity = json['multiplicity'].toDouble() ?? 0.0;
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -38,6 +40,7 @@ class Currency {
     data['course'] = course;
     data['multiplicity'] = multiplicity;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }

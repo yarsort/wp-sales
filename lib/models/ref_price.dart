@@ -8,6 +8,7 @@ class Price {
   String name = '';               // Имя
   String uidParent = '';          // Ссылка на группу
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   Price();
 
@@ -19,6 +20,7 @@ class Price {
     name = json['name'] ?? '';
     uidParent = json['uidParent'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -32,6 +34,7 @@ class Price {
     data['name'] = name;
     data['uidParent'] = uidParent;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }

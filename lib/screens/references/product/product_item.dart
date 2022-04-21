@@ -105,6 +105,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
       widget.productItem.vendorCode = textFieldVendorCodeController.text;
       widget.productItem.barcode = textFieldBarcodeController.text;
       widget.productItem.comment = textFieldCommentController.text;
+      widget.productItem.dateEdit = DateTime.now();
 
       if (widget.productItem.id != 0) {
         await dbUpdateProduct(widget.productItem);

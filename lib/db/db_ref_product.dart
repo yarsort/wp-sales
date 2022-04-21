@@ -20,6 +20,7 @@ class ItemProductFields {
     nameUnit,
     barcode,
     comment,
+    dateEdit,
   ];
 
   /// Описание названий реквизитов таблицы ДБ в виде строк
@@ -34,6 +35,7 @@ class ItemProductFields {
   static const String nameUnit = 'nameUnit';
   static const String barcode = 'barcode';
   static const String comment = 'comment';
+  static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
@@ -50,7 +52,8 @@ Future createTableProduct(db) async {
       ${ItemProductFields.uidUnit} $textType,
       ${ItemProductFields.nameUnit} $textType,
       ${ItemProductFields.barcode} $textType,      
-      ${ItemProductFields.comment} $textType            
+      ${ItemProductFields.comment} $textType,
+      ${ItemProductFields.dateEdit} $textType            
       )
     ''');
 }

@@ -12,6 +12,7 @@ class Product {
   String nameUnit = '';           // Имя ед. изм.
   String barcode = '';            // Имя ед. изм.
   String comment = '';            // Коммментарий
+  DateTime dateEdit = DateTime.now(); // Дата редактирования
 
   Product();
 
@@ -27,6 +28,7 @@ class Product {
     nameUnit = json['nameUnit'] ?? '';
     barcode = json['barcode'] ?? '';
     comment = json['comment'] ?? '';
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
   }
 
   Map<String, dynamic> toJson() {
@@ -44,6 +46,7 @@ class Product {
     data['nameUnit'] = nameUnit;
     data['barcode'] = barcode;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     return data;
   }
 }
