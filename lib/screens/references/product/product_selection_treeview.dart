@@ -51,8 +51,6 @@ class _ScreenProductSelectionTreeViewState
   TextEditingController textFieldSearchRecommendController =
       TextEditingController();
 
-  ScrollController _scrollController = ScrollController();
-
   // Список товаров, которые ранее покупал клиент
   List<Product> listPurchasedProducts = [];
 
@@ -134,7 +132,6 @@ class _ScreenProductSelectionTreeViewState
         body: TabBarView(
           children: [
             Scrollbar(
-              controller: _scrollController,
               child: ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
