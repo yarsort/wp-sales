@@ -1,11 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wp_sales/db/init_db.dart';
-import 'package:wp_sales/home.dart';
-import 'package:wp_sales/screens/auth/login.dart';
+import 'package:wp_sales/system/splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,14 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return const ScreenHomePage();
-            }
-            return const ScreenLogin();
-          }),
+      home: const ScreenSplashScreen(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

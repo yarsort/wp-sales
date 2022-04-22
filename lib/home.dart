@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
-import 'package:wp_sales/models/accum_partner_depts.dart';
-import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 import 'import/import_model.dart';

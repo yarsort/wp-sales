@@ -28,7 +28,7 @@ class Product {
     nameUnit = json['nameUnit'] ?? '';
     barcode = json['barcode'] ?? '';
     comment = json['comment'] ?? '';
-    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
   }
 
   Map<String, dynamic> toJson() {

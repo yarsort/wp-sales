@@ -24,7 +24,7 @@ class Currency {
     course = json['course'].toDouble() ?? 0.0;
     multiplicity = json['multiplicity'].toDouble() ?? 0.0;
     comment = json['comment'] ?? '';
-    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
   }
 
   Map<String, dynamic> toJson() {

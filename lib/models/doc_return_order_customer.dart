@@ -22,6 +22,7 @@ class ReturnOrderCustomer {
   String nameCurrency = '';     // Наименование валюты заказа
   double sum = 0.0;             // Сумма документа
   String comment = '';          // Комментарий заказа
+  String coordinates = '';      // Координаты создания записи
   DateTime dateSending = DateTime(1900, 1, 1);      // Дата планируемой отгрузки заказа
   DateTime datePaying = DateTime(1900, 1, 1);       // Дата планируемой оплаты заказа
   int sendYesTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
@@ -69,6 +70,7 @@ class ReturnOrderCustomer {
     nameCurrency = json['nameCurrency'] ?? '';
     sum = json["sum"] ?? 0.0;
     comment = json['comment'] ?? '';
+    coordinates = json['coordinates'] ?? '';
     dateSending = DateTime.parse(json['dateSending']);
     datePaying = DateTime.parse(json['datePaying']);
     sendYesTo1C = json['sendYesTo1C'] ?? 0;
@@ -104,6 +106,7 @@ class ReturnOrderCustomer {
     data['nameCurrency'] = nameCurrency;
     data['sum'] = sum;
     data['comment'] = comment;
+    data['coordinates'] = coordinates;
     data['dateSending'] = dateSending.toIso8601String();
     data['datePaying'] = datePaying.toIso8601String();
     data['sendYesTo1C'] = sendYesTo1C;

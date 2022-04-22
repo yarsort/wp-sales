@@ -40,7 +40,7 @@ class Contract {
     phone = json['phone'] ?? '';
     address = json['address'] ?? '';
     comment = json['comment'] ?? '';
-    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
     uidOrganization = json['uidOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
     namePartner = json['namePartner'] ?? '';
@@ -70,6 +70,7 @@ class Contract {
     data['phone'] = phone;
     data['address'] = address;
     data['comment'] = comment;
+    data['dateEdit'] = dateEdit.toIso8601String();
     data['uidOrganization'] = uidOrganization;
     data['uidPartner'] = uidPartner;
     data['namePartner'] = namePartner;

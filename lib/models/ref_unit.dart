@@ -22,7 +22,7 @@ class Unit {
     uidParent = json['uidParent'] ?? '';
     multiplicity = json['multiplicity'] ?? 1.0;
     comment = json['comment'] ?? '';
-    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now());
+    dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
   }
 
   Map<String, dynamic> toJson() {

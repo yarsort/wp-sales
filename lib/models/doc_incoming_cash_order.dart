@@ -20,6 +20,7 @@ class IncomingCashOrder {
   String nameCashbox = '';      // Наименование кассы
   double sum = 0.0;             // Сумма документа
   String comment = '';          // Комментарий заказа
+  String coordinates = '';      // Координаты создания записи
   int sendYesTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
   int sendNoTo1C = 0;  // Булево: "Не отправлять в 1С" - для фильтрации в списках
   DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки заказа в 1С из мобильного устройства
@@ -48,6 +49,7 @@ class IncomingCashOrder {
     nameCashbox = json['nameCashbox'] ?? '';
     sum = json["sum"] ?? 0.0;
     comment = json['comment'] ?? '';
+    coordinates = json['coordinates'] ?? '';
     sendYesTo1C = json['sendYesTo1C'] ?? 0;
     sendNoTo1C = json['sendNoTo1C'] ?? 0;
     dateSendingTo1C = DateTime.parse(json['dateSendingTo1C']);
@@ -78,6 +80,7 @@ class IncomingCashOrder {
     data['nameCashbox'] = nameCashbox;
     data['sum'] = sum;
     data['comment'] = comment;
+    data['coordinates'] = coordinates;
     data['sendYesTo1C'] = sendYesTo1C;
     data['sendNoTo1C'] = sendNoTo1C;
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
