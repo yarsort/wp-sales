@@ -239,13 +239,8 @@ class _ScreenProductSelectionTreeViewState
     }
 
     /// Очистка данных
-
-    // Разделение надо для пагинации элементов в списке
-    listProducts
-        .clear(); // Список для найденных данных для отображения на форме
+    listProducts.clear();
     listProductsForListView.clear(); // Список для отображения на форме
-
-    //
     tempItems.clear();
     listProductsUID.clear();
     dummySearchList.clear();
@@ -313,18 +308,16 @@ class _ScreenProductSelectionTreeViewState
 
       // Добавим товар
       listProducts.add(newItem);
-
-      // Добавим товар для получения остатков и цен
-      if (newItem.isGroup == 0) {
-        listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
-      }
     }
 
     /// Поместим найденные товары в группу для возврата из поиска
     tempItems.addAll(listProducts);
 
-    // Получим первые товары на экран
-    _getMoreProductList();
+    /// Получим первые товары на экран
+    await _getMoreProductList();
+
+    /// Прочитаем идентификаторы товаров
+    await readProductsUID();
 
     /// Получим остатки и цены по найденным товарам
     await readPriceAndRests();
@@ -332,6 +325,16 @@ class _ScreenProductSelectionTreeViewState
     setState(() {
       loadingData = false;
     });
+  }
+
+  readProductsUID() async {
+    listProductsUID.clear();
+    for (var itemList in listProductsForListView ) {
+      // Добавим товар для получения остатков и цен
+      if (itemList.isGroup == 0) {
+        listProductsUID.add(itemList.uid); // Добавим для поиска цен и остатков
+      }
+    }
   }
 
   readPriceAndRests() async {
@@ -434,7 +437,15 @@ class _ScreenProductSelectionTreeViewState
       listProductsForListView.addAll(dummySearchList);
 
       _currentMax = 0;
-      _getMoreProductList();
+
+      /// Получим первые товары на экран
+      await _getMoreProductList();
+
+      /// Прочитаем идентификаторы товаров
+      await readProductsUID();
+
+      /// Получим остатки и цены по найденным товарам
+      await readPriceAndRests();
 
       if (mounted) {
         setState(() {});
@@ -466,7 +477,15 @@ class _ScreenProductSelectionTreeViewState
     }
 
     _currentMax = 0;
-    _getMoreProductList();
+
+    /// Получим первые товары на экран
+    await _getMoreProductList();
+
+    /// Прочитаем идентификаторы товаров
+    await readProductsUID();
+
+    /// Получим остатки и цены по найденным товарам
+    await readPriceAndRests();
 
     /// Обновим данные формы
     if (mounted) {
