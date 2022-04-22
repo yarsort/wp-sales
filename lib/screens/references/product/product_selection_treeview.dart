@@ -292,7 +292,6 @@ class _ScreenProductSelectionTreeViewState
     listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
 
     /// Заполним список товаров для отображения на форме
-    var tempCount = 0;
     for (var newItem in listDataProducts) {
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
       if (newItem.uid == parentProduct.uid) {
