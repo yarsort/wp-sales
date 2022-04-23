@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wp_sales/home.dart';
 import 'package:wp_sales/system/system.dart';
 
@@ -12,13 +13,22 @@ class ScreenSplashScreen extends StatefulWidget {
 }
 
 class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
-  bool visible = false;
 
+  bool visible = false;
   DateTime currentBackPressTime = DateTime.now();
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+  );
 
   @override
   void initState() {
     super.initState();
+
+    _initPackageInfo();
 
     //Splash screen или отображает кнопки регистрации или переводит на главный экран
     Timer(const Duration(seconds: 4), () async {
@@ -52,39 +62,37 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  SizedBox(
+                children: [
+                  const SizedBox(
                     height: 120,
                   ),
-                  FlutterLogo(size: 140),
-                  SizedBox(
+                  const FlutterLogo(size: 140),
+                  const SizedBox(
                     height: 50,
                   ),
-                  Text(
+                  const Text(
                     'WP Sales',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 50,
                         color: Colors.white),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
-                  Text(
+                  const Text(
                     'Помощник менеджера продаж',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         color: Colors.white70),
                   ),
-                  Expanded(child: SizedBox(),),
+                  const Expanded(child: SizedBox(),),
                   Text(
-                    'ТМ Yarsoft 2022',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70),
+                    'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
+                    style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                 ],
@@ -94,6 +102,13 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
   }
 
   onWillPop() {

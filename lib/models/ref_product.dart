@@ -6,6 +6,7 @@ class Product {
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя
+  String nameForSearch = '';               // Имя для поиска
   String vendorCode = '';         // Артикул товара в 1С
   String uidParent = '';          // Ссылка на группу
   String uidUnit = '';            // Ссылка на единицу измерения
@@ -22,6 +23,7 @@ class Product {
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
+    nameForSearch = json['name'].toLowerCase() ?? '';
     vendorCode = json['vendorCode'] ?? '';
     uidParent = json['uidParent'] ?? '';
     uidUnit = json['uidUnit'] ?? '';
@@ -40,6 +42,7 @@ class Product {
     data['uid'] = uid;
     data['code'] = code;
     data['name'] = name;
+    data['nameForSearch'] = nameForSearch;
     data['vendorCode'] = vendorCode;
     data['uidParent'] = uidParent;
     data['uidUnit'] = uidUnit;

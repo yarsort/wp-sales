@@ -14,6 +14,7 @@ class ItemProductFields {
     uid,
     code,
     name,
+    nameForSearch,
     vendorCode,
     uidParent,
     uidUnit,
@@ -29,6 +30,7 @@ class ItemProductFields {
   static const String uid = 'uid';
   static const String code = 'code';
   static const String name = 'name';
+  static const String nameForSearch = 'nameForSearch';
   static const String vendorCode = 'vendorCode';
   static const String uidParent = 'uidParent';
   static const String uidUnit = 'uidUnit';
@@ -47,6 +49,7 @@ Future createTableProduct(db) async {
       ${ItemProductFields.uid} $textType,
       ${ItemProductFields.code} $textType,      
       ${ItemProductFields.name} $textType,
+      ${ItemProductFields.nameForSearch} $textType,
       ${ItemProductFields.vendorCode} $textType,
       ${ItemProductFields.uidParent} $textType,
       ${ItemProductFields.uidUnit} $textType,
@@ -147,6 +150,13 @@ Future<List<Product>> dbReadAllProducts() async {
   return result.map((json) => Product.fromJson(json)).toList();
 }
 
+Future<List<Product>> dbReadAllProductsBySearch(searchValue) async {
+  final db = await instance.database;
+  const orderBy = '${ItemProductFields.nameForSearch} ASC';
+  final result = await db.query(tableProduct, orderBy: orderBy);
+  return result.map((json) => Product.fromJson(json)).toList();
+}
+
 Future<List<Product>> dbReadProductsByParent(String uidParent) async {
   final db = await instance.database;
   const orderBy = '${ItemProductFields.name} ASC';
@@ -161,7 +171,7 @@ Future<List<Product>> dbReadProductsForSearch(String searchString) async {
   final db = await instance.database;
   const orderBy = '${ItemProductFields.name} ASC';
   final result = await db.query(tableProduct,
-      where: 'LOWER(${ItemProductFields.name}) LIKE LOWER(?)',
+      where: '${ItemProductFields.nameForSearch} LIKE ?',
       whereArgs: ['%$searchString%'],
       orderBy: orderBy);
   return result.map((json) => Product.fromJson(json)).toList();

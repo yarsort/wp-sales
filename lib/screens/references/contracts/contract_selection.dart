@@ -229,6 +229,9 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                                 Duration(days: contractItem.schedulePayment));
                             widget.orderCustomer?.datePaying = tempDate;
                           }
+
+                          widget.orderCustomer?.uidPrice = contractItem.uidPrice;
+                          widget.orderCustomer?.namePrice = contractItem.namePrice;
                         }
 
                         if (widget.returnOrderCustomer != null) {
@@ -236,6 +239,8 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                               contractItem.uid;
                           widget.returnOrderCustomer?.nameContract =
                               contractItem.name;
+                          widget.orderCustomer?.uidPrice = contractItem.uidPrice;
+                          widget.orderCustomer?.namePrice = contractItem.namePrice;
                         }
                       });
                       Navigator.pop(context);

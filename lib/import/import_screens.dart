@@ -13,6 +13,9 @@ export 'package:wp_sales/screens/references/unit/unit_list.dart';
 export 'package:wp_sales/screens/references/warehouses/warehouse_list.dart';
 export 'package:wp_sales/screens/references/product/add_item.dart';
 
+// Items
+export 'package:wp_sales/screens/references/product/product_item.dart';
+
 // Exchange
 export 'package:wp_sales/screens/exchange/exchange.dart';
 
@@ -20,6 +23,7 @@ export 'package:wp_sales/screens/exchange/exchange.dart';
 export 'package:wp_sales/screens/references/organizations/organization_selection.dart';
 export 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
 export 'package:wp_sales/screens/references/partners/partner_selection.dart';
+export 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 export 'package:wp_sales/screens/references/price/price_selection.dart';
 export 'package:wp_sales/screens/references/warehouses/warehouse_selection.dart';
 

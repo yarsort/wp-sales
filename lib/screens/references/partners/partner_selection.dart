@@ -211,6 +211,8 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                           }
                           widget.orderCustomer?.uidContract = itemContract.uid;
                           widget.orderCustomer?.nameContract = itemContract.name;
+                          widget.orderCustomer?.uidPrice = itemContract.uidPrice;
+                          widget.orderCustomer?.namePrice = itemContract.namePrice;
                         }
                       }
 
@@ -226,6 +228,8 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
                           }
                           widget.returnOrderCustomer?.uidContract = itemContract.uid;
                           widget.returnOrderCustomer?.nameContract = itemContract.name;
+                          widget.orderCustomer?.uidPrice = itemContract.uidPrice;
+                          widget.orderCustomer?.namePrice = itemContract.namePrice;
                         }
                       }
 

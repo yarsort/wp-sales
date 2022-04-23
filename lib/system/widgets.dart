@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_screens.dart';
@@ -28,10 +29,19 @@ class _MainDrawerState extends State<MainDrawer> {
   String nameUser = '';
   String emailUser = '';
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+  );
+
   @override
   void initState() {
-    renewItem();
     super.initState();
+    _renewItem();
+    _initPackageInfo();
   }
 
   @override
@@ -321,33 +331,26 @@ class _MainDrawerState extends State<MainDrawer> {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
                           builder: (context) => const ScreenLogin()));
                     }),
+                ListTile(
+                    title: Text(
+                      'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
+                      style: const TextStyle(color: Colors.grey), textAlign: TextAlign.center,
+                    ),
+                    ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
-                Text(
-                  'TM Yarsoft. Версия: 1.0.0',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          )
         ],
       ),
     );
   }
 
-  renewItem() async {
+  Future<void> _renewItem() async {
     final SharedPreferences prefs = await _prefs;
 
     // Идентификатор пользователя в приложении для обмена данными
-    nameUser = prefs.getString('settings_NameUser') ?? 'Тестовый пользователь';
-    emailUser = prefs.getString('settings_EmailUser') ?? 'test@yarsoft.com.ua';
+    nameUser = prefs.getString('settings_nameUser') ?? 'Тестовый пользователь';
+    emailUser = prefs.getString('settings_emailUser') ?? 'test@yarsoft.com.ua';
 
     countOrderCustomer = await dbGetCountSendOrderCustomer();
     countReturnOrderCustomer = await dbGetCountSendReturnOrderCustomer();
@@ -362,6 +365,13 @@ class _MainDrawerState extends State<MainDrawer> {
     countWarehouse = await dbGetCountWarehouse();
 
     setState(() {});
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
   }
 
   countNotification(int countNotification) {

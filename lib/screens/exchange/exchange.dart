@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:path_provider/path_provider.dart';
@@ -30,7 +31,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   @override
   void setState(VoidCallback fn) {
-    if (!mounted){
+    if (!mounted) {
       return;
     }
     super.setState(fn);
@@ -61,7 +62,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                       ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
                             Navigator.of(context).pop(false);
                           },
@@ -270,7 +271,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Начало получения данных
   Future<void> downloadData() async {
-
     if (!_loading) {
       return;
     }
@@ -403,7 +403,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         //listLogs.add('Получен файл обмена: $localFile');
 
         bool resDel = await ftpClient.deleteFile(pathFile);
-        if(!resDel) {
+        if (!resDel) {
           listLogs.add('Ошибка удаления файл обмена из FTP: $pathFile');
         }
 
@@ -494,27 +494,86 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var settingsMap = jsonData['Settings'];
 
+    /// Параметры пользователя
+    String settingsNameUser = prefs.getString('settings_nameUser') ?? '';
+    if (settingsNameUser.isEmpty ||
+        settingsNameUser == 'Тестовый пользователь') {
+      prefs.setString('settings_nameUser', settingsMap['nameUser']);
+    }
+
     /// Настройки пользователя (по-умолчанию)
-    String settingsUidOrganization = prefs.getString('settings_uidOrganization') ?? '';
-    if(settingsUidOrganization.isEmpty){
-      prefs.setString('settings_uidOrganization', settingsMap['settings_uidOrganization']);
+    String settingsUidOrganization =
+        prefs.getString('settings_uidOrganization') ?? '';
+    if (settingsUidOrganization.isEmpty) {
+      prefs.setString(
+          'settings_uidOrganization', settingsMap['settings_uidOrganization']);
     }
     // String settingsUidPartner = prefs.getString('settings_uidPartner') ?? '';
     // if(settingsUidPartner.isEmpty){
     //   prefs.setString('settings_uidPartner', settingsMap['settings_uidPartner']);
     // }
     String settingsUidPrice = prefs.getString('settings_uidPrice') ?? '';
-    if(settingsUidPrice.isEmpty){
+    if (settingsUidPrice.isEmpty) {
       prefs.setString('settings_uidPrice', settingsMap['settings_uidPrice']);
     }
     String settingsUidCashbox = prefs.getString('settings_uidCashbox') ?? '';
-    if(settingsUidCashbox.isEmpty){
-      prefs.setString('settings_uidCashbox', settingsMap['settings_uidCashbox']);
+    if (settingsUidCashbox.isEmpty) {
+      prefs.setString(
+          'settings_uidCashbox', settingsMap['settings_uidCashbox']);
     }
-    String settingsUidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
-    if(settingsUidWarehouse.isEmpty){
-      prefs.setString('settings_uidWarehouse', settingsMap['settings_uidWarehouse']);
+    String settingsUidWarehouse =
+        prefs.getString('settings_uidWarehouse') ?? '';
+    if (settingsUidWarehouse.isEmpty) {
+      prefs.setString(
+          'settings_uidWarehouse', settingsMap['settings_uidWarehouse']);
     }
+
+    /// Запреты и разрешения для пользователя
+    prefs.setBool(
+        'settings_deniedAddOrganization',
+        settingsMap['settings_deniedAddOrganization'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddPartner',
+        settingsMap['settings_deniedAddPartner'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddContract',
+        settingsMap['settings_deniedAddContract'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddProduct',
+        settingsMap['settings_deniedAddProduct'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddUnit',
+        settingsMap['settings_deniedAddUnit'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddPrice',
+        settingsMap['settings_deniedAddPrice'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddCurrency',
+        settingsMap['settings_deniedAddCurrency'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddWarehouse',
+        settingsMap['settings_deniedAddWarehouse'] == 'false'
+            ? false
+            : true);
+    prefs.setBool(
+        'settings_deniedAddCashbox',
+        settingsMap['settings_deniedAddCashbox'] == 'false'
+            ? false
+            : true);
 
     /// Организации
     if (jsonData['Organizations'] != null) {
@@ -581,7 +640,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         countItem++;
       }
       // После записи документов, обновим записи по регистраторам без номера документа
-      listLogs.add('Взаиморасчеты по документам расчета: ' + countItem.toString() + ' шт');
+      listLogs.add('Взаиморасчеты по документам расчета: ' +
+          countItem.toString() +
+          ' шт');
       setState(() {
         _valueProgress = 0.55;
       });
@@ -736,7 +797,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
         if (item['typeDoc'] == 'incomingCashOrder') {
           // Получим объект
-          var incomingCashOrder = await dbReadIncomingCashOrderUID(item['uidDoc']);
+          var incomingCashOrder =
+              await dbReadIncomingCashOrderUID(item['uidDoc']);
 
           // Запишем номер документа из учетной системы
           incomingCashOrder.numberFrom1C = item['numberDoc'];
@@ -747,10 +809,12 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
         if (item['typeDoc'] == 'returnOrderCustomer') {
           // Получим объект
-          var returnOrderCustomer = await dbReadReturnOrderCustomer(item['uidDoc']);
+          var returnOrderCustomer =
+              await dbReadReturnOrderCustomer(item['uidDoc']);
 
           // Получим товары
-          var itemsOrder = await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
+          var itemsOrder =
+              await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
 
           // Запишем номер документа из учетной системы
           returnOrderCustomer.numberFrom1C = item['numberDoc'];
@@ -785,7 +849,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   // Начало отправки данных
   Future<void> uploadData() async {
-
     if (!_loading) {
       return;
     }
@@ -806,22 +869,24 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Отправим на FTP-сервер
       var res = await uploadDataToFTP(listToUpload);
       if (res) {
-
         /// Установим статус отправлено у записей
         // Заказ покупателя
-        List<OrderCustomer> listDocsOrderCustomer = await dbReadAllNewOrderCustomer();
+        List<OrderCustomer> listDocsOrderCustomer =
+            await dbReadAllNewOrderCustomer();
         for (var itemDoc in listDocsOrderCustomer) {
           itemDoc.status = 2;
           await dbUpdateOrderCustomerWithoutItems(itemDoc);
         }
         // Возврат заказа покупателя
-        List<ReturnOrderCustomer> listDocsReturnOrderCustomer = await dbReadAllNewReturnOrderCustomer();
+        List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
+            await dbReadAllNewReturnOrderCustomer();
         for (var itemDoc in listDocsReturnOrderCustomer) {
           itemDoc.status = 2;
           await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
         }
         // Приходный кассовый ордер
-        List<IncomingCashOrder> listDocsIncomingCashOrder = await dbReadAllNewIncomingCashOrder();
+        List<IncomingCashOrder> listDocsIncomingCashOrder =
+            await dbReadAllNewIncomingCashOrder();
         for (var itemDoc in listDocsIncomingCashOrder) {
           itemDoc.status = 2;
           await dbUpdateIncomingCashOrder(itemDoc);
@@ -1032,7 +1097,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   Future<List> createListDocsReturnOrderCustomer(
       List<dynamic> numberDocs) async {
     // Получим данные для выгрузки
-    List<ReturnOrderCustomer> listDocs = await dbReadAllNewReturnOrderCustomer();
+    List<ReturnOrderCustomer> listDocs =
+        await dbReadAllNewReturnOrderCustomer();
 
     // Каждый документ выгрузим в JSON
     List dataList = [];
@@ -1050,7 +1116,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Конвертация товаров
       var listDataProduct = [];
       List<ItemReturnOrderCustomer> listItemOrderCustomer =
-      await dbReadItemsReturnOrderCustomer(itemDoc.id);
+          await dbReadItemsReturnOrderCustomer(itemDoc.id);
       for (var itemOrderCustomer in listItemOrderCustomer) {
         var dataProduct = itemOrderCustomer.toJson();
         listDataProduct.add(dataProduct);

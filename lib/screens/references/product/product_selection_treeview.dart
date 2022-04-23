@@ -54,9 +54,6 @@ class _ScreenProductSelectionTreeViewState
   // Список товаров, которые ранее покупал клиент
   List<Product> listPurchasedProducts = [];
 
-  // Список товаров для возвращения из поиска
-  List<Product> tempItems = [];
-
   // Список товаров для вывода на экран
   List<Product> listProducts = [];
 
@@ -86,31 +83,17 @@ class _ScreenProductSelectionTreeViewState
   @override
   void initState() {
     super.initState();
-
     loadDefault();
     renewItem();
     renewPurchasedItem();
   }
 
-  _getMoreProductList() {
+  getMoreProductList() async {
 
-    for (int i = _currentMax; i < _currentMax + countLoadItems; i++) {
-      if (i < listProducts.length) {
-        listProductsForListView.add(listProducts[i]);
-      }
-    }
 
-    _currentMax = _currentMax + countLoadItems;
-    _currentMax++; // Для пункта "Показать больше"
 
-    // Добавим пункт "Показать больше"
-    if(listProducts.length > listProductsForListView.length){
-      listProductsForListView.add(Product());  // Добавим пустой товар
-    }
+    setState(() {});
 
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   @override
@@ -227,10 +210,6 @@ class _ScreenProductSelectionTreeViewState
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData')!;
 
-    setState(() {
-      loadingData = true;
-    });
-
     _currentMax = 0;
 
     // Главный каталог всегда будет стаким идентификатором
@@ -241,7 +220,6 @@ class _ScreenProductSelectionTreeViewState
     /// Очистка данных
     listProducts.clear();
     listProductsForListView.clear(); // Список для отображения на форме
-    tempItems.clear();
     listProductsUID.clear();
     dummySearchList.clear();
 
@@ -266,8 +244,15 @@ class _ScreenProductSelectionTreeViewState
         // Покажем товары текущего родителя
         listDataProducts = await dbReadProductsByParent(parentProduct.uid);
       } else {
-        // Покажем все товары
-        listDataProducts = await dbReadAllProducts();
+
+        String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
+        if (searchString.toLowerCase().length >= 3) {
+          // Покажем все товары для поиска
+          listDataProducts = await dbReadProductsForSearch(searchString);
+        } else {
+          // Покажем все товары
+          listDataProducts = await dbReadAllProducts();
+        }
       }
 
       debugPrint(
@@ -310,53 +295,58 @@ class _ScreenProductSelectionTreeViewState
       listProducts.add(newItem);
     }
 
-    /// Поместим найденные товары в группу для возврата из поиска
-    tempItems.addAll(listProducts);
-
     /// Получим первые товары на экран
-    await _getMoreProductList();
-
-    /// Прочитаем идентификаторы товаров
-    await readProductsUID();
-
-    /// Получим остатки и цены по найденным товарам
-    await readPriceAndRests();
-
-    setState(() {
-      loadingData = false;
-    });
-  }
-
-  readProductsUID() async {
-    listProductsUID.clear();
-    for (var itemList in listProductsForListView ) {
-      // Добавим товар для получения остатков и цен
-      if (itemList.isGroup == 0) {
-        listProductsUID.add(itemList.uid); // Добавим для поиска цен и остатков
+    for (int i = _currentMax; i < _currentMax + countLoadItems; i++) {
+      if (i < listProducts.length) {
+        listProductsForListView.add(listProducts[i]);
       }
     }
-  }
 
-  readPriceAndRests() async {
+    _currentMax = _currentMax + countLoadItems;
+    _currentMax++; // Для пункта "Показать больше"
+
+    // Добавим пункт "Показать больше"
+    if(listProducts.length > listProductsForListView.length){
+      listProductsForListView.add(Product());  // Добавим пустой товар
+    }
+
+    /// Получим остатки и цены по найденным товарам
     listProductPrice.clear();
     listProductRest.clear();
 
-    //Нет данных - нет вывода на форму
+    /// Получим список товаров для которых надо показать цены и остатки
+    listProductsUID.clear();
+    for (var itemList in listProductsForListView ) {
+      // Проверка на пустой товар в списке. Это может быть пункт "Показать больше"
+      if (itemList.id == 0) {
+        continue;
+      }
+      // Проверка на каталог. Если товар, то грузим.
+      if (itemList.isGroup == 0) {
+        listProductsUID.add(itemList.uid); // Добавим для поиска цен и остатков
+        debugPrint('Получение товара: ' + itemList.name);
+      }
+    }
+
+    ///Нет данных - нет вывода на форму
     if (listProductsUID.isEmpty) {
       return;
     }
 
-    // Цены товаров
-    listProductPrice =
-        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    /// Цены товаров
+    listProductPrice.addAll(await dbReadAccumProductPriceByUIDProducts(listProductsUID));
+    /// Остатки товаров
+    listProductRest.addAll(await dbReadAccumProductRestByUIDProducts(listProductsUID));
+
     debugPrint('Цены товаров: ' + listProductPrice.length.toString());
-
-    // Остатки товаров
-    listProductRest =
-        await dbReadAccumProductRestByUIDProducts(listProductsUID);
-
     debugPrint('Остатки товаров: ' + listProductRest.length.toString());
-    // debugPrint(listProductRest.join(', '));
+
+    setState(() {});
+  }
+
+  readPriceAndRests() async {
+
+
   }
 
   void renewPurchasedItem() async {
@@ -417,94 +407,13 @@ class _ScreenProductSelectionTreeViewState
         listPurchasedProducts.length.toString());
   }
 
-  void filterSearchCatalogResults(String query) async {
-    /// Уберем пробелы
-    query = query.trim();
-
-    /// Искать от 2 символов
-    if (query.length <= 2) {
-      return;
-    }
-
-    /// Если нечего искать, то заполним
-    if (query.isNotEmpty) {
-      listProducts.clear();
-      listProductsForListView.clear(); // Список для отображения на форме
-    } else {
-      listProducts.clear();
-      listProductsForListView.clear(); // Список для отображения на форме
-      listProducts.addAll(dummySearchList);
-      listProductsForListView.addAll(dummySearchList);
-
-      _currentMax = 0;
-
-      /// Получим первые товары на экран
-      await _getMoreProductList();
-
-      /// Прочитаем идентификаторы товаров
-      await readProductsUID();
-
-      /// Получим остатки и цены по найденным товарам
-      await readPriceAndRests();
-
-      if (mounted) {
-        setState(() {});
-      }
-      return;
-    }
-
-    List<Product> dummyListData = [];
-
-    for (var item in dummySearchList) {
-      /// Группы в поиске не отображать
-      if (item.isGroup == 1) {
-        return;
-      }
-
-      /// Поиск по имени
-      if (item.name.toLowerCase().contains(query.toLowerCase())) {
-        dummyListData.add(item);
-      }
-    }
-
-    ///  Заполним список найденными или всеми товарами
-    if (dummyListData.isNotEmpty) {
-      listProducts.clear();
-      listProducts.addAll(dummyListData);
-    } else {
-      listProducts.clear();
-      listProducts.addAll(dummySearchList);
-    }
-
-    _currentMax = 0;
-
-    /// Получим первые товары на экран
-    await _getMoreProductList();
-
-    /// Прочитаем идентификаторы товаров
-    await readProductsUID();
-
-    /// Получим остатки и цены по найденным товарам
-    await readPriceAndRests();
-
-    /// Обновим данные формы
-    if (mounted) {
-      setState(() {});
-    }
-
-  }
-
   searchTextFieldCatalog() {
     var validateSearch = false;
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
         onSubmitted: (String value) {
-          filterSearchCatalogResults(value);
-
-          if (value.trim().isEmpty) {
-            renewItem();
-          }
+          renewItem();
         },
         controller: textFieldSearchCatalogController,
         decoration: InputDecoration(
@@ -521,8 +430,7 @@ class _ScreenProductSelectionTreeViewState
             children: [
               IconButton(
                 onPressed: () async {
-                  var value = textFieldSearchCatalogController.text;
-                  filterSearchCatalogResults(value);
+                  renewItem();
                 },
                 icon: const Icon(Icons.search, color: Colors.blue),
               ),
@@ -606,7 +514,7 @@ class _ScreenProductSelectionTreeViewState
                         // Удалим пункт "Показать больше"
                         _currentMax--; // Для пункта "Показать больше"
                         listProductsForListView.remove(listProductsForListView[index]);
-                        _getMoreProductList();
+                        getMoreProductList();
                       },
                     )
                   : (productItem.isGroup == 1)
@@ -877,7 +785,7 @@ class _ProductItemState extends State<ProductItem> {
   @override
   void initState() {
     super.initState();
-    renewItem();
+    renewItemInTile();
   }
 
   @override
@@ -944,7 +852,7 @@ class _ProductItemState extends State<ProductItem> {
     );
   }
 
-  renewItem() async {
+  renewItemInTile() async {
     var indexItemPrice = listProductPrice.indexWhere((element) =>
         element.uidProduct == widget.product.uid &&
         element.uidPrice == widget.uidPriceProductItem);
@@ -965,12 +873,12 @@ class _ProductItemState extends State<ProductItem> {
       countOnWarehouse = 0.000;
     }
 
-    //debugPrint('Товар: '+widget.product.name+'. Цена: '+price.toString()+'. Остаток: '+countOnWarehouse.toString());
+    debugPrint('Товар: '+widget.product.name+'. Цена: '+price.toString()+'. Остаток: '+countOnWarehouse.toString());
+
+    setState(() {});
 
     if (mounted) {
-      setState(() {
-        // Your state change code goes here
-      });
+
     }
   }
 }
