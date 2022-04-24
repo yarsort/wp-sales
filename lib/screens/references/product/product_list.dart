@@ -1,6 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
@@ -12,6 +13,10 @@ List<AccumProductPrice> listProductPrice = [];
 
 // Остатки товаров
 List<AccumProductRest> listProductRest = [];
+
+String uidPrice = '';
+
+String uidWarehouse = '';
 
 class ScreenProductList extends StatefulWidget {
   const ScreenProductList({
@@ -28,8 +33,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
   bool showProductHierarchy = true;
 
   bool visibleParameters = false;
-  String uidWarehouse = '';
-  String uidPrice = '';
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
@@ -42,11 +45,10 @@ class _ScreenProductListState extends State<ScreenProductList> {
   TextEditingController textFieldPriceController = TextEditingController();
   TextEditingController textFieldWarehouseController = TextEditingController();
 
-  // Список товаров для возвращения из поиска
-  List<Product> tempItems = [];
-
   // Список товаров для вывода на экран
   List<Product> listProducts = [];
+
+  List<Product> listProductsForListView = [];
 
   // Список тестовых товаров
   List<Product> listDataProducts = [];
@@ -62,6 +64,12 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
   // Текущий выбранный каталог иерархии товаров
   Product parentProduct = Product();
+
+  String? barcode;
+
+  // Количество элементов в автозагрузке списка
+  int _currentMax = 0;
+  int countLoadItems = 20;
 
   @override
   void initState() {
@@ -92,7 +100,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                listViewCatalogTree(),
+                listViewCatalog(),
               ],
             ),
             ListView(
@@ -103,6 +111,48 @@ class _ScreenProductListState extends State<ScreenProductList> {
         ),
       ),
     );
+  }
+
+  Future<void> scanBarcodeNormal() async {
+    String barcodeScanRes;
+
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      debugPrint(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      barcode = barcodeScanRes;
+    });
+
+    Product productItem = await dbReadProductByBarcode(barcodeScanRes);
+    if (productItem.id != 0) {
+      // await Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => ScreenAddItem(
+      //         listItemDoc: widget.listItemDoc,
+      //         orderCustomer: widget.orderCustomer,
+      //         returnOrderCustomer: widget.returnOrderCustomer,
+      //         listItemReturnDoc: widget.listItemReturnDoc,
+      //         product: productItem),
+      //   ),
+      // );
+    } else {
+      if (barcodeScanRes == '-1') {
+        return;
+      }
+      showMessage('Товар с штрихкодом: ' + barcodeScanRes + ' не найден!', context);
+    }
   }
 
   fillSetting() async {
@@ -121,16 +171,26 @@ class _ScreenProductListState extends State<ScreenProductList> {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData')!;
 
-    // Главный каталог всегда будет стаким идентификатором
+    _currentMax = 0;
+
+    // Главный каталог всегда будет с таким идентификатором
     if (parentProduct.uid == '') {
       parentProduct.uid = '00000000-0000-0000-0000-000000000000';
     }
 
-    // Очистка списка заказов покупателя
-    listProducts.clear();
-    tempItems.clear();
-    listProductsUID.clear();
-    dummySearchList.clear();
+    /// Очистка данных
+    setState(() {
+
+      listProducts.clear();
+      listProductsForListView.clear(); // Список для отображения на форме
+      listProductsUID.clear();
+      dummySearchList.clear();
+
+      /// Получим остатки и цены по найденным товарам
+      listProductPrice.clear();
+      listProductRest.clear();
+
+    });
 
     ///Первым в список добавим каталог товаров, если он есть
     if (showProductHierarchy) {
@@ -153,12 +213,19 @@ class _ScreenProductListState extends State<ScreenProductList> {
         // Покажем товары текущего родителя
         listDataProducts = await dbReadProductsByParent(parentProduct.uid);
       } else {
-        // Покажем все товары
-        listDataProducts = await dbReadAllProducts();
+
+        String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
+        if (searchString.toLowerCase().length >= 3) {
+          // Покажем все товары для поиска
+          listDataProducts = await dbReadProductsForSearch(searchString);
+        } else {
+          // Покажем все товары
+          listDataProducts = await dbReadAllProducts();
+        }
       }
 
-      debugPrint(
-          'Реальные данные загружены! ' + listDataProducts.length.toString());
+      //debugPrint(
+      //    'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
 
     /// Заполним для поиска товаров
@@ -195,17 +262,46 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
       // Добавим товар
       listProducts.add(newItem);
+    }
 
-      // Добавим товар для получения остатков и цен
-      if (newItem.isGroup == 0) {
-        listProductsUID.add(newItem.uid); // Добавим для поиска цен и остатков
+    await readAdditionalProductsToView();
+
+    setState(() {});
+  }
+
+  readAdditionalProductsToView() async {
+    /// Получим первые товары на экран
+    for (int i = _currentMax; i < _currentMax + countLoadItems; i++) {
+      if (i < listProducts.length) {
+        listProductsForListView.add(listProducts[i]);
+        debugPrint('Добавлен товар: ' + listProducts[i].name);
       }
     }
 
-    /// Поместим найденные товары в группу для возврата из поиска
-    tempItems.addAll(listProducts);
+    _currentMax = _currentMax + countLoadItems;
+    _currentMax++; // Для пункта "Показать больше"
 
-    /// Получим остатки и цены по найденным товарам
+    // Добавим пункт "Показать больше"
+    if(listProducts.length > listProductsForListView.length){
+      listProductsForListView.add(Product());  // Добавим пустой товар
+    }
+
+    /// Получим список товаров для которых надо показать цены и остатки
+    for (var itemList in listProductsForListView) {
+      // Проверка на каталог. Если товар, то грузим.
+      if (itemList.isGroup == 0) {
+        listProductsUID.add(itemList.uid); // Добавим для поиска цен и остатков
+        //debugPrint('Получение товара: ' + itemList.name);
+      }
+    }
+
+    ///Нет данных - нет вывода на форму
+    if (listProductsUID.isEmpty) {
+      debugPrint('Нет товаров для отображения цен и остатков! Товаров: ' + listProductsForListView.length.toString());
+    } else {
+      debugPrint('Есть товары для отображения цен и остатков! Товаров: ' + listProductsForListView.length.toString());
+    }
+
     await readPriceAndRests();
 
     setState(() {});
@@ -213,77 +309,38 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
   readPriceAndRests() async {
 
-    listProductPrice.clear();
-    listProductRest.clear();
-
-    //Нет данных - нет вывода на форму
     if (listProductsUID.isEmpty) {
+      debugPrint('Нет UIDs дл вывода остатков и цен...');
       return;
     }
 
-    // Цены товаров
-    listProductPrice =
-        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    // /// Цены товаров
+    // List<AccumProductPrice> listProductPriceTemp = await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    // /// Остатки товаров
+    // List<AccumProductRest> listProductRestTemp = await dbReadAccumProductRestByUIDProducts(listProductsUID);
 
-    // debugPrint('Цены товаров: '+listProductPrice.length.toString());
+    /// Цены товаров
+    listProductPrice = await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    /// Остатки товаров
+    listProductRest = await dbReadAccumProductRestByUIDProducts(listProductsUID);
 
-    // Остатки товаров
-    listProductRest =
-        await dbReadAccumProductRestByUIDProducts(listProductsUID);
+    debugPrint('Цены товаров: ' + listProductPrice.length.toString());
+    debugPrint('Остатки товаров: ' + listProductRest.length.toString());
 
-    // debugPrint('Остатки товаров: '+listProductRest.length.toString());
-    // debugPrint(listProductRest.join(', '));
-
-  }
-
-  void filterSearchCatalogResults(String query) async {
-    /// Уберем пробелы
-    query = query.trim();
-
-    /// Если нечего искать, то заполним
-    if (query.isNotEmpty) {
-      listProducts.clear();
-    } else {
-      listProducts.clear();
-      listProducts.addAll(dummySearchList);
-      return;
-    }
-
-    List<Product> dummyListData = [];
-
-    for (var item in dummySearchList) {
-      /// Группы в поиске не отображать
-      if (item.isGroup == 1) {
-        return;
-      }
-
-      /// Поиск по имени
-      if (item.name.toLowerCase().contains(query.toLowerCase())) {
-        dummyListData.add(item);
-      }
-    }
-
-    ///  Заполним список найденными или всеми товарами
-    if (dummyListData.isNotEmpty) {
-      listProducts.clear();
-      listProducts.addAll(dummyListData);
-    } else {
-      listProducts.clear();
-      listProducts.addAll(dummySearchList);
-    }
-
-    /// Обновим данные формы
-    setState(() {});
+    setState(() {
+      debugPrint('Обновлено...');
+    });
   }
 
   listParameters() {
+    var validateSearch = false;
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              filterSearchCatalogResults(value);
+            onSubmitted: (String value) {
+              renewItem();
             },
             controller: textFieldSearchCatalogController,
             decoration: InputDecoration(
@@ -293,14 +350,14 @@ class _ScreenProductListState extends State<ScreenProductList> {
                 color: Colors.blueGrey,
               ),
               labelText: 'Поиск',
+              errorText: validateSearch ? 'Вы не указали строку поиска!' : null,
               suffixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     onPressed: () async {
-                      var value = textFieldSearchCatalogController.text;
-                      filterSearchCatalogResults(value);
+                      renewItem();
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
                   ),
@@ -311,27 +368,73 @@ class _ScreenProductListState extends State<ScreenProductList> {
                     },
                     icon: const Icon(Icons.delete, color: Colors.red),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      setState(() {
-                        showProductHierarchy = !showProductHierarchy;
-                        parentProduct = Product();
-                        treeParentItems.clear();
-                        textFieldSearchCatalogController.text = '';
-                      });
-                      renewItem();
+                  PopupMenuButton<String>(
+                    onSelected: (String value) async {
+                      if (value == 'showProductHierarchy') {
+                        setState(() {
+                          showProductHierarchy = !showProductHierarchy;
+                          parentProduct = Product();
+                          treeParentItems.clear();
+                          textFieldSearchCatalogController.text = '';
+                        });
+                        renewItem();
+                      }
+                      if (value == 'scanProduct') {
+                        scanBarcodeNormal();
+                      }
+                      if (value == 'showParameters') {
+                        setState(() {
+                          visibleParameters = !visibleParameters;
+                        });
+                      }
                     },
-                    icon: const Icon(Icons.source, color: Colors.blue),
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      setState(() {
-                        visibleParameters = !visibleParameters;
-                      });
-                    },
-                    icon: visibleParameters
-                        ? const Icon(Icons.filter_list, color: Colors.red)
-                        : const Icon(Icons.filter_list, color: Colors.blue),
+                    icon: const Icon(Icons.more_vert, color: Colors.blue),
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      PopupMenuItem<String>(
+                        value: 'showProductHierarchy',
+                        child: Row(
+                          children: const [
+                            Icon(
+                              Icons.source,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text('Выключить иерархию'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'showParameters',
+                        child: Row(
+                          children: [
+                            visibleParameters
+                                ? const Icon(Icons.filter_list, color: Colors.red)
+                                : const Icon(Icons.filter_list, color: Colors.blue),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            const Text('Отбор'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'scanProduct',
+                        child: Row(
+                          children: const [
+                            Icon(
+                              Icons.qr_code_scanner,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text('Сканировать товар'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -489,54 +592,100 @@ class _ScreenProductListState extends State<ScreenProductList> {
     );
   }
 
-  listViewCatalogTree() {
+  listViewCatalog() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 11, 14),
       child: ColumnBuilder(
-          itemCount: listProducts.length,
+          itemCount: listProductsForListView.length,
           itemBuilder: (context, index) {
-            var productItem = listProducts[index];
+            var productItem = listProductsForListView[index];
+            var price = 0.0;
+            var countOnWarehouse = 0.0;
+
+            var indexItemPrice = listProductPrice.indexWhere((element) =>
+            element.uidProduct == productItem.uid &&
+                element.uidPrice == uidPrice);
+            if (indexItemPrice >= 0) {
+              var itemList = listProductPrice[indexItemPrice];
+              price = itemList.price;
+            } else {
+              price = 0.0;
+            }
+
+            var indexItemRest = listProductRest.indexWhere((element) =>
+            element.uidProduct == productItem.uid &&
+                element.uidWarehouse == uidWarehouse);
+            if (indexItemRest >= 0) {
+              var itemList = listProductRest[indexItemRest];
+              countOnWarehouse = itemList.count;
+            } else {
+              countOnWarehouse = 0.000;
+            }
 
             return Card(
               elevation: 2,
-              child: (productItem.isGroup == 1)
+              child: (productItem.id == 0)
+                  ? MoreItem(
+                textItem: 'Показать больше',
+                tap: () {
+                  // Удалим пункт "Показать больше"
+                  _currentMax--; // Для пункта "Показать больше"
+                  listProductsForListView.remove(listProductsForListView[index]);
+                  readAdditionalProductsToView();
+                  setState(() {});
+                },
+              )
+                  : (productItem.isGroup == 1)
                   ? DirectoryItem(
-                      parentProduct: parentProduct,
-                      product: productItem,
-                      tap: () {
-                        if (productItem.uid == parentProduct.uid) {
-                          if (treeParentItems.isNotEmpty) {
-                            // Назначим нового родителя выхода из узла дерева
-                            parentProduct =
-                                treeParentItems[treeParentItems.length - 1];
+                parentProduct: parentProduct,
+                product: productItem,
+                tap: () {
+                  if (productItem.uid == parentProduct.uid) {
+                    if (treeParentItems.isNotEmpty) {
+                      // Назначим нового родителя выхода из узла дерева
+                      parentProduct =
+                      treeParentItems[treeParentItems.length - 1];
 
-                            // Удалим старого родителя для будущего узла
-                            treeParentItems.remove(
-                                treeParentItems[treeParentItems.length - 1]);
-                          } else {
-                            // Отправим дерево на его самый главный узел
-                            parentProduct = Product();
-                          }
-                          renewItem();
-                        } else {
-                          treeParentItems.add(parentProduct);
-                          parentProduct = productItem;
-                          renewItem();
-                        }
-                      },
-                      popTap: () {},
-                    )
+                      // Удалим старого родителя для будущего узла
+                      treeParentItems.remove(treeParentItems[
+                      treeParentItems.length - 1]);
+                    } else {
+                      // Отправим дерево на его самый главный узел
+                      parentProduct = Product();
+                    }
+                    renewItem();
+                  } else {
+                    treeParentItems.add(parentProduct);
+                    parentProduct = productItem;
+                    renewItem();
+                  }
+                },
+                popTap: () {},
+              )
                   : ProductItem(
-                      uidPriceProductItem: uidPrice,
-                      uidWarehouseProductItem: uidWarehouse,
-                      product: productItem,
-                      tap: () {},
-                      popTap: () {},
-                    ),
+                price: price,
+                countOnWarehouse: countOnWarehouse,
+                product: productItem,
+                tap: () async {
+                  // await Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => ScreenAddItem(
+                  //         listItemDoc: widget.listItemDoc,
+                  //         orderCustomer: widget.orderCustomer,
+                  //         returnOrderCustomer:
+                  //         widget.returnOrderCustomer,
+                  //         listItemReturnDoc: widget.listItemReturnDoc,
+                  //         product: productItem),
+                  //   ),
+                  //);
+                },
+              ),
             );
           }),
     );
   }
+
 }
 
 class DirectoryItem extends StatelessWidget {
@@ -587,42 +736,54 @@ class DirectoryItem extends StatelessWidget {
   }
 }
 
-class ProductItem extends StatefulWidget {
-  final Product product;
-  final String uidPriceProductItem;
-  final String uidWarehouseProductItem;
+class MoreItem extends StatelessWidget {
+  final String textItem;
   final Function tap;
-  final Function? popTap;
 
-  const ProductItem({
+  const MoreItem({
     Key? key,
-    required this.product,
-    required this.uidPriceProductItem,
-    required this.uidWarehouseProductItem,
+    required this.textItem,
     required this.tap,
-    this.popTap,
   }) : super(key: key);
-
-  @override
-  State<ProductItem> createState() => _ProductItemState();
-}
-
-class _ProductItemState extends State<ProductItem> {
-  double countOnWarehouse = 0.0;
-  double price = 0.0;
-  String uidPrice = '';
-  String uidWarehouse = '';
-
-  @override
-  void initState() {
-    super.initState();
-    renewItem();
-  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => widget.tap(),
+      tileColor: const Color.fromRGBO(227, 242, 253, 1.0),
+      onTap: () => tap(),
+      title: Center(
+        child: Text(
+          textItem,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.blue,
+          ),
+          maxLines: 2,
+        ),
+      ),
+    );
+  }
+}
+
+class ProductItem extends StatelessWidget {
+  final Product product;
+  final Function tap;
+  final double countOnWarehouse;
+  final double price;
+
+  const ProductItem({
+    Key? key,
+    required this.product,
+    required this.tap,
+    required this.countOnWarehouse,
+    required this.price,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () => tap(),
       //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
       leading: const Padding(
@@ -633,7 +794,7 @@ class _ProductItemState extends State<ProductItem> {
         ),
       ),
       title: Text(
-        widget.product.name,
+        product.name,
         style: const TextStyle(
           fontSize: 16,
         ),
@@ -664,7 +825,7 @@ class _ProductItemState extends State<ProductItem> {
                     Text(
                       doubleThreeToString(countOnWarehouse) +
                           ' ' +
-                          widget.product.nameUnit,
+                          product.nameUnit,
                       style: countOnWarehouse > 0
                           ? const TextStyle(fontSize: 15, color: Colors.blue)
                           : const TextStyle(fontSize: 15),
@@ -681,35 +842,5 @@ class _ProductItemState extends State<ProductItem> {
         child: Icon(Icons.navigate_next),
       ),
     );
-  }
-
-  renewItem() async {
-    var indexItemPrice = listProductPrice.indexWhere((element) =>
-        element.uidProduct == widget.product.uid &&
-        element.uidPrice == widget.uidPriceProductItem);
-    if (indexItemPrice >= 0) {
-      var itemList = listProductPrice[indexItemPrice];
-      price = itemList.price;
-    } else {
-      price = 0.0;
-    }
-
-    var indexItemRest = listProductRest.indexWhere((element) =>
-    element.uidProduct == widget.product.uid &&
-        element.uidWarehouse == widget.uidWarehouseProductItem);
-    if (indexItemRest >= 0) {
-      var itemList = listProductRest[indexItemRest];
-      countOnWarehouse = itemList.count;
-    } else {
-      countOnWarehouse = 0.000;
-    }
-
-    //debugPrint('Товар: '+widget.product.name+'. Цена: '+price.toString()+'. Остаток: '+countOnWarehouse.toString());
-
-    if (mounted) {
-      setState(() {
-        // Your state change code goes here
-      });
-    }
   }
 }

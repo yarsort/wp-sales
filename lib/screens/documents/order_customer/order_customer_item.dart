@@ -815,6 +815,12 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                               ),
                             );
                           }
+                          if (value == 'sort') {
+                            itemsOrder.sort((a, b) => a.name.compareTo(b.name));
+                            setState(() {
+                              countChangeDoc++;
+                            });
+                          }
                           if (value == 'delete') {
                             itemsOrder = List.from(itemsOrder)..removeAt(index);
                             setState(() {
@@ -860,6 +866,21 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                                   width: 10,
                                 ),
                                 Text('Просмотр'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'sort',
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.sort,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Сортировать'),
                               ],
                             ),
                           ),

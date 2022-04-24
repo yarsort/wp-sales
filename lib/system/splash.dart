@@ -72,7 +72,7 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                   ),
                   const Text(
                     'WP Sales',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 50,
                         color: Colors.white),
@@ -93,7 +93,7 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                     style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center,
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 60,
                   ),
                 ],
               ),
