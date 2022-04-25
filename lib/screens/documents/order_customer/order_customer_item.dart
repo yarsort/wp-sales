@@ -417,6 +417,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 widget.orderCustomer.uidOrganization = '';
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.nameStore = '';
+                widget.orderCustomer.uidStore = '';
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
                 updateHeader();
@@ -432,6 +434,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   if (result) {
                     widget.orderCustomer.nameContract = '';
                     widget.orderCustomer.uidContract = '';
+                    widget.orderCustomer.nameStore = '';
+                    widget.orderCustomer.uidStore = '';
                     widget.orderCustomer.namePrice = '';
                     widget.orderCustomer.uidPrice = '';
                   }
@@ -450,6 +454,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 widget.orderCustomer.uidPartner = '';
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.nameStore = '';
+                widget.orderCustomer.uidStore = '';
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
                 await updateHeader();
@@ -464,19 +470,22 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     MaterialPageRoute(
                         builder: (context) => ScreenPartnerSelection(
                             orderCustomer: widget.orderCustomer)));
-
-                updateHeader();
+                widget.orderCustomer.nameStore = '';
+                widget.orderCustomer.uidStore = '';
+                await updateHeader();
               }),
 
           /// Contract
           TextFieldWithText(
-              textLabel: 'Договор (торговая точка)',
+              textLabel: 'Договор партнера',
               textEditingController: textFieldContractController,
               onPressedEditIcon: Icons.recent_actors,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
+                widget.orderCustomer.nameStore = '';
+                widget.orderCustomer.uidStore = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
@@ -489,13 +498,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     MaterialPageRoute(
                         builder: (context) => ScreenContractSelection(
                             orderCustomer: widget.orderCustomer)));
+                widget.orderCustomer.nameStore = '';
+                widget.orderCustomer.uidStore = '';
                 await updateHeader();
               }),
 
           /// Store
           TextFieldWithText(
               textLabel: 'Магазин (торговая точка)',
-              textEditingController: textFieldContractController,
+              textEditingController: textFieldStoreController,
               onPressedEditIcon: Icons.account_balance,
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
