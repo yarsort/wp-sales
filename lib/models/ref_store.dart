@@ -6,7 +6,6 @@ class Store {
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя
-  String uidParent = '';          // Ссылка на группу
   String uidOrganization = '';    // Ссылка на организацию
   String uidPartner = '';         // Ссылка на партнер
   String uidContract = '';        // Ссылка на контракт
@@ -23,7 +22,6 @@ class Store {
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
-    uidParent = json['uidParent'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
     uidPartner = json['uidPartner'] ?? '';
     uidContract = json['uidContract'] ?? '';
@@ -42,7 +40,6 @@ class Store {
     data['uid'] = uid;
     data['code'] = code;
     data['name'] = name;
-    data['uidParent'] = uidParent;
     data['uidOrganization'] = uidOrganization;
     data['uidPartner'] = uidPartner;
     data['uidContract'] = uidContract;

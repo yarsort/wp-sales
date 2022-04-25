@@ -14,10 +14,9 @@ class ItemStoreFields {
     uid,
     code,
     name,
-    uidParent,
     uidOrganization,
     uidPartner,
-    uidStore,
+    uidContract,
     uidPrice,
     address,
     comment,
@@ -30,10 +29,9 @@ class ItemStoreFields {
   static const String uid = 'uid';
   static const String code = 'code';
   static const String name = 'name';
-  static const String uidParent = 'uidParent';
   static const String uidOrganization = 'uidOrganization';
   static const String uidPartner = 'uidPartner';
-  static const String uidStore = 'uidStore';
+  static const String uidContract = 'uidContract';
   static const String uidPrice = 'uidPrice';
   static const String address = 'address';
   static const String comment = 'comment';
@@ -48,12 +46,11 @@ Future createTableStore(db) async {
       ${ItemStoreFields.isGroup} $integerType,      
       ${ItemStoreFields.uid} $textType,
       ${ItemStoreFields.code} $textType,      
-      ${ItemStoreFields.name} $textType,
-      ${ItemStoreFields.uidParent} $textType,
+      ${ItemStoreFields.name} $textType,      
       ${ItemStoreFields.uidOrganization} $textType,
       ${ItemStoreFields.uidPartner} $textType,
-      ${ItemStoreFields.uidStore} $textType,
-      ${ItemStoreFields.uidPrice} $textType,
+      ${ItemStoreFields.uidContract} $textType,      
+      ${ItemStoreFields.uidContract} $textType,
       ${ItemStoreFields.address} $textType,
       ${ItemStoreFields.comment} $textType,
       ${ItemStoreFields.dateEdit} $textType            
