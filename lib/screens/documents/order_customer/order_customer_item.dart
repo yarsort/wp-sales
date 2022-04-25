@@ -7,6 +7,7 @@ import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
 import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/product/product_selection_treeview.dart';
+import 'package:wp_sales/screens/references/store/store_selection.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenItemOrderCustomer extends StatefulWidget {
@@ -42,8 +43,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   /// Поле ввода: Партнер
   TextEditingController textFieldPartnerController = TextEditingController();
 
-  /// Поле ввода: Договор или торговая точка
+  /// Поле ввода: Договор (Торговая точка)
   TextEditingController textFieldContractController = TextEditingController();
+
+  /// Поле ввода: Магазин (Торговая точка)
+  TextEditingController textFieldStoreController = TextEditingController();
 
   /// Поле ввода: Тип цены
   TextEditingController textFieldPriceController = TextEditingController();
@@ -223,6 +227,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         widget.orderCustomer.nameOrganization;
     textFieldPartnerController.text = widget.orderCustomer.namePartner;
     textFieldContractController.text = widget.orderCustomer.nameContract;
+    textFieldStoreController.text = widget.orderCustomer.nameStore;
     textFieldPriceController.text = widget.orderCustomer.namePrice;
     textFieldCurrencyController.text = widget.orderCustomer.nameCurrency;
     textFieldCashboxController.text = widget.orderCustomer.nameCashbox;
@@ -251,6 +256,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       textFieldContractController.text = '';
       widget.orderCustomer.nameContract = '';
       widget.orderCustomer.uidContract = '';
+
+      widget.orderCustomer.nameStore = '';
+      widget.orderCustomer.uidStore = '';
 
       textFieldPriceController.text = '';
       widget.orderCustomer.namePrice = '';
@@ -469,8 +477,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               onPressedDelete: () async {
                 widget.orderCustomer.nameContract = '';
                 widget.orderCustomer.uidContract = '';
-                widget.orderCustomer.namePrice = '';
-                widget.orderCustomer.uidPrice = '';
                 await updateHeader();
               },
               onPressedEdit: () async {
@@ -482,6 +488,30 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenContractSelection(
+                            orderCustomer: widget.orderCustomer)));
+                await updateHeader();
+              }),
+
+          /// Store
+          TextFieldWithText(
+              textLabel: 'Магазин (торговая точка)',
+              textEditingController: textFieldContractController,
+              onPressedEditIcon: Icons.account_balance,
+              onPressedDeleteIcon: Icons.delete,
+              onPressedDelete: () async {
+                widget.orderCustomer.nameStore = '';
+                widget.orderCustomer.uidStore = '';
+                await updateHeader();
+              },
+              onPressedEdit: () async {
+                if(widget.orderCustomer.uidPartner.isEmpty){
+                  showErrorMessage('Партнер не выбран!', context);
+                  return;
+                }
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ScreenStoreSelection(
                             orderCustomer: widget.orderCustomer)));
                 await updateHeader();
               }),

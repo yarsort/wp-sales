@@ -29,6 +29,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   bool deniedAddOrganization = false; // Запретить добавлять организации
   bool deniedAddPartner = false; // Запретить добавлять партнеров
   bool deniedAddContract = false; // Запретить добавлять контракты
+  bool deniedAddStore = false; // Запретить добавлять магазины партнера
   bool deniedAddProduct = false; // Запретить добавлять товары
   bool deniedAddUnit = false; // Запретить добавлять единицы измерения товаров
   bool deniedAddPrice = false; // Запретить добавлять типы цен
@@ -238,6 +239,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     deniedAddOrganization = prefs.getBool('settings_deniedAddOrganization')!;
     deniedAddPartner = prefs.getBool('settings_deniedAddPartner')!;
     deniedAddContract = prefs.getBool('settings_deniedAddContract')!;
+    deniedAddStore = prefs.getBool('settings_deniedAddStore')!;
     deniedAddProduct = prefs.getBool('settings_deniedAddProduct')!;
     deniedAddUnit = prefs.getBool('settings_deniedAddUnit')!;
     deniedAddPrice = prefs.getBool('settings_deniedAddPrice')!;
@@ -303,6 +305,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_deniedAddOrganization', deniedAddOrganization);
     prefs.setBool('settings_deniedAddPartner', deniedAddPartner);
     prefs.setBool('settings_deniedAddContract', deniedAddContract);
+    prefs.setBool('settings_deniedAddStore', deniedAddStore);
     prefs.setBool('settings_deniedAddProduct', deniedAddProduct);
     prefs.setBool('settings_deniedAddUnit', deniedAddUnit);
     prefs.setBool('settings_deniedAddPrice', deniedAddPrice);
@@ -498,6 +501,23 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   },
                 ),
                 const Flexible(child: Text('Запретить добавление контрактов')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление: Магазин
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddStore,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddStore = !deniedAddStore;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление магазинов')),
               ],
             ),
           ),
@@ -847,7 +867,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.all(Colors.grey)),
+                          MaterialStateProperty.all(Colors.blue)),
                       onPressed: () async {
                         /// Получение данных обмена
                         final FTPConnect ftpClient = FTPConnect(textFieldFTPServerController.text,

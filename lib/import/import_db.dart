@@ -8,6 +8,7 @@ export 'package:wp_sales/db/db_doc_order_customer.dart';
 export 'package:wp_sales/db/db_doc_return_order_customer.dart';
 export 'package:wp_sales/db/db_ref_cashbox.dart';
 export 'package:wp_sales/db/db_ref_contract.dart';
+export 'package:wp_sales/db/db_ref_store.dart';
 export 'package:wp_sales/db/db_ref_currency.dart';
 export 'package:wp_sales/db/db_ref_organization.dart';
 export 'package:wp_sales/db/db_ref_partner.dart';

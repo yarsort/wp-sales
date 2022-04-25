@@ -584,7 +584,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Организации: ' + countItem.toString() + ' шт');
       setState(() {
-        _valueProgress = 0.3;
+        _valueProgress = 0.2;
       });
     }
 
@@ -598,7 +598,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
       setState(() {
-        _valueProgress = 0.4;
+        _valueProgress = 0.2;
       });
     }
 
@@ -612,7 +612,21 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Контракты: ' + countItem.toString() + ' шт');
       setState(() {
-        _valueProgress = 0.5;
+        _valueProgress = 0.3;
+      });
+    }
+
+    /// Магазины (Торговые точки)
+    if (jsonData['Stores'] != null) {
+      await dbDeleteAllStore();
+      countItem = 0;
+      for (var item in jsonData['Stores']) {
+        await dbCreateStore(Store.fromJson(item));
+        countItem++;
+      }
+      listLogs.add('Магазины (торговые точки): ' + countItem.toString() + ' шт');
+      setState(() {
+        _valueProgress = 0.4;
       });
     }
 
@@ -627,7 +641,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // После записи документов, обновим записи по регистраторам без номера документа
       listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
       setState(() {
-        _valueProgress = 0.55;
+        _valueProgress = 0.5;
       });
     }
 
@@ -658,7 +672,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
       setState(() {
-        _valueProgress = 0.6;
+        _valueProgress = 0.65;
       });
     }
 

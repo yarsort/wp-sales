@@ -11,6 +11,8 @@ class OrderCustomer {
   String namePartner = '';      // Имя контрагента
   String uidContract = '';      // Ссылка на договор контрагента
   String nameContract = '';     // Имя контрагента
+  String uidStore = '';         // Ссылка на магазин
+  String nameStore = '';        // Имя магазина
   String uidPrice = '';         // Ссылка на тип цены номенклатуры продажи контрагенту
   String namePrice = '';        // Наименование типа цены номенклатуры
   String uidWarehouse = '';     // Ссылка на склад
@@ -43,6 +45,8 @@ class OrderCustomer {
     namePartner = json['namePartner'] ?? '';
     uidContract = json['uidContract'] ?? '';
     nameContract = json['nameContract'] ?? '';
+    uidStore = json['uidStore'] ?? '';
+    nameStore = json['nameStore'] ?? '';
     uidPrice = json['uidPrice'] ?? '';
     namePrice = json['namePrice'] ?? '';
     uidWarehouse = json['uidWarehouse'] ?? '';
@@ -92,6 +96,8 @@ class OrderCustomer {
     data['namePartner'] = namePartner;
     data['uidContract'] = uidContract;
     data['nameContract'] = nameContract;
+    data['uidStore'] = uidStore;
+    data['nameStore'] = nameStore;
     data['uidPrice'] = uidPrice;
     data['namePrice'] = namePrice;
     data['nameWarehouse'] = nameWarehouse;
