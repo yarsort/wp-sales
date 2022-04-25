@@ -50,6 +50,8 @@ class OrderCustomerFields {
   static const String uidPartner = 'uidPartner';// Ссылка на контрагента
   static const String namePartner = 'namePartner';// Имя контрагента
   static const String uidContract = 'uidContract';// Ссылка на договор контрагента
+  static const String nameStore = 'nameStore';// Имя магазина
+  static const String uidStore = 'uidStore';// Ссылка на магазин партнера
   static const String nameContract = 'nameContract';// Ссылка на договор контрагента
   static const String uidPrice = 'uidPrice';// Ссылка на тип цены номенклатуры продажи контрагенту
   static const String namePrice = 'namePrice';// Наименование типа цены номенклатуры продажи контрагенту
@@ -116,7 +118,9 @@ Future createTableOrderCustomer(db) async {
       ${OrderCustomerFields.uidPartner} $textType,
       ${OrderCustomerFields.namePartner} $textType,
       ${OrderCustomerFields.uidContract} $textType,
-      ${OrderCustomerFields.nameContract} $textType,  
+      ${OrderCustomerFields.nameContract} $textType,
+      ${OrderCustomerFields.uidStore} $textType,
+      ${OrderCustomerFields.nameStore} $textType,  
       ${OrderCustomerFields.uidPrice} $textType,
       ${OrderCustomerFields.namePrice} $textType,
       ${OrderCustomerFields.uidWarehouse} $textType,
