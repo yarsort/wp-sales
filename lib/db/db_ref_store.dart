@@ -49,8 +49,8 @@ Future createTableStore(db) async {
       ${ItemStoreFields.name} $textType,      
       ${ItemStoreFields.uidOrganization} $textType,
       ${ItemStoreFields.uidPartner} $textType,
-      ${ItemStoreFields.uidContract} $textType,      
       ${ItemStoreFields.uidContract} $textType,
+      ${ItemStoreFields.uidPrice} $textType,      
       ${ItemStoreFields.address} $textType,
       ${ItemStoreFields.comment} $textType,
       ${ItemStoreFields.dateEdit} $textType            
