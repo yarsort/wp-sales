@@ -790,7 +790,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       });
     }
 
-    /// Цены товаровок
+    /// Цены товаров
     ///
     if (jsonData['Currency'] != null) {
       await dbDeleteAllProductPrice();

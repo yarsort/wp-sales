@@ -14,8 +14,9 @@ class ItemUnitFields {
     uid,
     code,
     name,
-    uidParent,
+    uidProduct,
     multiplicity,
+    weight,
     comment,
     dateEdit,
   ];
@@ -26,8 +27,9 @@ class ItemUnitFields {
   static const String uid = 'uid';
   static const String code = 'code';
   static const String name = 'name';
-  static const String uidParent = 'uidParent';
+  static const String uidProduct = 'uidProduct';
   static const String multiplicity = 'multiplicity';
+  static const String weight = 'weight';
   static const String comment = 'comment';
   static const String dateEdit = 'dateEdit';
 }
@@ -41,8 +43,9 @@ Future createTableUnit(db) async {
       ${ItemUnitFields.uid} $textType,
       ${ItemUnitFields.code} $textType,      
       ${ItemUnitFields.name} $textType,
-      ${ItemUnitFields.uidParent} $textType,      
+      ${ItemUnitFields.uidProduct} $textType,      
       ${ItemUnitFields.multiplicity} $realType,
+      ${ItemUnitFields.weight} $realType,
       ${ItemUnitFields.comment} $textType,
       ${ItemUnitFields.dateEdit} $textType           
       )
@@ -113,6 +116,17 @@ Future<Unit> dbReadUnitUID(String uid) async {
   } else {
     return Unit();
   }
+}
+
+Future<List<Unit>> dbReadUnitsProduct(uidProduct) async {
+  final db = await instance.database;
+  const orderBy = '${ItemUnitFields.name} ASC';
+  final result = await db.query(
+      tableUnit,
+      where: '${ItemUnitFields.uidProduct} = ?',
+      whereArgs: [uidProduct],
+      orderBy: orderBy);
+  return result.map((json) => Unit.fromJson(json)).toList();
 }
 
 Future<List<Unit>> dbReadAllUnit() async {

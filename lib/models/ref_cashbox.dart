@@ -6,6 +6,7 @@ class Cashbox {
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя
+  String nameForSearch = '';      // Имя дял поиска
   String uidParent = '';          // Ссылка на группу
   String comment = '';            // Коммментарий
   DateTime dateEdit = DateTime.now(); // Дата редактирования

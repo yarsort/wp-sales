@@ -881,6 +881,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                                 builder: (context) => ScreenAddItem(
                                     listItemDoc: itemsOrder,
                                     orderCustomer: widget.orderCustomer,
+                                    indexItem: index,
                                     product: productItem),
                               ),
                             );

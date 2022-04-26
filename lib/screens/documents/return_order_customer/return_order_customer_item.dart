@@ -903,6 +903,7 @@ class _ScreenItemReturnOrderCustomerState
                                       returnOrderCustomer:
                                           widget.returnOrderCustomer,
                                       listItemReturnDoc: itemsReturnOrder,
+                                      indexItem: index,
                                       product: productItem),
                                 ),
                               );
