@@ -59,9 +59,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
   // Список идентификаторов товаров для поиска цен и остатков
   List<String> listProductsUID = [];
 
-  // Весь список товаров для работы поиска
-  List<Product> dummySearchList = [];
-
   // Текущий выбранный каталог иерархии товаров
   Product parentProduct = Product();
 
@@ -184,7 +181,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
       listProducts.clear();
       listProductsForListView.clear(); // Список для отображения на форме
       listProductsUID.clear();
-      dummySearchList.clear();
 
       /// Получим остатки и цены по найденным товарам
       listProductPrice.clear();
@@ -228,14 +224,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
       //    'Реальные данные загружены! ' + listDataProducts.length.toString());
     }
 
-    /// Заполним для поиска товаров
-    for (var itemList in listDataProducts) {
-      if (itemList.isGroup == 1) {
-        continue;
-      }
-      dummySearchList.add(itemList);
-    }
-
     /// Сортировка списка: сначала каталоги, потом элементы
     listDataProducts.sort((a, b) => a.name.compareTo(b.name));
     listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
@@ -258,6 +246,23 @@ class _ScreenProductListState extends State<ScreenProductList> {
         if (newItem.isGroup == 1) {
           continue;
         }
+      }
+
+      // Вывод только каталогов
+      if (newItem.isGroup == 0) {
+        continue;
+      }
+
+      // Добавим товар
+      listProducts.add(newItem);
+    }
+
+    /// Заполним список товаров для отображения на форме
+    for (var newItem in listDataProducts) {
+
+      // Выводщ только товаров
+      if (newItem.isGroup == 1) {
+        continue;
       }
 
       // Добавим товар

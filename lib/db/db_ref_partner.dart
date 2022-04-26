@@ -15,6 +15,7 @@ class ItemPartnerFields {
     uid,
     code,
     name,
+    nameForSearch,
     uidParent,
     balance,
     balanceForPayment,
@@ -31,6 +32,7 @@ class ItemPartnerFields {
   static const String uid = 'uid';
   static const String code = 'code';
   static const String name = 'name';
+  static const String nameForSearch = 'nameForSearch';
   static const String uidParent = 'uidParent';
   static const String balance = 'balance';
   static const String balanceForPayment = 'balanceForPayment';
@@ -49,6 +51,7 @@ Future createTablePartner(db) async {
       ${ItemPartnerFields.uid} $textType,
       ${ItemPartnerFields.code} $textType,      
       ${ItemPartnerFields.name} $textType,
+      ${ItemPartnerFields.nameForSearch} $textType,
       ${ItemPartnerFields.uidParent} $textType,
       ${ItemPartnerFields.balance} $realType,
       ${ItemPartnerFields.balanceForPayment} $realType,      
@@ -133,6 +136,26 @@ Future<List<Partner>> dbReadAllPartners() async {
   const orderBy = '${ItemPartnerFields.name} ASC';
   final result = await db.query(tablePartner, orderBy: orderBy);
 
+  return result.map((json) => Partner.fromJson(json)).toList();
+}
+
+Future<List<Partner>> dbReadPartnersForSearch(searchString) async {
+  final db = await instance.database;
+  const orderBy = '${ItemPartnerFields.name} ASC';
+  final result = await db.query(tablePartner,
+      where: '${ItemPartnerFields.nameForSearch} LIKE ?',
+      whereArgs: ['%$searchString%'],
+      orderBy: orderBy);
+  return result.map((json) => Partner.fromJson(json)).toList();
+}
+
+Future<List<Partner>> dbReadPartnersByParent(String uidParent) async {
+  final db = await instance.database;
+  const orderBy = '${ItemPartnerFields.name} ASC';
+  final result = await db.query(tablePartner,
+      where: '${ItemPartnerFields.uidParent} = ?',
+      whereArgs: [uidParent],
+      orderBy: orderBy);
   return result.map((json) => Partner.fromJson(json)).toList();
 }
 

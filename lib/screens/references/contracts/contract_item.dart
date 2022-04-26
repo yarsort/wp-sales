@@ -205,11 +205,14 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
     List<AccumPartnerDept> listDebts = await dbReadAccumPartnerDeptByContract(
         uidContract: widget.contractItem.uid);
 
+    /// Сортировка списка: сначала старые документы
+    listDebts.sort((a, b) => a.dateDoc.compareTo(b.dateDoc));
+
     // Свернем долги по договору
     for (var itemDebts in listDebts) {
       // Ищем контракт в списке и увеличиваем баланс по каждому из них
-      var indexItem = listAccumPartnerDept
-          .indexWhere((element) => element.uidDoc == itemDebts.uidDoc);
+      var indexItem = listAccumPartnerDept.indexWhere((element) =>
+          element.numberDoc == itemDebts.numberDoc);
 
       // Если нашли долг в списке отобранных, иначе добавим новую апись в список
       if (indexItem >= 0) {
@@ -910,7 +913,10 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     children: [
                       const Divider(),
                       Row(children: [
-                        Flexible(child: Text(itemDept.nameSettlementDocument)),
+                        Flexible(
+                            child: Text(itemDept.nameSettlementDocument +
+                                ' от ' +
+                                shortDateToString(itemDept.dateDoc))),
                       ]),
                       const SizedBox(height: 5),
                       Row(
@@ -938,7 +944,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                           flex: 4,
                           child: Column(
                             children: [
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 15),
                               Row(
                                 children: [
                                   const Icon(Icons.phone,
@@ -957,7 +963,8 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(widget.contractItem.schedulePayment
-                                      .toString() + ' дня(ей) отсрочки'),
+                                          .toString() +
+                                      ' дня(ей) отсрочки'),
                                 ],
                               ),
                             ],
@@ -967,6 +974,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                           flex: 2,
                           child: Column(
                             children: [
+                              const SizedBox(height: 15),
                               Row(
                                 children: [
                                   const Icon(Icons.price_change,

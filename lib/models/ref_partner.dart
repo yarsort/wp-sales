@@ -6,6 +6,7 @@ class Partner {
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя партнера
+  String nameForSearch = '';               // Имя партнера
   String uidParent = '';          // Ссылка на группу
   double balance = 0.0;           // Баланс
   double balanceForPayment = 0.0; // Баланс к оплате
@@ -19,10 +20,11 @@ class Partner {
 
   Partner.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? 0;
-    isGroup = 0;
+    isGroup = json['isGroup'];
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
+    nameForSearch = json['name'].toLowerCase() ?? '';
     uidParent = json['uidParent'] ?? '';
     balance = json['balance'] ?? 0.0;
     balanceForPayment = json['balanceForPayment'] ?? 0.0;
@@ -38,10 +40,11 @@ class Partner {
     if (id != 0) {
       data['id'] = id;
     }
-    data['isGroup'] = 0;
+    data['isGroup'] = isGroup;
     data['uid'] = uid;
     data['code'] = code;
     data['name'] = name;
+    data['nameForSearch'] = nameForSearch;
     data['uidParent'] = uidParent;
     data['balance'] = balance;
     data['balanceForPayment'] = balanceForPayment;

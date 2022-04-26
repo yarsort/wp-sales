@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/models/ref_contract.dart';
 import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
@@ -50,6 +51,8 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   /// Поле ввода: Code
   TextEditingController textFieldCodeController = TextEditingController();
 
+  double balance = 0.0;
+  double balanceForPayment = 0.0;
 
   @override
   void initState() {
@@ -65,16 +68,39 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       textFieldNameController.text = widget.partnerItem.name;
       textFieldPhoneController.text = widget.partnerItem.phone;
       textFieldAddressController.text = widget.partnerItem.address;
-      textFieldBalanceController.text = doubleToString(widget.partnerItem.balance);
-      textFieldBalanceForPaymentController.text = doubleToString(widget.partnerItem.balanceForPayment);
       textFieldSchedulePaymentController.text = widget.partnerItem.schedulePayment.toString();
       textFieldCommentController.text = widget.partnerItem.comment;
 
-      // Технические данные
+      /// Технические данные
       textFieldUIDController.text = widget.partnerItem.uid;
       textFieldCodeController.text = widget.partnerItem.code;
 
+      /// Получение списка контрактов партнера
       await readContracts();
+
+      /// Вывод долгов на форме
+      List<String> listPartnersUID = [];
+      listPartnersUID.add(widget.partnerItem.uid);
+
+      // Получим долги партнера
+      List<AccumPartnerDept> listPartnerDebts =
+      await dbReadAllAccumPartnerDeptByUIDPartners(listPartnersUID);
+
+      // Найдем в списке долгов наши долги
+      var indexItemDebt = listPartnerDebts
+          .indexWhere((element) => element.uidPartner == widget.partnerItem.uid);
+      if (indexItemDebt >= 0) {
+        var itemList = listPartnerDebts[indexItemDebt];
+        balance = itemList.balance;
+        balanceForPayment = itemList.balanceForPayment;
+      } else {
+        balance = 0.0;
+        balanceForPayment = 0.0;
+      }
+
+      // Выведем на форму
+      textFieldBalanceController.text = doubleToString(balance);
+      textFieldBalanceForPaymentController.text = doubleToString(balanceForPayment);
 
       setState(() {});
   }

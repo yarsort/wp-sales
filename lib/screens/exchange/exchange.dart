@@ -584,13 +584,27 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       listLogs.add('Организации: ' + countItem.toString() + ' шт');
       setState(() {
+        _valueProgress = 0.1;
+      });
+    }
+
+    /// Каталоги товаров (папки)
+    if (jsonData['PartnersParent'] != null) {
+      await dbDeleteAllPartner();
+      countItem = 0;
+      for (var item in jsonData['PartnersParent']) {
+        await dbCreatePartner(Partner.fromJson(item));
+        countItem++;
+      }
+      listLogs.add('Каталоги партнеров: ' + countItem.toString() + ' шт');
+
+      setState(() {
         _valueProgress = 0.2;
       });
     }
 
     /// Партнеры
     if (jsonData['Partners'] != null) {
-      await dbDeleteAllPartner();
       countItem = 0;
       for (var item in jsonData['Partners']) {
         await dbCreatePartner(Partner.fromJson(item));

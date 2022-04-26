@@ -191,6 +191,23 @@ Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDept() async {
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }
 
+Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptByUIDPartners(listPartnersUID) async {
+  final db = await instance.database;
+  final result = await db.rawQuery("SELECT "
+      "${ItemAccumPartnerDeptFields.uidPartner}, "
+      "SUM(${ItemAccumPartnerDeptFields.balanceForPayment}) AS balanceForPayment, "
+      "SUM(${ItemAccumPartnerDeptFields.balance}) AS balance "
+      "FROM $tableAccumPartnerDebts "
+      "WHERE ${ItemAccumPartnerDeptFields.balanceForPayment} > 0 AND ("
+      "${ItemAccumPartnerDeptFields.uidPartner} IN (${listPartnersUID.map((e) => "'$e'").join(', ')})) "
+      "GROUP BY ${ItemAccumPartnerDeptFields.uidPartner} "
+      "ORDER BY ${ItemAccumPartnerDeptFields.balanceForPayment} DESC, "
+      "         ${ItemAccumPartnerDeptFields.balance} DESC, "
+      "         ${ItemAccumPartnerDeptFields.uidPartner};");
+
+  return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}
+
 Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptForPayment() async {
   final db = await instance.database;
   final result = await db.rawQuery("SELECT "
