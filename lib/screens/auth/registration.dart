@@ -1,7 +1,8 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/home.dart';
+import 'package:wp_sales/system/system.dart';
 
 class ScreenRegistration extends StatefulWidget {
   const ScreenRegistration({Key? key}) : super(key: key);
@@ -12,6 +13,8 @@ class ScreenRegistration extends StatefulWidget {
 
 class _ScreenRegistrationState extends State<ScreenRegistration> {
   final _auth = FirebaseAuth.instance;
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   // string for displaying the error Message
   String? errorMessage;
@@ -28,7 +31,6 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
 
   @override
   Widget build(BuildContext context) {
-
     /// Name
     final firstNameField = TextFormField(
         autofocus: false,
@@ -49,7 +51,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         },
         textInputAction: TextInputAction.next,
         decoration: const InputDecoration(
-          prefixIcon:  Icon(Icons.account_circle),
+          prefixIcon: Icon(Icons.account_circle),
           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
           hintText: "Имя",
           border: OutlineInputBorder(),
@@ -146,7 +148,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         },
         textInputAction: TextInputAction.done,
         decoration: const InputDecoration(
-          prefixIcon:  Icon(Icons.vpn_key),
+          prefixIcon: Icon(Icons.vpn_key),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: "Подтверждение пароля",
           border: OutlineInputBorder(),
@@ -159,12 +161,20 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            SizedBox(height: 50,),
-            Text('Регистрация',
+            SizedBox(
+              height: 50,
+            ),
+            Text(
+              'Регистрация',
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),),
-            SizedBox(height: 50,),
+                  fontSize: 15,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 50,
+            ),
           ],
         ));
 
@@ -193,15 +203,11 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    // SizedBox(
-                    //     height: 150,
-                    //     child: Image.asset(
-                    //       "assets/logo.png",
-                    //       fit: BoxFit.contain,
-                    //     )),
                     const SizedBox(
                         height: 100,
-                        child: FlutterLogo(size: 100,)),
+                        child: FlutterLogo(
+                          size: 100,
+                        )),
                     const SizedBox(height: 20),
                     secondNameField,
                     const SizedBox(height: 20),
@@ -225,15 +231,6 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
     );
   }
 
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   void signUp(String email, String password) async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -241,43 +238,52 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
             .createUserWithEmailAndPassword(email: email, password: password)
             .then((value) => {postDetailsToFirestore()})
             .catchError((e) {
-          showMessage(e!.message);
+          showErrorMessage(e!.message, context);
         });
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":
-            errorMessage = "Your email address appears to be malformed.";
+            errorMessage = "Неправильный почтовый ящик.";
             break;
           case "wrong-password":
-            errorMessage = "Your password is wrong.";
+            errorMessage = "Неправильный пароль.";
             break;
           case "user-not-found":
-            errorMessage = "User with this email doesn't exist.";
+            errorMessage = "Пользователь с этим почтовым ящиком не обнаружен.";
             break;
           case "user-disabled":
-            errorMessage = "User with this email has been disabled.";
+            errorMessage = "Пользователь с этим почтовым ящиком отключен.";
             break;
           case "too-many-requests":
-            errorMessage = "Too many requests";
+            errorMessage = "Слишком много запросов";
             break;
           case "operation-not-allowed":
-            errorMessage = "Signing in with Email and Password is not enabled.";
+            errorMessage = "Авторизация с почтовым именем и паролем отклбчена.";
             break;
           default:
-            errorMessage = "An undefined Error happened.";
+            errorMessage = "Неизвестная ошибка.";
         }
-        showMessage(errorMessage!);
+        showErrorMessage(errorMessage!, context);
         debugPrint(error.code);
       }
     }
   }
 
   postDetailsToFirestore() async {
-    showMessage('Аккаунт успешно создан!');
+    showMessage('Аккаунт успешно создан!', context);
+
+    final SharedPreferences prefs = await _prefs;
+
+    prefs.setString(
+        'settings_nameUser',
+        firstNameEditingController.text +
+            ' ' +
+            secondNameEditingController.text);
+    prefs.setString('settings_emailUser', emailEditingController.text);
 
     Navigator.pushAndRemoveUntil(
         (context),
         MaterialPageRoute(builder: (context) => const ScreenHomePage()),
-            (route) => false);
+        (route) => false);
   }
 }
