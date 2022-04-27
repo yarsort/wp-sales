@@ -81,20 +81,16 @@ class _ScreenProductSelectionTreeViewState
   int _currentMax = 0;
   int countLoadItems = 20;
 
-  @override
-  void initState() {
+  @override void initState() {
     super.initState();
     loadDefault();
     renewItem();
     renewPurchasedItem();
   }
 
-  getMoreProductList() async {
-
-
-
-    setState(() {});
-
+  @override void dispose() {
+    saveDefault();
+    super.dispose();
   }
 
   @override
@@ -191,7 +187,7 @@ class _ScreenProductSelectionTreeViewState
     );
   }
 
-  void loadDefault() {
+  void loadDefault() async {
     if (widget.orderCustomer != null) {
       uidPrice = widget.orderCustomer?.uidPrice ?? '';
     }
@@ -206,7 +202,6 @@ class _ScreenProductSelectionTreeViewState
       uidWarehouse = widget.returnOrderCustomer?.uidWarehouse ?? '';
     }
 
-
     if (widget.orderCustomer != null) {
       uidPrice = widget.orderCustomer?.uidPrice ?? '';
     }
@@ -220,6 +215,20 @@ class _ScreenProductSelectionTreeViewState
     if (widget.returnOrderCustomer != null) {
       uidWarehouse = widget.returnOrderCustomer?.uidWarehouse ?? '';
     }
+
+    /// Восстановление последнего выбранного каталога
+    final SharedPreferences prefs = await _prefs;
+    var uidProductFromSettings =
+        prefs.getString('settings_uidParentProductFromSetting') ??
+            '00000000-0000-0000-0000-000000000000';
+
+    parentProduct = await dbReadProductUID(uidProductFromSettings);
+  }
+
+  void saveDefault() async {
+    /// Сохранение последнего выбранного каталога
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString('settings_uidParentProductFromSetting', parentProduct.uid);
   }
 
   void renewItem() async {
@@ -235,7 +244,6 @@ class _ScreenProductSelectionTreeViewState
 
     /// Очистка данных
     setState(() {
-
       listProducts.clear();
       listProductsForListView.clear(); // Список для отображения на форме
       listProductsUID.clear();
@@ -244,7 +252,6 @@ class _ScreenProductSelectionTreeViewState
       /// Получим остатки и цены по найденным товарам
       listProductPrice.clear();
       listProductRest.clear();
-
     });
 
     ///Первым в список добавим каталог товаров, если он есть
@@ -268,8 +275,8 @@ class _ScreenProductSelectionTreeViewState
         // Покажем товары текущего родителя
         listDataProducts = await dbReadProductsByParent(parentProduct.uid);
       } else {
-
-        String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
+        String searchString =
+            textFieldSearchCatalogController.text.trim().toLowerCase();
         if (searchString.toLowerCase().length >= 3) {
           // Покажем все товары для поиска
           listDataProducts = await dbReadProductsForSearch(searchString);
@@ -337,8 +344,8 @@ class _ScreenProductSelectionTreeViewState
     _currentMax++; // Для пункта "Показать больше"
 
     // Добавим пункт "Показать больше"
-    if(listProducts.length > listProductsForListView.length){
-      listProductsForListView.add(Product());  // Добавим пустой товар
+    if (listProducts.length > listProductsForListView.length) {
+      listProductsForListView.add(Product()); // Добавим пустой товар
     }
 
     /// Получим список товаров для которых надо показать цены и остатки
@@ -352,9 +359,11 @@ class _ScreenProductSelectionTreeViewState
 
     ///Нет данных - нет вывода на форму
     if (listProductsUID.isEmpty) {
-      debugPrint('Нет товаров для отображения цен и остатков! Товаров: ' + listProductsForListView.length.toString());
+      debugPrint('Нет товаров для отображения цен и остатков! Товаров: ' +
+          listProductsForListView.length.toString());
     } else {
-      debugPrint('Есть товары для отображения цен и остатков! Товаров: ' + listProductsForListView.length.toString());
+      debugPrint('Есть товары для отображения цен и остатков! Товаров: ' +
+          listProductsForListView.length.toString());
     }
 
     await readPriceAndRests();
@@ -363,7 +372,6 @@ class _ScreenProductSelectionTreeViewState
   }
 
   readPriceAndRests() async {
-
     if (listProductsUID.isEmpty) {
       debugPrint('Нет UIDs дл вывода остатков и цен...');
       return;
@@ -375,9 +383,12 @@ class _ScreenProductSelectionTreeViewState
     // List<AccumProductRest> listProductRestTemp = await dbReadAccumProductRestByUIDProducts(listProductsUID);
 
     /// Цены товаров
-    listProductPrice = await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    listProductPrice =
+        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+
     /// Остатки товаров
-    listProductRest = await dbReadAccumProductRestByUIDProducts(listProductsUID);
+    listProductRest =
+        await dbReadAccumProductRestByUIDProducts(listProductsUID);
 
     debugPrint('Цены товаров: ' + listProductPrice.length.toString());
     debugPrint('Остатки товаров: ' + listProductRest.length.toString());
@@ -546,7 +557,7 @@ class _ScreenProductSelectionTreeViewState
             var countOnWarehouse = 0.0;
 
             var indexItemPrice = listProductPrice.indexWhere((element) =>
-            element.uidProduct == productItem.uid &&
+                element.uidProduct == productItem.uid &&
                 element.uidPrice == uidPrice);
             if (indexItemPrice >= 0) {
               var itemList = listProductPrice[indexItemPrice];
@@ -556,7 +567,7 @@ class _ScreenProductSelectionTreeViewState
             }
 
             var indexItemRest = listProductRest.indexWhere((element) =>
-            element.uidProduct == productItem.uid &&
+                element.uidProduct == productItem.uid &&
                 element.uidWarehouse == uidWarehouse);
             if (indexItemRest >= 0) {
               var itemList = listProductRest[indexItemRest];
@@ -573,7 +584,8 @@ class _ScreenProductSelectionTreeViewState
                       tap: () {
                         // Удалим пункт "Показать больше"
                         _currentMax--; // Для пункта "Показать больше"
-                        listProductsForListView.remove(listProductsForListView[index]);
+                        listProductsForListView
+                            .remove(listProductsForListView[index]);
                         readAdditionalProductsToView();
                         setState(() {});
                       },
@@ -628,7 +640,7 @@ class _ScreenProductSelectionTreeViewState
           }),
     );
   }
-  
+
   listViewPurchasedProducts() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 14, 11, 14),
@@ -933,9 +945,12 @@ class _ProductItemOldState extends State<ProductItemOld> {
     } else {
       countOnWarehouse = 0.000;
     }
-    debugPrint('Товар: '+widget.product.name+'. Цена: '+price.toString()+'. Остаток: '+countOnWarehouse.toString());
-    setState(() {
-
-    });
+    debugPrint('Товар: ' +
+        widget.product.name +
+        '. Цена: ' +
+        price.toString() +
+        '. Остаток: ' +
+        countOnWarehouse.toString());
+    setState(() {});
   }
 }
