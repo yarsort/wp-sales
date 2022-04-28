@@ -137,9 +137,11 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     }
 
     // Прочитаем сумму всех долгов
-    var debts = await dbReadAllAccumDeptsSums();
-    balance = balance + debts['balance'];
-    balanceForPayment = balanceForPayment + debts['balanceForPayment'];
+    var debts = await dbReadAllAccumPartnerDept();
+    for (var debt in debts){
+      balance = balance + debt.balance;
+      balanceForPayment = balanceForPayment + debt.balanceForPayment;
+    }
 
     // Суммы документов
     await readSumDocumentToday();
@@ -362,114 +364,132 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5),
-                      bottomLeft: Radius.circular(5),
-                      bottomRight: Radius.circular(5)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey,
-                      blurRadius: 2,
-                      offset: Offset(1, 1), // Shadow position
-                    ),
-                  ],
-                ),
-                //height: 130,
-                width: MediaQuery.of(context).size.width / 2 - 22,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Color.fromRGBO(100, 181, 246, 1.0),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                          // bottomLeft: Radius.circular(5),
-                          // bottomRight: Radius.circular(5)
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                          const ScreenOrderCustomerList()));
+                },
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 2,
+                        offset: Offset(1, 1), // Shadow position
+                      ),
+                    ],
+                  ),
+                  //height: 130,
+                  width: MediaQuery.of(context).size.width / 2 - 22,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: Color.fromRGBO(100, 181, 246, 1.0),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                            // bottomLeft: Radius.circular(5),
+                            // bottomRight: Radius.circular(5)
+                          ),
+                        ),
+                        height: 35,
+                        width: MediaQuery.of(context).size.width / 2 - 18,
+                        child: const Center(
+                          child: Text(
+                            'Заказы (шт)',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                         ),
                       ),
-                      height: 35,
-                      width: MediaQuery.of(context).size.width / 2 - 18,
-                      child: const Center(
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
                         child: Text(
-                          'Заказы (шт)',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          countNewOrderCustomer.toString() +
+                              ' из ' +
+                              countSendOrderCustomer.toString(),
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
-                      child: Text(
-                        countNewOrderCustomer.toString() +
-                            ' из ' +
-                            countSendOrderCustomer.toString(),
-                        style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5),
-                      bottomLeft: Radius.circular(5),
-                      bottomRight: Radius.circular(5)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey,
-                      blurRadius: 2,
-                      offset: Offset(1, 1), // Shadow position
-                    ),
-                  ],
-                ),
-                //height: 120,
-                width: MediaQuery.of(context).size.width / 2 - 22,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Color.fromRGBO(100, 181, 246, 1.0),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          topRight: Radius.circular(5),
-                          //bottomLeft: Radius.circular(5),
-                          //bottomRight: Radius.circular(5)
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                          const ScreenIncomingCashOrderList()));
+                },
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 2,
+                        offset: Offset(1, 1), // Shadow position
+                      ),
+                    ],
+                  ),
+                  //height: 120,
+                  width: MediaQuery.of(context).size.width / 2 - 22,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: Color.fromRGBO(100, 181, 246, 1.0),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            topRight: Radius.circular(5),
+                            //bottomLeft: Radius.circular(5),
+                            //bottomRight: Radius.circular(5)
+                          ),
+                        ),
+                        height: 35,
+                        width: MediaQuery.of(context).size.width / 2 - 18,
+                        child: const Center(
+                          child: Text(
+                            'ПКО (шт)',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                         ),
                       ),
-                      height: 35,
-                      width: MediaQuery.of(context).size.width / 2 - 18,
-                      child: const Center(
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
                         child: Text(
-                          'ПКО (шт)',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          countNewIncomingCashOrder.toString() +
+                              ' из ' +
+                              countSendIncomingCashOrder.toString(),
+                          style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
-                      child: Text(
-                        countNewIncomingCashOrder.toString() +
-                            ' из ' +
-                            countSendIncomingCashOrder.toString(),
-                        style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               )
             ],

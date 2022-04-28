@@ -212,8 +212,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Идентификатор пользователя в приложении для обмена данными
-    textFieldNameUserController.text = prefs.getString('settings_NameUser') ?? 'Тестовый пользователь';
-    textFieldEmailUserController.text = prefs.getString('settings_EmailUser') ?? 'test@yarsoft.com.ua';
+    textFieldNameUserController.text = prefs.getString('settings_nameUser') ?? 'Тестовый пользователь';
+    textFieldEmailUserController.text = prefs.getString('settings_emailUser') ?? 'test@yarsoft.com.ua';
     textFieldUIDUserController.text = prefs.getString('settings_UIDUser') ?? '';
 
     //Обмен по ftp-серверу
@@ -293,8 +293,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_useTestData', useTestData);
 
     /// Common settings
-    prefs.setString('settings_NameUser', textFieldNameUserController.text);
-    prefs.setString('settings_EmailUser', textFieldEmailUserController.text);
+    prefs.setString('settings_nameUser', textFieldNameUserController.text);
+    prefs.setString('settings_emailUser', textFieldEmailUserController.text);
     prefs.setString('settings_UIDUser', textFieldUIDUserController.text);
 
     /// Запреты и разрешения
