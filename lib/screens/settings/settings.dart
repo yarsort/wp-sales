@@ -21,6 +21,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   bool deniedEditTypePrice = false; // Запретить изменять тип цены в документах
   bool deniedEditPrice = false; // Запретить изменять цены в документах
   bool deniedEditDiscount = false; // Запретить изменять скидку в документах
+  bool deniedAddProductWithoutRest = false; // Запретить добавлять товар без остатка
+
   bool useWebExchange = false; // Обмен по вебсервису
   bool enabledTextFieldWebExchange = false;
   bool useFTPExchange = false; // Обмен по FTP
@@ -233,6 +235,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')!;
     deniedEditPrice = prefs.getBool('settings_deniedEditPrice')!;
     deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
+    deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')!;
     useRoutesToPartners = prefs.getBool('settings_useRoutesToPartners')!;
 
     // Разрешение на добавление новых элементов в справочники
@@ -300,6 +303,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
     prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
     prefs.setBool('settings_useRoutesToPartners', useRoutesToPartners);
+    prefs.setBool('settings_deniedAddProductWithoutRest', deniedAddProductWithoutRest);
 
     /// Запрет добавления новых елементов
     prefs.setBool('settings_deniedAddOrganization', deniedAddOrganization);
@@ -440,6 +444,23 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   },
                 ),
                 const Flexible(child: Text('Запретить изменять скидки в документах')),
+              ],
+            ),
+          ),
+          /// Запрет на добавление товара, если остатка не хватает
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: deniedAddProductWithoutRest,
+                  onChanged: (value) {
+                    setState(() {
+                      deniedAddProductWithoutRest = !deniedAddProductWithoutRest;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Запретить добавление товара без остатка')),
               ],
             ),
           ),

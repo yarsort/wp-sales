@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
 
@@ -30,6 +31,8 @@ class ScreenAddItem extends StatefulWidget {
 }
 
 class _ScreenAddItemState extends State<ScreenAddItem> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool visibleImage = true;
 
   String pathImage = '';
@@ -41,7 +44,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   List listRests = [];
   List<Unit> listUnits = [];
 
-  late Unit selectedUnit;
+  late Unit selectedUnit; // Выбранная едиица измерения
+  double countOnWarehouse = 0.0;
+  double price = 0.0;
 
   /// Поле ввода: Product name
   TextEditingController textFieldProductNameController =
@@ -152,39 +157,39 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                   ),
                 ),
 
-                /// Price name
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                  child: TextField(
-                    readOnly: true,
-                    controller: textFieldPriceNameController,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(
-                        color: Colors.blueGrey,
-                      ),
-                      labelText: 'Тип цены',
-                    ),
-                  ),
-                ),
-
-                /// Warehouse name
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                  child: TextField(
-                    readOnly: true,
-                    controller: textFieldWarehouseNameController,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(
-                        color: Colors.blueGrey,
-                      ),
-                      labelText: 'Склад',
-                    ),
-                  ),
-                ),
+                // /// Price name
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                //   child: TextField(
+                //     readOnly: true,
+                //     controller: textFieldPriceNameController,
+                //     decoration: const InputDecoration(
+                //       contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                //       border: OutlineInputBorder(),
+                //       labelStyle: TextStyle(
+                //         color: Colors.blueGrey,
+                //       ),
+                //       labelText: 'Тип цены',
+                //     ),
+                //   ),
+                // ),
+                //
+                // /// Warehouse name
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                //   child: TextField(
+                //     readOnly: true,
+                //     controller: textFieldWarehouseNameController,
+                //     decoration: const InputDecoration(
+                //       contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                //       border: OutlineInputBorder(),
+                //       labelStyle: TextStyle(
+                //         color: Colors.blueGrey,
+                //       ),
+                //       labelText: 'Склад',
+                //     ),
+                //   ),
+                // ),
 
                 Row(
                   children: [
@@ -258,11 +263,19 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                         child: TextField(
+                          autofocus: true,
                           onChanged: (value) {
                             //calculateCount();
                           },
                           onSubmitted: (value) {
                             calculateCount();
+                          },
+                          onTap: () {
+                            // Выделим текст после фокусировки
+                            textFieldCountController.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: textFieldCountController.text.length,
+                            );
                           },
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true, signed: true),
@@ -289,6 +302,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                   onPressed: () {
                                     plusCountOnForm();
                                     calculateCount();
+
+                                    // Выделим текст после фокусировки
+                                    textFieldCountController.selection = TextSelection(
+                                      baseOffset: 0,
+                                      extentOffset: textFieldCountController.text.length,
+                                    );
                                   },
                                   icon:
                                       const Icon(Icons.add, color: Colors.blue),
@@ -297,6 +316,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                   onPressed: () {
                                     minusCountOnForm();
                                     calculateCount();
+
+                                    // Выделим текст после фокусировки
+                                    textFieldCountController.selection = TextSelection(
+                                      baseOffset: 0,
+                                      extentOffset: textFieldCountController.text.length,
+                                    );
                                   },
                                   icon: const Icon(Icons.remove,
                                       color: Colors.blue),
@@ -346,12 +371,18 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                               onPressed: () async {
                                 // Добавим товар в заказ покупателя
                                 if (widget.orderCustomer != null) {
-                                  addProductToOrderCustomer();
+                                  bool result = await addProductToOrderCustomer();
+                                  if (result == false) {
+                                    return;
+                                  }
                                 }
 
                                 // Добавим товар в возврат товаров от покупателя
                                 if (widget.returnOrderCustomer != null) {
-                                  addProductToReturnOrderCustomer();
+                                  bool result = await addProductToReturnOrderCustomer();
+                                  if (result == false) {
+                                    return;
+                                  }
                                 }
 
                                 // Закроем окно
@@ -465,7 +496,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     textFieldWarehouseNameController.text = nameWarehouse;
 
     /// Остаток на складе.
-    var countOnWarehouse = await dbReadProductRest(
+    countOnWarehouse = await dbReadProductRest(
         uidWarehouse: uidWarehouse,
         uidProduct: uidProduct,
         uidProductCharacteristic: '');
@@ -473,7 +504,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     textFieldWarehouseController.text = doubleThreeToString(countOnWarehouse);
 
     /// Цена товара.
-    var price = await dbReadProductPrice(
+    price = await dbReadProductPrice(
         uidPrice: uidPrice,
         uidProduct: uidProduct,
         uidProductCharacteristic: '');
@@ -561,6 +592,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         }
 
       }
+
+      // Выделим текст после фокусировки
+      textFieldCountController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldCountController.text.length,
+      );
     }
 
     if (widget.listItemReturnDoc != null) {
@@ -671,13 +708,26 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     textFieldCountController.text = doubleThreeToString(value);
   }
 
-  addProductToOrderCustomer() {
+  Future<bool> addProductToOrderCustomer() async {
+
+    final SharedPreferences prefs = await _prefs;
+
     // Получим количество товара, которое добавляем
     var value = double.parse(
         doubleThreeToString(double.parse(textFieldCountController.text)));
 
     /// Добавление товаров в заказе покупателя
     if (widget.listItemDoc != null) {
+
+      // Контроль добавления товара, если на остатке его нет
+      bool deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')!;
+      if(deniedAddProductWithoutRest){
+        if(value * selectedUnit.multiplicity > countOnWarehouse){
+          showErrorMessage('Товара недостаточно на остатке!', context);
+          return false;
+        }
+      }
+
       // Найдем индекс строки товара в заказе по товару который добавляем
       var indexItem = widget.listItemDoc?.indexWhere((element) =>
               element.uid == widget.product.uid &&
@@ -709,9 +759,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         widget.listItemDoc?.add(itemOrderCustomer);
       }
     }
+
+    return true;
   }
 
-  addProductToReturnOrderCustomer() {
+  Future<bool> addProductToReturnOrderCustomer() async {
     // Получим количество товара, которое добавляем
     var value = double.parse(
         doubleThreeToString(double.parse(textFieldCountController.text)));
@@ -746,6 +798,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
       widget.listItemReturnDoc?.add(itemReturnOrderCustomer);
     }
+
+    return true;
   }
 
   listViewPrices() {

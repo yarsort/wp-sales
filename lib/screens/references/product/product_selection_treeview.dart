@@ -312,9 +312,12 @@ class _ScreenProductSelectionTreeViewState
       // Если надо показывать иерархию элементов
       if (showProductHierarchy) {
         // Если у товара родитель не является текущим выбранным каталогом
-        if (newItem.uidParent != parentProduct.uid) {
-          continue;
+        if(newItem.uidParent != '00000000-0000-0000-0000-000000000000'){
+          if (newItem.uidParent != parentProduct.uid) {
+            continue;
+          }
         }
+
       } else {
         // Без иерархии показывать каталоги нельзя!
         if (newItem.isGroup == 1) {
