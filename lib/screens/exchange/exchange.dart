@@ -282,6 +282,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _visibleIndicator = true;
     });
 
+    showMessage('Начало обмена...', context);
+
     final SharedPreferences prefs = await _prefs;
 
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
@@ -295,6 +297,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (useWebExchange) {
       await downloadDataFromWebServer();
     }
+
+    showMessage('Обмен успешно завершен.', context);
 
     setState(() {
       _loading = false;
@@ -338,7 +342,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         user: settingsFTPUser,
         pass: settingsFTPPassword,
         timeout: 600,
-        debug: true);
+        debug: false);
 
     var res = await ftpClient.connect();
     if (!res) {
@@ -451,6 +455,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (!_loading) {
       return;
     }
+
+    showMessage('Начало обработки данных.', context);
 
     /// Обработка данных обмена: чтение и запись данных
     //  Прочитаем каждый файл и запишем данных
@@ -565,7 +571,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
     } catch (e) {
       listLogs.add(
-          'Ошибка обработки справочника "Организация". \n Описание ошибки: $e');
+          'Ошибка обработки справочника "Организации". \n Описание ошибки: $e');
       setState(() {});
     }
 
@@ -966,7 +972,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
-      showMessage('Начало отправки на FTP.', context);
+      showMessage('Отправка данных в учетную систему.', context);
 
       // Добавим файлы
       String pathZipFile = await generateDataSimple();
@@ -999,7 +1005,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         }
       }
 
-      showMessage('Завершение отправки на FTP.', context);
+      //showMessage('Завершение отправки на FTP.', context);
     }
 
     bool useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;

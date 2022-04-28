@@ -138,7 +138,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
     // Прочитаем сумму всех долгов
     var debts = await dbReadAllAccumPartnerDept();
-    for (var debt in debts){
+    for (var debt in debts) {
       balance = balance + debt.balance;
       balanceForPayment = balanceForPayment + debt.balanceForPayment;
     }
@@ -162,52 +162,63 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   }
 
   readSumDocumentToday() async {
+    String whereString = '';
+    List whereList = [];
 
-      String whereString = '';
-      List whereList = [];
+    String dayStart = DateTime.now().toString().substring(8, 10);
+    String monthStart = DateTime.now().toString().substring(5, 7);
+    String yearStart = DateTime.now().toString().substring(0, 4);
 
-      String dayStart = DateTime.now().toString().substring(8,10);
-      String monthStart = DateTime.now().toString().substring(5,7);
-      String yearStart = DateTime.now().toString().substring(0,4);
+    String dayFinish = DateTime.now().toString().substring(8, 10);
+    String monthFinish = DateTime.now().toString().substring(5, 7);
+    String yearFinish = DateTime.now().toString().substring(0, 4);
 
-      String dayFinish = DateTime.now().toString().substring(8,10);
-      String monthFinish = DateTime.now().toString().substring(5,7);
-      String yearFinish = DateTime.now().toString().substring(0,4);
+    String dateStart =
+        DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+    String dateFinish =
+        DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
+            .toIso8601String();
 
-      String dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
-      String dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+    // Фильтр: по статусу
+    whereList.add('status = 1');
+    whereList.add('(date >= ? AND date <= ?)');
 
-      // Фильтр: по статусу
-      whereList.add('status = 1');
-      whereList.add('(date >= ? AND date <= ?)');
+    // Соединим условия отбора
+    whereString = whereList.join(' AND ');
 
-      // Соединим условия отбора
-      whereString = whereList.join(' AND ');
+    // Очистка данных
+    sumIncomingCashOrderToday = 0.0;
+    sumIncomingCashOrderToday = 0.0;
+    countNewOrderCustomer = 0;
+    countNewIncomingCashOrder = 0;
 
-      // Очистка данных
-      sumIncomingCashOrderToday = 0.0;
-      sumIncomingCashOrderToday = 0.0;
-      countNewOrderCustomer = 0;
-      countNewIncomingCashOrder = 0;
+    // Экземпляр базы даных
+    final db = await instance.database;
 
-      // Экземпляр базы даных
-      final db = await instance.database;
+    // Запрос на заказ покупателя
+    final resultOrderCustomer = await db.rawQuery(
+        'SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',
+        [dateStart, dateFinish]);
+    List<OrderCustomer> listSendOrdersCustomer = resultOrderCustomer
+        .map((json) => OrderCustomer.fromJson(json))
+        .toList();
+    for (var orderCustomer in listSendOrdersCustomer) {
+      sumOrderCustomerToday = sumOrderCustomerToday + orderCustomer.sum;
+      countNewOrderCustomer = countNewOrderCustomer + 1;
+    }
 
-      // Запрос на заказ покупателя
-      final resultOrderCustomer = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
-      List<OrderCustomer> listSendOrdersCustomer = resultOrderCustomer.map((json) => OrderCustomer.fromJson(json)).toList();
-      for (var orderCustomer in listSendOrdersCustomer) {
-        sumOrderCustomerToday = sumOrderCustomerToday + orderCustomer.sum;
-        countNewOrderCustomer = countNewOrderCustomer + 1;
-      }
-
-      // Запрос на оплаты
-      final resultIncomingCashOrder = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
-      List<OrderCustomer> listSendIncomingCashOrder = resultIncomingCashOrder.map((json) => OrderCustomer.fromJson(json)).toList();
-      for (var incomingCashOrder in listSendIncomingCashOrder) {
-        sumIncomingCashOrderToday = sumIncomingCashOrderToday + incomingCashOrder.sum;
-        countNewIncomingCashOrder = countNewIncomingCashOrder + 1;
-      }
+    // Запрос на оплаты
+    final resultIncomingCashOrder = await db.rawQuery(
+        'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date ASC',
+        [dateStart, dateFinish]);
+    List<OrderCustomer> listSendIncomingCashOrder = resultIncomingCashOrder
+        .map((json) => OrderCustomer.fromJson(json))
+        .toList();
+    for (var incomingCashOrder in listSendIncomingCashOrder) {
+      sumIncomingCashOrderToday =
+          sumIncomingCashOrderToday + incomingCashOrder.sum;
+      countNewIncomingCashOrder = countNewIncomingCashOrder + 1;
+    }
   }
 
   nameGroup(String nameGroup) {
@@ -222,6 +233,196 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   }
 
   balanceCard() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  title: const Center(
+                      child: Text(
+                    'Баланс',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Center(
+                        child: Text('₴ ' + doubleToString(balance),
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.orange)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  title: const Center(
+                      child: Text(
+                    'Баланс к оплате',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Text('₴ ' + doubleToString(balanceForPayment),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.orange)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenOrderCustomerList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                    'Заказы (шт)',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Center(
+                        child: Text(
+                            countNewOrderCustomer.toString() +
+                                ' из ' +
+                                countSendOrderCustomer.toString(),
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.orange)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenIncomingCashOrderList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                    'ПКО (шт)',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Text(countNewIncomingCashOrder.toString() +
+                          ' из ' +
+                          countSendIncomingCashOrder.toString(),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.orange)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                            const ScreenOrderCustomerList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                        'Заказы (грн)',
+                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                      )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Center(
+                        child: Text(
+                            doubleToString(sumOrderCustomerToday),
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.orange)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                elevation: 2,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                            const ScreenIncomingCashOrderList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                        'ПКО (грн)',
+                        style: TextStyle(fontSize: 16, color: Colors.blue),
+                      )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Text(doubleToString(sumIncomingCashOrderToday),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.orange)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  balanceCardOld() {
     return Column(
       children: [
         /// Баланс
@@ -370,7 +571,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       context,
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
-                          const ScreenOrderCustomerList()));
+                              const ScreenOrderCustomerList()));
                 },
                 child: Container(
                   decoration: const BoxDecoration(
@@ -434,7 +635,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       context,
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
-                          const ScreenIncomingCashOrderList()));
+                              const ScreenIncomingCashOrderList()));
                 },
                 child: Container(
                   decoration: const BoxDecoration(
@@ -508,8 +709,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                  const ScreenOrderCustomerList()));
+                          builder: (BuildContext context) =>
+                              const ScreenOrderCustomerList()));
                 },
                 child: Container(
                   decoration: const BoxDecoration(
@@ -573,7 +774,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       context,
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
-                          const ScreenIncomingCashOrderList()));
+                              const ScreenIncomingCashOrderList()));
                 },
                 child: Container(
                   decoration: const BoxDecoration(

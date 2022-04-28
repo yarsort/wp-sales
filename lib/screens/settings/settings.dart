@@ -220,7 +220,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? true;
     enabledTextFieldWebExchange = useFTPExchange;
     textFieldFTPServerController.text = prefs.getString('settings_FTPServer')??'';
-    textFieldFTPPortController.text = prefs.getString('settings_FTPPort')??'';
+    textFieldFTPPortController.text = prefs.getString('settings_FTPPort')??'21';
     textFieldFTPUserController.text = prefs.getString('settings_FTPUser')??'';
     textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')??'';
     textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')??'';
@@ -228,27 +228,27 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     // Обмен по web-серверу
     useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
     enabledTextFieldFTPExchange = useFTPExchange;
-    textFieldWEBServerController.text = prefs.getString('settings_WEBServer')!;
+    textFieldWEBServerController.text = prefs.getString('settings_WEBServer')??'';
 
     // Разрешения и запреты
-    deniedEditSettings = prefs.getBool('settings_deniedEditSettings')!;
-    deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')!;
-    deniedEditPrice = prefs.getBool('settings_deniedEditPrice')!;
-    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')!;
-    deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')!;
-    useRoutesToPartners = prefs.getBool('settings_useRoutesToPartners')!;
+    deniedEditSettings = prefs.getBool('settings_deniedEditSettings')??false;
+    deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')??false;
+    deniedEditPrice = prefs.getBool('settings_deniedEditPrice')??false;
+    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')??false;
+    deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')??true;
+    useRoutesToPartners = prefs.getBool('settings_useRoutesToPartners')??false;
 
     // Разрешение на добавление новых элементов в справочники
-    deniedAddOrganization = prefs.getBool('settings_deniedAddOrganization')!;
-    deniedAddPartner = prefs.getBool('settings_deniedAddPartner')!;
-    deniedAddContract = prefs.getBool('settings_deniedAddContract')!;
-    deniedAddStore = prefs.getBool('settings_deniedAddStore')!;
-    deniedAddProduct = prefs.getBool('settings_deniedAddProduct')!;
-    deniedAddUnit = prefs.getBool('settings_deniedAddUnit')!;
-    deniedAddPrice = prefs.getBool('settings_deniedAddPrice')!;
-    deniedAddCurrency = prefs.getBool('settings_deniedAddCurrency')!;
-    deniedAddWarehouse = prefs.getBool('settings_deniedAddWarehouse')!;
-    deniedAddCashbox = prefs.getBool('settings_deniedAddCashbox')!;
+    deniedAddOrganization = prefs.getBool('settings_deniedAddOrganization')??true;
+    deniedAddPartner = prefs.getBool('settings_deniedAddPartner')??true;
+    deniedAddContract = prefs.getBool('settings_deniedAddContract')??true;
+    deniedAddStore = prefs.getBool('settings_deniedAddStore')??true;
+    deniedAddProduct = prefs.getBool('settings_deniedAddProduct')??true;
+    deniedAddUnit = prefs.getBool('settings_deniedAddUnit')??true;
+    deniedAddPrice = prefs.getBool('settings_deniedAddPrice')??true;
+    deniedAddCurrency = prefs.getBool('settings_deniedAddCurrency')??true;
+    deniedAddWarehouse = prefs.getBool('settings_deniedAddWarehouse')??true;
+    deniedAddCashbox = prefs.getBool('settings_deniedAddCashbox')??true;
 
     // Заполнение значений по-умолчанию
     uidOrganization = prefs.getString('settings_uidOrganization')??'';
