@@ -508,19 +508,18 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       prefs.setString(
           'settings_uidOrganization', settingsMap['settings_uidOrganization']);
     }
-    // String settingsUidPartner = prefs.getString('settings_uidPartner') ?? '';
-    // if(settingsUidPartner.isEmpty){
-    //   prefs.setString('settings_uidPartner', settingsMap['settings_uidPartner']);
-    // }
+
     String settingsUidPrice = prefs.getString('settings_uidPrice') ?? '';
     if (settingsUidPrice.isEmpty) {
       prefs.setString('settings_uidPrice', settingsMap['settings_uidPrice']);
     }
+
     String settingsUidCashbox = prefs.getString('settings_uidCashbox') ?? '';
     if (settingsUidCashbox.isEmpty) {
       prefs.setString(
           'settings_uidCashbox', settingsMap['settings_uidCashbox']);
     }
+
     String settingsUidWarehouse =
         prefs.getString('settings_uidWarehouse') ?? '';
     if (settingsUidWarehouse.isEmpty) {
@@ -534,339 +533,418 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         settingsMap['settings_deniedAddOrganization'] == 'false'
             ? false
             : true);
-    prefs.setBool(
-        'settings_deniedAddPartner',
-        settingsMap['settings_deniedAddPartner'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddContract',
-        settingsMap['settings_deniedAddContract'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddProduct',
-        settingsMap['settings_deniedAddProduct'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddUnit',
-        settingsMap['settings_deniedAddUnit'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddPrice',
-        settingsMap['settings_deniedAddPrice'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddCurrency',
-        settingsMap['settings_deniedAddCurrency'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddWarehouse',
-        settingsMap['settings_deniedAddWarehouse'] == 'false'
-            ? false
-            : true);
-    prefs.setBool(
-        'settings_deniedAddCashbox',
-        settingsMap['settings_deniedAddCashbox'] == 'false'
-            ? false
-            : true);
+    prefs.setBool('settings_deniedAddPartner',
+        settingsMap['settings_deniedAddPartner'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddContract',
+        settingsMap['settings_deniedAddContract'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddProduct',
+        settingsMap['settings_deniedAddProduct'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddUnit',
+        settingsMap['settings_deniedAddUnit'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddPrice',
+        settingsMap['settings_deniedAddPrice'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddCurrency',
+        settingsMap['settings_deniedAddCurrency'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddWarehouse',
+        settingsMap['settings_deniedAddWarehouse'] == 'false' ? false : true);
+    prefs.setBool('settings_deniedAddCashbox',
+        settingsMap['settings_deniedAddCashbox'] == 'false' ? false : true);
 
     /// Организации
-    if (jsonData['Organizations'] != null) {
-      await dbDeleteAllOrganization();
-      for (var item in jsonData['Organizations']) {
-        await dbCreateOrganization(Organization.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Organizations'] != null) {
+        await dbDeleteAllOrganization();
+        for (var item in jsonData['Organizations']) {
+          await dbCreateOrganization(Organization.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Организации: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.1;
+        });
       }
-      listLogs.add('Организации: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.1;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Организация". \n Описание ошибки: $e');
+      setState(() {});
     }
 
-    /// Каталоги товаров (папки)
-    if (jsonData['PartnersParent'] != null) {
-      await dbDeleteAllPartner();
-      countItem = 0;
-      for (var item in jsonData['PartnersParent']) {
-        await dbCreatePartner(Partner.fromJson(item));
-        countItem++;
-      }
-      listLogs.add('Каталоги партнеров: ' + countItem.toString() + ' шт');
+    /// Каталоги партнеров (папки)
+    try {
+      if (jsonData['PartnersParent'] != null) {
+        await dbDeleteAllPartner();
+        countItem = 0;
+        for (var item in jsonData['PartnersParent']) {
+          await dbCreatePartner(Partner.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Каталоги партнеров: ' + countItem.toString() + ' шт');
 
-      setState(() {
-        _valueProgress = 0.2;
-      });
+        setState(() {
+          _valueProgress = 0.2;
+        });
+      }
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Каталоги партнеров". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Партнеры
-    if (jsonData['Partners'] != null) {
-      countItem = 0;
-      for (var item in jsonData['Partners']) {
-        await dbCreatePartner(Partner.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Partners'] != null) {
+        countItem = 0;
+        for (var item in jsonData['Partners']) {
+          await dbCreatePartner(Partner.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.2;
+        });
       }
-      listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.2;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Партнеры". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Контракты
-    if (jsonData['Contracts'] != null) {
-      await dbDeleteAllContract();
-      countItem = 0;
-      for (var item in jsonData['Contracts']) {
-        await dbCreateContract(Contract.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Contracts'] != null) {
+        await dbDeleteAllContract();
+        countItem = 0;
+        for (var item in jsonData['Contracts']) {
+          await dbCreateContract(Contract.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Контракты: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.3;
+        });
       }
-      listLogs.add('Контракты: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.3;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Контракты". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Магазины (Торговые точки)
-    if (jsonData['Stores'] != null) {
-      await dbDeleteAllStore();
-      countItem = 0;
-      for (var item in jsonData['Stores']) {
-        await dbCreateStore(Store.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Stores'] != null) {
+        await dbDeleteAllStore();
+        countItem = 0;
+        for (var item in jsonData['Stores']) {
+          await dbCreateStore(Store.fromJson(item));
+          countItem++;
+        }
+        listLogs
+            .add('Магазины (торговые точки): ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.4;
+        });
       }
-      listLogs.add('Магазины (торговые точки): ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.4;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Магазины". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Долги по контрактам
-    if (jsonData['DeptsPartners'] != null) {
-      await dbDeleteAllPartnerDept();
-      countItem = 0;
-      for (var item in jsonData['DeptsPartners']) {
-        await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['DeptsPartners'] != null) {
+        await dbDeleteAllPartnerDept();
+        countItem = 0;
+        for (var item in jsonData['DeptsPartners']) {
+          await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
+          countItem++;
+        }
+        // После записи документов, обновим записи по регистраторам без номера документа
+        listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.5;
+        });
       }
-      // После записи документов, обновим записи по регистраторам без номера документа
-      listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.5;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки регистра накопления "Долги по контрактам". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Долги по контрактам по документам расчета
-    if (jsonData['DeptsPartnersByDocuments'] != null) {
-      await dbDeleteAllPartnerDept();
-      countItem = 0;
-      for (var item in jsonData['DeptsPartnersByDocuments']) {
-        await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['DeptsPartnersByDocuments'] != null) {
+        await dbDeleteAllPartnerDept();
+        countItem = 0;
+        for (var item in jsonData['DeptsPartnersByDocuments']) {
+          await dbCreatePartnerDept(AccumPartnerDept.fromJson(item));
+          countItem++;
+        }
+        // После записи документов, обновим записи по регистраторам без номера документа
+        listLogs.add('Взаиморасчеты по документам расчета: ' +
+            countItem.toString() +
+            ' шт');
+        setState(() {
+          _valueProgress = 0.55;
+        });
       }
-      // После записи документов, обновим записи по регистраторам без номера документа
-      listLogs.add('Взаиморасчеты по документам расчета: ' +
-          countItem.toString() +
-          ' шт');
-      setState(() {
-        _valueProgress = 0.55;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки регистра накопления "Долги по контрактам по документам расчета". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Типы цен
-    if (jsonData['Prices'] != null) {
-      await dbDeleteAllPrice();
-      countItem = 0;
-      for (var item in jsonData['Prices']) {
-        await dbCreatePrice(Price.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Prices'] != null) {
+        await dbDeleteAllPrice();
+        countItem = 0;
+        for (var item in jsonData['Prices']) {
+          await dbCreatePrice(Price.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.65;
+        });
       }
-      listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.65;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Типы цен". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Склады
-    if (jsonData['Warehouses'] != null) {
-      await dbDeleteAllWarehouse();
-      countItem = 0;
-      for (var item in jsonData['Warehouses']) {
-        await dbCreateWarehouse(Warehouse.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Warehouses'] != null) {
+        await dbDeleteAllWarehouse();
+        countItem = 0;
+        for (var item in jsonData['Warehouses']) {
+          await dbCreateWarehouse(Warehouse.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Склады: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.7;
+        });
       }
-      listLogs.add('Склады: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.7;
-      });
+    } catch (e) {
+      listLogs
+          .add('Ошибка обработки справочника "Склады". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Кассы
-    if (jsonData['Cashboxes'] != null) {
-      await dbDeleteAllCashbox();
-      countItem = 0;
-      for (var item in jsonData['Cashboxes']) {
-        await dbCreateCashbox(Cashbox.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Cashboxes'] != null) {
+        await dbDeleteAllCashbox();
+        countItem = 0;
+        for (var item in jsonData['Cashboxes']) {
+          await dbCreateCashbox(Cashbox.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Кассы: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.7;
+        });
       }
-      listLogs.add('Кассы: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.7;
-      });
+    } catch (e) {
+      listLogs
+          .add('Ошибка обработки справочника "Кассы". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Каталоги товаров (папки)
-    if (jsonData['ProductsParent'] != null) {
-      await dbDeleteAllProduct();
-      countItem = 0;
-      for (var item in jsonData['ProductsParent']) {
-        await dbCreateProduct(Product.fromJson(item));
-        countItem++;
-      }
-      listLogs.add('Каталоги товаров: ' + countItem.toString() + ' шт');
+    try {
+      if (jsonData['ProductsParent'] != null) {
+        await dbDeleteAllProduct();
+        countItem = 0;
+        for (var item in jsonData['ProductsParent']) {
+          await dbCreateProduct(Product.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Каталоги товаров: ' + countItem.toString() + ' шт');
 
-      setState(() {
-        _valueProgress = 0.8;
-      });
+        setState(() {
+          _valueProgress = 0.8;
+        });
+      }
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Каталоги товаров". \n Описание ошибки:$e');
+      setState(() {});
     }
 
     /// Товары
-    if (jsonData['Products'] != null) {
-      countItem = 0;
-      for (var item in jsonData['Products']) {
-        await dbCreateProduct(Product.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Products'] != null) {
+        countItem = 0;
+        for (var item in jsonData['Products']) {
+          await dbCreateProduct(Product.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Товары: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.85;
+        });
       }
-      listLogs.add('Товары: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.85;
-      });
+    } catch (e) {
+      listLogs
+          .add('Ошибка обработки справочника "Товары". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Единицы измерения
-    if (jsonData['Units'] != null) {
-      await dbDeleteAllUnit();
-      countItem = 0;
+    try {
+      if (jsonData['Units'] != null) {
+        await dbDeleteAllUnit();
+        countItem = 0;
 
-      for (var item in jsonData['Units']) {
-        await dbCreateUnit(Unit.fromJson(item));
-        countItem++;
+        for (var item in jsonData['Units']) {
+          await dbCreateUnit(Unit.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Единицы измерения: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.88;
+        });
       }
-      listLogs.add('Единицы измерения: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.88;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки справочника "Единицы измерения". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Валюты
-    if (jsonData['Currency'] != null) {
-      await dbDeleteAllCurrency();
-      countItem = 0;
-      for (var item in jsonData['Currency']) {
-        await dbCreateCurrency(Currency.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Currency'] != null) {
+        await dbDeleteAllCurrency();
+        countItem = 0;
+        for (var item in jsonData['Currency']) {
+          await dbCreateCurrency(Currency.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Валюты: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.89;
+        });
       }
-      listLogs.add('Валюты: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.89;
-      });
+    } catch (e) {
+      listLogs
+          .add('Ошибка обработки справочника "Валюты". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Остатки товаров
-    if (jsonData['Currency'] != null) {
-      await dbDeleteAllProductRest();
-      countItem = 0;
-      for (var item in jsonData['Rests']) {
-        await dbCreateProductRest(AccumProductRest.fromJson(item));
-        countItem++;
-      }
+    try {
+      if (jsonData['Currency'] != null) {
+        await dbDeleteAllProductRest();
+        countItem = 0;
+        for (var item in jsonData['Rests']) {
+          await dbCreateProductRest(AccumProductRest.fromJson(item));
+          countItem++;
+        }
 
-      listLogs.add('Остатки товаров: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 0.9;
-      });
+        listLogs.add('Остатки товаров: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 0.9;
+        });
+      }
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки регистра накопления "Остатки товаров". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Цены товаров
-    ///
-    if (jsonData['Currency'] != null) {
-      await dbDeleteAllProductPrice();
-      countItem = 0;
-      for (var item in jsonData['ProductsPrices']) {
-        await dbCreateProductPrice(AccumProductPrice.fromJson(item));
-        countItem++;
+    try {
+      if (jsonData['Currency'] != null) {
+        await dbDeleteAllProductPrice();
+        countItem = 0;
+        for (var item in jsonData['ProductsPrices']) {
+          await dbCreateProductPrice(AccumProductPrice.fromJson(item));
+          countItem++;
+        }
+        listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
+        setState(() {
+          _valueProgress = 1.0;
+        });
       }
-      listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
-      setState(() {
-        _valueProgress = 1.0;
-      });
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки регистра сведений "Цены товаров". \n Описание ошибки: $e');
+      setState(() {});
     }
 
     /// Полученные номеров документов из учетной системы
     countItem = 0;
-    if (jsonData['ReceivedDocuments'] != null) {
-      for (var item in jsonData['ReceivedDocuments']) {
-        if (item['typeDoc'] == 'orderCustomer') {
-          // Получим объект
-          var orderCustomer = await dbReadOrderCustomerUID(item['uidDoc']);
+    try {
+      if (jsonData['ReceivedDocuments'] != null) {
+        for (var item in jsonData['ReceivedDocuments']) {
+          if (item['typeDoc'] == 'orderCustomer') {
+            // Получим объект
+            var orderCustomer = await dbReadOrderCustomerUID(item['uidDoc']);
 
-          // Получим товары заказа
-          var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
+            // Получим товары заказа
+            var itemsOrder = await dbReadItemsOrderCustomer(orderCustomer.id);
 
-          // Запишем номер документа из учетной системы
-          orderCustomer.numberFrom1C = item['numberDoc'];
+            // Запишем номер документа из учетной системы
+            orderCustomer.numberFrom1C = item['numberDoc'];
 
-          // Запишем обновления заказа
-          await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
+            // Запишем обновления заказа
+            await dbUpdateOrderCustomer(orderCustomer, itemsOrder);
+          }
+
+          if (item['typeDoc'] == 'incomingCashOrder') {
+            // Получим объект
+            var incomingCashOrder =
+                await dbReadIncomingCashOrderUID(item['uidDoc']);
+
+            // Запишем номер документа из учетной системы
+            incomingCashOrder.numberFrom1C = item['numberDoc'];
+
+            // Запишем обновления записи
+            await dbUpdateIncomingCashOrder(incomingCashOrder);
+          }
+
+          if (item['typeDoc'] == 'returnOrderCustomer') {
+            // Получим объект
+            var returnOrderCustomer =
+                await dbReadReturnOrderCustomer(item['uidDoc']);
+
+            // Получим товары
+            var itemsOrder =
+                await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
+
+            // Запишем номер документа из учетной системы
+            returnOrderCustomer.numberFrom1C = item['numberDoc'];
+
+            // Запишем обновления записи
+            await dbUpdateReturnOrderCustomer(returnOrderCustomer, itemsOrder);
+          }
+          countItem++;
         }
-
-        if (item['typeDoc'] == 'incomingCashOrder') {
-          // Получим объект
-          var incomingCashOrder =
-              await dbReadIncomingCashOrderUID(item['uidDoc']);
-
-          // Запишем номер документа из учетной системы
-          incomingCashOrder.numberFrom1C = item['numberDoc'];
-
-          // Запишем обновления записи
-          await dbUpdateIncomingCashOrder(incomingCashOrder);
-        }
-
-        if (item['typeDoc'] == 'returnOrderCustomer') {
-          // Получим объект
-          var returnOrderCustomer =
-              await dbReadReturnOrderCustomer(item['uidDoc']);
-
-          // Получим товары
-          var itemsOrder =
-              await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
-
-          // Запишем номер документа из учетной системы
-          returnOrderCustomer.numberFrom1C = item['numberDoc'];
-
-          // Запишем обновления записи
-          await dbUpdateReturnOrderCustomer(returnOrderCustomer, itemsOrder);
-        }
-        countItem++;
+        listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
       }
-      listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
+    } catch (e) {
+      listLogs.add(
+          'Ошибка обработки номеров документов. \n Описание ошибки: $e');
+      setState(() {});
     }
+
     setState(() {
       _valueProgress = 1.0;
     });
   }
 
-  // Обработка полученных данных из JSON: Отчеты
+// Обработка полученных данных из JSON: Отчеты
   Future<void> saveFromJsonDataReport(jsonData) async {
     if (!_loading) {
       return;
     }
   }
 
-  // Запись данных в JSON: Обычный
+// Запись данных в JSON: Обычный
   Future<void> saveToJsonDataReport(jsonData) async {
     if (!_loading) {
       return;
@@ -875,7 +953,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   /// Отправка данных в учетные системы
 
-  // Начало отправки данных
+// Начало отправки данных
   Future<void> uploadData() async {
     if (!_loading) {
       return;
@@ -930,7 +1008,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
   }
 
-  // Получение данных из FTP Server
+// Получение данных из FTP Server
   Future<bool> uploadDataToFTP(List<String> listToUpload) async {
     if (!_loading) {
       return false;
@@ -1006,7 +1084,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
   }
 
-  // Отправка данных на Web Server
+// Отправка данных на Web Server
   Future<void> uploadDataToWebServer() async {
     if (!_loading) {
       return;
@@ -1015,7 +1093,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   /// Генерация данных
 
-  // Отправка данных на FTP Server
+// Отправка данных на FTP Server
   Future<String> generateDataSimple() async {
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
