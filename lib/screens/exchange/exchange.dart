@@ -103,6 +103,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           child: Column(
             children: [
               progressIndicator(),
+              actionButtons(),
               Expanded(
                 child: ListView.builder(
                     physics: const BouncingScrollPhysics(),
@@ -139,7 +140,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
             ],
           ),
         ),
-        bottomNavigationBar: actionButtons(),
       ),
     );
   }
@@ -163,68 +163,76 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton(
-              onPressed: () async {
-                if (_loading) {
-                  showMessage('Обмен в процессе...', context);
-                  return;
-                }
+          SizedBox(
+            height: 45,
+            width: MediaQuery.of(context).size.width / 2 - 20,
+            child: ElevatedButton(
+                onPressed: () async {
+                  if (_loading) {
+                    showMessage('Обмен в процессе...', context);
+                    return;
+                  }
 
-                // Начало обмена
-                setState(() {
-                  _loading = true;
-                  _visibleIndicator = true;
-                });
+                  // Начало обмена
+                  setState(() {
+                    _loading = true;
+                    _visibleIndicator = true;
+                  });
 
-                // Процесс обмена
-                await uploadData();
-                //await downloadData();
+                  // Процесс обмена
+                  await uploadData();
+                  //await downloadData();
 
-                // Окончание обмена
-                setState(() {
-                  _loading = false;
-                  _visibleIndicator = false;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.sync, color: Colors.white),
-                  SizedBox(width: 14),
-                  Text('Отправить')
-                ],
-              )),
-          ElevatedButton(
-              onPressed: () async {
-                if (_loading) {
-                  showMessage('Обмен в процессе...', context);
-                  return;
-                }
+                  // Окончание обмена
+                  setState(() {
+                    _loading = false;
+                    _visibleIndicator = false;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.sync, color: Colors.white),
+                    SizedBox(width: 14),
+                    Text('Отправить')
+                  ],
+                )),
+          ),
+          SizedBox(
+            height: 45,
+            width: MediaQuery.of(context).size.width / 2 - 20,
+            child: ElevatedButton(
+                onPressed: () async {
+                  if (_loading) {
+                    showMessage('Обмен в процессе...', context);
+                    return;
+                  }
 
-                // Начало обмена
-                setState(() {
-                  _loading = true;
-                  _visibleIndicator = true;
-                });
+                  // Начало обмена
+                  setState(() {
+                    _loading = true;
+                    _visibleIndicator = true;
+                  });
 
-                // Процесс обмена
-                await uploadData();
-                await downloadData();
+                  // Процесс обмена
+                  await uploadData();
+                  await downloadData();
 
-                // Окончание обмена
-                setState(() {
-                  _loading = false;
-                  _visibleIndicator = false;
-                });
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.sync, color: Colors.white),
-                  SizedBox(width: 14),
-                  Text('Получить')
-                ],
-              )),
+                  // Окончание обмена
+                  setState(() {
+                    _loading = false;
+                    _visibleIndicator = false;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.sync, color: Colors.white),
+                    SizedBox(width: 14),
+                    Text('Получить')
+                  ],
+                )),
+          ),
         ],
       ),
     );

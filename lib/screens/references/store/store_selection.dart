@@ -36,7 +36,7 @@ class _ScreenStoreSelectionState extends State<ScreenStoreSelection> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Договоры партнера'),
+        title: const Text('Магазины партнера'),
       ),
       //drawer: const MainDrawer(),
       body: Column(
@@ -56,7 +56,7 @@ class _ScreenStoreSelectionState extends State<ScreenStoreSelection> {
             ),
           );
         },
-        tooltip: 'Добавить договор',
+        tooltip: 'Добавить магазин',
         child: const Text(
           "+",
           style: TextStyle(fontSize: 30),
@@ -97,9 +97,14 @@ class _ScreenStoreSelectionState extends State<ScreenStoreSelection> {
 
     // Фильтрация по организации из документа
     for (var itemStores in tListStores) {
-      if (itemStores.uidOrganization != tUidOrganization) {
-        continue;
+      // Если указан договор, то надо проверить на организацию
+      if (itemStores.uidContract != '00000000-0000-0000-0000-000000000000') {
+        if (itemStores.uidOrganization != tUidOrganization) {
+          continue;
+        }
       }
+
+      // Добавим в список
       listStores.add(itemStores);
       tempItems.add(itemStores);
     }

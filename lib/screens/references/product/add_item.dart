@@ -44,7 +44,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   List listRests = [];
   List<Unit> listUnits = [];
 
-  late Unit selectedUnit; // Выбранная едиица измерения
+  Unit selectedUnit = Unit(); // Выбранная едиица измерения
   double countOnWarehouse = 0.0;
   double price = 0.0;
 
@@ -460,6 +460,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     listUnits =
         await dbReadUnitsProduct(uidProduct);
 
+    // Посортируем что бы штуки были первыми
+    listUnits.sort((a, b) => b.name.compareTo(a.name));
+
     /// Получение данных по ценам
     for (var listItem in listAccumProductPrice) {
       var data = {};
@@ -513,7 +516,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
     /// Вывод единицы измерения
     if (listUnits.isNotEmpty) {
-      selectedUnit = listUnits[0];
+      for (var itemUnit in listUnits) {
+        if(itemUnit.uid == widget.product.uidUnit) {
+          selectedUnit = itemUnit;
+        }
+      }
+      // Если не установили основную единицу измерения, тогда беем первую из списка
+      if (selectedUnit.uid == '') {
+        selectedUnit = listUnits[0];
+      }
 
       // Вывод на форму
       textFieldUnitNameController.text = selectedUnit.name +

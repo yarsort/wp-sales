@@ -348,6 +348,15 @@ class _ScreenProductListState extends State<ScreenProductList> {
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
             onSubmitted: (String value) {
+              // Выключим иерархический просмотр
+              if (showProductHierarchy) {
+                showProductHierarchy = false;
+                parentProduct = Product();
+                treeParentItems.clear();
+                textFieldSearchCatalogController.text = '';
+                showMessage('Иерархия товаров выключена.', context);
+              }
+
               renewItem();
             },
             controller: textFieldSearchCatalogController,
@@ -401,15 +410,17 @@ class _ScreenProductListState extends State<ScreenProductList> {
                       PopupMenuItem<String>(
                         value: 'showProductHierarchy',
                         child: Row(
-                          children: const [
-                            Icon(
+                          children: [
+                            const Icon(
                               Icons.source,
                               color: Colors.blue,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
-                            Text('Выключить иерархию'),
+                          showProductHierarchy
+                              ? const Text('Выключить иерархию')
+                              : const Text('Включить иерархию'),
                           ],
                         ),
                       ),

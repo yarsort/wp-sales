@@ -81,14 +81,16 @@ class _ScreenProductSelectionTreeViewState
   int _currentMax = 0;
   int countLoadItems = 20;
 
-  @override void initState() {
+  @override
+  void initState() {
     super.initState();
     loadDefault();
     renewItem();
     renewPurchasedItem();
   }
 
-  @override void dispose() {
+  @override
+  void dispose() {
     saveDefault();
     super.dispose();
   }
@@ -174,17 +176,9 @@ class _ScreenProductSelectionTreeViewState
       if (barcodeScanRes == '-1') {
         return;
       }
-      showMessage('Товар с штрихкодом: ' + barcodeScanRes + ' не найден!');
+      showMessage(
+          'Товар с штрихкодом: ' + barcodeScanRes + ' не найден!', context);
     }
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(textMessage),
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 
   void loadDefault() async {
@@ -312,12 +306,11 @@ class _ScreenProductSelectionTreeViewState
       // Если надо показывать иерархию элементов
       if (showProductHierarchy) {
         // Если у товара родитель не является текущим выбранным каталогом
-        if(newItem.uidParent != '00000000-0000-0000-0000-000000000000'){
+        if (newItem.uidParent != '00000000-0000-0000-0000-000000000000') {
           if (newItem.uidParent != parentProduct.uid) {
             continue;
           }
         }
-
       } else {
         // Без иерархии показывать каталоги нельзя!
         if (newItem.isGroup == 1) {
@@ -465,6 +458,15 @@ class _ScreenProductSelectionTreeViewState
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
         onSubmitted: (String value) {
+          // Выключим иерархический просмотр
+          if (showProductHierarchy) {
+            showProductHierarchy = false;
+            parentProduct = Product();
+            treeParentItems.clear();
+            textFieldSearchCatalogController.text = '';
+            showMessage('Иерархия товаров выключена.', context);
+          }
+
           renewItem();
         },
         controller: textFieldSearchCatalogController,
@@ -513,15 +515,17 @@ class _ScreenProductSelectionTreeViewState
                   PopupMenuItem<String>(
                     value: 'showProductHierarchy',
                     child: Row(
-                      children: const [
-                        Icon(
+                      children: [
+                        const Icon(
                           Icons.source,
                           color: Colors.blue,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
-                        Text('Выключить иерархию'),
+                        showProductHierarchy
+                            ? const Text('Выключить иерархию')
+                            : const Text('Включить иерархию'),
                       ],
                     ),
                   ),
