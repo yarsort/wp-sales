@@ -241,12 +241,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                elevation: 2,
+                color: Colors.blue.shade500,
+                elevation: 3,
                 child: ListTile(
                   title: const Center(
                       child: Text(
                     'Баланс',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -254,7 +255,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       Center(
                         child: Text('₴ ' + doubleToString(balance),
                             style: const TextStyle(
-                                fontSize: 16, color: Colors.orange)),
+                                fontSize: 16, color: Colors.white)),
                       ),
                     ],
                   ),
@@ -264,19 +265,20 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                elevation: 2,
+                color: Colors.blue.shade500,
+                elevation: 3,
                 child: ListTile(
                   title: const Center(
                       child: Text(
                     'Баланс к оплате',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
                       const Divider(),
                       Text('₴ ' + doubleToString(balanceForPayment),
                           style: const TextStyle(
-                              fontSize: 16, color: Colors.orange)),
+                              fontSize: 16, color: Colors.white)),
                     ],
                   ),
                 ),
@@ -291,7 +293,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                elevation: 2,
+                color: Colors.blue.shade300,
+                elevation: 3,
                 child: ListTile(
                   onTap: () {
                     Navigator.push(
@@ -303,7 +306,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'Заказы (шт)',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -314,7 +317,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                                 ' из ' +
                                 countSendOrderCustomer.toString(),
                             style: const TextStyle(
-                                fontSize: 16, color: Colors.orange)),
+                                fontSize: 16, color: Colors.black45)),
                       ),
                     ],
                   ),
@@ -324,7 +327,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                elevation: 2,
+                color: Colors.blue.shade300,
+                elevation: 3,
                 child: ListTile(
                   onTap: () {
                     Navigator.push(
@@ -336,7 +340,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'ПКО (шт)',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -346,7 +350,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                               ' из ' +
                               countSendIncomingCashOrder.toString(),
                           style: const TextStyle(
-                              fontSize: 16, color: Colors.orange)),
+                              fontSize: 16, color: Colors.black45)),
                     ],
                   ),
                 ),
@@ -361,7 +365,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                elevation: 2,
+                color: Colors.blue.shade200,
+                elevation: 3,
                 child: ListTile(
                   onTap: () {
                     Navigator.push(
@@ -373,7 +378,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'Заказы (грн)',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -381,7 +386,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       Center(
                         child: Text(doubleToString(sumOrderCustomerToday),
                             style: const TextStyle(
-                                fontSize: 16, color: Colors.orange)),
+                                fontSize: 16, color: Colors.black45)),
                       ),
                     ],
                   ),
@@ -391,7 +396,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                elevation: 2,
+                color: Colors.blue.shade200,
+                elevation: 3,
                 child: ListTile(
                   onTap: () {
                     Navigator.push(
@@ -403,14 +409,14 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'ПКО (грн)',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
                       const Divider(),
                       Text(doubleToString(sumIncomingCashOrderToday),
                           style: const TextStyle(
-                              fontSize: 16, color: Colors.orange)),
+                              fontSize: 16, color: Colors.black45)),
                     ],
                   ),
                 ),
@@ -433,7 +439,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                 child: Card(
-                  elevation: 2,
+                  color: Colors.blue.shade50,
+                  elevation: 3,
                   child: ListTile(
                     onTap: () {},
                     title: Text(contractItem.namePartner,
