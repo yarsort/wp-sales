@@ -234,6 +234,13 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                           widget.orderCustomer?.namePrice = contractItem.namePrice;
                         }
 
+                        if (widget.incomingCashOrder != null) {
+                          widget.incomingCashOrder?.uidContract =
+                              contractItem.uid;
+                          widget.incomingCashOrder?.nameContract =
+                              contractItem.name;
+                        }
+
                         if (widget.returnOrderCustomer != null) {
                           widget.returnOrderCustomer?.uidContract =
                               contractItem.uid;

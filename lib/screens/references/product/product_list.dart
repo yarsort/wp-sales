@@ -164,7 +164,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
     textFieldWarehouseController.text = warehouse.name;
   }
 
-  void renewItem() async {
+  renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData')!;
 
@@ -347,7 +347,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onSubmitted: (String value) {
+            onSubmitted: (String value) async {
               // Выключим иерархический просмотр
               if (showProductHierarchy) {
                 showProductHierarchy = false;
@@ -357,7 +357,11 @@ class _ScreenProductListState extends State<ScreenProductList> {
                 showMessage('Иерархия товаров выключена.', context);
               }
 
-              renewItem();
+              await renewItem();
+
+              if (textFieldSearchCatalogController.text.isNotEmpty) {
+                showMessage('Найдено: ' + listProducts.length.toString() + ' товаров.', context);
+              }
             },
             controller: textFieldSearchCatalogController,
             decoration: InputDecoration(

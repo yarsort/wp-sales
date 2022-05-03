@@ -4,25 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/db_accum_partner_depts.dart';
-import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
-import 'package:wp_sales/db/db_doc_order_customer.dart';
-import 'package:wp_sales/db/db_ref_cashbox.dart';
-import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/db/db_ref_organization.dart';
-import 'package:wp_sales/db/db_ref_partner.dart';
-import 'package:wp_sales/models/doc_incoming_cash_order.dart';
-import 'package:wp_sales/models/doc_order_customer.dart';
-import 'package:wp_sales/models/ref_cashbox.dart';
-import 'package:wp_sales/models/ref_contract.dart';
-import 'package:wp_sales/models/ref_organization.dart';
-import 'package:wp_sales/models/ref_partner.dart';
+import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/screens/documents/order_customer/order_customer_selection.dart';
-import 'package:wp_sales/screens/references/cashbox/cashbox_selection.dart';
-import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
-import 'package:wp_sales/screens/references/organizations/organization_selection.dart';
-import 'package:wp_sales/screens/references/partners/partner_selection.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenItemIncomingCashOrder extends StatefulWidget {
@@ -411,10 +396,10 @@ class _ScreenItemIncomingCashOrderState
               textEditingController: textFieldOrganizationController,
               onPressedEditIcon: Icons.person,
               onPressedDeleteIcon: Icons.delete,
-              onPressedDelete: () {
+              onPressedDelete: () async {
                 widget.incomingCashOrder.uidOrganization = '';
                 widget.incomingCashOrder.nameOrganization = '';
-                updateHeader();
+                await updateHeader();
               },
               onPressedEdit: () async {
                 OrderCustomer orderCustomer = OrderCustomer();
@@ -428,7 +413,7 @@ class _ScreenItemIncomingCashOrderState
                     orderCustomer.uidOrganization;
                 widget.incomingCashOrder.nameOrganization =
                     orderCustomer.nameOrganization;
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Partner
@@ -440,7 +425,7 @@ class _ScreenItemIncomingCashOrderState
               onPressedDelete: () async {
                 widget.incomingCashOrder.uidPartner = '';
                 widget.incomingCashOrder.namePartner = '';
-                updateHeader();
+                await updateHeader();
               },
               onPressedEdit: () async {
                 OrderCustomer orderCustomer = OrderCustomer();
@@ -451,9 +436,8 @@ class _ScreenItemIncomingCashOrderState
                             orderCustomer: orderCustomer)));
                 // Изменение партнера
                 widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
-                widget.incomingCashOrder.namePartner =
-                    orderCustomer.namePartner;
-                updateHeader();
+                widget.incomingCashOrder.namePartner = orderCustomer.namePartner;
+                await updateHeader();
               }),
 
           /// Contract
@@ -468,21 +452,12 @@ class _ScreenItemIncomingCashOrderState
                 updateHeader();
               },
               onPressedEdit: () async {
-                OrderCustomer orderCustomer = OrderCustomer();
-                orderCustomer.uidPartner = widget.incomingCashOrder.uidPartner;
-                orderCustomer.namePartner =
-                    widget.incomingCashOrder.namePartner;
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenContractSelection(
-                            orderCustomer: orderCustomer)));
-                // Изменение договора
-                widget.incomingCashOrder.uidContract =
-                    orderCustomer.uidContract;
-                widget.incomingCashOrder.nameContract =
-                    orderCustomer.nameContract;
-                updateHeader();
+                            incomingCashOrder: widget.incomingCashOrder)));
+                await updateHeader();
               }),
 
           /// OrderCustomer
@@ -493,7 +468,7 @@ class _ScreenItemIncomingCashOrderState
               onPressedDeleteIcon: Icons.delete,
               onPressedDelete: () async {
                 widget.incomingCashOrder.uidParent = '';
-                updateHeader();
+                await updateHeader();
               },
               onPressedEdit: () async {
                 await Navigator.push(
@@ -501,7 +476,7 @@ class _ScreenItemIncomingCashOrderState
                     MaterialPageRoute(
                         builder: (context) => ScreenOrderCustomerSelection(
                             incomingCashOrder: widget.incomingCashOrder)));
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Settlement document
@@ -522,7 +497,7 @@ class _ScreenItemIncomingCashOrderState
               onPressedDelete: () async {
                 widget.incomingCashOrder.uidCashbox = '';
                 widget.incomingCashOrder.nameCashbox = '';
-                updateHeader();
+                await updateHeader();
               },
               onPressedEdit: () async {
                 OrderCustomer orderCustomer = OrderCustomer();
@@ -534,7 +509,7 @@ class _ScreenItemIncomingCashOrderState
                 widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
                 widget.incomingCashOrder.nameCashbox =
                     orderCustomer.nameCashbox;
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Balance of contract
@@ -580,6 +555,12 @@ class _ScreenItemIncomingCashOrderState
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
+                onTap: () {
+                  textFieldSumController.selection = TextSelection(
+                    baseOffset: 0,
+                    extentOffset: textFieldSumController.text.length,
+                  );
+                },
                 onSubmitted: (value) {
                   countChangeDoc++;
 

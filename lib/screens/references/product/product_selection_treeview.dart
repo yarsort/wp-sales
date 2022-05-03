@@ -225,7 +225,7 @@ class _ScreenProductSelectionTreeViewState
     prefs.setString('settings_uidParentProductFromSetting', parentProduct.uid);
   }
 
-  void renewItem() async {
+  renewItem() async {
     final SharedPreferences prefs = await _prefs;
     bool useTestData = prefs.getBool('settings_useTestData')!;
 
@@ -323,7 +323,7 @@ class _ScreenProductSelectionTreeViewState
     }
 
     await readAdditionalProductsToView();
-
+    
     setState(() {});
   }
 
@@ -457,17 +457,21 @@ class _ScreenProductSelectionTreeViewState
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
-        onSubmitted: (String value) {
+        onSubmitted: (String value) async {
           // Выключим иерархический просмотр
           if (showProductHierarchy) {
             showProductHierarchy = false;
             parentProduct = Product();
             treeParentItems.clear();
-            textFieldSearchCatalogController.text = '';
+            // textFieldSearchCatalogController.text = '';
             showMessage('Иерархия товаров выключена.', context);
           }
 
-          renewItem();
+          await renewItem();
+
+          if (textFieldSearchCatalogController.text.isNotEmpty) {
+            showMessage('Найдено: ' + listProducts.length.toString() + ' товаров.', context);
+          }
         },
         controller: textFieldSearchCatalogController,
         decoration: InputDecoration(
@@ -482,18 +486,27 @@ class _ScreenProductSelectionTreeViewState
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                onPressed: () async {
-                  renewItem();
-                },
-                icon: const Icon(Icons.search, color: Colors.blue),
-              ),
+              // IconButton(
+              //   onPressed: () async {
+              //     renewItem();
+              //   },
+              //   icon: const Icon(Icons.search, color: Colors.blue),
+              // ),
               IconButton(
                 onPressed: () async {
                   textFieldSearchCatalogController.text = '';
                   renewItem();
                 },
                 icon: const Icon(Icons.delete, color: Colors.red),
+              ),
+              IconButton(
+                onPressed: () async {
+                  scanBarcodeNormal();
+                },
+                icon: const Icon(
+                  Icons.qr_code_scanner,
+                  color: Colors.blue,
+                ),
               ),
               PopupMenuButton<String>(
                 onSelected: (String value) async {
@@ -529,21 +542,21 @@ class _ScreenProductSelectionTreeViewState
                       ],
                     ),
                   ),
-                  PopupMenuItem<String>(
-                    value: 'scanProduct',
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.qr_code_scanner,
-                          color: Colors.blue,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text('Сканировать товар'),
-                      ],
-                    ),
-                  ),
+                  // PopupMenuItem<String>(
+                  //   value: 'scanProduct',
+                  //   child: Row(
+                  //     children: const [
+                  //       Icon(
+                  //         Icons.qr_code_scanner,
+                  //         color: Colors.blue,
+                  //       ),
+                  //       SizedBox(
+                  //         width: 10,
+                  //       ),
+                  //       Text('Сканировать товар'),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ],
