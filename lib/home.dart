@@ -442,7 +442,16 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   color: Colors.blue.shade50,
                   elevation: 3,
                   child: ListTile(
-                    onTap: () {},
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ScreenContractItem(contractItem: contractItem),
+                        ),
+                      );
+                      await renewItem();
+                    },
                     title: Text(contractItem.namePartner,
                         style: const TextStyle(fontSize: 16, color: Colors.blue)),
                     subtitle: Column(

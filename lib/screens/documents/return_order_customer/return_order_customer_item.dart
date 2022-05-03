@@ -141,7 +141,7 @@ class _ScreenItemReturnOrderCustomerState
                     children: [
                       ElevatedButton(
                           onPressed: () async {
-                            var result = await saveDoc();
+                            var result = await saveDocument();
                             if (result) {
                               showMessage('Запись сохранена!', context);
                               Navigator.of(context).pop(true);
@@ -418,7 +418,7 @@ class _ScreenItemReturnOrderCustomerState
     setState(() {});
   }
 
-  Future<bool> saveDoc() async {
+  Future<bool> saveDocument() async {
     try {
       if (widget.returnOrderCustomer.status == 2) {
         showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
@@ -449,7 +449,7 @@ class _ScreenItemReturnOrderCustomerState
     }
   }
 
-  Future<bool> deleteDoc() async {
+  Future<bool> deleteDocument() async {
     try {
       if (widget.returnOrderCustomer.id != 0) {
         /// Установим статус записи: 3 - пометка удаления
@@ -741,7 +741,7 @@ class _ScreenItemReturnOrderCustomerState
                   width: (MediaQuery.of(context).size.width - 49) / 2,
                   child: ElevatedButton(
                       onPressed: () async {
-                        var result = await saveDoc();
+                        var result = await saveDocument();
                         if (result) {
                           showMessage('Запись сохранена!', context);
                           Navigator.of(context).pop(true);
@@ -770,7 +770,7 @@ class _ScreenItemReturnOrderCustomerState
                           backgroundColor:
                               MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
-                        var result = await deleteDoc();
+                        var result = await deleteDocument();
                         if (result) {
                           showMessage('Запись отправлена в корзину!', context);
                           Navigator.of(context).pop(true);
@@ -781,7 +781,7 @@ class _ScreenItemReturnOrderCustomerState
                         children: const [
                           Icon(Icons.delete, color: Colors.white),
                           SizedBox(width: 14),
-                          Text('В корзину'),
+                          Text('Удалить'),
                         ],
                       )),
                 ),
@@ -1134,6 +1134,80 @@ class _ScreenItemReturnOrderCustomerState
                   },
                 ),
                 const Text('Не отправлять в учетную систему'),
+              ],
+            ),
+          ),
+
+          /// Buttons Переотправить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Переотправить документ
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 28),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.blue)),
+                      onPressed: () async {
+                        /// Отметим статус заказа как неотправленный
+                        widget.returnOrderCustomer.status = 1;
+                        widget.returnOrderCustomer.dateSendingTo1C = DateTime(1900, 1, 1);
+                        widget.returnOrderCustomer.sendYesTo1C = 0;
+                        widget.returnOrderCustomer.sendNoTo1C = 0;
+
+                        var result = await saveDocument();
+                        if (result) {
+                          showMessage('Запись отправлена на отправку!', context);
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.refresh, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Отправить повторно'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
+          ),
+
+          /// Buttons Удалить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Удалить запись
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 28),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
+                        var result = await deleteDocument();
+                        if (result) {
+                          showMessage('Запись удалена!', context);
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.delete, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Удалить в корзину'),
+                        ],
+                      )),
+                ),
               ],
             ),
           ),

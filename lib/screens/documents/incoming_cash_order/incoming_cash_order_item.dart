@@ -852,6 +852,46 @@ class _ScreenItemIncomingCashOrderState
             ),
           ),
 
+          /// Buttons Переотправить
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                /// Переотправить документ
+                SizedBox(
+                  height: 40,
+                  width: (MediaQuery.of(context).size.width - 28),
+                  child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.blue)),
+                      onPressed: () async {
+                        /// Отметим статус заказа как неотправленный
+                        widget.incomingCashOrder.status = 1;
+                        widget.incomingCashOrder.dateSendingTo1C = DateTime(1900, 1, 1);
+                        widget.incomingCashOrder.sendYesTo1C = 0;
+                        widget.incomingCashOrder.sendNoTo1C = 0;
+
+                        var result = await saveDocument();
+                        if (result) {
+                          showMessage('Запись отправлена на отправку!', context);
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.refresh, color: Colors.white),
+                          SizedBox(width: 14),
+                          Text('Отправить повторно'),
+                        ],
+                      )),
+                ),
+              ],
+            ),
+          ),
+
           /// Buttons Удалить
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
@@ -865,7 +905,7 @@ class _ScreenItemIncomingCashOrderState
                   child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.grey)),
+                              MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         var result = await deleteDocument();
                         if (result) {
@@ -878,7 +918,7 @@ class _ScreenItemIncomingCashOrderState
                         children: const [
                           Icon(Icons.delete, color: Colors.white),
                           SizedBox(width: 14),
-                          Text('Удалить'),
+                          Text('Удалить в корзину'),
                         ],
                       )),
                 ),
