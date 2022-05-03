@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wp_sales/home.dart';
+import 'package:wp_sales/screens/auth/login.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenSplashScreen extends StatefulWidget {
@@ -13,6 +17,8 @@ class ScreenSplashScreen extends StatefulWidget {
 }
 
 class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late User _user;
 
   bool visible = false;
   DateTime currentBackPressTime = DateTime.now();
@@ -29,14 +35,27 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
     super.initState();
 
     _initPackageInfo();
+    initializeUser();
+  }
 
-    //Splash screen или отображает кнопки регистрации или переводит на главный экран
-    Timer(const Duration(seconds: 4), () async {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ScreenHomePage()),
+  Future initializeUser() async {
+    if (FirebaseAuth.instance.currentUser != null){
+      Timer(
+        const Duration(seconds: 3),
+            () => Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) =>
+                const ScreenHomePage()),
+                (Route<dynamic> route) => false),
       );
-    });
+    } else {
+      Timer(const Duration(seconds: 4),
+              () => Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (context) =>
+                  const ScreenLogin()),
+                  (Route<dynamic> route) => false));
+    }
   }
 
   @override
@@ -46,8 +65,7 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
         color: Colors.blue,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-            ),
+        decoration: const BoxDecoration(),
         child: WillPopScope(
           onWillPop: () async {
             bool backStatus = onWillPop();
@@ -87,10 +105,13 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                         fontSize: 20,
                         color: Colors.white70),
                   ),
-                  const Expanded(child: SizedBox(),),
+                  const Expanded(
+                    child: SizedBox(),
+                  ),
                   Text(
                     'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
-                    style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(
                     height: 60,
