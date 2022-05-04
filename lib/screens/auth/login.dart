@@ -108,15 +108,15 @@ class _ScreenLoginState extends State<ScreenLogin> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    // SizedBox(
+                    SizedBox(
+                         height: 100,
+                         child: Image.asset(
+                           "assets/images/wpsales_logo.png",
+                           fit: BoxFit.contain,
+                         )),
+                    // const SizedBox(
                     //     height: 150,
-                    //     child: Image.asset(
-                    //       "assets/logo.png",
-                    //       fit: BoxFit.contain,
-                    //     )),
-                    const SizedBox(
-                        height: 150,
-                        child: FlutterLogo(size: 150,)),
+                    //     child: FlutterLogo(size: 150,)),
                     const SizedBox(height: 45),
                     emailField,
                     const SizedBox(height: 20),

@@ -18,15 +18,15 @@ class ScreenExchangeData extends StatefulWidget {
 class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  double _valueProgress = 0.0;
-  List<String> listLogs = [];
   bool _loading = false; // факт загрузки
+  double _valueProgress = 0.0;
   bool _visibleIndicator = false; // Отображение видимости панели прогресс-бара
+
+  List<String> listLogs = [];
 
   @override
   void initState() {
     super.initState();
-    renewItem();
   }
 
   @override
@@ -143,8 +143,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       ),
     );
   }
-
-  renewItem() {}
 
   progressIndicator() {
     return Visibility(

@@ -53,7 +53,8 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
               () => Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
                   builder: (context) =>
-                  const ScreenLogin()),
+                  // const ScreenLogin()),
+                  const ScreenHomePage()),
                   (Route<dynamic> route) => false));
     }
   }
@@ -82,21 +83,16 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(
-                    height: 120,
+                    height: 160,
                   ),
-                  const FlutterLogo(size: 140),
+                  SizedBox(
+                      height: 100,
+                      child: Image.asset(
+                        "assets/images/wpsales_logo.png",
+                        fit: BoxFit.contain,
+                      )),
                   const SizedBox(
-                    height: 50,
-                  ),
-                  const Text(
-                    'WP Sales',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 50,
-                        color: Colors.white),
-                  ),
-                  const SizedBox(
-                    height: 20,
+                    height: 80,
                   ),
                   const Text(
                     'Помощник менеджера продаж',

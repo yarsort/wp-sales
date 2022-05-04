@@ -6,7 +6,7 @@ class Product {
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
   String name = '';               // Имя
-  String nameForSearch = '';               // Имя для поиска
+  String nameForSearch = '';      // Имя для поиска
   String vendorCode = '';         // Артикул товара в 1С
   String uidParent = '';          // Ссылка на группу
   String uidUnit = '';            // Ссылка на единицу измерения

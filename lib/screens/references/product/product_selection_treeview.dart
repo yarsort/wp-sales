@@ -13,6 +13,9 @@ List<AccumProductPrice> listProductPrice = [];
 // Остатки товаров
 List<AccumProductRest> listProductRest = [];
 
+// Список избранных товаров, которые ранее покупал клиент
+List<Product> listFavouriteProducts = [];
+
 String uidPrice = '';
 
 String uidWarehouse = '';
@@ -54,6 +57,12 @@ class _ScreenProductSelectionTreeViewState
 
   // Список товаров, которые ранее покупал клиент
   List<Product> listPurchasedProducts = [];
+
+  // Список идентификаторов товаров для поиска цен и остатков
+  List<String> listPurchasedProductsUID = [];
+
+  // Список идентификаторов избранных товаров для поиска цен и остатков
+  List<String> listFavouriteProductsUID = [];
 
   // Список товаров для вывода на экран
   List<Product> listProducts = [];
@@ -107,7 +116,7 @@ class _ScreenProductSelectionTreeViewState
             tabs: [
               Tab(text: 'Каталог'),
               Tab(text: 'Купленные'),
-              Tab(text: 'Рекомендации'),
+              Tab(text: 'Избранное'),
             ],
           ),
         ),
@@ -130,7 +139,9 @@ class _ScreenProductSelectionTreeViewState
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
-              children: const [],
+              children: [
+                listViewFavouriteProducts(),
+              ],
             ),
           ],
         ),
@@ -323,7 +334,7 @@ class _ScreenProductSelectionTreeViewState
     }
 
     await readAdditionalProductsToView();
-    
+
     setState(() {});
   }
 
@@ -379,12 +390,12 @@ class _ScreenProductSelectionTreeViewState
     // List<AccumProductRest> listProductRestTemp = await dbReadAccumProductRestByUIDProducts(listProductsUID);
 
     /// Цены товаров
-    listProductPrice =
-        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    listProductPrice
+        .addAll(await dbReadAccumProductPriceByUIDProducts(listProductsUID));
 
     /// Остатки товаров
-    listProductRest =
-        await dbReadAccumProductRestByUIDProducts(listProductsUID);
+    listProductRest
+        .addAll(await dbReadAccumProductRestByUIDProducts(listProductsUID));
 
     debugPrint('Цены товаров: ' + listProductPrice.length.toString());
     debugPrint('Остатки товаров: ' + listProductRest.length.toString());
@@ -396,6 +407,8 @@ class _ScreenProductSelectionTreeViewState
 
   void renewPurchasedItem() async {
     String uidPartner = '';
+
+    listPurchasedProductsUID.clear();
 
     if (widget.orderCustomer != null) {
       listPurchasedProducts.clear();
@@ -417,9 +430,6 @@ class _ScreenProductSelectionTreeViewState
       return;
     }
 
-    // Список идентификаторов для получения обектов <Product>
-    List<String> listUidProduct = [];
-
     // Получим список товаров из заказов покупателя, которые он покупал ранее
     List<OrderCustomer> listOrders =
         await dbReadOrderCustomerUIDPartner(uidPartner);
@@ -429,24 +439,33 @@ class _ScreenProductSelectionTreeViewState
           await dbReadItemsOrderCustomer(itemOrder.id);
       for (var itemItemOrder in listItemsOrder) {
         // Найдем UID товара, который продавали клиенту и если его нет в списке, то добавим
-        if (!listUidProduct.contains(itemItemOrder.uid)) {
-          listUidProduct.add(itemItemOrder.uid);
+        if (!listPurchasedProductsUID.contains(itemItemOrder.uid)) {
+          listPurchasedProductsUID.add(itemItemOrder.uid);
         }
       }
     }
 
     // Найдем объекты <Product> по их UID для отображения в списке
-    if (listUidProduct.isNotEmpty) {
-      for (var uidProduct in listUidProduct) {
+    if (listPurchasedProductsUID.isNotEmpty) {
+      for (var uidProduct in listPurchasedProductsUID) {
         Product product = await dbReadProductUID(uidProduct);
         if (product.id != 0) {
           listPurchasedProducts.add(product);
+          listPurchasedProductsUID.add(product.uid);
         }
       }
     }
 
     // Посортируем товары по названию
     listPurchasedProducts.sort((a, b) => a.name.compareTo(b.name));
+
+    /// Цены товаров
+    listProductPrice.addAll(
+        await dbReadAccumProductPriceByUIDProducts(listPurchasedProductsUID));
+
+    /// Остатки товаров
+    listProductRest.addAll(
+        await dbReadAccumProductRestByUIDProducts(listPurchasedProductsUID));
 
     debugPrint('Количество ранее купленных товаров: ' +
         listPurchasedProducts.length.toString());
@@ -470,7 +489,9 @@ class _ScreenProductSelectionTreeViewState
           await renewItem();
 
           if (textFieldSearchCatalogController.text.isNotEmpty) {
-            showMessage('Найдено: ' + listProducts.length.toString() + ' товаров.', context);
+            showMessage(
+                'Найдено: ' + listProducts.length.toString() + ' товаров.',
+                context);
           }
         },
         controller: textFieldSearchCatalogController,
@@ -668,11 +689,35 @@ class _ScreenProductSelectionTreeViewState
           itemCount: listPurchasedProducts.length,
           itemBuilder: (context, index) {
             var productItem = listPurchasedProducts[index];
+
+            var price = 0.0;
+            var countOnWarehouse = 0.0;
+
+            var indexItemPrice = listProductPrice.indexWhere((element) =>
+                element.uidProduct == productItem.uid &&
+                element.uidPrice == uidPrice);
+            if (indexItemPrice >= 0) {
+              var itemList = listProductPrice[indexItemPrice];
+              price = itemList.price;
+            } else {
+              price = 0.0;
+            }
+
+            var indexItemRest = listProductRest.indexWhere((element) =>
+                element.uidProduct == productItem.uid &&
+                element.uidWarehouse == uidWarehouse);
+            if (indexItemRest >= 0) {
+              var itemList = listProductRest[indexItemRest];
+              countOnWarehouse = itemList.count;
+            } else {
+              countOnWarehouse = 0.000;
+            }
+
             return Card(
               elevation: 2,
-              child: ProductItemOld(
-                uidPriceProductItem: uidPrice,
-                uidWarehouseProductItem: uidWarehouse,
+              child: ProductItem(
+                price: price,
+                countOnWarehouse: countOnWarehouse,
                 product: productItem,
                 tap: () async {
                   await Navigator.push(
@@ -681,6 +726,64 @@ class _ScreenProductSelectionTreeViewState
                       builder: (context) => ScreenAddItem(
                           listItemDoc: widget.listItemDoc,
                           orderCustomer: widget.orderCustomer,
+                          returnOrderCustomer: widget.returnOrderCustomer,
+                          listItemReturnDoc: widget.listItemReturnDoc,
+                          product: productItem),
+                    ),
+                  );
+                },
+              ),
+            );
+          }),
+    );
+  }
+
+  listViewFavouriteProducts() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 14, 11, 14),
+      child: ColumnBuilder(
+          itemCount: listFavouriteProducts.length,
+          itemBuilder: (context, index) {
+            var productItem = listFavouriteProducts[index];
+
+            var price = 0.0;
+            var countOnWarehouse = 0.0;
+
+            var indexItemPrice = listProductPrice.indexWhere((element) =>
+                element.uidProduct == productItem.uid &&
+                element.uidPrice == uidPrice);
+            if (indexItemPrice >= 0) {
+              var itemList = listProductPrice[indexItemPrice];
+              price = itemList.price;
+            } else {
+              price = 0.0;
+            }
+
+            var indexItemRest = listProductRest.indexWhere((element) =>
+                element.uidProduct == productItem.uid &&
+                element.uidWarehouse == uidWarehouse);
+            if (indexItemRest >= 0) {
+              var itemList = listProductRest[indexItemRest];
+              countOnWarehouse = itemList.count;
+            } else {
+              countOnWarehouse = 0.000;
+            }
+
+            return Card(
+              elevation: 2,
+              child: ProductItem(
+                price: price,
+                countOnWarehouse: countOnWarehouse,
+                product: productItem,
+                tap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ScreenAddItem(
+                          listItemDoc: widget.listItemDoc,
+                          orderCustomer: widget.orderCustomer,
+                          returnOrderCustomer: widget.returnOrderCustomer,
+                          listItemReturnDoc: widget.listItemReturnDoc,
                           product: productItem),
                     ),
                   );
@@ -841,136 +944,25 @@ class ProductItem extends StatelessWidget {
           ),
         ],
       ),
-      trailing: const Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-        child: Icon(Icons.navigate_next),
-      ),
-    );
-  }
-}
-
-class ProductItemOld extends StatefulWidget {
-  final Product product;
-  final String uidPriceProductItem;
-  final String uidWarehouseProductItem;
-  final Function tap;
-  final Function? popTap;
-
-  const ProductItemOld({
-    Key? key,
-    required this.product,
-    required this.uidPriceProductItem,
-    required this.uidWarehouseProductItem,
-    required this.tap,
-    this.popTap,
-  }) : super(key: key);
-
-  @override
-  State<ProductItemOld> createState() => _ProductItemOldState();
-}
-
-class _ProductItemOldState extends State<ProductItemOld> {
-  double countOnWarehouse = 0.0;
-  double price = 0.0;
-  String uidPrice = '';
-  String uidWarehouse = '';
-
-  @override
-  void initState() {
-    super.initState();
-    renewItemInTile();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => widget.tap(),
-      //onLongPress: popTap == null ? null : popTap,
-      contentPadding: const EdgeInsets.all(0),
-      leading: const Padding(
-        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-        child: Icon(
-          Icons.file_copy,
-          color: Color.fromRGBO(144, 202, 249, 1.0),
+      trailing: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+        child: Column(
+          children: [
+            GestureDetector(
+                onTap: (){
+                  var indexItemPrice = listFavouriteProducts.indexWhere((element) =>
+                  element.uid == product.uid);
+                  if (indexItemPrice >= 0) {
+                    listFavouriteProducts.removeAt(indexItemPrice);
+                  } else {
+                    listFavouriteProducts.add(product);
+                  }
+                },
+                child: const Icon(Icons.star)),
+            const Icon(Icons.navigate_next),
+          ],
         ),
       ),
-      title: Text(
-        widget.product.name,
-        style: const TextStyle(
-          fontSize: 16,
-        ),
-        maxLines: 2,
-      ),
-      subtitle: Column(
-        children: [
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Row(
-                  children: [
-                    Text(
-                      doubleToString(price) + ' грн',
-                      style: price > 0
-                          ? const TextStyle(fontSize: 15, color: Colors.blue)
-                          : const TextStyle(fontSize: 15),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Row(
-                  children: [
-                    Text(
-                      doubleThreeToString(countOnWarehouse) +
-                          ' ' +
-                          widget.product.nameUnit,
-                      style: countOnWarehouse > 0
-                          ? const TextStyle(fontSize: 15, color: Colors.blue)
-                          : const TextStyle(fontSize: 15),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ],
-      ),
-      trailing: const Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-        child: Icon(Icons.navigate_next),
-      ),
     );
-  }
-
-  renewItemInTile() {
-    var indexItemPrice = listProductPrice.indexWhere((element) =>
-        element.uidProduct == widget.product.uid &&
-        element.uidPrice == widget.uidPriceProductItem);
-    if (indexItemPrice >= 0) {
-      var itemList = listProductPrice[indexItemPrice];
-      price = itemList.price;
-    } else {
-      price = 0.0;
-    }
-
-    var indexItemRest = listProductRest.indexWhere((element) =>
-        element.uidProduct == widget.product.uid &&
-        element.uidWarehouse == widget.uidWarehouseProductItem);
-    if (indexItemRest >= 0) {
-      var itemList = listProductRest[indexItemRest];
-      countOnWarehouse = itemList.count;
-    } else {
-      countOnWarehouse = 0.000;
-    }
-    debugPrint('Товар: ' +
-        widget.product.name +
-        '. Цена: ' +
-        price.toString() +
-        '. Остаток: ' +
-        countOnWarehouse.toString());
-    setState(() {});
   }
 }

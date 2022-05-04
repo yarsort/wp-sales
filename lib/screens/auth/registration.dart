@@ -203,10 +203,11 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    const SizedBox(
+                    SizedBox(
                         height: 100,
-                        child: FlutterLogo(
-                          size: 100,
+                        child: Image.asset(
+                          "assets/images/wpsales_logo.png",
+                          fit: BoxFit.contain,
                         )),
                     const SizedBox(height: 20),
                     secondNameField,
