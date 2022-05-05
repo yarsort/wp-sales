@@ -53,8 +53,8 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
               () => Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(
                   builder: (context) =>
-                  // const ScreenLogin()),
-                  const ScreenHomePage()),
+                  const ScreenLogin()),
+                  //const ScreenHomePage()),
                   (Route<dynamic> route) => false));
     }
   }
@@ -83,10 +83,10 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(
-                    height: 160,
+                    height: 200,
                   ),
                   SizedBox(
-                      height: 100,
+                      height: 150,
                       child: Image.asset(
                         "assets/images/wpsales_logo.png",
                         fit: BoxFit.contain,
