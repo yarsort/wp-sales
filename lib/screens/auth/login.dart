@@ -66,6 +66,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
           if (!regex.hasMatch(value)) {
             return ("Введите пароль (минимум 6 символов)");
           }
+          return ("");
         },
         onSaved: (value) {
           passwordController.text = value!;

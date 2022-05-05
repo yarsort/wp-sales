@@ -16,8 +16,6 @@ class ScreenSplashScreen extends StatefulWidget {
 }
 
 class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  late User _user;
 
   bool visible = false;
   DateTime currentBackPressTime = DateTime.now();
@@ -97,8 +95,8 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                     'Помощник менеджера продаж',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white70),
+                        fontSize: 27,
+                        color: Colors.white),textAlign: TextAlign.center,
                   ),
                   const Expanded(
                     child: SizedBox(),

@@ -4,8 +4,6 @@ import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/import/import_model.dart';
-import 'package:wp_sales/models/ref_contract.dart';
-import 'package:wp_sales/models/ref_partner.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
 

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_screens.dart';
-import 'package:wp_sales/screens/documents/order_customer/order_customer_list.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 import 'import/import_model.dart';

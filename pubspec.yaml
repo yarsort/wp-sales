@@ -33,16 +33,16 @@ dependencies:
     sdk: flutter
   uuid: ^3.0.6 # Для генерации UUID
   intl: ^0.17.0
-  sqflite: ^2.0.2 # Для хранения данных больших объемов
-  shared_preferences: ^2.0.13 # Для хранения настроек
+  sqflite: ^2.0.2   # Для хранения данных больших объемов
+  shared_preferences: ^2.0.13   # Для хранения настроек
   firebase_auth: ^3.3.10
   firebase_core: ^1.13.1
   path_provider: ^2.0.9
   ftpconnect:
   cached_network_image: ^3.2.0
   flutter_barcode_scanner: ^2.0.0
-  package_info_plus: ^1.4.2 # Для вывода версии приложения в виджетах
-  flutter_slidable: ^1.2.0
+  package_info_plus: ^1.4.2   # Для вывода версии приложения в виджетах
+  flutter_slidable: ^1.2.0  # Контекстное меню списка товаров документа
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
