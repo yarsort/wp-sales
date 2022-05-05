@@ -59,6 +59,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   /// Поле ввода: Сумма документа
   TextEditingController textFieldSumController = TextEditingController();
 
+  /// Поле ввода: Вес документа
+  TextEditingController textFieldWeightController = TextEditingController();
+
   /// Поле ввода: Валюта документа
   TextEditingController textFieldCurrencyController = TextEditingController();
 
@@ -234,6 +237,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     textFieldCashboxController.text = widget.orderCustomer.nameCashbox;
     textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
     textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
+
+    double allWeight = 0.0;
+    for (var item in itemsOrder) {
+      Unit unitProduct = await dbReadUnitUID(item.uidUnit);
+      allWeight = allWeight + unitProduct.weight * item.count * unitProduct.multiplicity;
+    }
+    textFieldWeightController.text = doubleThreeToString(allWeight);
 
     textFieldDateSendingController.text =
         shortDateToString(widget.orderCustomer.dateSending);
@@ -462,7 +472,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                if(widget.orderCustomer.uidOrganization.isEmpty){
+                if (widget.orderCustomer.uidOrganization.isEmpty) {
                   showErrorMessage('Организация не выбрана!', context);
                   return;
                 }
@@ -490,7 +500,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                if(widget.orderCustomer.uidPartner.isEmpty){
+                if (widget.orderCustomer.uidPartner.isEmpty) {
                   showErrorMessage('Партнер не выбран!', context);
                   return;
                 }
@@ -516,7 +526,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 await updateHeader();
               },
               onPressedEdit: () async {
-                if(widget.orderCustomer.uidPartner.isEmpty){
+                if (widget.orderCustomer.uidPartner.isEmpty) {
                   showErrorMessage('Партнер не выбран!', context);
                   return;
                 }
@@ -764,16 +774,42 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             /// Sum of document
             Expanded(
               flex: 3,
-              child: TextFieldWithText(
-                  textLabel: 'Сумма товаров',
-                  textEditingController: textFieldSumController,
-                  onPressedEditIcon: null,
-                  onPressedDeleteIcon: null,
-                  onPressedDelete: () async {},
-                  onPressedEdit: () async {}),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 0, 7),
+                child: TextField(
+                  readOnly: true,
+                  controller: textFieldSumController,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Сумма',
+                  ),
+                ),
+              ),
             ),
             Expanded(
-              flex: 1,
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  readOnly: true,
+                  controller: textFieldWeightController,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Вес',
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
               child: SizedBox(
                 height: 48,
                 child: ElevatedButton(
@@ -782,7 +818,9 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                             MaterialStateProperty.all(Colors.blue)),
                     onPressed: () async {
                       if (widget.orderCustomer.status == 2) {
-                        showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
+                        showErrorMessage(
+                            'Документ заблокирован! Статус: отправлен.',
+                            context);
                         return;
                       }
                       if (widget.orderCustomer.nameOrganization == '') {
@@ -843,110 +881,118 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
                   child: Card(
-                      elevation: 2,
-                      child: Slidable(
-                          // The end action pane is the one at the right or the bottom side.
-                          startActionPane: ActionPane(
-                            motion: const ScrollMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed: (BuildContext context) async {
-                                  itemsOrder.sort((a, b) => a.name.compareTo(b.name));
-                                  setState(() {
-                                    countChangeDoc++;
-                                  });
-                                },
-                                backgroundColor: const Color(0xFF0392CF),
-                                foregroundColor: Colors.white,
-                                icon: Icons.sort,
-                                //label: '',
-                              ),
-                              SlidableAction(
-                                onPressed: (BuildContext context) async {
-                                  Product productItem =
+                    elevation: 2,
+                    child: Slidable(
+                      // The end action pane is the one at the right or the bottom side.
+                      startActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (BuildContext context) async {
+                              itemsOrder
+                                  .sort((a, b) => a.name.compareTo(b.name));
+                              setState(() {
+                                countChangeDoc++;
+                              });
+                            },
+                            backgroundColor: const Color(0xFF0392CF),
+                            foregroundColor: Colors.white,
+                            icon: Icons.sort,
+                            //label: '',
+                          ),
+                          SlidableAction(
+                            onPressed: (BuildContext context) async {
+                              Product productItem =
                                   await dbReadProductUID(item.uid);
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ScreenProductItem(productItem: productItem),
-                                    ),
-                                  );
-                                },
-                                backgroundColor: Colors.orange,
-                                foregroundColor: Colors.white,
-                                icon: Icons.search,
-                                //label: 'Просмотр',
-                              ),
-                            ],
-                          ),
-                          endActionPane: ActionPane(
-                            motion: const ScrollMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed: (BuildContext context) async {
-                                  Product productItem =
-                                    await dbReadProductUID(item.uid);
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ScreenAddItem(
-                                          listItemDoc: itemsOrder,
-                                          orderCustomer: widget.orderCustomer,
-                                          indexItem: index,
-                                          product: productItem),
-                                    ));
-                                },
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                icon: Icons.edit,
-                                //label: '',
-                              ),
-                              SlidableAction(
-                                onPressed: (BuildContext context) async {
-                                  itemsOrder = List.from(itemsOrder)..removeAt(index);
-                                  setState(() {
-                                    OrderCustomer()
-                                        .allSum(widget.orderCustomer, itemsOrder);
-                                    OrderCustomer()
-                                        .allCount(widget.orderCustomer, itemsOrder);
-                                    updateHeader();
-                                  });
-                                },
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                icon: Icons.delete,
-                                //label: '',
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            title: Text(item.name),
-                            subtitle: Column(
-                              children: [
-                                const Divider(),
-                                Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                        flex: 1,
-                                        child: Text(
-                                            doubleThreeToString(item.count))),
-                                    Expanded(flex: 1, child: Text(item.nameUnit)),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Text(doubleToString(item.price))),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Text(doubleToString(item.sum))),
-                                  ],
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ScreenProductItem(
+                                      productItem: productItem),
                                 ),
+                              );
+                            },
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                            icon: Icons.search,
+                            //label: 'Просмотр',
+                          ),
+                        ],
+                      ),
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (BuildContext context) async {
+                              Product productItem =
+                                  await dbReadProductUID(item.uid);
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ScreenAddItem(
+                                        listItemDoc: itemsOrder,
+                                        orderCustomer: widget.orderCustomer,
+                                        indexItem: index,
+                                        product: productItem),
+                                  ));
+                              setState(() {
+                                OrderCustomer()
+                                    .allSum(widget.orderCustomer, itemsOrder);
+                                OrderCustomer()
+                                    .allCount(widget.orderCustomer, itemsOrder);
+                                updateHeader();
+                              });
+                            },
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            icon: Icons.edit,
+                            //label: '',
+                          ),
+                          SlidableAction(
+                            onPressed: (BuildContext context) async {
+                              itemsOrder = List.from(itemsOrder)
+                                ..removeAt(index);
+                              setState(() {
+                                OrderCustomer()
+                                    .allSum(widget.orderCustomer, itemsOrder);
+                                OrderCustomer()
+                                    .allCount(widget.orderCustomer, itemsOrder);
+                                updateHeader();
+                              });
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+                            //label: '',
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        title: Text(item.name),
+                        subtitle: Column(
+                          children: [
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    flex: 1,
+                                    child:
+                                        Text(doubleThreeToString(item.count))),
+                                Expanded(flex: 1, child: Text(item.nameUnit)),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(doubleToString(item.price))),
+                                Expanded(
+                                    flex: 1,
+                                    child: Text(doubleToString(item.sum))),
                               ],
                             ),
-                          ),
+                          ],
                         ),
                       ),
+                    ),
+                  ),
                 );
               }),
         ),
@@ -1170,7 +1216,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: item),
+                          builder: (context) => ScreenItemIncomingCashOrder(
+                              incomingCashOrder: item),
                         ),
                       );
                     }
@@ -1178,7 +1225,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ScreenItemReturnOrderCustomer(returnOrderCustomer: item),
+                          builder: (context) => ScreenItemReturnOrderCustomer(
+                              returnOrderCustomer: item),
                         ),
                       );
                     }
@@ -1514,18 +1562,21 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     child: ElevatedButton(
                         style: ButtonStyle(
                             backgroundColor:
-                            MaterialStateProperty.all(Colors.blue)),
+                                MaterialStateProperty.all(Colors.blue)),
                         onPressed: () async {
                           /// Отметим статус заказа как неотправленный
                           widget.orderCustomer.status = 1;
-                          widget.orderCustomer.dateSending = DateTime(1900, 1, 1);
-                          widget.orderCustomer.dateSendingTo1C = DateTime(1900, 1, 1);
+                          widget.orderCustomer.dateSending =
+                              DateTime(1900, 1, 1);
+                          widget.orderCustomer.dateSendingTo1C =
+                              DateTime(1900, 1, 1);
                           widget.orderCustomer.sendYesTo1C = 0;
                           widget.orderCustomer.sendNoTo1C = 0;
 
                           var result = await saveDocument();
                           if (result) {
-                            showMessage('Запись отправлена на отправку!', context);
+                            showMessage(
+                                'Запись отправлена на отправку!', context);
                             Navigator.of(context).pop(true);
                           }
                         },

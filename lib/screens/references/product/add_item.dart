@@ -236,7 +236,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 ),
                 Row(
                   children: [
-                    /// Warehouse
+                    /// Count on Warehouse
                     Expanded(
                       flex: 3,
                       child: Padding(

@@ -498,13 +498,18 @@ class _ScreenProductSelectionTreeViewState
     // Получим список товаров из заказов покупателя, которые он покупал ранее
     List<OrderCustomer> listOrders =
         await dbReadOrderCustomerUIDPartner(uidPartner);
+
     for (var itemOrder in listOrders) {
       // Получим товары заказа
       List<ItemOrderCustomer> listItemsOrder =
           await dbReadItemsOrderCustomer(itemOrder.id);
+
+      // Найдем UID товара, который продавали клиенту и если его нет в списке, то добавим
       for (var itemItemOrder in listItemsOrder) {
-        // Найдем UID товара, который продавали клиенту и если его нет в списке, то добавим
-        if (!listPurchasedProductsUID.contains(itemItemOrder.uid)) {
+        var indexUnitItem = listPurchasedProductsUID.indexWhere((element) =>
+        element == itemItemOrder.uid);
+
+        if (indexUnitItem < 0) {
           listPurchasedProductsUID.add(itemItemOrder.uid);
         }
       }
@@ -516,7 +521,6 @@ class _ScreenProductSelectionTreeViewState
         Product product = await dbReadProductUID(uidProduct);
         if (product.id != 0) {
           listPurchasedProducts.add(product);
-          listPurchasedProductsUID.add(product.uid);
         }
       }
     }
