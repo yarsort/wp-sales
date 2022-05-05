@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ua.com.yarsoft.wp_sales.wp_sales">
    <application
-        android:label="wp_sales"
+        android:label="WP Sales"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

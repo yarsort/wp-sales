@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -42,6 +44,8 @@ class ScreenProductSelectionTreeView extends StatefulWidget {
 class _ScreenProductSelectionTreeViewState
     extends State<ScreenProductSelectionTreeView> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  final StreamController<int> _controller = StreamController<int>();
 
   bool loadingData = false;
 
@@ -96,6 +100,12 @@ class _ScreenProductSelectionTreeViewState
     loadDefault();
     renewItem();
     renewPurchasedItem();
+    renewFavouriteItem();
+
+    // Переобновление главного виджета
+    _controller.stream.listen((value) {
+      setState(() {});
+    });
   }
 
   @override
@@ -109,7 +119,15 @@ class _ScreenProductSelectionTreeViewState
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () async {
+              await saveDefault();
+              Navigator.of(context).pop();
+            },
+          ),
           centerTitle: true,
           title: const Text('Подбор товаров'),
           bottom: const TabBar(
@@ -192,7 +210,7 @@ class _ScreenProductSelectionTreeViewState
     }
   }
 
-  void loadDefault() async {
+  loadDefault() async {
     if (widget.orderCustomer != null) {
       uidPrice = widget.orderCustomer?.uidPrice ?? '';
     }
@@ -228,114 +246,28 @@ class _ScreenProductSelectionTreeViewState
             '00000000-0000-0000-0000-000000000000';
 
     parentProduct = await dbReadProductUID(uidProductFromSettings);
+
+    // Восстанвим список товаров "Избранное"
+    String stringList = prefs.getString('settings_listFavouriteProductsUID')??'';
+    listFavouriteProductsUID = stringList.split(',');
+
+    debugPrint('Товаров Избранного: ' + listFavouriteProductsUID.length.toString());
   }
 
-  void saveDefault() async {
+  saveDefault() async {
     /// Сохранение последнего выбранного каталога
     final SharedPreferences prefs = await _prefs;
     prefs.setString('settings_uidParentProductFromSetting', parentProduct.uid);
-  }
 
-  renewItem() async {
-    final SharedPreferences prefs = await _prefs;
-    bool useTestData = prefs.getBool('settings_useTestData')!;
-
-    _currentMax = 0;
-
-    // Главный каталог всегда будет с таким идентификатором
-    if (parentProduct.uid == '') {
-      parentProduct.uid = '00000000-0000-0000-0000-000000000000';
+    // Запишем список товаров "Избранное". Метод не очень, но пока что будет так. :)
+    // Ради интереса так делаю.
+    listFavouriteProductsUID.clear();
+    for (var itemFavourite in listFavouriteProducts) {
+      listFavouriteProductsUID.add(itemFavourite.uid);
     }
 
-    /// Очистка данных
-    setState(() {
-      listProducts.clear();
-      listProductsForListView.clear(); // Список для отображения на форме
-      listProductsUID.clear();
-      dummySearchList.clear();
-
-      /// Получим остатки и цены по найденным товарам
-      listProductPrice.clear();
-      listProductRest.clear();
-    });
-
-    ///Первым в список добавим каталог товаров, если он есть
-    if (showProductHierarchy) {
-      if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
-        listProducts.add(parentProduct);
-      }
-    }
-
-    /// Если включены тестовые данные
-    if (useTestData) {
-      for (var message in listDataProduct) {
-        Product newItem = Product.fromJson(message);
-
-        /// Добавим товар
-        listDataProducts.add(newItem);
-      }
-    } else {
-      /// Загрузка данных из БД
-      if (showProductHierarchy) {
-        // Покажем товары текущего родителя
-        listDataProducts = await dbReadProductsByParent(parentProduct.uid);
-      } else {
-        String searchString =
-            textFieldSearchCatalogController.text.trim().toLowerCase();
-        if (searchString.toLowerCase().length >= 3) {
-          // Покажем все товары для поиска
-          listDataProducts = await dbReadProductsForSearch(searchString);
-        } else {
-          // Покажем все товары
-          listDataProducts = await dbReadAllProducts();
-        }
-      }
-
-      //debugPrint(
-      //    'Реальные данные загружены! ' + listDataProducts.length.toString());
-    }
-
-    /// Заполним для поиска товаров
-    for (var itemList in listDataProducts) {
-      if (itemList.isGroup == 1) {
-        continue;
-      }
-      dummySearchList.add(itemList);
-    }
-
-    /// Сортировка списка: сначала каталоги, потом элементы
-    listDataProducts.sort((a, b) => a.name.compareTo(b.name));
-    listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
-
-    /// Заполним список товаров для отображения на форме
-    for (var newItem in listDataProducts) {
-      // Пропустим сам каталог, потому что он добавлен первым до заполнения
-      if (newItem.uid == parentProduct.uid) {
-        continue;
-      }
-
-      // Если надо показывать иерархию элементов
-      if (showProductHierarchy) {
-        // Если у товара родитель не является текущим выбранным каталогом
-        if (newItem.uidParent != '00000000-0000-0000-0000-000000000000') {
-          if (newItem.uidParent != parentProduct.uid) {
-            continue;
-          }
-        }
-      } else {
-        // Без иерархии показывать каталоги нельзя!
-        if (newItem.isGroup == 1) {
-          continue;
-        }
-      }
-
-      // Добавим товар
-      listProducts.add(newItem);
-    }
-
-    await readAdditionalProductsToView();
-
-    setState(() {});
+    prefs.setString('settings_listFavouriteProductsUID',
+        listFavouriteProductsUID.join(','));
   }
 
   readAdditionalProductsToView() async {
@@ -405,7 +337,109 @@ class _ScreenProductSelectionTreeViewState
     });
   }
 
-  void renewPurchasedItem() async {
+  renewItem() async {
+    final SharedPreferences prefs = await _prefs;
+    bool useTestData = prefs.getBool('settings_useTestData')!;
+
+    _currentMax = 0;
+
+    // Главный каталог всегда будет с таким идентификатором
+    if (parentProduct.uid == '') {
+      parentProduct.uid = '00000000-0000-0000-0000-000000000000';
+    }
+
+    /// Очистка данных
+    setState(() {
+      listProducts.clear();
+      listProductsForListView.clear(); // Список для отображения на форме
+      listProductsUID.clear();
+      dummySearchList.clear();
+
+      /// Получим остатки и цены по найденным товарам
+      listProductPrice.clear();
+      listProductRest.clear();
+    });
+
+    ///Первым в список добавим каталог товаров, если он есть
+    if (showProductHierarchy) {
+      if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
+        listProducts.add(parentProduct);
+      }
+    }
+
+    /// Если включены тестовые данные
+    if (useTestData) {
+      for (var message in listDataProduct) {
+        Product newItem = Product.fromJson(message);
+
+        /// Добавим товар
+        listDataProducts.add(newItem);
+      }
+    } else {
+      /// Загрузка данных из БД
+      if (showProductHierarchy) {
+        // Покажем товары текущего родителя
+        listDataProducts = await dbReadProductsByParent(parentProduct.uid);
+      } else {
+        String searchString =
+        textFieldSearchCatalogController.text.trim().toLowerCase();
+        if (searchString.toLowerCase().length >= 3) {
+          // Покажем все товары для поиска
+          listDataProducts = await dbReadProductsForSearch(searchString);
+        } else {
+          // Покажем все товары
+          listDataProducts = await dbReadAllProducts();
+        }
+      }
+
+      //debugPrint(
+      //    'Реальные данные загружены! ' + listDataProducts.length.toString());
+    }
+
+    /// Заполним для поиска товаров
+    for (var itemList in listDataProducts) {
+      if (itemList.isGroup == 1) {
+        continue;
+      }
+      dummySearchList.add(itemList);
+    }
+
+    /// Сортировка списка: сначала каталоги, потом элементы
+    listDataProducts.sort((a, b) => a.name.compareTo(b.name));
+    listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
+
+    /// Заполним список товаров для отображения на форме
+    for (var newItem in listDataProducts) {
+      // Пропустим сам каталог, потому что он добавлен первым до заполнения
+      if (newItem.uid == parentProduct.uid) {
+        continue;
+      }
+
+      // Если надо показывать иерархию элементов
+      if (showProductHierarchy) {
+        // Если у товара родитель не является текущим выбранным каталогом
+        if (newItem.uidParent != '00000000-0000-0000-0000-000000000000') {
+          if (newItem.uidParent != parentProduct.uid) {
+            continue;
+          }
+        }
+      } else {
+        // Без иерархии показывать каталоги нельзя!
+        if (newItem.isGroup == 1) {
+          continue;
+        }
+      }
+
+      // Добавим товар
+      listProducts.add(newItem);
+    }
+
+    await readAdditionalProductsToView();
+
+    setState(() {});
+  }
+
+  renewPurchasedItem() async {
     String uidPartner = '';
 
     listPurchasedProductsUID.clear();
@@ -456,19 +490,62 @@ class _ScreenProductSelectionTreeViewState
       }
     }
 
-    // Посортируем товары по названию
-    listPurchasedProducts.sort((a, b) => a.name.compareTo(b.name));
+    if (listPurchasedProducts.isNotEmpty) {
+      // Посортируем товары по названию
+      listPurchasedProducts.sort((a, b) => a.name.compareTo(b.name));
 
-    /// Цены товаров
-    listProductPrice.addAll(
-        await dbReadAccumProductPriceByUIDProducts(listPurchasedProductsUID));
+      /// Цены товаров
+      listProductPrice.addAll(
+          await dbReadAccumProductPriceByUIDProducts(listPurchasedProductsUID));
 
-    /// Остатки товаров
-    listProductRest.addAll(
-        await dbReadAccumProductRestByUIDProducts(listPurchasedProductsUID));
+      /// Остатки товаров
+      listProductRest.addAll(
+          await dbReadAccumProductRestByUIDProducts(listPurchasedProductsUID));
+    }
 
     debugPrint('Количество ранее купленных товаров: ' +
         listPurchasedProducts.length.toString());
+  }
+
+  renewFavouriteItem() async {
+
+    final SharedPreferences prefs = await _prefs;
+
+    listFavouriteProductsUID.clear();
+    listFavouriteProducts.clear();
+
+    // Восстанвим список товаров "Избранное"
+    String stringList = prefs.getString('settings_listFavouriteProductsUID')??'';
+    listFavouriteProductsUID = stringList.split(',');
+
+    // Найдем объекты <Product> по их UID для отображения в списке
+    if (listFavouriteProductsUID.isNotEmpty) {
+      for (var uidProduct in listFavouriteProductsUID) {
+        if(uidProduct == ''){
+          continue;
+        }
+        Product product = await dbReadProductUID(uidProduct);
+        if (product.id != 0) {
+          listFavouriteProducts.add(product);
+        }
+      }
+    }
+
+    if (listFavouriteProducts.isNotEmpty){
+      // Посортируем товары по названию
+      listFavouriteProducts.sort((a, b) => a.name.compareTo(b.name));
+
+      /// Цены товаров
+      listProductPrice.addAll(
+          await dbReadAccumProductPriceByUIDProducts(listFavouriteProductsUID));
+
+      /// Остатки товаров
+      listProductRest.addAll(
+          await dbReadAccumProductRestByUIDProducts(listFavouriteProductsUID));
+    }
+
+    debugPrint('Количество товаров "Избранное": ' +
+        listFavouriteProducts.length.toString());
   }
 
   searchTextFieldCatalog() {
@@ -659,6 +736,7 @@ class _ScreenProductSelectionTreeViewState
                           popTap: () {},
                         )
                       : ProductItem(
+                          controller: _controller,
                           price: price,
                           countOnWarehouse: countOnWarehouse,
                           product: productItem,
@@ -716,6 +794,7 @@ class _ScreenProductSelectionTreeViewState
             return Card(
               elevation: 2,
               child: ProductItem(
+                controller: _controller,
                 price: price,
                 countOnWarehouse: countOnWarehouse,
                 product: productItem,
@@ -772,6 +851,7 @@ class _ScreenProductSelectionTreeViewState
             return Card(
               elevation: 2,
               child: ProductItem(
+                controller: _controller,
                 price: price,
                 countOnWarehouse: countOnWarehouse,
                 product: productItem,
@@ -873,7 +953,8 @@ class MoreItem extends StatelessWidget {
   }
 }
 
-class ProductItem extends StatelessWidget {
+class ProductItem extends StatefulWidget {
+  final StreamController<int> controller;
   final Product product;
   final Function tap;
   final double countOnWarehouse;
@@ -881,6 +962,7 @@ class ProductItem extends StatelessWidget {
 
   const ProductItem({
     Key? key,
+    required this.controller,
     required this.product,
     required this.tap,
     required this.countOnWarehouse,
@@ -888,9 +970,21 @@ class ProductItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ProductItem> createState() => _ProductItemState();
+}
+
+class _ProductItemState extends State<ProductItem> {
+  @override
   Widget build(BuildContext context) {
+    bool isFavourite = false;
+    var indexItemPrice = listFavouriteProducts
+        .indexWhere((element) => element.uid == widget.product.uid);
+    if (indexItemPrice >= 0) {
+      isFavourite = true;
+    }
+
     return ListTile(
-      onTap: () => tap(),
+      onTap: () => widget.tap(),
       //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
       leading: const Padding(
@@ -901,7 +995,7 @@ class ProductItem extends StatelessWidget {
         ),
       ),
       title: Text(
-        product.name,
+        widget.product.name,
         style: const TextStyle(
           fontSize: 16,
         ),
@@ -917,8 +1011,8 @@ class ProductItem extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      doubleToString(price) + ' грн',
-                      style: price > 0
+                      doubleToString(widget.price) + ' грн',
+                      style: widget.price > 0
                           ? const TextStyle(fontSize: 15, color: Colors.blue)
                           : const TextStyle(fontSize: 15),
                     ),
@@ -930,10 +1024,10 @@ class ProductItem extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      doubleThreeToString(countOnWarehouse) +
+                      doubleThreeToString(widget.countOnWarehouse) +
                           ' ' +
-                          product.nameUnit,
-                      style: countOnWarehouse > 0
+                          widget.product.nameUnit,
+                      style: widget.countOnWarehouse > 0
                           ? const TextStyle(fontSize: 15, color: Colors.blue)
                           : const TextStyle(fontSize: 15),
                     ),
@@ -947,18 +1041,27 @@ class ProductItem extends StatelessWidget {
       trailing: Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             GestureDetector(
-                onTap: (){
-                  var indexItemPrice = listFavouriteProducts.indexWhere((element) =>
-                  element.uid == product.uid);
+                onTap: () {
+                  var indexItemPrice = listFavouriteProducts.indexWhere(
+                      (element) => element.uid == widget.product.uid);
                   if (indexItemPrice >= 0) {
                     listFavouriteProducts.removeAt(indexItemPrice);
                   } else {
-                    listFavouriteProducts.add(product);
+                    listFavouriteProducts.add(widget.product);
                   }
+                  setState(() {
+                    widget.controller.add(1);
+                  });
                 },
-                child: const Icon(Icons.star)),
+                child: !isFavourite
+                    ? const Icon(Icons.star)
+                    : const Icon(
+                        Icons.star,
+                        color: Colors.blue,
+                      )),
             const Icon(Icons.navigate_next),
           ],
         ),
