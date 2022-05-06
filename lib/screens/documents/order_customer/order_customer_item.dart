@@ -224,6 +224,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
       widget.orderCustomer.uidWarehouse = warehouse.uid;
       widget.orderCustomer.nameWarehouse = warehouse.name;
+
+      // Добавим 1 сутки
+      var today = DateTime.now();
+      var fiftyDaysFromNow = today.add(const Duration(days: 1));
+
+      textFieldDateSendingController.text =
+          shortDateToString(fiftyDaysFromNow);
     }
 
     countItems = widget.orderCustomer.countItems;
