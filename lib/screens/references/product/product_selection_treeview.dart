@@ -578,7 +578,6 @@ class _ScreenProductSelectionTreeViewState
             showProductHierarchy = false;
             parentProduct = Product();
             treeParentItems.clear();
-            // textFieldSearchCatalogController.text = '';
             showMessage('Иерархия товаров выключена.', context);
           }
 
@@ -1018,7 +1017,7 @@ class _ProductItemState extends State<ProductItem> {
         style: const TextStyle(
           fontSize: 16,
         ),
-        maxLines: 2,
+        //maxLines: 2,
       ),
       subtitle: Column(
         children: [

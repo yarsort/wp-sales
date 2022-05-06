@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_ref_product.dart';
 import 'package:wp_sales/models/ref_product.dart';
@@ -16,6 +18,10 @@ class ScreenProductItem extends StatefulWidget {
 }
 
 class _ScreenProductItemState extends State<ScreenProductItem> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  String pathImage = '';
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
@@ -47,7 +53,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -55,6 +61,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Главная'),
+              Tab(text: 'Картинки'),
               Tab(text: 'Служебные'),
             ],
           ),
@@ -66,6 +73,24 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listHeaderOrder(),
+              ],
+            ),
+            ListView(
+              children: [
+                /// Картинки товара
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
+                  child: SizedBox(
+                    child: pathImage.isNotEmpty ? CachedNetworkImage(
+                      placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: CircularProgressIndicator())),
+                      imageUrl: pathImage,
+                    ) : const Text('Нет данных о картинке', textAlign: TextAlign.center),
+                  ),
+                )
               ],
             ),
             ListView(
@@ -81,7 +106,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
     );
   }
 
-  renewItem() {
+  renewItem() async {
     if (widget.productItem.uid == '') {
       widget.productItem.uid = const Uuid().v4();
     }
@@ -91,6 +116,20 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
     textFieldNameUnitController.text = widget.productItem.nameUnit;
     textFieldBarcodeController.text = widget.productItem.barcode;
     textFieldCommentController.text = widget.productItem.comment;
+
+    final SharedPreferences prefs = await _prefs;
+
+    /// Картинки в Интернете. Путь + UID товара + '.jpg'
+    String pathPictures = prefs.getString('settings_pathPictures')??'';
+    if (pathPictures.isNotEmpty) {
+      if(pathPictures.endsWith('/') == false){
+        pathPictures = pathPictures + '/';
+      }
+      pathImage = pathPictures + widget.productItem.uid + '.jpg';
+    } else {
+      pathImage = '';
+    }
+    debugPrint(pathImage);
 
     // Технические данные
     textFieldUIDController.text = widget.productItem.uid;

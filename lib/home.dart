@@ -269,7 +269,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'Баланс',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -293,7 +296,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'Баланс к оплате',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -328,7 +334,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'Заказы (шт)',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -362,7 +371,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'ПКО (шт)',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -400,7 +412,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'Заказы (грн)',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -431,7 +446,10 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   title: const Center(
                       child: Text(
                     'ПКО (грн)',
-                    style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
                   )),
                   subtitle: Column(
                     children: [
@@ -454,110 +472,127 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     return loadingData
         ? const SizedBox(
             height: 100, child: Center(child: CircularProgressIndicator()))
-        : ColumnBuilder(
-            itemCount: listForPaymentContracts.length,
-            itemBuilder: (context, index) {
-              Contract contractItem = listForPaymentContracts[index];
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                child: Card(
-                  color: Colors.blue.shade50,
-                  elevation: 3,
-                  child: ListTile(
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ScreenContractItem(contractItem: contractItem),
-                        ),
-                      );
-                      await renewItem();
-                    },
-                    title: Text(contractItem.namePartner,
-                        style: const TextStyle(fontSize: 16, color: Colors.blue)),
-                    subtitle: Column(
-                      children: [
-                        const Divider(),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.person,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(child: Text(contractItem.name)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.phone,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(contractItem.phone),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.home,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Flexible(child: Text(contractItem.address)),
-                                    ],
-                                  )
-                                ],
-                              ),
+        : listForPaymentContracts.isNotEmpty
+            ? ColumnBuilder(
+                itemCount: listForPaymentContracts.length,
+                itemBuilder: (context, index) {
+                  Contract contractItem = listForPaymentContracts[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: Card(
+                      color: Colors.blue.shade50,
+                      elevation: 3,
+                      child: ListTile(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScreenContractItem(
+                                  contractItem: contractItem),
                             ),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                children: [
-                                  Row(
+                          );
+                          await renewItem();
+                        },
+                        title: Text(contractItem.namePartner,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.blue)),
+                        subtitle: Column(
+                          children: [
+                            const Divider(),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Column(
                                     children: [
-                                      const Icon(Icons.price_change,
-                                          color: Colors.green, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(doubleToString(contractItem.balance)),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.person,
+                                              color: Colors.blue, size: 20),
+                                          const SizedBox(width: 5),
+                                          Flexible(
+                                              child: Text(contractItem.name)),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.phone,
+                                              color: Colors.blue, size: 20),
+                                          const SizedBox(width: 5),
+                                          Text(contractItem.phone),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.home,
+                                              color: Colors.blue, size: 20),
+                                          const SizedBox(width: 5),
+                                          Flexible(
+                                              child:
+                                                  Text(contractItem.address)),
+                                        ],
+                                      )
                                     ],
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
                                     children: [
-                                      const Icon(Icons.price_change,
-                                          color: Colors.red, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(doubleToString(
-                                          contractItem.balanceForPayment)),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.price_change,
+                                              color: Colors.green, size: 20),
+                                          const SizedBox(width: 5),
+                                          Text(doubleToString(
+                                              contractItem.balance)),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.price_change,
+                                              color: Colors.red, size: 20),
+                                          const SizedBox(width: 5),
+                                          Text(doubleToString(
+                                              contractItem.balanceForPayment)),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.schedule,
+                                              color: Colors.blue, size: 20),
+                                          const SizedBox(width: 5),
+                                          Text(contractItem.schedulePayment
+                                              .toString()),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.schedule,
-                                          color: Colors.blue, size: 20),
-                                      const SizedBox(width: 5),
-                                      Text(contractItem.schedulePayment
-                                          .toString()),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  );
+                })
+            : SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: const Center(
+                child: Text(
+                  'Балансы партнёров для оплат не обнаружены',
+                  style: TextStyle(color: Colors.grey,
+                  fontSize: 20),
+                  textAlign: TextAlign.center,
                 ),
-              );
-            });
+              ),
+            );
   }
 
   debtsCardOld() {

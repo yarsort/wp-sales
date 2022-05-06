@@ -88,8 +88,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Подбор товара'),
-          bottom: const TabBar(
-            tabs: [
+          bottom: TabBar(
+            onTap: (index) {
+              FocusScope.of(context).unfocus();
+            },
+            tabs: const [
               Tab(text: 'Главная'),
               Tab(text: 'Картинки'),
               Tab(text: 'Прочее'),
@@ -97,6 +100,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
           ),
         ),
         body: TabBarView(
+
           children: [
             ListView(
               children: [
@@ -407,14 +411,14 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
                   child: SizedBox(
-                    child: CachedNetworkImage(
+                    child: pathImage.isNotEmpty ? CachedNetworkImage(
                       placeholder: (context, url) => const Center(
                           child: SizedBox(
                               height: 50,
                               width: 50,
                               child: CircularProgressIndicator())),
                       imageUrl: pathImage,
-                    ),
+                    ) : const Text('Нет данных о картинке', textAlign: TextAlign.center),
                   ),
                 )
               ],
@@ -438,8 +442,21 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     listRests.clear();
 
     textFieldProductNameController.text = widget.product.name;
-    pathImage =
-        'https://3z6mv8219w2s2w196j1dkzga-wpengine.netdna-ssl.com/wp-content/uploads/2021/06/WEF-Investments-In-Nature-Based-Solutions-Have-To-Triple-By-2030-To-Address-Climate-Change-Biodiversity-Loss.jpg';
+
+
+    final SharedPreferences prefs = await _prefs;
+
+    /// Картинки в Интернете. Путь + UID товара + '.jpg'
+    String pathPictures = prefs.getString('settings_pathPictures')??''; 
+    if (pathPictures.isNotEmpty) {
+      if(pathPictures.endsWith('/') == false){
+        pathPictures = pathPictures + '/';
+      }
+      pathImage = pathPictures + widget.product.uid + '.jpg';
+    } else {
+      pathImage = '';
+    }
+    debugPrint(pathImage);
 
     String uidProduct = widget.product.uid;
 

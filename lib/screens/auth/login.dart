@@ -33,12 +33,12 @@ class _ScreenLoginState extends State<ScreenLogin> {
         keyboardType: TextInputType.emailAddress,
         validator: (value) {
           if (value!.isEmpty) {
-            return ("Введите E-Mail");
+            return ('Введите E-Mail');
           }
           // reg expression for email validation
-          if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+          if (!RegExp('^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
               .hasMatch(value)) {
-            return ("Пожалуйста, введите правильный почтовый адрес");
+            return ('Пожалуйста, введите правильный почтовый адрес');
           }
           return null;
         },
@@ -49,7 +49,8 @@ class _ScreenLoginState extends State<ScreenLogin> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.mail, color: Colors.blue,),
           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-          hintText: "Email",
+          labelText: 'E-mail',
+          hintText: 'E-mail',
           border: OutlineInputBorder(),
         ));
 
@@ -61,12 +62,12 @@ class _ScreenLoginState extends State<ScreenLogin> {
         validator: (value) {
           RegExp regex = RegExp(r'^.{6,}$');
           if (value!.isEmpty) {
-            return ("Укажите пароль");
+            return ('Укажите пароль');
           }
           if (!regex.hasMatch(value)) {
-            return ("Введите пароль (минимум 6 символов)");
+            return ('Введите пароль (минимум 6 символов)');
           }
-          return ("");
+          //return ('');
         },
         onSaved: (value) {
           passwordController.text = value!;
@@ -75,7 +76,8 @@ class _ScreenLoginState extends State<ScreenLogin> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.vpn_key, color: Colors.blue,),
           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-          hintText: "Пароль",
+          labelText: 'Пароль',
+          hintText: 'Пароль',
           border: OutlineInputBorder(),
         ));
 
@@ -112,7 +114,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                     SizedBox(
                          height: 100,
                          child: Image.asset(
-                           "assets/images/wpsales_logo.png",
+                           'assets/images/wpsales_logo.png',
                            fit: BoxFit.contain,
                          )),
                     // const SizedBox(
@@ -128,7 +130,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          const Text("У Вас нет аккаунта? "),
+                          const Text('У Вас нет аккаунта? '),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -138,7 +140,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                                           const ScreenRegistration()));
                             },
                             child: const Text(
-                              "Зарегистрироватся",
+                              'Зарегистрироватся',
                               style: TextStyle(
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold,
@@ -180,26 +182,26 @@ class _ScreenLoginState extends State<ScreenLogin> {
 
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
-          case "invalid-email":
-            errorMessage = "Указан неправильный E-mail.";
+          case 'invalid-email':
+            errorMessage = 'Указан неправильный E-mail.';
             break;
-          case "wrong-password":
-            errorMessage = "Указан неправильный пароль.";
+          case 'wrong-password':
+            errorMessage = 'Указан неправильный пароль.';
             break;
-          case "user-not-found":
-            errorMessage = "Пользователь не найден.";
+          case 'user-not-found':
+            errorMessage = 'Пользователь не найден.';
             break;
-          case "user-disabled":
-            errorMessage = "Пользователь отключен.";
+          case 'user-disabled':
+            errorMessage = 'Пользователь отключен.';
             break;
-          case "too-many-requests":
-            errorMessage = "Слишком много запросов подключения.";
+          case 'too-many-requests':
+            errorMessage = 'Слишком много запросов подключения.';
             break;
-          case "operation-not-allowed":
-            errorMessage = "Операция авторизации пользователя не подключена.";
+          case 'operation-not-allowed':
+            errorMessage = 'Операция авторизации пользователя не подключена.';
             break;
           default:
-            errorMessage = "Неизвестная ошибка.";
+            errorMessage = 'Неизвестная ошибка.';
         }
         showMessage(errorMessage!);
         debugPrint(error.code);

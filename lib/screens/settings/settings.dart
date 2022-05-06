@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/import/import_db.dart';
+import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/import/import_screens.dart';
 import 'package:wp_sales/system/widgets.dart';
 
@@ -21,7 +21,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   bool deniedEditTypePrice = false; // Запретить изменять тип цены в документах
   bool deniedEditPrice = false; // Запретить изменять цены в документах
   bool deniedEditDiscount = false; // Запретить изменять скидку в документах
-  bool deniedAddProductWithoutRest = false; // Запретить добавлять товар без остатка
+  bool deniedAddProductWithoutRest =
+      false; // Запретить добавлять товар без остатка
 
   bool useWebExchange = false; // Обмен по вебсервису
   bool enabledTextFieldWebExchange = false;
@@ -55,15 +56,18 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   TextEditingController textFieldFTPServerController = TextEditingController();
   TextEditingController textFieldFTPPortController = TextEditingController();
   TextEditingController textFieldFTPUserController = TextEditingController();
-  TextEditingController textFieldFTPPasswordController = TextEditingController();
-  TextEditingController textFieldFTPWorkCatalogController = TextEditingController();
+  TextEditingController textFieldFTPPasswordController =
+      TextEditingController();
+  TextEditingController textFieldFTPWorkCatalogController =
+      TextEditingController();
 
   /// Параметры WEB-сервиса
   TextEditingController textFieldWEBServerController = TextEditingController();
 
   /// Параметры заполнения по-умолчанию
   // Поле ввода: Организация
-  TextEditingController textFieldOrganizationController = TextEditingController();
+  TextEditingController textFieldOrganizationController =
+      TextEditingController();
   String uidOrganization = '';
 
   // Поле ввода: Партнер
@@ -83,7 +87,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   String uidWarehouse = '';
 
   // Поле ввода: Склад для возвратов
-  TextEditingController textFieldWarehouseReturnController = TextEditingController();
+  TextEditingController textFieldWarehouseReturnController =
+      TextEditingController();
   String uidWarehouseReturn = '';
 
   // Поле ввода: Валюта
@@ -96,8 +101,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   /// Картинки
   // Поле ввода: Путь к картинкам в Интернете
-  TextEditingController textFieldPathPicturesController = TextEditingController();
+  TextEditingController textFieldPathPicturesController =
+      TextEditingController();
 
+  bool _visibleExamplePathPictures = false;
 
   @override
   void initState() {
@@ -128,7 +135,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
                             Navigator.of(context).pop(true);
                           },
@@ -173,7 +180,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  nameGroup(nameGroup: 'Загрузка картинок в подборе'),
+                  nameGroup(nameGroup: 'Каталог картинок в Интернет (*.jpg)'),
                   listSettingsPictures(),
                   nameGroup(nameGroup: 'Тип данных приложения'),
                   listSettingsTypeData(),
@@ -186,16 +193,19 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  nameGroup(nameGroup: 'Значения по-умолчанию', hideDivider: true),
+                  nameGroup(
+                      nameGroup: 'Значения по-умолчанию', hideDivider: true),
                   listFillingByDefault(),
                 ],
               ),
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  nameGroup(nameGroup: 'Параметры пользователя',hideDivider: false),
+                  nameGroup(
+                      nameGroup: 'Параметры пользователя', hideDivider: false),
                   listSettingsOther(),
-                  nameGroup(nameGroup: 'Виды обмена данными',hideDivider: false),
+                  nameGroup(
+                      nameGroup: 'Виды обмена данными', hideDivider: false),
                   listSettingsExchange(),
                 ],
               ),
@@ -212,76 +222,91 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     useTestData = prefs.getBool('settings_useTestData') ?? false;
 
     // Идентификатор пользователя в приложении для обмена данными
-    textFieldNameUserController.text = prefs.getString('settings_nameUser') ?? 'Тестовый пользователь';
-    textFieldEmailUserController.text = prefs.getString('settings_emailUser') ?? 'test@yarsoft.com.ua';
+    textFieldNameUserController.text =
+        prefs.getString('settings_nameUser') ?? 'Тестовый пользователь';
+    textFieldEmailUserController.text =
+        prefs.getString('settings_emailUser') ?? 'test@yarsoft.com.ua';
     textFieldUIDUserController.text = prefs.getString('settings_UIDUser') ?? '';
 
     //Обмен по ftp-серверу
     useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? true;
     enabledTextFieldWebExchange = useFTPExchange;
-    textFieldFTPServerController.text = prefs.getString('settings_FTPServer')??'';
-    textFieldFTPPortController.text = prefs.getString('settings_FTPPort')??'21';
-    textFieldFTPUserController.text = prefs.getString('settings_FTPUser')??'';
-    textFieldFTPPasswordController.text = prefs.getString('settings_FTPPassword')??'';
-    textFieldFTPWorkCatalogController.text = prefs.getString('settings_FTPWorkCatalog')??'';
+    textFieldFTPServerController.text =
+        prefs.getString('settings_FTPServer') ?? '';
+    textFieldFTPPortController.text =
+        prefs.getString('settings_FTPPort') ?? '21';
+    textFieldFTPUserController.text = prefs.getString('settings_FTPUser') ?? '';
+    textFieldFTPPasswordController.text =
+        prefs.getString('settings_FTPPassword') ?? '';
+    textFieldFTPWorkCatalogController.text =
+        prefs.getString('settings_FTPWorkCatalog') ?? '';
 
     // Обмен по web-серверу
     useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
     enabledTextFieldFTPExchange = useFTPExchange;
-    textFieldWEBServerController.text = prefs.getString('settings_WEBServer')??'';
+    textFieldWEBServerController.text =
+        prefs.getString('settings_WEBServer') ?? '';
 
     // Разрешения и запреты
-    deniedEditSettings = prefs.getBool('settings_deniedEditSettings')??false;
-    deniedEditTypePrice = prefs.getBool('settings_deniedEditTypePrice')??false;
-    deniedEditPrice = prefs.getBool('settings_deniedEditPrice')??false;
-    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount')??false;
-    deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')??true;
-    useRoutesToPartners = prefs.getBool('settings_useRoutesToPartners')??false;
+    deniedEditSettings = prefs.getBool('settings_deniedEditSettings') ?? false;
+    deniedEditTypePrice =
+        prefs.getBool('settings_deniedEditTypePrice') ?? false;
+    deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ?? false;
+    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount') ?? false;
+    deniedAddProductWithoutRest =
+        prefs.getBool('settings_deniedAddProductWithoutRest') ?? true;
+    useRoutesToPartners =
+        prefs.getBool('settings_useRoutesToPartners') ?? false;
 
     // Разрешение на добавление новых элементов в справочники
-    deniedAddOrganization = prefs.getBool('settings_deniedAddOrganization')??true;
-    deniedAddPartner = prefs.getBool('settings_deniedAddPartner')??true;
-    deniedAddContract = prefs.getBool('settings_deniedAddContract')??true;
-    deniedAddStore = prefs.getBool('settings_deniedAddStore')??true;
-    deniedAddProduct = prefs.getBool('settings_deniedAddProduct')??true;
-    deniedAddUnit = prefs.getBool('settings_deniedAddUnit')??true;
-    deniedAddPrice = prefs.getBool('settings_deniedAddPrice')??true;
-    deniedAddCurrency = prefs.getBool('settings_deniedAddCurrency')??true;
-    deniedAddWarehouse = prefs.getBool('settings_deniedAddWarehouse')??true;
-    deniedAddCashbox = prefs.getBool('settings_deniedAddCashbox')??true;
+    deniedAddOrganization =
+        prefs.getBool('settings_deniedAddOrganization') ?? true;
+    deniedAddPartner = prefs.getBool('settings_deniedAddPartner') ?? true;
+    deniedAddContract = prefs.getBool('settings_deniedAddContract') ?? true;
+    deniedAddStore = prefs.getBool('settings_deniedAddStore') ?? true;
+    deniedAddProduct = prefs.getBool('settings_deniedAddProduct') ?? true;
+    deniedAddUnit = prefs.getBool('settings_deniedAddUnit') ?? true;
+    deniedAddPrice = prefs.getBool('settings_deniedAddPrice') ?? true;
+    deniedAddCurrency = prefs.getBool('settings_deniedAddCurrency') ?? true;
+    deniedAddWarehouse = prefs.getBool('settings_deniedAddWarehouse') ?? true;
+    deniedAddCashbox = prefs.getBool('settings_deniedAddCashbox') ?? true;
 
     // Заполнение значений по-умолчанию
-    uidOrganization = prefs.getString('settings_uidOrganization')??'';
+    uidOrganization = prefs.getString('settings_uidOrganization') ?? '';
     Organization organization = await dbReadOrganizationUID(uidOrganization);
     textFieldOrganizationController.text = organization.name;
 
-    uidPartner = prefs.getString('settings_uidPartner')??'';
+    uidPartner = prefs.getString('settings_uidPartner') ?? '';
     Partner partner = await dbReadPartnerUID(uidPartner);
     textFieldPartnerController.text = partner.name;
 
-    uidPrice = prefs.getString('settings_uidPrice')??'';
+    uidPrice = prefs.getString('settings_uidPrice') ?? '';
     Price price = await dbReadPriceUID(uidPrice);
     textFieldPriceController.text = price.name;
 
-    uidCashbox = prefs.getString('settings_uidCashbox')??'';
+    uidCashbox = prefs.getString('settings_uidCashbox') ?? '';
     Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
     textFieldCashboxController.text = cashbox.name;
 
-    uidWarehouse = prefs.getString('settings_uidWarehouse')??'';
+    uidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
     Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
     textFieldWarehouseController.text = warehouse.name;
 
-    uidWarehouseReturn = prefs.getString('settings_uidWarehouseReturn')??'';
+    uidWarehouseReturn = prefs.getString('settings_uidWarehouseReturn') ?? '';
     Warehouse warehouseReturn = await dbReadWarehouseUID(uidWarehouseReturn);
     textFieldWarehouseReturnController.text = warehouseReturn.name;
 
     // Картинки в Интернете. Путь + UID товара + '.jpg'
-    textFieldPathPicturesController.text = prefs.getString('settings_pathPictures')??'';
+    textFieldPathPicturesController.text =
+        prefs.getString('settings_pathPictures') ?? '';
 
     // При первом заполнении может быть не указан способ обмена
-    if (!useFTPExchange && !useWebExchange){
+    if (!useFTPExchange && !useWebExchange) {
       useFTPExchange = true;
     }
+
+    _visibleExamplePathPictures =
+        textFieldPathPicturesController.text.isNotEmpty;
 
     setState(() {});
   }
@@ -303,7 +328,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
     prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
     prefs.setBool('settings_useRoutesToPartners', useRoutesToPartners);
-    prefs.setBool('settings_deniedAddProductWithoutRest', deniedAddProductWithoutRest);
+    prefs.setBool(
+        'settings_deniedAddProductWithoutRest', deniedAddProductWithoutRest);
 
     /// Запрет добавления новых елементов
     prefs.setBool('settings_deniedAddOrganization', deniedAddOrganization);
@@ -322,8 +348,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setString('settings_FTPServer', textFieldFTPServerController.text);
     prefs.setString('settings_FTPPort', textFieldFTPPortController.text);
     prefs.setString('settings_FTPUser', textFieldFTPUserController.text);
-    prefs.setString('settings_FTPPassword', textFieldFTPPasswordController.text);
-    prefs.setString('settings_FTPWorkCatalog', textFieldFTPWorkCatalogController.text);
+    prefs.setString(
+        'settings_FTPPassword', textFieldFTPPasswordController.text);
+    prefs.setString(
+        'settings_FTPWorkCatalog', textFieldFTPWorkCatalogController.text);
 
     /// Значения заполнения документов по-умолчанию
     prefs.setString('settings_uidOrganization', uidOrganization);
@@ -334,7 +362,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setString('settings_uidWarehouseReturn', uidWarehouseReturn);
 
     /// Картинки
-    prefs.setString('settings_pathPictures', textFieldPathPicturesController.text);
+    prefs.setString(
+        'settings_pathPictures', textFieldPathPicturesController.text);
 
     /// Web-service
     prefs.setBool('settings_useWebExchange', useWebExchange);
@@ -385,7 +414,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditSettings = !deniedEditSettings;
-
                     });
                   },
                 ),
@@ -393,6 +421,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на изменение типа цены в документах
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -403,14 +432,15 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditTypePrice = !deniedEditTypePrice;
-
                     });
                   },
                 ),
-                const Flexible(child: Text('Запретить изменять тип цены в документах')),
+                const Flexible(
+                    child: Text('Запретить изменять тип цены в документах')),
               ],
             ),
           ),
+
           /// Запрет на изменение цен в строках документов
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -421,14 +451,15 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditPrice = !deniedEditPrice;
-
                     });
                   },
                 ),
-                const Flexible(child: Text('Запретить изменять цены в документах')),
+                const Flexible(
+                    child: Text('Запретить изменять цены в документах')),
               ],
             ),
           ),
+
           /// Запрет на изменение скидок в строках документов
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -439,14 +470,15 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       deniedEditDiscount = !deniedEditDiscount;
-
                     });
                   },
                 ),
-                const Flexible(child: Text('Запретить изменять скидки в документах')),
+                const Flexible(
+                    child: Text('Запретить изменять скидки в документах')),
               ],
             ),
           ),
+
           /// Запрет на добавление товара, если остатка не хватает
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -456,11 +488,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   value: deniedAddProductWithoutRest,
                   onChanged: (value) {
                     setState(() {
-                      deniedAddProductWithoutRest = !deniedAddProductWithoutRest;
+                      deniedAddProductWithoutRest =
+                          !deniedAddProductWithoutRest;
                     });
                   },
                 ),
-                const Flexible(child: Text('Запретить добавление товара без остатка')),
+                const Flexible(
+                    child: Text('Запретить добавление товара без остатка')),
               ],
             ),
           ),
@@ -491,6 +525,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Партнер
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -508,6 +543,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Контракт
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -525,6 +561,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Магазин
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -542,6 +579,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Товар
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -559,6 +597,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Единица измерения
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -576,6 +615,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Тип цен
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -593,6 +633,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Валюты
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -610,6 +651,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Кассы
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -627,6 +669,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// Запрет на добавление: Склады
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -700,10 +743,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                     IconButton(
+                      IconButton(
                         onPressed: () {
                           textFieldFTPUserController.text = '';
-
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -714,6 +756,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// Порт сервер
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -742,7 +785,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPPortController.text = '';
-
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -753,14 +795,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// Имя FTP пользователя
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
-                onChanged: (value) {
-
-                },
+                onChanged: (value) {},
                 enabled: enabledTextFieldFTPExchange,
                 keyboardType: TextInputType.text,
                 controller: textFieldFTPUserController,
@@ -783,7 +824,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPUserController.text = '';
-
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -794,14 +834,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// Пароль FTP пользователя
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
-                onChanged: (value) {
-
-                },
+                onChanged: (value) {},
                 enabled: enabledTextFieldFTPExchange,
                 obscureText: true,
                 autocorrect: false,
@@ -827,7 +866,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPPasswordController.text = '';
-
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -838,6 +876,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// Рабочий каталог FTP
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -866,7 +905,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldFTPWorkCatalogController.text = '';
-                          },
+                        },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
                       ),
@@ -876,6 +915,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// Buttons Тестирование обмена
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
@@ -888,10 +928,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.all(Colors.blue)),
+                              MaterialStateProperty.all(Colors.blue)),
                       onPressed: () async {
                         /// Получение данных обмена
-                        final FTPConnect ftpClient = FTPConnect(textFieldFTPServerController.text,
+                        final FTPConnect ftpClient = FTPConnect(
+                            textFieldFTPServerController.text,
                             port: int.parse(textFieldFTPPortController.text),
                             user: textFieldFTPUserController.text,
                             pass: textFieldFTPPasswordController.text,
@@ -900,10 +941,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
                         var res = await ftpClient.connect();
                         if (!res) {
-                          showErrorMessage('Ошибка подключения к серверу FTP!', context);
+                          showErrorMessage(
+                              'Ошибка подключения к серверу FTP!', context);
                           return;
                         } else {
-                          showMessage('Подключение выполнено успешно!', context);
+                          showMessage(
+                              'Подключение выполнено успешно!', context);
                         }
                       },
                       child: Row(
@@ -934,8 +977,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
                       useFTPExchange = !useWebExchange;
                       enabledTextFieldFTPExchange = !useWebExchange;
-
-
                     });
                   },
                 ),
@@ -943,14 +984,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+
           /// WEB сервер
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
-                onChanged: (value) {
-
-                },
+                onChanged: (value) {},
                 enabled: enabledTextFieldWebExchange,
                 keyboardType: TextInputType.text,
                 controller: textFieldWEBServerController,
@@ -973,7 +1013,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldWEBServerController.text = '';
-
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                         //icon: const Icon(Icons.delete, color: Colors.red),
@@ -1012,6 +1051,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// Почта пользователя
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -1030,6 +1070,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
           /// UID пользователя
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -1063,6 +1104,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: IntrinsicHeight(
               child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _visibleExamplePathPictures =
+                        textFieldPathPicturesController.text.isNotEmpty;
+                  });
+                },
                 keyboardType: TextInputType.text,
                 controller: textFieldPathPicturesController,
                 decoration: InputDecoration(
@@ -1071,7 +1118,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   labelStyle: const TextStyle(
                     color: Colors.blueGrey,
                   ),
-                  labelText: 'Ссылка на каталог картинок',
+                  labelText: 'https://example.com/pictures',
                   suffixIcon: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
@@ -1079,16 +1126,28 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       IconButton(
                         onPressed: () {
                           textFieldPathPicturesController.text = '';
+                          setState(() {
+                            _visibleExamplePathPictures =
+                                textFieldPathPicturesController.text.isNotEmpty;
+                          });
                         },
                         icon: const Icon(Icons.delete, color: Colors.red),
                       ),
                     ],
                   ),
                 ),
-
               ),
             ),
           ),
+          Visibility(
+              visible: _visibleExamplePathPictures,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Text(
+                    textFieldPathPicturesController.text + '/some_picture.jpg',
+                    style: const TextStyle(fontSize: 10 , color: Colors.blue),
+                    textAlign: TextAlign.left),
+              ))
         ],
       ),
     );
@@ -1116,9 +1175,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                     MaterialPageRoute(
                         builder: (context) => ScreenOrganizationSelection(
                             orderCustomer: orderCustomer)));
-                textFieldOrganizationController.text = orderCustomer.nameOrganization;
+                textFieldOrganizationController.text =
+                    orderCustomer.nameOrganization;
                 uidOrganization = orderCustomer.uidOrganization;
-
               }),
 
           /// Partner
@@ -1222,7 +1281,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                     MaterialPageRoute(
                         builder: (context) => ScreenWarehouseSelection(
                             orderCustomer: orderCustomer)));
-                textFieldWarehouseReturnController.text = orderCustomer.nameWarehouse;
+                textFieldWarehouseReturnController.text =
+                    orderCustomer.nameWarehouse;
                 uidWarehouseReturn = orderCustomer.uidWarehouse;
               }),
         ],

@@ -39,10 +39,10 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         validator: (value) {
           RegExp regex = RegExp(r'^.{3,}$');
           if (value!.isEmpty) {
-            return ("Имя не может быть пустым");
+            return ('Имя не может быть пустым');
           }
           if (!regex.hasMatch(value)) {
-            return ("Укажите имя (минимум 3 символа)");
+            return ('Укажите имя (минимум 3 символа)');
           }
           return null;
         },
@@ -53,7 +53,8 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.account_circle),
           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-          hintText: "Имя",
+          labelText: 'Имя',
+          hintText: 'Имя',
           border: OutlineInputBorder(),
         ));
 
@@ -64,7 +65,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         keyboardType: TextInputType.name,
         validator: (value) {
           if (value!.isEmpty) {
-            return ("Фамилия не может быть пустой");
+            return ('Фамилия не может быть пустой');
           }
           return null;
         },
@@ -75,7 +76,8 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.account_circle),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "Фамилия",
+          labelText: 'Фамилия',
+          hintText: 'Фамилия',
           border: OutlineInputBorder(),
         ));
 
@@ -86,12 +88,12 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         keyboardType: TextInputType.emailAddress,
         validator: (value) {
           if (value!.isEmpty) {
-            return ("Укажите Ваш E-mail");
+            return ('Укажите Ваш E-mail');
           }
           // reg expression for email validation
-          if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+          if (!RegExp('^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]')
               .hasMatch(value)) {
-            return ("Укажите правильный E-mail");
+            return ('Укажите правильный E-mail');
           }
           return null;
         },
@@ -102,7 +104,8 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.mail),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "E-mail",
+          labelText: 'E-mail',
+          hintText: 'E-mail',
           border: OutlineInputBorder(),
         ));
 
@@ -114,12 +117,12 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         validator: (value) {
           RegExp regex = RegExp(r'^.{6,}$');
           if (value!.isEmpty) {
-            return ("Укажите пароль");
+            return ('Укажите пароль');
           }
           if (!regex.hasMatch(value)) {
-            return ("Укажите правильный пароль (минимум 6 символов)");
+            return ('Укажите правильный пароль (минимум 6 символов)');
           }
-          return ("");
+          return ('');
         },
         onSaved: (value) {
           firstNameEditingController.text = value!;
@@ -128,7 +131,8 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.vpn_key),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "Пароль",
+          labelText: 'Пароль',
+          hintText: 'Пароль',
           border: OutlineInputBorder(),
         ));
 
@@ -140,7 +144,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         validator: (value) {
           if (confirmPasswordEditingController.text !=
               passwordEditingController.text) {
-            return "Пароли не совпадают";
+            return 'Пароли не совпадают';
           }
           return null;
         },
@@ -151,7 +155,8 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.vpn_key),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-          hintText: "Подтверждение пароля",
+          labelText: 'Подтверждение пароля',
+          hintText: 'Подтверждение пароля',
           border: OutlineInputBorder(),
         ));
 
@@ -207,7 +212,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
                     SizedBox(
                         height: 100,
                         child: Image.asset(
-                          "assets/images/wpsales_logo.png",
+                          'assets/images/wpsales_logo.png',
                           fit: BoxFit.contain,
                         )),
                     const SizedBox(height: 20),
@@ -244,26 +249,26 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
         });
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
-          case "invalid-email":
-            errorMessage = "Неправильный почтовый ящик.";
+          case 'invalid-email':
+            errorMessage = 'Неправильный почтовый ящик.';
             break;
-          case "wrong-password":
-            errorMessage = "Неправильный пароль.";
+          case 'wrong-password':
+            errorMessage = 'Неправильный пароль.';
             break;
-          case "user-not-found":
-            errorMessage = "Пользователь с этим почтовым ящиком не обнаружен.";
+          case 'user-not-found':
+            errorMessage = 'Пользователь с этим почтовым ящиком не обнаружен.';
             break;
-          case "user-disabled":
-            errorMessage = "Пользователь с этим почтовым ящиком отключен.";
+          case 'user-disabled':
+            errorMessage = 'Пользователь с этим почтовым ящиком отключен.';
             break;
-          case "too-many-requests":
-            errorMessage = "Слишком много запросов";
+          case 'too-many-requests':
+            errorMessage = 'Слишком много запросов';
             break;
-          case "operation-not-allowed":
-            errorMessage = "Авторизация с почтовым именем и паролем отклбчена.";
+          case 'operation-not-allowed':
+            errorMessage = 'Авторизация с почтовым именем и паролем отклбчена.';
             break;
           default:
-            errorMessage = "Неизвестная ошибка.";
+            errorMessage = 'Неизвестная ошибка.';
         }
         showErrorMessage(errorMessage!, context);
         debugPrint(error.code);
