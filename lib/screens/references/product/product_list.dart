@@ -33,7 +33,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
   bool showProductHierarchy = true;
 
-  bool visibleParameters = false;
+  bool visibleParameters = true;
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchCatalogController =
