@@ -217,8 +217,14 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
       var uidCashbox = prefs.getString('settings_uidCashbox') ?? '';
       Cashbox cashbox = await dbReadCashboxUID(uidCashbox);
-      widget.orderCustomer.uidCashbox = cashbox.uid;
-      widget.orderCustomer.nameCashbox = cashbox.name;
+
+      // Если касса принадлежит выбранной организации
+      if (cashbox.uidOrganization == organization.uid &&
+          organization.id != 0 &&
+          cashbox.id != 0) {
+        widget.orderCustomer.uidCashbox = cashbox.uid;
+        widget.orderCustomer.nameCashbox = cashbox.name;
+      }
 
       var uidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
       Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
@@ -229,8 +235,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       var today = DateTime.now();
       var fiftyDaysFromNow = today.add(const Duration(days: 1));
 
-      textFieldDateSendingController.text =
-          shortDateToString(fiftyDaysFromNow);
+      textFieldDateSendingController.text = shortDateToString(fiftyDaysFromNow);
     }
 
     countItems = widget.orderCustomer.countItems;
@@ -248,7 +253,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     double allWeight = 0.0;
     for (var item in itemsOrder) {
       Unit unitProduct = await dbReadUnitUID(item.uidUnit);
-      allWeight = allWeight + unitProduct.weight * item.count * unitProduct.multiplicity;
+      allWeight = allWeight +
+          unitProduct.weight * item.count * unitProduct.multiplicity;
     }
     textFieldWeightController.text = doubleThreeToString(allWeight);
 
@@ -269,8 +275,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     sendYesTo1C = widget.orderCustomer.status == 2;
 
     // Проверка Организации
-    if ((textFieldPartnerController.text.trim() == '') ||
-        (textFieldOrganizationController.text.trim() == '')) {
+    if (textFieldOrganizationController.text.trim() == '') {
       textFieldContractController.text = '';
       widget.orderCustomer.nameContract = '';
       widget.orderCustomer.uidContract = '';
@@ -289,6 +294,24 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       textFieldCashboxController.text = '';
       widget.orderCustomer.nameCashbox = '';
       widget.orderCustomer.uidCashbox = '';
+    }
+
+    // Проверка Партнера
+    if (textFieldPartnerController.text.trim() == '') {
+      textFieldContractController.text = '';
+      widget.orderCustomer.nameContract = '';
+      widget.orderCustomer.uidContract = '';
+
+      widget.orderCustomer.nameStore = '';
+      widget.orderCustomer.uidStore = '';
+
+      textFieldPriceController.text = '';
+      widget.orderCustomer.namePrice = '';
+      widget.orderCustomer.uidPrice = '';
+
+      textFieldCurrencyController.text = '';
+      widget.orderCustomer.nameCurrency = '';
+      widget.orderCustomer.uidCurrency = '';
     }
 
     // Проверка договора
@@ -439,6 +462,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 widget.orderCustomer.uidStore = '';
                 widget.orderCustomer.namePrice = '';
                 widget.orderCustomer.uidPrice = '';
+                widget.orderCustomer.nameCashbox = '';
+                widget.orderCustomer.uidCashbox = '';
                 updateHeader();
               },
               onPressedEdit: () async {
@@ -456,6 +481,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     widget.orderCustomer.uidStore = '';
                     widget.orderCustomer.namePrice = '';
                     widget.orderCustomer.uidPrice = '';
+                    widget.orderCustomer.nameCashbox = '';
+                    widget.orderCustomer.uidCashbox = '';
                   }
                 }
                 updateHeader();
@@ -626,7 +653,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
           /// Date sending to partner
           TextFieldWithText(
-              textLabel: 'Дата отгрузки (планируемая)',
+              textLabel: 'Дата отгрузки (план)',
               textEditingController: textFieldDateSendingController,
               onPressedEditIcon: Icons.date_range,
               onPressedDeleteIcon: Icons.delete,
@@ -656,7 +683,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
           /// Date paying to partner
           TextFieldWithText(
-              textLabel: 'Дата оплаты (планируемая)',
+              textLabel: 'Дата оплаты (план)',
               textEditingController: textFieldDatePayingController,
               onPressedEditIcon: Icons.date_range,
               onPressedDeleteIcon: Icons.delete,

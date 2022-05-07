@@ -323,7 +323,7 @@ class _ContractItemState extends State<ContractItem> {
                 Row(
                   children: [
                     Expanded(
-                      flex: 4,
+                      flex: 5,
                       child: Column(
                         children: [
                           const SizedBox(height: 5),
@@ -350,7 +350,7 @@ class _ContractItemState extends State<ContractItem> {
                       ),
                     ),
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: Column(
                         children: [
                           Row(

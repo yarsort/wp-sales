@@ -22,11 +22,11 @@ class DatabaseHelper {
       if (_database!.isOpen) {
         return _database!;
       } else {
-        _database = await _initDB('WPSalesDB_0003.db');
+        _database = await _initDB('WPSalesDB_0002.db');
         return _database!;
       }
     }
-    _database = await _initDB('WPSalesDB_0003.db');
+    _database = await _initDB('WPSalesDB_0002.db');
     return _database!;
   }
 
@@ -34,7 +34,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
     return await openDatabase(path,
-        version: 1, onCreate: _createDB, onUpgrade: _upgradeDB);
+        version: 2, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
   Future _upgradeDB(Database db, int oldV, int newV) async {

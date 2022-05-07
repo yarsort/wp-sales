@@ -8,6 +8,7 @@ class Cashbox {
   String name = '';               // Имя
   String nameForSearch = '';      // Имя дял поиска
   String uidParent = '';          // Ссылка на группу
+  String uidOrganization = '';    // Ссылка на организацию
   String comment = '';            // Коммментарий
   DateTime dateEdit = DateTime.now(); // Дата редактирования
 
@@ -20,6 +21,7 @@ class Cashbox {
     code = json['code'] ?? '';
     name = json['name'] ?? '';
     uidParent = json['uidParent'] ?? '';
+    uidOrganization = json['uidOrganization'] ?? '';
     comment = json['comment'] ?? '';
     dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
   }
@@ -34,6 +36,7 @@ class Cashbox {
     data['code'] = code;
     data['name'] = name;
     data['uidParent'] = uidParent;
+    data['uidOrganization'] = uidOrganization;
     data['comment'] = comment;
     data['dateEdit'] = dateEdit.toIso8601String();
     return data;

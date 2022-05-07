@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'WP Sales',
       theme: ThemeData(
+        fontFamily: 'ACDisplay',
         primarySwatch: Colors.blue,
       ),
       home: const ScreenSplashScreen(),

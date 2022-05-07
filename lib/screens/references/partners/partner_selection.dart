@@ -463,7 +463,7 @@ class PartnerItemSelection extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Column(
                   children: [
                     Row(

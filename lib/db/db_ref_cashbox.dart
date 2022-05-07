@@ -14,6 +14,7 @@ class ItemCashboxFields {
     code,
     name,
     uidParent,
+    uidOrganization,
     comment,
     dateEdit,
   ];
@@ -25,6 +26,7 @@ class ItemCashboxFields {
   static const String code = 'code';
   static const String name = 'name';
   static const String uidParent = 'uidParent';
+  static const String uidOrganization = 'uidOrganization';
   static const String comment = 'comment';
   static const String dateEdit = 'dateEdit';
 }
@@ -39,6 +41,7 @@ Future createTableCashbox(db) async {
       ${ItemCashboxFields.code} $textType,      
       ${ItemCashboxFields.name} $textType,
       ${ItemCashboxFields.uidParent} $textType,
+      ${ItemCashboxFields.uidOrganization} $textType,
       ${ItemCashboxFields.comment} $textType,
       ${ItemCashboxFields.dateEdit} $textType            
       )
@@ -116,6 +119,17 @@ Future<List<Cashbox>> dbReadAllCashbox() async {
   const orderBy = '${ItemCashboxFields.name} ASC';
   final result = await db.query(
       tableCashbox,
+      orderBy: orderBy);
+  return result.map((json) => Cashbox.fromJson(json)).toList();
+}
+
+Future<List<Cashbox>> dbReadCashboxByUIDOrganization(String uidOrganization) async {
+  final db = await instance.database;
+  const orderBy = '${ItemCashboxFields.name} ASC';
+  final result = await db.query(
+      tableCashbox,
+      where: '${ItemCashboxFields.uidOrganization} = ?',
+      whereArgs: [uidOrganization],
       orderBy: orderBy);
   return result.map((json) => Cashbox.fromJson(json)).toList();
 }

@@ -358,7 +358,7 @@ class PartnerItem extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                flex: 4,
+                flex: 5,
                 child: Column(
                   children: [
                     Row(
@@ -380,7 +380,7 @@ class PartnerItem extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Column(
                   children: [
                     Row(

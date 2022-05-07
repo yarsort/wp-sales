@@ -67,17 +67,32 @@ class _ScreenCashboxSelectionState extends State<ScreenCashboxSelection> {
     listCashboxes.clear();
     tempItems.clear();
 
-    listCashboxes = await dbReadAllCashbox();
-    tempItems.addAll(listCashboxes);
+    // Временные данные
+    List<Cashbox> tListCashboxes = [];
+    String tUidOrganization = '';
+
+    // Получение данных: Заказ покупателя
+    if (widget.orderCustomer != null) {
+      tUidOrganization = widget.orderCustomer?.uidOrganization??'';
+      tListCashboxes = await dbReadCashboxByUIDOrganization(tUidOrganization);
+    }
+
+    // Получение данных: Оплата товаров
+    if (widget.incomingCashOrder != null) {
+      tUidOrganization = widget.incomingCashOrder?.uidOrganization??'';
+      tListCashboxes = await dbReadCashboxByUIDOrganization(tUidOrganization);
+    }
+
+    // Фильтрация по организации из документа
+    for (var itemCashbox in tListCashboxes) {
+      if (itemCashbox.uidOrganization != tUidOrganization) {
+        continue;
+      }
+      listCashboxes.add(itemCashbox);
+      tempItems.add(itemCashbox);
+    }
 
     setState(() {});
-
-    // // Получение и запись списка заказов покупателей
-    // for (var message in listDataCashboxes) {
-    //   Cashbox newItem = Cashbox.fromJson(message);
-    //   listCashboxes.add(newItem);
-    //   tempItems.add(newItem); // Как шаблон
-    // }
   }
 
   void filterSearchResults(String query) {

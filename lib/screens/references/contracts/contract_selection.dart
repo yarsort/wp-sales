@@ -284,7 +284,7 @@ class _ScreenContractSelectionState extends State<ScreenContractSelection> {
                               ),
                             ),
                             Expanded(
-                              flex: 2,
+                              flex: 3,
                               child: Column(
                                 children: [
                                   Row(
