@@ -611,7 +611,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                         builder: (context) => ScreenCashboxSelection(
                             orderCustomer: widget.orderCustomer)));
 
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Warehouse
@@ -636,14 +636,47 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 updateHeader();
               }),
 
-          /// Sum of document
-          TextFieldWithText(
-              textLabel: 'Сумма документа',
-              textEditingController: textFieldSumController,
-              onPressedEditIcon: null,
-              onPressedDeleteIcon: null,
-              onPressedDelete: () async {},
-              onPressedEdit: () async {}),
+          /// Sum and weight of document
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 7, 0),
+                  child: TextField(
+                    readOnly: true,
+                    controller: textFieldSumController,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                      labelText: 'Сумма документа',
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                  child: TextField(
+                    readOnly: true,
+                    controller: textFieldWeightController,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                      labelText: 'Вес документа',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
 
           /// Divider
           const Padding(

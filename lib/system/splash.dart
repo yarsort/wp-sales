@@ -92,7 +92,7 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                     height: 80,
                   ),
                   const Text(
-                    'Помощник менеджера продаж',
+                    'Помощник менеджера \n продаж',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 27,

@@ -45,7 +45,7 @@ class _ScreenItemIncomingCashOrderState
 
   /// Поле ввода: Документ расчета
   TextEditingController textFieldSettlementDocumentController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Касса
   TextEditingController textFieldCashboxController = TextEditingController();
@@ -247,12 +247,14 @@ class _ScreenItemIncomingCashOrderState
           await dbReadOrderCustomerUID(widget.incomingCashOrder.uidParent);
       if (orderCustomer.id != 0) {
         if (orderCustomer.numberFrom1C != '') {
-          textFieldOrderCustomerController.text = 'Заказ № ' + orderCustomer.numberFrom1C;
+          textFieldOrderCustomerController.text =
+              'Заказ № ' + orderCustomer.numberFrom1C;
         } else {
           textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
 
-        widget.incomingCashOrder.uidOrganization = orderCustomer.uidOrganization;
+        widget.incomingCashOrder.uidOrganization =
+            orderCustomer.uidOrganization;
         widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
         widget.incomingCashOrder.uidContract = orderCustomer.uidContract;
         widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
@@ -321,7 +323,8 @@ class _ScreenItemIncomingCashOrderState
         widget.incomingCashOrder.nameOrganization;
     textFieldPartnerController.text = widget.incomingCashOrder.namePartner;
     textFieldContractController.text = widget.incomingCashOrder.nameContract;
-    textFieldSettlementDocumentController.text = widget.incomingCashOrder.nameSettlementDocument;
+    textFieldSettlementDocumentController.text =
+        widget.incomingCashOrder.nameSettlementDocument;
     textFieldCurrencyController.text = widget.incomingCashOrder.nameCurrency;
     textFieldCashboxController.text = widget.incomingCashOrder.nameCashbox;
     textFieldSumController.text = doubleToString(widget.incomingCashOrder.sum);
@@ -349,8 +352,7 @@ class _ScreenItemIncomingCashOrderState
     }
 
     // Проверка Организации
-    if ((textFieldPartnerController.text.trim() == '') ||
-        (textFieldOrganizationController.text.trim() == '')) {
+    if (textFieldOrganizationController.text.trim() == '') {
       textFieldContractController.text = '';
       widget.incomingCashOrder.nameContract = '';
       widget.incomingCashOrder.uidContract = '';
@@ -365,6 +367,20 @@ class _ScreenItemIncomingCashOrderState
       textFieldCashboxController.text = '';
       widget.incomingCashOrder.nameCashbox = '';
       widget.incomingCashOrder.uidCashbox = '';
+    }
+
+    // Проверка Партнера
+    if (textFieldPartnerController.text.trim() == '') {
+      textFieldContractController.text = '';
+      widget.incomingCashOrder.nameContract = '';
+      widget.incomingCashOrder.uidContract = '';
+
+      widget.incomingCashOrder.nameSettlementDocument = '';
+      widget.incomingCashOrder.uidSettlementDocument = '';
+
+      textFieldCurrencyController.text = '';
+      widget.incomingCashOrder.nameCurrency = '';
+      widget.incomingCashOrder.uidCurrency = '';
     }
 
     // Проверка договора
@@ -436,7 +452,8 @@ class _ScreenItemIncomingCashOrderState
                             orderCustomer: orderCustomer)));
                 // Изменение партнера
                 widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
-                widget.incomingCashOrder.namePartner = orderCustomer.namePartner;
+                widget.incomingCashOrder.namePartner =
+                    orderCustomer.namePartner;
                 await updateHeader();
               }),
 
@@ -500,15 +517,11 @@ class _ScreenItemIncomingCashOrderState
                 await updateHeader();
               },
               onPressedEdit: () async {
-                OrderCustomer orderCustomer = OrderCustomer();
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => ScreenCashboxSelection(
-                            orderCustomer: orderCustomer)));
-                widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
-                widget.incomingCashOrder.nameCashbox =
-                    orderCustomer.nameCashbox;
+                            incomingCashOrder: widget.incomingCashOrder)));
                 await updateHeader();
               }),
 
@@ -865,17 +878,19 @@ class _ScreenItemIncomingCashOrderState
                   child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.all(Colors.blue)),
+                              MaterialStateProperty.all(Colors.blue)),
                       onPressed: () async {
                         /// Отметим статус заказа как неотправленный
                         widget.incomingCashOrder.status = 1;
-                        widget.incomingCashOrder.dateSendingTo1C = DateTime(1900, 1, 1);
+                        widget.incomingCashOrder.dateSendingTo1C =
+                            DateTime(1900, 1, 1);
                         widget.incomingCashOrder.sendYesTo1C = 0;
                         widget.incomingCashOrder.sendNoTo1C = 0;
 
                         var result = await saveDocument();
                         if (result) {
-                          showMessage('Запись отправлена на отправку!', context);
+                          showMessage(
+                              'Запись отправлена на отправку!', context);
                           Navigator.of(context).pop(true);
                         }
                       },

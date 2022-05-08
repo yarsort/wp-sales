@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_screens.dart';
+import 'package:wp_sales/screens/references/cashbox/cashbox_list.dart';
 
 class MainDrawer extends StatefulWidget {
   const MainDrawer({Key? key}) : super(key: key);
@@ -26,6 +27,7 @@ class _MainDrawerState extends State<MainDrawer> {
   int countCurrency = 0;
   int countPrice = 0;
   int countWarehouse = 0;
+  int countCashbox = 0;
   String nameUser = '';
   String emailUser = '';
 
@@ -51,6 +53,7 @@ class _MainDrawerState extends State<MainDrawer> {
         children: [
           Expanded(
             child: ListView(
+              padding: EdgeInsets.zero, // Убираем белую строку сверху меню
               children: <Widget>[
                 DrawerHeader(
                     margin: EdgeInsets.zero,
@@ -60,20 +63,40 @@ class _MainDrawerState extends State<MainDrawer> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const FlutterLogo(size: 80),
                             Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: const [
+                                Text('WP',
+                                    style: TextStyle(
+                                        height: 1,
+                                        fontSize: 50,
+                                        color: Colors.white)),
+                                Text('sales',
+                                    style: TextStyle(
+                                        height: 1,
+                                        fontSize: 25,
+                                        color: Colors.white70)),
+                              ],
+                            ),
+                            Expanded(child: Container()),
+                            Row(
                               children: [
-                                Text(nameUser,
-                                    style: const TextStyle(
-                                        fontSize: 20, color: Colors.white)),
-                                const SizedBox(height: 5),
-                                Text(emailUser,
-                                    style: const TextStyle(
-                                        fontSize: 14, color: Colors.white70)),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(nameUser,
+                                        style: const TextStyle(
+                                            fontSize: 20, color: Colors.white)),
+                                    //const SizedBox(height: 5),
+                                    Text(emailUser,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white70)),
+                                  ],
+                                ),
                               ],
                             ),
                           ],
@@ -125,7 +148,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
-                            const ScreenReturnOrderCustomerList()),
+                                const ScreenReturnOrderCustomerList()),
                       );
                     }),
                 ListTile(
@@ -209,22 +232,22 @@ class _MainDrawerState extends State<MainDrawer> {
                                 const ScreenProductList()),
                       );
                     }),
-                ListTile(
-                    title: const Text("Единицы измерения"),
-                    leading: const Icon(
-                      Icons.source,
-                      color: Colors.blue,
-                    ),
-                    trailing: countNotification(countUnit),
-                    onTap: () {
-                      Navigator.pop(context); // Закроем Drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                const ScreenUnitList()),
-                      );
-                    }),
+                // ListTile(
+                //     title: const Text("Единицы измерения"),
+                //     leading: const Icon(
+                //       Icons.source,
+                //       color: Colors.blue,
+                //     ),
+                //     trailing: countNotification(countUnit),
+                //     onTap: () {
+                //       Navigator.pop(context); // Закроем Drawer
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //             builder: (BuildContext context) =>
+                //                 const ScreenUnitList()),
+                //       );
+                //     }),
                 ListTile(
                     title: const Text("Типы цен"),
                     leading: const Icon(
@@ -271,6 +294,22 @@ class _MainDrawerState extends State<MainDrawer> {
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                                 const ScreenWarehouseList()),
+                      );
+                    }),
+                ListTile(
+                    title: const Text("Кассы"),
+                    leading: const Icon(
+                      Icons.source,
+                      color: Colors.blue,
+                    ),
+                    trailing: countNotification(countCashbox),
+                    onTap: () {
+                      Navigator.pop(context); // Закроем Drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenCashboxList()),
                       );
                     }),
                 listTileTitle('Параметры'),
@@ -332,11 +371,12 @@ class _MainDrawerState extends State<MainDrawer> {
                           builder: (context) => const ScreenLogin()));
                     }),
                 ListTile(
-                    title: Text(
-                      'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
-                      style: const TextStyle(color: Colors.grey), textAlign: TextAlign.center,
-                    ),
-                    ),
+                  title: Text(
+                    'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
+                    style: const TextStyle(color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ],
             ),
           ),
@@ -363,6 +403,7 @@ class _MainDrawerState extends State<MainDrawer> {
     countCurrency = await dbGetCountCurrency();
     countPrice = await dbGetCountPrice();
     countWarehouse = await dbGetCountWarehouse();
+    countCashbox = await dbGetCountCashbox();
 
     setState(() {});
   }
@@ -404,10 +445,10 @@ Widget listTileTitle(String title) {
         Expanded(
           child: Container(
             width: 100,
-            height: 1,
+            height: 7,
             decoration: const BoxDecoration(
                 border: Border(
-              top: BorderSide(color: Colors.black12, width: 1.0),
+              bottom: BorderSide(color: Colors.black12, width: 1.0),
             )),
           ),
         )
