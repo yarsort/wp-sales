@@ -624,10 +624,9 @@ class _ScreenProductSelectionTreeViewState
 
           await renewItem();
 
-          if (textFieldSearchCatalogController.text.isNotEmpty) {
+          if (textFieldSearchCatalogController.text.isEmpty) {
             showMessage(
-                'Найдено: ' + listProducts.length.toString() + ' товаров.',
-                context);
+                'Товаров с таким словом не найдено...',context);
           }
         },
         controller: textFieldSearchCatalogController,
