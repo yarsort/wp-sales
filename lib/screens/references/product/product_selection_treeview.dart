@@ -97,8 +97,7 @@ class _ScreenProductSelectionTreeViewState
   @override
   void initState() {
     super.initState();
-    loadDefault();
-    renewItem();
+    startLoad();
     renewPurchasedItem();
     renewFavouriteItem();
     readPriceAndRests();
@@ -111,7 +110,7 @@ class _ScreenProductSelectionTreeViewState
 
   @override
   void dispose() {
-    saveDefault();
+    saveSettings();
     super.dispose();
   }
 
@@ -124,7 +123,7 @@ class _ScreenProductSelectionTreeViewState
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () async {
-              await saveDefault();
+              await saveSettings();
               Navigator.of(context).pop();
             },
           ),
@@ -225,7 +224,12 @@ class _ScreenProductSelectionTreeViewState
     }
   }
 
-  loadDefault() async {
+  startLoad() async {
+    await loadSettings();
+    await renewItem();
+  }
+
+  loadSettings() async {
     if (widget.orderCustomer != null) {
       uidPrice = widget.orderCustomer?.uidPrice ?? '';
     }
@@ -257,19 +261,56 @@ class _ScreenProductSelectionTreeViewState
     /// Восстановление последнего выбранного каталога
     final SharedPreferences prefs = await _prefs;
 
-    // Восстановим список товаров "Избранное"
-    String stringList = prefs.getString('settings_listFavouriteProductsUID')??'';
-    listFavouriteProductsUID = stringList.split(',');
+    // Очистим дерево каталогов иерархии
+    treeParentItems.clear();
+
+    // Восстановим иерархию списка
+    String stringList = prefs.getString('settings_treeParentProductFromSetting')??'';
+    List<String> tempListTreeParentProductFromSettings = stringList.split(',');
+
+    for (var item in tempListTreeParentProductFromSettings) {
+      Product product = await dbReadProductUID(item);
+      parentProduct = product;
+      treeParentItems.add(product);
+      debugPrint('Каталог: ' + product.name);
+    }
+
+    // Из иерархии надо удалить последний элемент, так как он есть в parentPartner
+    if(treeParentItems.isNotEmpty) {
+      treeParentItems.removeAt(treeParentItems.length-1);
+    }
+
+    debugPrint('Восстановление иерархии каталога: ' + tempListTreeParentProductFromSettings.length.toString());
+
+    /// Восстановим список товаров "Избранное"
+    String stringListFavourite = prefs.getString('settings_listFavouriteProductsUID')??'';
+    listFavouriteProductsUID = stringListFavourite.split(',');
 
     debugPrint('Товаров Избранного: ' + listFavouriteProductsUID.length.toString());
   }
 
-  saveDefault() async {
-    /// Сохранение последнего выбранного каталога
-    final SharedPreferences prefs = await _prefs;
-    prefs.setString('settings_uidParentProductFromSetting', parentProduct.uid);
+  saveSettings() async {
 
-    // Запишем список товаров "Избранное". Метод не очень, но пока что будет так. :)
+    final SharedPreferences prefs = await _prefs;
+
+    /// Сохранение последнего выбранного каталога
+    // Запишем дерево иерархии
+    List<String> tempListTreeParentProductFromSettings = [];
+    for (var item in treeParentItems) {
+      tempListTreeParentProductFromSettings.add(item.uid);
+    }
+
+    // Запишем текущий каталог
+    if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
+      tempListTreeParentProductFromSettings.add(parentProduct.uid);
+    }
+
+    prefs.setString('settings_treeParentProductFromSetting',
+        tempListTreeParentProductFromSettings.join(','));
+
+    debugPrint('Сохранение иерархии каталога: ' + tempListTreeParentProductFromSettings.length.toString());
+
+    /// Запишем список товаров "Избранное". Метод не очень, но пока что будет так. :)
     // Ради интереса так делаю.
     listFavouriteProductsUID.clear();
     for (var itemFavourite in listFavouriteProducts) {

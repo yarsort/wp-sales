@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
@@ -33,6 +34,8 @@ class ScreenPartnerSelection extends StatefulWidget {
 }
 
 class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
@@ -58,7 +61,13 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
   @override
   void initState() {
     super.initState();
-    renewItem();
+    startLoad();
+  }
+
+  @override
+  void dispose() {
+    saveSettings();
+    super.dispose();
   }
 
   @override
@@ -99,7 +108,60 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     );
   }
 
-  void renewItem() async {
+  startLoad() async {
+    await loadSettings();
+    await renewItem();
+  }
+
+  loadSettings() async {
+
+    /// Восстановление последнего выбранного каталога
+    final SharedPreferences prefs = await _prefs;
+
+    // Очистим дерево каталогов иерархии
+    treeParentItems.clear();
+
+    // Восстановим иерархию списка
+    String stringList = prefs.getString('settings_treeParentPartnerFromSetting')??'';
+    List<String> tempListTreeParentPartnerFromSettings = stringList.split(',');
+
+    for (var item in tempListTreeParentPartnerFromSettings) {
+      Partner partner = await dbReadPartnerUID(item);
+      parentPartner = partner;
+      treeParentItems.add(partner);
+      debugPrint('Каталог: ' + partner.name);
+    }
+
+    // Из иерархии надо удалить последний элемент, так как он есть в parentPartner
+    if(treeParentItems.isNotEmpty) {
+      treeParentItems.removeAt(treeParentItems.length-1);
+    }
+
+    debugPrint('Восстановление иерархии каталога: ' + tempListTreeParentPartnerFromSettings.length.toString());
+  }
+
+  saveSettings() async {
+    /// Сохранение последнего выбранного каталога
+    final SharedPreferences prefs = await _prefs;
+
+    // Запишем дерево иерархии
+    List<String> tempListTreeParentPartnerFromSettings = [];
+    for (var item in treeParentItems) {
+      tempListTreeParentPartnerFromSettings.add(item.uid);
+    }
+
+    // Запишем текущий каталог
+    if (parentPartner.uid != '00000000-0000-0000-0000-000000000000') {
+      tempListTreeParentPartnerFromSettings.add(parentPartner.uid);
+    }
+
+    prefs.setString('settings_treeParentPartnerFromSetting',
+        tempListTreeParentPartnerFromSettings.join(','));
+
+    debugPrint('Сохранение иерархии каталога: ' + tempListTreeParentPartnerFromSettings.length.toString());
+  }
+
+  renewItem() async {
     // Главный каталог всегда будет с таким идентификатором
     if (parentPartner.uid == '') {
       parentPartner.uid = '00000000-0000-0000-0000-000000000000';
