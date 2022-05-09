@@ -851,7 +851,7 @@ class _ScreenItemReturnOrderCustomerState
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: ColumnBuilder(
+          child: ColumnListViewBuilder(
               itemCount: itemsReturnOrder.length,
               itemBuilder: (context, index) {
                 final item = itemsReturnOrder[index];

@@ -473,7 +473,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
         ? const SizedBox(
             height: 100, child: Center(child: CircularProgressIndicator()))
         : listForPaymentContracts.isNotEmpty
-            ? ColumnBuilder(
+            ? ColumnListViewBuilder(
                 itemCount: listForPaymentContracts.length,
                 itemBuilder: (context, index) {
                   Contract contractItem = listForPaymentContracts[index];
@@ -601,7 +601,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             height: 100, child: Center(child: CircularProgressIndicator()))
         : Padding(
             padding: const EdgeInsets.fromLTRB(7, 0, 7, 7),
-            child: ColumnBuilder(
+            child: ColumnListViewBuilder(
                 itemCount: listForPaymentContracts.length,
                 itemBuilder: (context, index) {
                   Contract contractItem = listForPaymentContracts[index];

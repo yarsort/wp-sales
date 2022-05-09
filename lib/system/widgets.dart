@@ -457,7 +457,7 @@ Widget listTileTitle(String title) {
   );
 }
 
-class ColumnBuilder extends StatelessWidget {
+class ColumnListViewBuilder extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
   final MainAxisAlignment mainAxisAlignment;
   final MainAxisSize mainAxisSize;
@@ -466,7 +466,7 @@ class ColumnBuilder extends StatelessWidget {
   final VerticalDirection verticalDirection;
   final int itemCount;
 
-  const ColumnBuilder({
+  const ColumnListViewBuilder({
     Key? key,
     required this.itemBuilder,
     required this.itemCount,

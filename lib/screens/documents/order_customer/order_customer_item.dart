@@ -941,7 +941,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: ColumnBuilder(
+          child: ColumnListViewBuilder(
               itemCount: itemsOrder.length,
               itemBuilder: (context, index) {
                 final item = itemsOrder[index];
@@ -1252,7 +1252,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   listViewDocsByParent() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: ColumnBuilder(
+      child: ColumnListViewBuilder(
           itemCount: listDocsByParent.length,
           itemBuilder: (context, index) {
             final item = listDocsByParent[index];

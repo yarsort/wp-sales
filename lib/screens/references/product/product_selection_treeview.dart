@@ -725,7 +725,7 @@ class _ScreenProductSelectionTreeViewState
   listViewCatalog() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 11, 14),
-      child: ColumnBuilder(
+      child: ColumnListViewBuilder(
           itemCount: listProductsForListView.length,
           itemBuilder: (context, index) {
             var productItem = listProductsForListView[index];
@@ -821,7 +821,7 @@ class _ScreenProductSelectionTreeViewState
   listViewPurchasedProducts() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 14, 11, 14),
-      child: ColumnBuilder(
+      child: ColumnListViewBuilder(
           itemCount: listPurchasedProducts.length,
           itemBuilder: (context, index) {
             var productItem = listPurchasedProducts[index];
@@ -878,7 +878,7 @@ class _ScreenProductSelectionTreeViewState
   listViewFavouriteProducts() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 14, 11, 14),
-      child: ColumnBuilder(
+      child: ColumnListViewBuilder(
           itemCount: listFavouriteProducts.length,
           itemBuilder: (context, index) {
             var productItem = listFavouriteProducts[index];

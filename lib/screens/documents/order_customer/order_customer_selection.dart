@@ -99,7 +99,7 @@ class _ScreenOrderCustomerSelectionState extends State<ScreenOrderCustomerSelect
 
   yesSendDocuments() {
     // Отображение списка заказов покупателя
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: listParentOrdersCustomer.length,
         itemBuilder: (context, index) {
           final orderCustomer = listParentOrdersCustomer[index];

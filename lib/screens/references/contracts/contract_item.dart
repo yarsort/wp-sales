@@ -777,7 +777,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   /// Вкладка Заказы
 
   listOrderCustomer() {
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: listAccumPartnerDept.length,
         itemBuilder: (context, index) {
           final itemDept = listAccumPartnerDept[index];

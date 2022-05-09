@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +33,8 @@ class _ScreenProductListState extends State<ScreenProductList> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   bool showProductHierarchy = true;
+
+  bool showGridView = true;
 
   bool visibleParameters = true;
 
@@ -87,7 +90,6 @@ class _ScreenProductListState extends State<ScreenProductList> {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Каталог'),
-              //Tab(text: 'Купленные'),
               Tab(text: 'Акции'),
             ],
           ),
@@ -95,10 +97,11 @@ class _ScreenProductListState extends State<ScreenProductList> {
         body: TabBarView(
           children: [
             ListView(
+              scrollDirection: Axis.vertical,
               physics: const BouncingScrollPhysics(),
               children: [
                 listParameters(),
-                listViewCatalog(),
+                showGridView ? gridViewCatalog() : listViewCatalog(),
               ],
             ),
             ListView(
@@ -381,16 +384,16 @@ class _ScreenProductListState extends State<ScreenProductList> {
                 children: [
                   IconButton(
                     onPressed: () async {
-                      renewItem();
-                    },
-                    icon: const Icon(Icons.search, color: Colors.blue),
-                  ),
-                  IconButton(
-                    onPressed: () async {
                       textFieldSearchCatalogController.text = '';
                       renewItem();
                     },
                     icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      scanBarcodeNormal();
+                    },
+                    icon: const Icon(Icons.qr_code_scanner, color: Colors.blue),
                   ),
                   PopupMenuButton<String>(
                     onSelected: (String value) async {
@@ -435,31 +438,29 @@ class _ScreenProductListState extends State<ScreenProductList> {
                       PopupMenuItem<String>(
                         value: 'showParameters',
                         child: Row(
-                          children: [
-                            visibleParameters
-                                ? const Icon(Icons.filter_list,
-                                    color: Colors.red)
-                                : const Icon(Icons.filter_list,
-                                    color: Colors.blue),
-                            const SizedBox(
+                          children: const [
+                            Icon(Icons.filter_list, color: Colors.blue),
+                            SizedBox(
                               width: 10,
                             ),
-                            const Text('Отбор'),
+                            Text('Отбор'),
                           ],
                         ),
                       ),
                       PopupMenuItem<String>(
-                        value: 'scanProduct',
+                        value: 'showProductHierarchy',
                         child: Row(
-                          children: const [
+                          children: [
                             Icon(
-                              Icons.qr_code_scanner,
+                              showGridView ? Icons.view_list : Icons.grid_view,
                               color: Colors.blue,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
-                            Text('Сканировать товар'),
+                            Text(showGridView
+                                ? 'Отображение "Список"'
+                                : 'Отображение "Сетка"'),
                           ],
                         ),
                       ),
@@ -547,7 +548,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
               /// Price
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 0),
                 child: TextField(
                   controller: textFieldPriceController,
                   readOnly: true,
@@ -624,7 +625,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
   listViewCatalog() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 11, 14),
-      child: ColumnBuilder(
+      child: ColumnListViewBuilder(
           itemCount: listProductsForListView.length,
           itemBuilder: (context, index) {
             var productItem = listProductsForListView[index];
@@ -654,7 +655,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
             return Card(
               elevation: 2,
               child: (productItem.id == 0)
-                  ? MoreItem(
+                  ? MoreItemListView(
                       textItem: 'Показать больше',
                       tap: () {
                         // Удалим пункт "Показать больше"
@@ -666,7 +667,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
                       },
                     )
                   : (productItem.isGroup == 1)
-                      ? DirectoryItem(
+                      ? DirectoryItemListView(
                           parentProduct: parentProduct,
                           product: productItem,
                           tap: () {
@@ -692,7 +693,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
                           },
                           popTap: () {},
                         )
-                      : ProductItem(
+                      : ProductItemListView(
                           price: price,
                           countOnWarehouse: countOnWarehouse,
                           product: productItem,
@@ -710,15 +711,115 @@ class _ScreenProductListState extends State<ScreenProductList> {
           }),
     );
   }
+
+  gridViewCatalog() {
+    return Column(
+      children: [
+        Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+            child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    childAspectRatio: 2 / 2.5,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5),
+                itemCount: listProductsForListView.length,
+                itemBuilder: (BuildContext ctx, index) {
+                  var productItem = listProductsForListView[index];
+                  var price = 0.0;
+                  var countOnWarehouse = 0.0;
+
+                  var indexItemPrice = listProductPrice.indexWhere((element) =>
+                      element.uidProduct == productItem.uid &&
+                      element.uidPrice == uidPrice);
+                  if (indexItemPrice >= 0) {
+                    var itemList = listProductPrice[indexItemPrice];
+                    price = itemList.price;
+                  } else {
+                    price = 0.0;
+                  }
+
+                  var indexItemRest = listProductRest.indexWhere((element) =>
+                      element.uidProduct == productItem.uid &&
+                      element.uidWarehouse == uidWarehouse);
+                  if (indexItemRest >= 0) {
+                    var itemList = listProductRest[indexItemRest];
+                    countOnWarehouse = itemList.count;
+                  } else {
+                    countOnWarehouse = 0.000;
+                  }
+
+                  return Card(
+                    elevation: 2,
+                    child: (productItem.id == 0)
+                        ? MoreItemListView(
+                            textItem: 'Показать больше',
+                            tap: () {
+                              // Удалим пункт "Показать больше"
+                              _currentMax--; // Для пункта "Показать больше"
+                              listProductsForListView
+                                  .remove(listProductsForListView[index]);
+                              readAdditionalProductsToView();
+                              setState(() {});
+                            },
+                          )
+                        : (productItem.isGroup == 1)
+                            ? DirectoryItemGridView(
+                                parentProduct: parentProduct,
+                                product: productItem,
+                                tap: () {
+                                  if (productItem.uid == parentProduct.uid) {
+                                    if (treeParentItems.isNotEmpty) {
+                                      // Назначим нового родителя выхода из узла дерева
+                                      parentProduct = treeParentItems[
+                                          treeParentItems.length - 1];
+
+                                      // Удалим старого родителя для будущего узла
+                                      treeParentItems.remove(treeParentItems[
+                                          treeParentItems.length - 1]);
+                                    } else {
+                                      // Отправим дерево на его самый главный узел
+                                      parentProduct = Product();
+                                    }
+                                    renewItem();
+                                  } else {
+                                    treeParentItems.add(parentProduct);
+                                    parentProduct = productItem;
+                                    renewItem();
+                                  }
+                                },
+                                popTap: () {},
+                              )
+                            : ProductItemGridView(
+                                price: price,
+                                countOnWarehouse: countOnWarehouse,
+                                product: productItem,
+                                tap: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ScreenProductItem(
+                                          productItem: productItem),
+                                    ),
+                                  );
+                                },
+                              ),
+                  );
+                })),
+      ],
+    );
+  }
 }
 
-class DirectoryItem extends StatelessWidget {
+class DirectoryItemListView extends StatelessWidget {
   final Product parentProduct;
   final Product product;
   final Function tap;
   final Function? popTap;
 
-  const DirectoryItem({
+  const DirectoryItemListView({
     Key? key,
     required this.parentProduct,
     required this.product,
@@ -760,11 +861,11 @@ class DirectoryItem extends StatelessWidget {
   }
 }
 
-class MoreItem extends StatelessWidget {
+class MoreItemListView extends StatelessWidget {
   final String textItem;
   final Function tap;
 
-  const MoreItem({
+  const MoreItemListView({
     Key? key,
     required this.textItem,
     required this.tap,
@@ -790,13 +891,13 @@ class MoreItem extends StatelessWidget {
   }
 }
 
-class ProductItem extends StatelessWidget {
+class ProductItemListView extends StatelessWidget {
   final Product product;
   final Function tap;
   final double countOnWarehouse;
   final double price;
 
-  const ProductItem({
+  const ProductItemListView({
     Key? key,
     required this.product,
     required this.tap,
@@ -864,6 +965,128 @@ class ProductItem extends StatelessWidget {
       trailing: const Padding(
         padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
         child: Icon(Icons.navigate_next),
+      ),
+    );
+  }
+}
+
+class DirectoryItemGridView extends StatelessWidget {
+  final Product parentProduct;
+  final Product product;
+  final Function tap;
+  final Function? popTap;
+
+  const DirectoryItemGridView({
+    Key? key,
+    required this.parentProduct,
+    required this.product,
+    required this.tap,
+    this.popTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      tileColor: product.uid != parentProduct.uid
+          ? null
+          : const Color.fromRGBO(227, 242, 253, 1.0),
+      onTap: () => tap(),
+      //onLongPress: popTap == null ? null : popTap,
+      contentPadding: const EdgeInsets.all(0),
+      minLeadingWidth: 20,
+      title: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            product.name,
+            style: const TextStyle(
+              fontSize: 20,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ProductItemGridView extends StatelessWidget {
+  final Product product;
+  final Function tap;
+  final double countOnWarehouse;
+  final double price;
+
+  const ProductItemGridView({
+    Key? key,
+    required this.product,
+    required this.tap,
+    required this.countOnWarehouse,
+    required this.price,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Container(
+        // height: 400,
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(4.0)),
+              child: Image.network(
+                'http://placeimg.com/640/480/arch',
+                fit: BoxFit.fill,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 5, 8, 0),
+              child: Text(
+                product.name.trim(),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                softWrap: false,
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+                //maxLines: 3,
+              ),
+            ),
+            Expanded(child: Container(),),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.price_change, color: Colors.blue, size: 22),
+                      const SizedBox(width: 5,),
+                      Text(
+                        doubleToString(price) + ' грн',
+                        style: price > 0
+                            ? const TextStyle(fontSize: 14, color: Colors.blue)
+                            : const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.gite, color: Colors.blue, size: 22,),
+                      const SizedBox(width: 5,),
+                      Text(
+                        doubleThreeToString(countOnWarehouse) +
+                            ' ' +
+                            product.nameUnit,
+                        style: countOnWarehouse > 0
+                            ? const TextStyle(fontSize: 14, color: Colors.blue)
+                            : const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

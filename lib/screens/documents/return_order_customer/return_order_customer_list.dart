@@ -1020,7 +1020,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   }
 
   yesNewReturnDocuments() {
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: listNewReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
           final returnOrderCustomer = listNewReturnOrdersCustomer[index];
@@ -1115,7 +1115,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
 
   yesSendReturnDocuments() {
     // Отображение списка заказов покупателя
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: listSendReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
           final returnOrderCustomer = listSendReturnOrdersCustomer[index];
@@ -1250,7 +1250,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
 
   yesTrashReturnDocuments() {
     // Отображение списка заказов покупателя
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: listTrashReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
           final returnOrderCustomer = listTrashReturnOrdersCustomer[index];

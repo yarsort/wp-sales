@@ -1034,7 +1034,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
 
   yesNewDocuments() {
 
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: countNewDocuments,
         itemBuilder: (context, index) {
           final incomingCashOrder = listNewIncomingCashOrder[index];
@@ -1123,7 +1123,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
 
   yesSendDocuments() {
     // Отображение списка заказов покупателя
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: countSendDocuments,
         itemBuilder: (context, index) {
           final incomingCashOrder = listSendIncomingCashOrder[index];
@@ -1246,7 +1246,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
 
   yesTrashDocuments() {
     // Отображение списка заказов покупателя
-    return ColumnBuilder(
+    return ColumnListViewBuilder(
         itemCount: countTrashDocuments,
         itemBuilder: (context, index) {
           final incomingCashOrder = listTrashIncomingCashOrder[index];
