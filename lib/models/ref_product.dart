@@ -11,6 +11,8 @@ class Product {
   String uidParent = '';          // Ссылка на группу
   String uidUnit = '';            // Ссылка на единицу измерения
   String nameUnit = '';           // Имя ед. изм.
+  String uidProductGroup = '';    // Ссылка на номенклатурную групу
+  String nameProductGroup = '';   // Имя номенклатурной группы
   String barcode = '';            // Имя ед. изм.
   String comment = '';            // Коммментарий
   DateTime dateEdit = DateTime.now(); // Дата редактирования
@@ -28,6 +30,8 @@ class Product {
     uidParent = json['uidParent'] ?? '';
     uidUnit = json['uidUnit'] ?? '';
     nameUnit = json['nameUnit'] ?? '';
+    uidProductGroup = json['uidProductGroup'] ?? '';
+    nameProductGroup = json['nameProductGroup'] ?? '';
     barcode = json['barcode'] ?? '';
     comment = json['comment'] ?? '';
     dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
@@ -47,6 +51,8 @@ class Product {
     data['uidParent'] = uidParent;
     data['uidUnit'] = uidUnit;
     data['nameUnit'] = nameUnit;
+    data['uidProductGroup'] = uidProductGroup;
+    data['nameProductGroup'] = nameProductGroup;
     data['barcode'] = barcode;
     data['comment'] = comment;
     data['dateEdit'] = dateEdit.toIso8601String();

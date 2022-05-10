@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/import/import_db.dart';
@@ -12,19 +13,25 @@ final DatabaseHelper instance = DatabaseHelper._init();
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
-
+  DatabaseHelper._();
+  static final DatabaseHelper db = DatabaseHelper._();
   static Database? _database;
 
   DatabaseHelper._init();
 
   Future<Database> get database async {
+    // if (_database != null) {
+    //   if (_database!.isOpen) {
+    //     return _database!;
+    //   } else {
+    //     _database = await _initDB('WPSalesDB_0002.db');
+    //     return _database!;
+    //   }
+    // }
+    // _database = await _initDB('WPSalesDB_0002.db');
+    // return _database!;
     if (_database != null) {
-      if (_database!.isOpen) {
-        return _database!;
-      } else {
-        _database = await _initDB('WPSalesDB_0002.db');
-        return _database!;
-      }
+      return _database!;
     }
     _database = await _initDB('WPSalesDB_0002.db');
     return _database!;
@@ -34,11 +41,15 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
     return await openDatabase(path,
-        version: 2, onCreate: _createDB, onUpgrade: _upgradeDB);
+        version: 3, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
   Future _upgradeDB(Database db, int oldV, int newV) async {
-
+    if(oldV == 2){
+      /// Пересоздадим Справочник.Номенклатура
+      /// Добавили колонки: uidProductGroup, nameProductGroup
+      await createTableProductV2(db);
+    }
   }
 
   Future _createDB(Database db, int version) async {
@@ -86,7 +97,7 @@ class DatabaseHelper {
     await createTableWarehouse(db);
 
     /// Справочник.Номенклатура
-    await createTableProduct(db);
+    await createTableProductV1(db);
 
     /// Справочник.ХарактеристикиНоменклатуры
     await createTableProductCharacteristic(db);

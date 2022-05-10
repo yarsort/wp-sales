@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_product.dart';
@@ -19,6 +20,8 @@ class ItemProductFields {
     uidParent,
     uidUnit,
     nameUnit,
+    uidProductGroup,
+    nameProductGroup,
     barcode,
     comment,
     dateEdit,
@@ -35,13 +38,18 @@ class ItemProductFields {
   static const String uidParent = 'uidParent';
   static const String uidUnit = 'uidUnit';
   static const String nameUnit = 'nameUnit';
+
+  // Номенклатурная группа
+  static const String uidProductGroup = 'uidProductGroup';
+  static const String nameProductGroup = 'nameProductGroup';
+
   static const String barcode = 'barcode';
   static const String comment = 'comment';
   static const String dateEdit = 'dateEdit';
 }
 
 /// Создание таблиц БД
-Future createTableProduct(db) async {
+Future createTableProductV1(db) async {
   await db.execute('''
     CREATE TABLE $tableProduct (    
       ${ItemProductFields.id} $idType,
@@ -59,6 +67,53 @@ Future createTableProduct(db) async {
       ${ItemProductFields.dateEdit} $textType            
       )
     ''');
+}
+
+/// Создание таблиц БД с новыми колонками
+Future createTableProductV2(db) async {
+  List<Product> listProducts = [];
+  
+  // Прочитаем все данные таблицы
+  final result = await db.query(tableProduct);
+  var list = result.map((json) => Product.fromJson(json)).toList();
+
+  for (var item in list) {
+    listProducts.add(item);
+  }
+
+  debugPrint('Переход версии. В формате JSON получен состав таблицы: $tableProduct');
+
+  // Удалим таблицу
+  await db.execute('DROP TABLE IF EXISTS $tableProduct');
+  debugPrint('Переход версии. Удалена таблица: $tableProduct');
+
+  // Добавим таблицу с новыми колонками
+  await db.execute('''
+    CREATE TABLE $tableProduct (    
+      ${ItemProductFields.id} $idType,
+      ${ItemProductFields.isGroup} $integerType,      
+      ${ItemProductFields.uid} $textType,
+      ${ItemProductFields.code} $textType,      
+      ${ItemProductFields.name} $textType,
+      ${ItemProductFields.nameForSearch} $textType,
+      ${ItemProductFields.vendorCode} $textType,
+      ${ItemProductFields.uidParent} $textType,
+      ${ItemProductFields.uidUnit} $textType,
+      ${ItemProductFields.nameUnit} $textType,
+      ${ItemProductFields.uidProductGroup} $textType,
+      ${ItemProductFields.nameProductGroup} $textType,
+      ${ItemProductFields.barcode} $textType,      
+      ${ItemProductFields.comment} $textType,
+      ${ItemProductFields.dateEdit} $textType            
+      )
+    ''');
+  debugPrint('Переход версии. Создана новая таблица: $tableProduct');
+
+  // Добавим данные в новую таблицу
+  for (var itemList in listProducts) {
+    await db.insert(tableProduct, itemList.toJson());
+  }
+  debugPrint('Переход версии. Из формата JSON записан состав таблицы: $tableProduct');
 }
 
 /// Операции с объектами: CRUD and more

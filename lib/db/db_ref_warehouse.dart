@@ -1,5 +1,4 @@
 
-
 import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/ref_warehouse.dart';

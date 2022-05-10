@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +15,8 @@ List<AccumProductPrice> listProductPrice = [];
 
 // Остатки товаров
 List<AccumProductRest> listProductRest = [];
+
+String pathPictures = '';
 
 String uidPrice = '';
 
@@ -34,7 +36,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
 
   bool showProductHierarchy = true;
 
-  bool showGridView = true;
+  bool showGridView = false;
 
   bool visibleParameters = true;
 
@@ -167,6 +169,8 @@ class _ScreenProductListState extends State<ScreenProductList> {
     uidWarehouse = prefs.getString('settings_uidWarehouse') ?? '';
     Warehouse warehouse = await dbReadWarehouseUID(uidWarehouse);
     textFieldWarehouseController.text = warehouse.name;
+
+    pathPictures = prefs.getString('settings_pathPictures') ?? '';
   }
 
   renewItem() async {
@@ -414,6 +418,11 @@ class _ScreenProductListState extends State<ScreenProductList> {
                           visibleParameters = !visibleParameters;
                         });
                       }
+                      if (value == 'showListOrGrid') {
+                        setState(() {
+                          showGridView = !showGridView;
+                        });
+                      }
                     },
                     icon: const Icon(Icons.more_vert, color: Colors.blue),
                     itemBuilder: (BuildContext context) =>
@@ -448,7 +457,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
                         ),
                       ),
                       PopupMenuItem<String>(
-                        value: 'showProductHierarchy',
+                        value: 'showListOrGrid',
                         child: Row(
                           children: [
                             Icon(
@@ -722,7 +731,7 @@ class _ScreenProductListState extends State<ScreenProductList> {
                 shrinkWrap: true,
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 200,
-                    childAspectRatio: 2 / 2.5,
+                    childAspectRatio: 20 / 27,
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5),
                 itemCount: listProductsForListView.length,
@@ -1026,67 +1035,92 @@ class ProductItemGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String pathImage = '';
+
+    /// Картинки в Интернете. Путь + UID товара + '.jpg'
+    if (pathPictures.isNotEmpty) {
+      if (pathPictures.endsWith('/') == false) {
+        pathPictures = pathPictures + '/';
+      }
+      pathImage = pathPictures + product.uid + '.jpg';
+    } else {
+      pathImage = '';
+    }
+
     return GestureDetector(
-      child: Container(
-        // height: 400,
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(4.0)),
-              child: Image.network(
-                'http://placeimg.com/640/480/arch',
-                fit: BoxFit.fill,
-              ),
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(4.0)),
+            child: CachedNetworkImage(
+              height: 120,
+              fit: BoxFit.fill,
+              placeholder: (context, url) => const Center(
+                  child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.grey, strokeWidth: 2,))),
+              errorWidget: (context, url, error) =>
+                  const Icon(Icons.wallpaper, color: Colors.grey),
+              imageUrl: pathImage,
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 5, 8, 0),
-              child: Text(
-                product.name.trim(),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                softWrap: false,
-                style: const TextStyle(
-                  fontSize: 14,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 5, 8, 0),
+            child: Text(
+              product.name.trim(),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              softWrap: false,
+              style: const TextStyle(
+                fontSize: 14,
+              ),
+              //maxLines: 3,
+            ),
+          ),
+          Expanded(
+            child: Container(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.price_change,
+                        color: Colors.blue, size: 20),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      doubleToString(price) + ' грн',
+                      style: price > 0
+                          ? const TextStyle(fontSize: 12, color: Colors.blue)
+                          : const TextStyle(fontSize: 12),
+                    ),
+                  ],
                 ),
-                //maxLines: 3,
-              ),
+                Row(
+                  children: [
+                    const Icon(Icons.gite, color: Colors.blue, size: 20),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      doubleThreeToString(countOnWarehouse) +
+                          ' ' +
+                          product.nameUnit,
+                      style: countOnWarehouse > 0
+                          ? const TextStyle(fontSize: 12, color: Colors.blue)
+                          : const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                )
+              ],
             ),
-            Expanded(child: Container(),),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.price_change, color: Colors.blue, size: 22),
-                      const SizedBox(width: 5,),
-                      Text(
-                        doubleToString(price) + ' грн',
-                        style: price > 0
-                            ? const TextStyle(fontSize: 14, color: Colors.blue)
-                            : const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.gite, color: Colors.blue, size: 22,),
-                      const SizedBox(width: 5,),
-                      Text(
-                        doubleThreeToString(countOnWarehouse) +
-                            ' ' +
-                            product.nameUnit,
-                        style: countOnWarehouse > 0
-                            ? const TextStyle(fontSize: 14, color: Colors.blue)
-                            : const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
