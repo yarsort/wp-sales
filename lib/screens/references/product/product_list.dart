@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -729,9 +730,9 @@ class _ScreenProductListState extends State<ScreenProductList> {
             child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 200,
-                    childAspectRatio: 20 / 27,
+                    childAspectRatio: Platform.isAndroid ? 20 / 27 : 20 / 23,
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5),
                 itemCount: listProductsForListView.length,
@@ -1000,7 +1001,6 @@ class DirectoryItemGridView extends StatelessWidget {
           ? null
           : const Color.fromRGBO(227, 242, 253, 1.0),
       onTap: () => tap(),
-      //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
       minLeadingWidth: 20,
       title: Center(
@@ -1055,7 +1055,7 @@ class ProductItemGridView extends StatelessWidget {
                 const BorderRadius.vertical(top: Radius.circular(4.0)),
             child: CachedNetworkImage(
               height: 120,
-              fit: BoxFit.fill,
+              fit: BoxFit.scaleDown,
               placeholder: (context, url) => const Center(
                   child: SizedBox(
                       width: 20,
@@ -1076,7 +1076,6 @@ class ProductItemGridView extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 14,
               ),
-              //maxLines: 3,
             ),
           ),
           Expanded(
