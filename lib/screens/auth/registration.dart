@@ -122,7 +122,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
           if (!regex.hasMatch(value)) {
             return ('Укажите правильный пароль (минимум 6 символов)');
           }
-          return ('');
+          return null;
         },
         onSaved: (value) {
           firstNameEditingController.text = value!;
