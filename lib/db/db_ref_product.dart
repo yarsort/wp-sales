@@ -62,6 +62,8 @@ Future createTableProductV1(db) async {
       ${ItemProductFields.uidParent} $textType,
       ${ItemProductFields.uidUnit} $textType,
       ${ItemProductFields.nameUnit} $textType,
+      ${ItemProductFields.uidProductGroup} $textType,
+      ${ItemProductFields.nameProductGroup} $textType,
       ${ItemProductFields.barcode} $textType,      
       ${ItemProductFields.comment} $textType,
       ${ItemProductFields.dateEdit} $textType            

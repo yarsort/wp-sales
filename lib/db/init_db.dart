@@ -41,11 +41,11 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
     return await openDatabase(path,
-        version: 3, onCreate: _createDB, onUpgrade: _upgradeDB);
+        version: 4, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
   Future _upgradeDB(Database db, int oldV, int newV) async {
-    if(oldV == 2){
+    if(oldV <= 3){
       /// Пересоздадим Справочник.Номенклатура
       /// Добавили колонки: uidProductGroup, nameProductGroup
       await createTableProductV2(db);
