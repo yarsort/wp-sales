@@ -150,15 +150,17 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
         return value == true;
       },
       child: DefaultTabController(
-        length: 3,
+        length: 4,
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
             title: const Text('Заказ'),
             bottom: const TabBar(
+              isScrollable: true,
               tabs: [
                 Tab(text: 'Главная'),
                 Tab(text: 'Товары'),
+                Tab(text: 'Документы'),
                 Tab(text: 'Служебные'),
               ],
             ),
@@ -180,9 +182,14 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  listServiceOrder(),
                   listButtonsDocsByParent(),
                   listViewDocsByParent(),
+                ],
+              ),
+              ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  listServiceOrder(),
                 ],
               ),
             ],
@@ -1380,7 +1387,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   listButtonsDocsByParent() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 7, 14, 0),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1503,18 +1510,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   listServiceOrder() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: ExpansionTile(
-          tilePadding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-          title: const Text(
-            'Параметры документа',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.blueGrey,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.start,
-          ),
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -1567,58 +1564,58 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
             ),
 
             /// Sending to 1C
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: sendYesTo1C,
-                    onChanged: (value) {
-                      setState(() {
-                        countChangeDoc++;
-
-                        /// Если нельзя отправлять в 1С, то скажем об этом
-                        if (sendNoTo1C) {
-                          const snackBar = SnackBar(
-                            content: Text(
-                                'Ошибка! Установлен флаг: Не отправлять в 1С!'),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                          /// Снятие флага на повторную отправку в учетную систему
-                          sendYesTo1C = false;
-                        } else {
-                          /// Флаг отметки на отправку
-                          sendYesTo1C = !sendYesTo1C;
-                        }
-
-                        if (!sendYesTo1C) {
-                          /// Отметим статус заказа как неотправленный
-                          widget.orderCustomer.status = 1;
-
-                          /// Очистка даты отправки заказа вручную
-                          textFieldDateSendingTo1CController.text = '';
-                        } else {
-                          /// Отметим статус заказа как отправленный
-                          widget.orderCustomer.status = 2;
-
-                          /// Фиксация даты отправки заказа вручную
-                          textFieldDateSendingTo1CController.text =
-                              shortDateToString(DateTime.now());
-                        }
-
-                        widget.orderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
-                      });
-                    },
-                  ),
-                  const Text('Отправлено в учетную систему'),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+            //   child: Row(
+            //     children: [
+            //       Checkbox(
+            //         value: sendYesTo1C,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             countChangeDoc++;
+            //
+            //             /// Если нельзя отправлять в 1С, то скажем об этом
+            //             if (sendNoTo1C) {
+            //               const snackBar = SnackBar(
+            //                 content: Text(
+            //                     'Ошибка! Установлен флаг: Не отправлять в 1С!'),
+            //               );
+            //               ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            //
+            //               /// Снятие флага на повторную отправку в учетную систему
+            //               sendYesTo1C = false;
+            //             } else {
+            //               /// Флаг отметки на отправку
+            //               sendYesTo1C = !sendYesTo1C;
+            //             }
+            //
+            //             if (!sendYesTo1C) {
+            //               /// Отметим статус заказа как неотправленный
+            //               widget.orderCustomer.status = 1;
+            //
+            //               /// Очистка даты отправки заказа вручную
+            //               textFieldDateSendingTo1CController.text = '';
+            //             } else {
+            //               /// Отметим статус заказа как отправленный
+            //               widget.orderCustomer.status = 2;
+            //
+            //               /// Фиксация даты отправки заказа вручную
+            //               textFieldDateSendingTo1CController.text =
+            //                   shortDateToString(DateTime.now());
+            //             }
+            //
+            //             widget.orderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
+            //           });
+            //         },
+            //       ),
+            //       const Text('Отправлено в учетную систему'),
+            //     ],
+            //   ),
+            // ),
 
             /// No Sending to 1C
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
               child: Row(
                 children: [
                   Checkbox(
@@ -1655,7 +1652,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 children: [
                   /// Переотправить документ
                   SizedBox(
-                    height: 40,
+                    height: 50,
                     width: (MediaQuery.of(context).size.width - 28),
                     child: ElevatedButton(
                         style: ButtonStyle(
@@ -1699,7 +1696,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 children: [
                   /// Удалить запись
                   SizedBox(
-                    height: 40,
+                    height: 50,
                     width: (MediaQuery.of(context).size.width - 28),
                     child: ElevatedButton(
                         style: ButtonStyle(

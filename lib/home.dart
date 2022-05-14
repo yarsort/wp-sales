@@ -24,10 +24,15 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   double balanceForPayment = 0.0;
 
   double sumOrderCustomerToday = 0.0;
+  double sumReturnOrderCustomerToday = 0.0;
   double sumIncomingCashOrderToday = 0.0;
 
   int countNewOrderCustomer = 0;
   int countSendOrderCustomer = 0;
+
+  int countNewReturnOrderCustomer = 0;
+  int countSendReturnOrderCustomer = 0;
+
   int countNewIncomingCashOrder = 0;
   int countSendIncomingCashOrder = 0;
 
@@ -180,6 +185,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
   readCountDocuments() async {
     countSendOrderCustomer = await dbGetCountSendOrderCustomer();
+    countSendReturnOrderCustomer = await dbGetCountSendReturnOrderCustomer();
     countSendIncomingCashOrder = await dbGetCountSendIncomingCashOrder();
   }
 
@@ -209,9 +215,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     whereString = whereList.join(' AND ');
 
     // Очистка данных
+    sumOrderCustomerToday = 0.0;
+    sumReturnOrderCustomerToday = 0.0;
     sumIncomingCashOrderToday = 0.0;
-    sumIncomingCashOrderToday = 0.0;
+
     countNewOrderCustomer = 0;
+    countNewReturnOrderCustomer = 0;
     countNewIncomingCashOrder = 0;
 
     // Экземпляр базы даных
@@ -227,6 +236,18 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     for (var orderCustomer in listSendOrdersCustomer) {
       sumOrderCustomerToday = sumOrderCustomerToday + orderCustomer.sum;
       countNewOrderCustomer = countNewOrderCustomer + 1;
+    }
+
+    // Запрос на возвраты заказов покупателя
+    final resultReturnOrderCustomer = await db.rawQuery(
+        'SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date ASC',
+        [dateStart, dateFinish]);
+    List<ReturnOrderCustomer> listSendReturnOrdersCustomer = resultReturnOrderCustomer
+        .map((json) => ReturnOrderCustomer.fromJson(json))
+        .toList();
+    for (var returnOrderCustomer in listSendReturnOrdersCustomer) {
+      sumReturnOrderCustomerToday = sumReturnOrderCustomerToday + returnOrderCustomer.sum;
+      countNewReturnOrderCustomer = countNewReturnOrderCustomer + 1;
     }
 
     // Запрос на оплаты
@@ -257,6 +278,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   balanceCard() {
     return Column(
       children: [
+        /// Балансы
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -314,6 +336,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             ),
           ],
         ),
+
+        /// Заказы покупателя
         const SizedBox(height: 5),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,6 +382,48 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
+                color: Colors.blue.shade200,
+                elevation: 3,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                            const ScreenOrderCustomerList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                        'Заказы (грн)',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Center(
+                        child: Text(doubleToString(sumOrderCustomerToday),
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black45)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        /// Возвраты покупателя
+        const SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
@@ -366,16 +432,91 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
-                                const ScreenIncomingCashOrderList()));
+                            const ScreenReturnOrderCustomerList()));
                   },
                   title: const Center(
                       child: Text(
-                    'ПКО (шт)',
+                        'Возвраты (шт)',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Text(
+                          countNewReturnOrderCustomer.toString() +
+                              ' из ' +
+                              countSendReturnOrderCustomer.toString(),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.black45)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                color: Colors.blue.shade200,
+                elevation: 3,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const ScreenReturnOrderCustomerList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                    'Возвраты (грн)',
                     style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
                         fontWeight: FontWeight.bold),
                   )),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Text(doubleToString(sumReturnOrderCustomerToday),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.black45)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        /// Оплаты покупателя
+        const SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width / 2 - 10,
+              child: Card(
+                color: Colors.blue.shade300,
+                elevation: 3,
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                            const ScreenIncomingCashOrderList()));
+                  },
+                  title: const Center(
+                      child: Text(
+                        'ПКО (шт)',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      )),
                   subtitle: Column(
                     children: [
                       const Divider(),
@@ -390,12 +531,6 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 ),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
@@ -407,50 +542,16 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
-                                const ScreenOrderCustomerList()));
+                            const ScreenIncomingCashOrderList()));
                   },
                   title: const Center(
                       child: Text(
-                    'Заказы (грн)',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  )),
-                  subtitle: Column(
-                    children: [
-                      const Divider(),
-                      Center(
-                        child: Text(doubleToString(sumOrderCustomerToday),
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.black45)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 2 - 10,
-              child: Card(
-                color: Colors.blue.shade200,
-                elevation: 3,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                const ScreenIncomingCashOrderList()));
-                  },
-                  title: const Center(
-                      child: Text(
-                    'ПКО (грн)',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  )),
+                        'ПКО (грн)',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      )),
                   subtitle: Column(
                     children: [
                       const Divider(),

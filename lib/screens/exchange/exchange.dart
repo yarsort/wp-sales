@@ -993,6 +993,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
             await dbReadAllNewOrderCustomer();
         for (var itemDoc in listDocsOrderCustomer) {
           itemDoc.status = 2;
+          itemDoc.dateSendingTo1C = DateTime.now();
           await dbUpdateOrderCustomerWithoutItems(itemDoc);
         }
         // Возврат заказа покупателя
@@ -1000,6 +1001,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
             await dbReadAllNewReturnOrderCustomer();
         for (var itemDoc in listDocsReturnOrderCustomer) {
           itemDoc.status = 2;
+          itemDoc.dateSendingTo1C = DateTime.now();
           await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
         }
         // Приходный кассовый ордер
@@ -1007,6 +1009,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
             await dbReadAllNewIncomingCashOrder();
         for (var itemDoc in listDocsIncomingCashOrder) {
           itemDoc.status = 2;
+          itemDoc.dateSendingTo1C = DateTime.now();
           await dbUpdateIncomingCashOrder(itemDoc);
         }
       }
@@ -1192,6 +1195,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         continue;
       }
 
+      // Если явно указано, что не надо отправлять
+      if (itemDoc.sendNoTo1C == 1) {
+        continue;
+      }
+
       // Заполним структуру для получения номера доумента из учетной системы
       var dataNumber = {};
 
@@ -1238,6 +1246,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         continue;
       }
 
+      // Если явно указано, что не надо отправлять
+      if (itemDoc.sendNoTo1C == 1) {
+        continue;
+      }
+
       // Заполним структуру для получения номера доумента из учетной системы
       var dataNumber = {};
 
@@ -1279,6 +1292,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       if (itemDoc.uidOrganization == '' ||
           itemDoc.uidPartner == '' ||
           itemDoc.uidContract == '') {
+        continue;
+      }
+
+      // Если явно указано, что не надо отправлять
+      if (itemDoc.sendNoTo1C == 1) {
         continue;
       }
 

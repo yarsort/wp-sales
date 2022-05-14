@@ -978,18 +978,8 @@ class _ScreenItemReturnOrderCustomerState
 
   listServiceOrder() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-        title: const Text(
-          'Параметры документа',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.blueGrey,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.start,
-        ),
+      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      child: Column(
         children: [
           /// UUID
           Padding(
@@ -1043,54 +1033,54 @@ class _ScreenItemReturnOrderCustomerState
           ),
 
           /// Sending to 1C
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: sendYesTo1C,
-                  onChanged: (value) {
-                    setState(() {
-                      countChangeDoc++;
-
-                      /// Если нельзя отправлять в 1С, то скажем об этом
-                      if (sendNoTo1C) {
-                        const snackBar = SnackBar(
-                          content: Text(
-                              'Ошибка! Установлен флаг: Не отправлять в 1С!'),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                        /// Снятие флага на повторную отправку в учетную систему
-                        sendYesTo1C = false;
-                      } else {
-                        /// Флаг отметки на отправку
-                        sendYesTo1C = !sendYesTo1C;
-                      }
-
-                      if (!sendYesTo1C) {
-                        /// Отметим статус заказа как неотправленный
-                        widget.returnOrderCustomer.status = 1;
-
-                        /// Очистка даты отправки заказа вручную
-                        textFieldDateSendingTo1CController.text = '';
-                      } else {
-                        /// Отметим статус заказа как отправленный
-                        widget.returnOrderCustomer.status = 2;
-
-                        /// Фиксация даты отправки заказа вручную
-                        textFieldDateSendingTo1CController.text =
-                            shortDateToString(DateTime.now());
-                      }
-
-                      widget.returnOrderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
-                    });
-                  },
-                ),
-                const Text('Отправлено в учетную систему'),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+          //   child: Row(
+          //     children: [
+          //       Checkbox(
+          //         value: sendYesTo1C,
+          //         onChanged: (value) {
+          //           setState(() {
+          //             countChangeDoc++;
+          //
+          //             /// Если нельзя отправлять в 1С, то скажем об этом
+          //             if (sendNoTo1C) {
+          //               const snackBar = SnackBar(
+          //                 content: Text(
+          //                     'Ошибка! Установлен флаг: Не отправлять в 1С!'),
+          //               );
+          //               ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          //
+          //               /// Снятие флага на повторную отправку в учетную систему
+          //               sendYesTo1C = false;
+          //             } else {
+          //               /// Флаг отметки на отправку
+          //               sendYesTo1C = !sendYesTo1C;
+          //             }
+          //
+          //             if (!sendYesTo1C) {
+          //               /// Отметим статус заказа как неотправленный
+          //               widget.returnOrderCustomer.status = 1;
+          //
+          //               /// Очистка даты отправки заказа вручную
+          //               textFieldDateSendingTo1CController.text = '';
+          //             } else {
+          //               /// Отметим статус заказа как отправленный
+          //               widget.returnOrderCustomer.status = 2;
+          //
+          //               /// Фиксация даты отправки заказа вручную
+          //               textFieldDateSendingTo1CController.text =
+          //                   shortDateToString(DateTime.now());
+          //             }
+          //
+          //             widget.returnOrderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
+          //           });
+          //         },
+          //       ),
+          //       const Text('Отправлено в учетную систему'),
+          //     ],
+          //   ),
+          // ),
 
           /// No Sending to 1C
           Padding(
@@ -1131,7 +1121,7 @@ class _ScreenItemReturnOrderCustomerState
               children: [
                 /// Переотправить документ
                 SizedBox(
-                  height: 40,
+                  height: 50,
                   width: (MediaQuery.of(context).size.width - 28),
                   child: ElevatedButton(
                       style: ButtonStyle(
@@ -1171,7 +1161,7 @@ class _ScreenItemReturnOrderCustomerState
               children: [
                 /// Удалить запись
                 SizedBox(
-                  height: 40,
+                  height: 50,
                   width: (MediaQuery.of(context).size.width - 28),
                   child: ElevatedButton(
                       style: ButtonStyle(
