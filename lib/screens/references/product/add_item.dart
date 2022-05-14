@@ -299,6 +299,23 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                // Отнять
+                                IconButton(
+                                  onPressed: () {
+                                    minusCountOnForm();
+                                    calculateCount();
+
+                                    // Выделим текст после фокусировки
+                                    textFieldCountController.selection = TextSelection(
+                                      baseOffset: 0,
+                                      extentOffset: textFieldCountController.text.length,
+                                    );
+                                  },
+                                  icon: const Icon(Icons.remove,
+                                      color: Colors.blue),
+                                  //icon: const Icon(Icons.delete, color: Colors.red),
+                                ),
+                                // Добавить
                                 IconButton(
                                   padding:
                                       const EdgeInsets.fromLTRB(10, 1, 1, 1),
@@ -314,21 +331,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                   },
                                   icon:
                                       const Icon(Icons.add, color: Colors.blue),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    minusCountOnForm();
-                                    calculateCount();
-
-                                    // Выделим текст после фокусировки
-                                    textFieldCountController.selection = TextSelection(
-                                      baseOffset: 0,
-                                      extentOffset: textFieldCountController.text.length,
-                                    );
-                                  },
-                                  icon: const Icon(Icons.remove,
-                                      color: Colors.blue),
-                                  //icon: const Icon(Icons.delete, color: Colors.red),
                                 ),
                               ],
                             ),

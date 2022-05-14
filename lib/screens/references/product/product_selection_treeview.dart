@@ -613,6 +613,21 @@ class _ScreenProductSelectionTreeViewState
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
+        onChanged: (value) async {
+          if (value.length <= 3) {
+            return;
+          }
+
+          // Выключим иерархический просмотр
+          if (showProductHierarchy) {
+            showProductHierarchy = false;
+            parentProduct = Product();
+            treeParentItems.clear();
+            showMessage('Иерархия товаров выключена.', context);
+          }
+
+          await renewItem();
+        },
         onSubmitted: (String value) async {
           // Выключим иерархический просмотр
           if (showProductHierarchy) {

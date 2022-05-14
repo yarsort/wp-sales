@@ -231,11 +231,23 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       widget.orderCustomer.uidWarehouse = warehouse.uid;
       widget.orderCustomer.nameWarehouse = warehouse.name;
 
-      // Добавим 1 сутки
       var today = DateTime.now();
-      var fiftyDaysFromNow = today.add(const Duration(days: 1));
 
-      textFieldDateSendingController.text = shortDateToString(fiftyDaysFromNow);
+      /// Добавим 1 сутки (по-умолчанию) или из настроек
+      var countDateSending = prefs.getInt('settings_countDateSending') ?? 1;
+      if (countDateSending == 0){
+        countDateSending = 1;
+      }
+      var tempDateSending = today.add(Duration(days: countDateSending));
+      widget.orderCustomer.dateSending = tempDateSending;
+
+      /// Добавим 7 суток (по-умолчанию) или из настроек
+      var countDatePaying = prefs.getInt('settings_countDatePaying') ?? 7;
+      if (countDatePaying == 0){
+        countDatePaying = 1;
+      }
+      var tempDatePaying = today.add(Duration(days: countDatePaying));
+      widget.orderCustomer.datePaying = tempDatePaying;
     }
 
     countItems = widget.orderCustomer.countItems;
@@ -398,6 +410,21 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     try {
       if (widget.orderCustomer.status == 2) {
         showErrorMessage('Документ заблокирован! Статус: отправлен.', context);
+        return false;
+      }
+
+      if (widget.orderCustomer.uidOrganization == '') {
+        showErrorMessage('Не заполнена организация!', context);
+        return false;
+      }
+
+      if (widget.orderCustomer.uidPartner == '') {
+        showErrorMessage('Не заполнен партнер!', context);
+        return false;
+      }
+
+      if (widget.orderCustomer.uidContract == '') {
+        showErrorMessage('Не заполнен контракт!', context);
         return false;
       }
 

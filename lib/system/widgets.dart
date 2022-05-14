@@ -69,6 +69,7 @@ class _MainDrawerState extends State<MainDrawer> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: const [
+                                SizedBox(height: 10),
                                 Text('WP',
                                     style: TextStyle(
                                         height: 1,

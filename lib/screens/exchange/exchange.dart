@@ -939,8 +939,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
       }
     } catch (e) {
-      listLogs.add(
-          'Ошибка обработки номеров документов. \n Описание ошибки: $e');
+      listLogs
+          .add('Ошибка обработки номеров документов. \n Описание ошибки: $e');
       setState(() {});
     }
 
@@ -1165,7 +1165,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     // Запишем даные в файл
     final File localFile = File(pathLocalFile);
-    localFile.writeAsString(dataString);
+    await localFile.writeAsString(dataString);
 
     List<String> paths = [];
     paths.add(pathLocalFile);
@@ -1184,6 +1184,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Каждый документ выгрузим в JSON
     List dataList = [];
     for (var itemDoc in listDocs) {
+      // Проверка заполненности реквизитов
+      // Реквизиты (обязательные): Организация, партнер, контракт
+      if (itemDoc.uidOrganization == '' ||
+          itemDoc.uidPartner == '' ||
+          itemDoc.uidContract == '') {
+        continue;
+      }
+
+      // Заполним структуру для получения номера доумента из учетной системы
       var dataNumber = {};
 
       // Добавим номер (UID) документа
@@ -1221,6 +1230,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Каждый документ выгрузим в JSON
     List dataList = [];
     for (var itemDoc in listDocs) {
+      // Проверка заполненности реквизитов
+      // Реквизиты (обязательные): Организация, партнер, контракт
+      if (itemDoc.uidOrganization == '' ||
+          itemDoc.uidPartner == '' ||
+          itemDoc.uidContract == '') {
+        continue;
+      }
+
+      // Заполним структуру для получения номера доумента из учетной системы
       var dataNumber = {};
 
       // Добавим номер (UID) документа
@@ -1256,6 +1274,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Каждый документ выгрузим в JSON
     List dataList = [];
     for (var itemDoc in listDocs) {
+      // Проверка заполненности реквизитов
+      // Реквизиты (обязательные): Организация, партнер, контракт
+      if (itemDoc.uidOrganization == '' ||
+          itemDoc.uidPartner == '' ||
+          itemDoc.uidContract == '') {
+        continue;
+      }
+
+      // Заполним структуру для получения номера доумента из учетной системы
       var dataNumber = {};
 
       // Добавим номер (UID) документа
