@@ -1606,6 +1606,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           textFieldDateSendingTo1CController.text =
                               shortDateToString(DateTime.now());
                         }
+
+                        widget.orderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
                       });
                     },
                   ),
@@ -1635,6 +1637,8 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                         } else {
                           sendNoTo1C = !sendNoTo1C;
                         }
+
+                        widget.orderCustomer.sendNoTo1C = sendNoTo1C ? 1 : 0;
                       });
                     },
                   ),

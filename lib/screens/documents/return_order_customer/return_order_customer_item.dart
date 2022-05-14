@@ -1082,6 +1082,8 @@ class _ScreenItemReturnOrderCustomerState
                         textFieldDateSendingTo1CController.text =
                             shortDateToString(DateTime.now());
                       }
+
+                      widget.returnOrderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
                     });
                   },
                 ),
@@ -1112,6 +1114,8 @@ class _ScreenItemReturnOrderCustomerState
                         sendNoTo1C = !sendNoTo1C;
                       }
                     });
+
+                    widget.returnOrderCustomer.sendNoTo1C = sendNoTo1C ? 1 : 0;
                   },
                 ),
                 const Text('Не отправлять в учетную систему'),

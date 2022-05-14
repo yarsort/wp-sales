@@ -74,12 +74,23 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   /// Поле ввода: Count
   TextEditingController textFieldCountController = TextEditingController();
 
+  bool deniedEditPrice = false; // Запретить изменять цену в документах
+
   @override
   void initState() {
     super.initState();
-    renewItem();
+    fillData();
   }
 
+  fillData() async {
+
+    final SharedPreferences prefs = await _prefs;
+
+    // Получим разрешение на редактирование цены
+    deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ?? true; // Запретить изменять тип цены в документах
+
+    renewItem();
+  }
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -202,7 +213,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
                         child: TextField(
-                          readOnly: true,
+                          readOnly: deniedEditPrice ? true : false,
                           controller: textFieldPriceController,
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),

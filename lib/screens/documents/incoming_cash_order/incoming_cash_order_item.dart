@@ -828,6 +828,8 @@ class _ScreenItemIncomingCashOrderState
                         textFieldDateSendingTo1CController.text =
                             shortDateToString(DateTime.now());
                       }
+
+                      widget.incomingCashOrder.sendYesTo1C = sendYesTo1C ? 1 : 0;
                     });
                   },
                 ),
@@ -857,6 +859,8 @@ class _ScreenItemIncomingCashOrderState
                       } else {
                         sendNoTo1C = !sendNoTo1C;
                       }
+
+                      widget.incomingCashOrder.sendNoTo1C = sendNoTo1C ? 1 : 0;
                     });
                   },
                 ),

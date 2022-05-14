@@ -261,9 +261,9 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     // Разрешения и запреты
     deniedEditSettings = prefs.getBool('settings_deniedEditSettings') ?? false;
     deniedEditTypePrice =
-        prefs.getBool('settings_deniedEditTypePrice') ?? false;
-    deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ?? false;
-    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount') ?? false;
+        prefs.getBool('settings_deniedEditTypePrice') ?? true;
+    deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ?? true;
+    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount') ?? true;
     deniedAddProductWithoutRest =
         prefs.getBool('settings_deniedAddProductWithoutRest') ?? true;
     useRoutesToPartners =
@@ -337,26 +337,31 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setString('settings_emailUser', textFieldEmailUserController.text);
     prefs.setString('settings_UIDUser', textFieldUIDUserController.text);
 
-    /// Запреты и разрешения
-    prefs.setBool('settings_deniedEditSettings', deniedEditSettings);
-    prefs.setBool('settings_deniedEditTypePrice', deniedEditTypePrice);
-    prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
-    prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
-    prefs.setBool('settings_useRoutesToPartners', useRoutesToPartners);
-    prefs.setBool(
-        'settings_deniedAddProductWithoutRest', deniedAddProductWithoutRest);
+    /// Эти данные можно записывать только при условии, что они разрешены!
+    if (deniedEditSettings == false) {
 
-    /// Запрет добавления новых елементов
-    prefs.setBool('settings_deniedAddOrganization', deniedAddOrganization);
-    prefs.setBool('settings_deniedAddPartner', deniedAddPartner);
-    prefs.setBool('settings_deniedAddContract', deniedAddContract);
-    prefs.setBool('settings_deniedAddStore', deniedAddStore);
-    prefs.setBool('settings_deniedAddProduct', deniedAddProduct);
-    prefs.setBool('settings_deniedAddUnit', deniedAddUnit);
-    prefs.setBool('settings_deniedAddPrice', deniedAddPrice);
-    prefs.setBool('settings_deniedAddCurrency', deniedAddCurrency);
-    prefs.setBool('settings_deniedAddWarehouse', deniedAddWarehouse);
-    prefs.setBool('settings_deniedAddCashbox', deniedAddCashbox);
+      /// Запреты и разрешения
+      prefs.setBool('settings_deniedEditSettings', deniedEditSettings);
+      prefs.setBool('settings_deniedEditTypePrice', deniedEditTypePrice);
+      prefs.setBool('settings_deniedEditPrice', deniedEditPrice);
+      prefs.setBool('settings_deniedEditDiscount', deniedEditDiscount);
+      prefs.setBool('settings_useRoutesToPartners', useRoutesToPartners);
+      prefs.setBool(
+          'settings_deniedAddProductWithoutRest', deniedAddProductWithoutRest);
+
+      /// Запрет добавления новых елементов
+      prefs.setBool('settings_deniedAddOrganization', deniedAddOrganization);
+      prefs.setBool('settings_deniedAddPartner', deniedAddPartner);
+      prefs.setBool('settings_deniedAddContract', deniedAddContract);
+      prefs.setBool('settings_deniedAddStore', deniedAddStore);
+      prefs.setBool('settings_deniedAddProduct', deniedAddProduct);
+      prefs.setBool('settings_deniedAddUnit', deniedAddUnit);
+      prefs.setBool('settings_deniedAddPrice', deniedAddPrice);
+      prefs.setBool('settings_deniedAddCurrency', deniedAddCurrency);
+      prefs.setBool('settings_deniedAddWarehouse', deniedAddWarehouse);
+      prefs.setBool('settings_deniedAddCashbox', deniedAddCashbox);
+
+    }
 
     /// FTP
     prefs.setBool('settings_useFTPExchange', useFTPExchange);
