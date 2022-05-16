@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
 
@@ -1160,11 +1161,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Получим путь к временному каталогу устройства
     Directory tempDir = await getTemporaryDirectory();
 
+    // Временное название для исключения дубликатов заказов от менеджера
+    String tempUID =  const Uuid().v4();
+
     // Путь к файлу обмена
-    String pathLocalFile = tempDir.path + '/orders_$settingsUidUser.json';
+    String pathLocalFile = tempDir.path + '/orders_$settingsUidUser'+'_'+tempUID+'.json';
 
     // Путь к файлу архива
-    String pathLocalZipFile = tempDir.path + '/orders_$settingsUidUser.zip';
+    String pathLocalZipFile = tempDir.path + '/orders_$settingsUidUser'+'_'+tempUID+'.zip';
 
     // Запишем даные в файл
     final File localFile = File(pathLocalFile);

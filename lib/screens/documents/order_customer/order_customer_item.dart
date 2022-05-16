@@ -1077,16 +1077,21 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
-                                    flex: 1,
+                                    flex: 2,
                                     child:
                                         Text(doubleThreeToString(item.count))),
-                                Expanded(flex: 1, child: Text(item.nameUnit)),
                                 Expanded(
                                     flex: 1,
+                                    child: Text(item.nameUnit)),
+                                Expanded(
+                                    flex: 2,
                                     child: Text(doubleToString(item.price))),
                                 Expanded(
-                                    flex: 1,
-                                    child: Text(doubleToString(item.sum))),
+                                    flex: 2,
+                                    child: Text(doubleToString(item.discount)+' %', textAlign: TextAlign.center,)),
+                                Expanded(
+                                    flex: 2,
+                                    child: Text(doubleToString(item.sum), textAlign: TextAlign.right,)),
                               ],
                             ),
                           ],
@@ -1097,186 +1102,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 );
               }),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        //   child: ColumnBuilder(
-        //       itemCount: itemsOrder.length,
-        //       itemBuilder: (context, index) {
-        //         final item = itemsOrder[index];
-        //         return Padding(
-        //           padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-        //           child: Card(
-        //               elevation: 2,
-        //               child: PopupMenuButton<String>(
-        //                 icon: const Icon(Icons.more),
-        //                 onSelected: (String value) async {
-        //                   if (value == 'view') {
-        //
-        //                   }
-        //                   if (value == 'sort') {
-        //
-        //                   }
-        //                   if (value == 'delete') {
-        //                     itemsOrder = List.from(itemsOrder)..removeAt(index);
-        //                     setState(() {
-        //                       OrderCustomer()
-        //                           .allSum(widget.orderCustomer, itemsOrder);
-        //                       OrderCustomer()
-        //                           .allCount(widget.orderCustomer, itemsOrder);
-        //                       updateHeader();
-        //                     });
-        //                   }
-        //                   if (value == 'edit') {
-        //                     Product productItem =
-        //                         await dbReadProductUID(item.uid);
-        //                     await Navigator.push(
-        //                       context,
-        //                       MaterialPageRoute(
-        //                         builder: (context) => ScreenAddItem(
-        //                             listItemDoc: itemsOrder,
-        //                             orderCustomer: widget.orderCustomer,
-        //                             indexItem: index,
-        //                             product: productItem),
-        //                       ),
-        //                     );
-        //                     setState(() {
-        //                       OrderCustomer()
-        //                           .allSum(widget.orderCustomer, itemsOrder);
-        //                       OrderCustomer()
-        //                           .allCount(widget.orderCustomer, itemsOrder);
-        //                       updateHeader();
-        //                     });
-        //                   }
-        //                 },
-        //                 itemBuilder: (BuildContext context) =>
-        //                     <PopupMenuEntry<String>>[
-        //                   PopupMenuItem<String>(
-        //                     value: 'view',
-        //                     child: Row(
-        //                       children: const [
-        //                         Icon(
-        //                           Icons.search,
-        //                           color: Colors.blue,
-        //                         ),
-        //                         SizedBox(
-        //                           width: 10,
-        //                         ),
-        //                         Text('Просмотр'),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                   PopupMenuItem<String>(
-        //                     value: 'sort',
-        //                     child: Row(
-        //                       children: const [
-        //                         Icon(
-        //                           Icons.sort,
-        //                           color: Colors.blue,
-        //                         ),
-        //                         SizedBox(
-        //                           width: 10,
-        //                         ),
-        //                         Text('Сортировать'),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                   PopupMenuItem<String>(
-        //                     value: 'edit',
-        //                     child: Row(children: const [
-        //                       Icon(
-        //                         Icons.edit,
-        //                         color: Colors.blue,
-        //                       ),
-        //                       SizedBox(
-        //                         width: 10,
-        //                       ),
-        //                       Text('Изменить')
-        //                     ]),
-        //                   ),
-        //                   PopupMenuItem<String>(
-        //                     value: 'delete',
-        //                     child: Row(
-        //                       children: const [
-        //                         Icon(
-        //                           Icons.delete,
-        //                           color: Colors.red,
-        //                         ),
-        //                         SizedBox(
-        //                           width: 10,
-        //                         ),
-        //                         Text('Удалить'),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                 ],
-        //                 child: Slidable(
-        //                   // The end action pane is the one at the right or the bottom side.
-        //                   endActionPane: ActionPane(
-        //                     motion: const ScrollMotion(),
-        //                     children: [
-        //                       SlidableAction(
-        //                         // An action can be bigger than the others.
-        //                         flex: 2,
-        //                         onPressed: (BuildContext context) async {
-        //                           Product productItem =
-        //                               await dbReadProductUID(item.uid);
-        //                           await Navigator.push(
-        //                             context,
-        //                             MaterialPageRoute(
-        //                               builder: (context) =>
-        //                                   ScreenProductItem(productItem: productItem),
-        //                             ),
-        //                           );
-        //                         },
-        //                         backgroundColor: const Color(0xFF7BC043),
-        //                         foregroundColor: Colors.blue,
-        //                         icon: Icons.search,
-        //                         label: 'Просмотр',
-        //                       ),
-        //                       SlidableAction(
-        //                         onPressed: (BuildContext context) async {
-        //                           itemsOrder.sort((a, b) => a.name.compareTo(b.name));
-        //                           setState(() {
-        //                             countChangeDoc++;
-        //                           });
-        //                         },
-        //                         backgroundColor: const Color(0xFF0392CF),
-        //                         foregroundColor: Colors.white,
-        //                         icon: Icons.sort,
-        //                         label: 'Сортировать',
-        //                       ),
-        //                     ],
-        //                   ),
-        //                   child: ListTile(
-        //                     title: Text(item.name),
-        //                     subtitle: Column(
-        //                       children: [
-        //                         const Divider(),
-        //                         Row(
-        //                           mainAxisAlignment:
-        //                               MainAxisAlignment.spaceBetween,
-        //                           children: [
-        //                             Expanded(
-        //                                 flex: 1,
-        //                                 child: Text(
-        //                                     doubleThreeToString(item.count))),
-        //                             Expanded(flex: 1, child: Text(item.nameUnit)),
-        //                             Expanded(
-        //                                 flex: 1,
-        //                                 child: Text(doubleToString(item.price))),
-        //                             Expanded(
-        //                                 flex: 1,
-        //                                 child: Text(doubleToString(item.sum))),
-        //                           ],
-        //                         ),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                 ),
-        //               )),
-        //         );
-        //       }),
-        // ),
       ],
     );
   }

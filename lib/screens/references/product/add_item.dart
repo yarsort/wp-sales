@@ -46,7 +46,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
   Unit selectedUnit = Unit(); // Выбранная едиица измерения
   double countOnWarehouse = 0.0;
-  double price = 0.0;
 
   /// Поле ввода: Product name
   TextEditingController textFieldProductNameController =
@@ -68,13 +67,17 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   /// Поле ввода: Price value
   TextEditingController textFieldPriceController = TextEditingController();
 
+  /// Поле ввода: Discount value
+  TextEditingController textFieldDiscountController = TextEditingController();
+
   /// Поле ввода: Sum value
   TextEditingController textFieldSumController = TextEditingController();
 
   /// Поле ввода: Count
   TextEditingController textFieldCountController = TextEditingController();
 
-  bool deniedEditPrice = false; // Запретить изменять цену в документах
+  bool deniedEditPrice = true; // Запретить изменять цену в документах
+  bool deniedEditDiscount = true; // Запретить изменять скидку в документах
 
   @override
   void initState() {
@@ -88,6 +91,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
     // Получим разрешение на редактирование цены
     deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ?? true; // Запретить изменять тип цены в документах
+
+    // Получим разрешение на редактирование скидки
+    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount') ?? true; // Запретить изменять тип цены в документах
 
     renewItem();
   }
@@ -209,11 +215,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                   children: [
                     /// Price
                     Expanded(
-                      flex: 3,
+                      flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
                         child: TextField(
-                          readOnly: deniedEditPrice ? true : false,
+                          readOnly: deniedEditPrice,
                           controller: textFieldPriceController,
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -227,9 +233,45 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       ),
                     ),
 
+                    /// Discount
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+                        child: TextField(
+                          onSubmitted: (value) {
+                            calculateCount();
+                          },
+                          onTap: () {
+                            // Выделим текст после фокусировки
+                            textFieldDiscountController.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: textFieldDiscountController.text.length,
+                            );
+                          },
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true, signed: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d{0,2}'))
+                          ],
+                          readOnly: deniedEditDiscount,
+                          controller: textFieldDiscountController,
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            border: OutlineInputBorder(),
+                            labelStyle: TextStyle(
+                              color: Colors.blueGrey,
+                            ),
+                            labelText: 'Скидка',
+                          ),
+                        ),
+                      ),
+                    ),
+
                     /// Sum
                     Expanded(
-                      flex: 4,
+                      flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                         child: TextField(
@@ -518,6 +560,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
       nameWarehouse = widget.orderCustomer?.nameWarehouse ?? '';
       uidWarehouse = widget.orderCustomer?.uidWarehouse ?? '';
     }
+
     if (widget.returnOrderCustomer != null) {
       namePrice = widget.returnOrderCustomer?.namePrice ?? '';
       uidPrice = widget.returnOrderCustomer?.uidPrice ?? '';
@@ -537,12 +580,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     textFieldWarehouseController.text = doubleThreeToString(countOnWarehouse);
 
     /// Цена товара.
-    price = await dbReadProductPrice(
+    var tPrice = await dbReadProductPrice(
         uidPrice: uidPrice,
         uidProduct: uidProduct,
         uidProductCharacteristic: '');
 
-    textFieldPriceController.text = doubleToString(price);
+    textFieldPriceController.text = doubleToString(tPrice);
+    textFieldSumController.text = doubleToString(tPrice);
 
     /// Вывод единицы измерения
     if (listUnits.isNotEmpty) {
@@ -566,7 +610,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     }
 
     /// Заказ покупателя
-    // Подставим количесто из заказа, если оно есть.
+    // Подставим количество из документа, если оно есть.
     if (widget.listItemDoc != null) {
       // Если нашли товар в списке товаров заказа.
       if (widget.indexItem != null) {
@@ -590,15 +634,23 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         }
 
         // Подставим из заказа количество
-        double count = itemList?.count ?? 0.0;
-        double sum = price * (itemList?.count ?? 0.0) * selectedUnit.multiplicity;
+        double count    = itemList?.count ?? 0.0;
+        double discount = itemList?.discount ?? 0.0;
+        double price    = itemList?.price ?? 0.0;
+
+        double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
+        double sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
         textFieldCountController.text = doubleThreeToString(count);
+        textFieldDiscountController.text = doubleToString(discount);
+        textFieldPriceController.text = doubleToString(price);
         textFieldSumController.text = doubleToString(sum);
 
       } else {
 
         double count = 0.0;
+        double discount = 0.0;
+        double price = 0.0;
         double sum = 0.0;
 
         for (var itemUnit in listUnits) {
@@ -619,9 +671,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             // Подставим из заказа количество
             var itemList = widget.listItemDoc?[indexUnitItem];
             count = itemList?.count ?? 0.0;
-            sum = price * (itemList?.count ?? 0.0) * selectedUnit.multiplicity;
+            discount = itemList?.discount ?? 0.0;
+            price = itemList?.price ?? 0.0;
 
+            double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
+            sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
+
+            textFieldDiscountController.text = doubleToString(discount);
             textFieldCountController.text = doubleThreeToString(count);
+            textFieldPriceController.text = doubleToString(price);
             textFieldSumController.text = doubleToString(sum);
           }
         }
@@ -629,7 +687,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         // Подставим 1 единицу
         if (count == 0) {
           textFieldCountController.text = doubleThreeToString(1.0);
-          textFieldSumController.text = doubleToString(price);
+          textFieldDiscountController.text = doubleThreeToString(0.0);
+          //textFieldSumController.text = doubleToString(price);
         }
 
       }
@@ -641,6 +700,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
       );
     }
 
+    /// Возврат товаров от покупателя
+    // Подставим количество из документа, если оно есть.
     if (widget.listItemReturnDoc != null) {
       // Если нашли товар в списке товаров заказа.
       if (widget.indexItem != null) {
@@ -664,15 +725,23 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         }
 
         // Подставим из заказа количество
-        double count = itemList?.count ?? 0.0;
-        double sum = price * (itemList?.count ?? 0.0) * selectedUnit.multiplicity;
+        double count    = itemList?.count ?? 0.0;
+        double discount = itemList?.discount ?? 0.0;
+        double price    = itemList?.price ?? 0.0;
+
+        double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
+        double sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
         textFieldCountController.text = doubleThreeToString(count);
+        textFieldDiscountController.text = doubleToString(discount);
+        textFieldPriceController.text = doubleToString(price);
         textFieldSumController.text = doubleToString(sum);
 
       } else {
 
         double count = 0.0;
+        double discount = 0.0;
+        double price = 0.0;
         double sum = 0.0;
 
         for (var itemUnit in listUnits) {
@@ -693,9 +762,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             // Подставим из заказа количество
             var itemList = widget.listItemReturnDoc?[indexUnitItem];
             count = itemList?.count ?? 0.0;
-            sum = price * (itemList?.count ?? 0.0) * selectedUnit.multiplicity;
+            discount = itemList?.discount ?? 0.0;
+            price = itemList?.price ?? 0.0;
+
+            double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
+            double sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
             textFieldCountController.text = doubleThreeToString(count);
+            textFieldDiscountController.text = doubleToString(discount);
+            textFieldPriceController.text = doubleToString(price);
             textFieldSumController.text = doubleToString(sum);
           }
         }
@@ -703,9 +778,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         // Подставим 1 единицу
         if (count == 0) {
           textFieldCountController.text = doubleThreeToString(1.0);
-          textFieldSumController.text = doubleToString(price);
+          textFieldDiscountController.text = doubleThreeToString(0.0);
+          //textFieldSumController.text = doubleToString(price);
         }
-
       }
     }
 
@@ -716,11 +791,18 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     var count = double.parse(
         doubleThreeToString(double.parse(textFieldCountController.text)));
 
+    var discount = double.parse(
+        doubleToString(double.parse(textFieldDiscountController.text)));
+
     var price = double.parse(
         doubleThreeToString(double.parse(textFieldPriceController.text)));
 
     textFieldCountController.text = doubleThreeToString(count);
-    textFieldSumController.text = doubleToString(count * price);
+    textFieldDiscountController.text = doubleToString(discount);
+
+    var sum = (count * price) - ((count * price) / 100 * discount);
+
+    textFieldSumController.text = doubleToString(sum);
   }
 
   plusCountOnForm() {
@@ -754,8 +836,17 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     final SharedPreferences prefs = await _prefs;
 
     // Получим количество товара, которое добавляем
-    var value = double.parse(
+    var count = double.parse(
         doubleThreeToString(double.parse(textFieldCountController.text)));
+
+    var discount = double.parse(
+        doubleToString(double.parse(textFieldDiscountController.text)));
+
+    var price = double.parse(
+        doubleToString(double.parse(textFieldPriceController.text)));
+
+    var sum = double.parse(
+        doubleToString(double.parse(textFieldSumController.text)));
 
     /// Добавление товаров в заказе покупателя
     if (widget.listItemDoc != null) {
@@ -763,7 +854,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
       // Контроль добавления товара, если на остатке его нет
       bool deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')!;
       if(deniedAddProductWithoutRest){
-        if(value * selectedUnit.multiplicity > countOnWarehouse){
+        if(count * selectedUnit.multiplicity > countOnWarehouse){
           showErrorMessage('Товара недостаточно на остатке!', context);
           return false;
         }
@@ -778,12 +869,10 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
       // Если нашли товар в списке товаров заказа
       if (indexItem >= 0) {
         var itemList = widget.listItemDoc?[indexItem];
-        itemList?.count = value;
-        itemList?.sum = itemList.price * itemList.count * selectedUnit.multiplicity;
+        itemList?.count = count;
+        itemList?.discount = discount;
+        itemList?.sum = sum;
       } else {
-        // Добавим новый товар в заказ
-        var priceProduct = double.parse(
-            doubleThreeToString(double.parse(textFieldPriceController.text)));
 
         ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
             id: 0,
@@ -792,22 +881,31 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             name: widget.product.name,
             uidUnit: selectedUnit.uid,
             nameUnit: selectedUnit.name,
-            count: value,
-            price: priceProduct,
-            discount: 0.0,
-            sum: priceProduct * value * selectedUnit.multiplicity);
+            count: count,
+            price: price,
+            discount: discount,
+            sum: sum);
 
         widget.listItemDoc?.add(itemOrderCustomer);
       }
     }
-
     return true;
   }
 
   Future<bool> addProductToReturnOrderCustomer() async {
     // Получим количество товара, которое добавляем
-    var value = double.parse(
+    var count = double.parse(
         doubleThreeToString(double.parse(textFieldCountController.text)));
+
+    var discount = double.parse(
+        doubleToString(double.parse(textFieldDiscountController.text)));
+
+    var price = double.parse(
+        doubleToString(double.parse(textFieldPriceController.text)));
+
+    var sum = double.parse(
+        doubleToString(double.parse(textFieldSumController.text)));
+
 
     // Найдем индекс строки товара в заказе по товару который добавляем
     var indexItem = widget.listItemReturnDoc?.indexWhere((element) =>
@@ -818,12 +916,10 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     // Если нашли товар в списке товаров заказа
     if (indexItem >= 0) {
       var itemList = widget.listItemReturnDoc?[indexItem];
-      itemList?.count = value;
+      itemList?.count = count;
+      itemList?.discount = discount;
       itemList?.sum = itemList.price * itemList.count * selectedUnit.multiplicity;
     } else {
-      // Добавим новый товар в заказ
-      var priceProduct = double.parse(
-          doubleThreeToString(double.parse(textFieldPriceController.text)));
 
       ItemReturnOrderCustomer itemReturnOrderCustomer = ItemReturnOrderCustomer(
           id: 0,
@@ -832,14 +928,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
           name: widget.product.name,
           uidUnit: selectedUnit.uid,
           nameUnit: selectedUnit.name,
-          count: value,
-          price: priceProduct,
-          discount: 0.0,
-          sum: priceProduct * value * selectedUnit.multiplicity);
-
+          count: count,
+          price: price,
+          discount: discount,
+          sum: sum);
       widget.listItemReturnDoc?.add(itemReturnOrderCustomer);
     }
-
     return true;
   }
 

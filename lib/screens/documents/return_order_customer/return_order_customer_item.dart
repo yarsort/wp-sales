@@ -246,7 +246,6 @@ class _ScreenItemReturnOrderCustomerState
         widget.returnOrderCustomer.uidPartner      = orderCustomer.uidPartner;
         widget.returnOrderCustomer.uidContract     = orderCustomer.uidContract;
         widget.returnOrderCustomer.uidPrice        = orderCustomer.uidPrice;
-        widget.returnOrderCustomer.uidWarehouse    = orderCustomer.uidWarehouse;
       } else {
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text = widget.returnOrderCustomer.nameParent;
@@ -266,7 +265,6 @@ class _ScreenItemReturnOrderCustomerState
     if (widget.returnOrderCustomer.uidPrice.isEmpty){
       widget.returnOrderCustomer.uidPrice = prefs.getString('settings_uidPrice') ?? '';
     }
-
     // Сначала проверка на склад возврата
     if (widget.returnOrderCustomer.uidWarehouse.isEmpty){
       widget.returnOrderCustomer.uidWarehouse = prefs.getString('settings_uidWarehouseReturn') ?? '';
