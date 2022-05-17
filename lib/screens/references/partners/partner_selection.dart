@@ -272,8 +272,41 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
-        onSubmitted: (String value) {
-          renewItem();
+        onChanged: (value) async {
+          if (value.length < 3) {
+            return;
+          }
+
+          // Выключим иерархический просмотр
+          if (showPartnerHierarchy) {
+            showPartnerHierarchy = false;
+            parentPartner = Partner();
+            treeParentItems.clear();
+            showMessage('Иерархия выключена.', context);
+          }
+
+          await renewItem();
+
+          if (listPartners.isEmpty) {
+            showMessage(
+                'Записей не найдено...',context);
+          }
+        },
+        onSubmitted: (String value) async {
+          // Выключим иерархический просмотр
+          if (showPartnerHierarchy) {
+            showPartnerHierarchy = false;
+            parentPartner = Partner();
+            treeParentItems.clear();
+            showMessage('Иерархия выключена.', context);
+          }
+
+          await renewItem();
+
+          if (listPartners.isEmpty) {
+            showMessage(
+                'Записей не найдено...',context);
+          }
         },
         controller: textFieldSearchController,
         decoration: InputDecoration(

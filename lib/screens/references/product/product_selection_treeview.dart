@@ -614,7 +614,7 @@ class _ScreenProductSelectionTreeViewState
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
       child: TextField(
         onChanged: (value) async {
-          if (value.length <= 3) {
+          if (value.length < 3) {
             return;
           }
 
@@ -623,10 +623,15 @@ class _ScreenProductSelectionTreeViewState
             showProductHierarchy = false;
             parentProduct = Product();
             treeParentItems.clear();
-            showMessage('Иерархия товаров выключена.', context);
+            showMessage('Иерархия выключена.', context);
           }
 
           await renewItem();
+
+          if (listProducts.isEmpty) {
+            showMessage(
+                'Записей не найдено...',context);
+          }
         },
         onSubmitted: (String value) async {
           // Выключим иерархический просмотр
@@ -634,14 +639,14 @@ class _ScreenProductSelectionTreeViewState
             showProductHierarchy = false;
             parentProduct = Product();
             treeParentItems.clear();
-            showMessage('Иерархия товаров выключена.', context);
+            showMessage('Иерархия выключена.', context);
           }
 
           await renewItem();
 
-          if (textFieldSearchCatalogController.text.isEmpty) {
+          if (listProducts.isEmpty) {
             showMessage(
-                'Товаров с таким словом не найдено...',context);
+                'Записей не найдено...',context);
           }
         },
         controller: textFieldSearchCatalogController,
