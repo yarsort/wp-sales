@@ -777,13 +777,13 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   /// Вкладка Заказы
 
   listOrderCustomer() {
-    return ColumnListViewBuilder(
-        itemCount: listAccumPartnerDept.length,
-        itemBuilder: (context, index) {
-          final itemDept = listAccumPartnerDept[index];
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-            child: Card(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ColumnListViewBuilder(
+          itemCount: listAccumPartnerDept.length,
+          itemBuilder: (context, index) {
+            final itemDept = listAccumPartnerDept[index];
+            return Card(
               elevation: 2,
               child: PopupMenuButton<String>(
                 onSelected: (String value) async {
@@ -1001,9 +1001,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
   /// Вкладка Служебные

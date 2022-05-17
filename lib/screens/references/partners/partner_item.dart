@@ -6,6 +6,7 @@ import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
+import 'package:wp_sales/system/widgets.dart';
 
 class ScreenPartnerItem extends StatefulWidget {
   final Partner partnerItem;
@@ -142,6 +143,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
+              shrinkWrap: false,
               children: [
                 listViewContracts(),
               ],
@@ -426,9 +428,19 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
   listViewContracts() {
     return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ColumnListViewBuilder(
+          itemCount: listContracts.length,
+          itemBuilder: (context, index) {
+            final contractItem = listContracts[index];
+            return ContractItem(contractItem: contractItem);
+          }),
+    );
+
+    return Padding(
       padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
       child: ListView.builder(
-        shrinkWrap: true,
+        physics: const BouncingScrollPhysics(),
         itemCount: listContracts.length,
         itemBuilder: (context, index) {
           var contractItem = listContracts[index];
@@ -541,93 +553,91 @@ class _ContractItemState extends State<ContractItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-        child: Card(
-          elevation: 2,
-          child: ListTile(
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ScreenContractItem(contractItem: widget.contractItem),
-                ),
-              );
-            },
-            title: Text(widget.contractItem.name),
-            subtitle: Column(
+    return Card(
+      elevation: 2,
+      child: ListTile(
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  ScreenContractItem(contractItem: widget.contractItem),
+            ),
+          );
+        },
+        title: Text(widget.contractItem.name),
+        subtitle: Column(
+          children: [
+            const Divider(),
+            Row(
               children: [
-                const Divider(),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: Column(
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 5),
+                      Row(
                         children: [
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(Icons.phone,
-                                  color: Colors.blue, size: 20),
-                              const SizedBox(width: 5),
-                              Text(widget.contractItem.phone),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(Icons.home,
-                                  color: Colors.blue, size: 20),
-                              const SizedBox(width: 5),
-                              Flexible(
-                                  child: Text(widget.contractItem.address)),
-                            ],
-                          )
+                          const Icon(Icons.phone,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(widget.contractItem.phone),
                         ],
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
+                      const SizedBox(height: 5),
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.price_change,
-                                  color: Colors.green, size: 20),
-                              const SizedBox(width: 5),
-                              Text(
-                                  doubleToString(balance)),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(Icons.price_change,
-                                  color: Colors.red, size: 20),
-                              const SizedBox(width: 5),
-                              Text(doubleToString(balanceForPayment)),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Icon(Icons.schedule,
-                                  color: Colors.blue, size: 20),
-                              const SizedBox(width: 5),
-                              Text(widget.contractItem.schedulePayment
-                                  .toString()),
-                            ],
-                          ),
+                          const Icon(Icons.home,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: Text(widget.contractItem.address)),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.price_change,
+                              color: Colors.green, size: 20),
+                          const SizedBox(width: 5),
+                          Text(
+                              doubleToString(balance)),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.price_change,
+                              color: Colors.red, size: 20),
+                          const SizedBox(width: 5),
+                          Text(doubleToString(balanceForPayment)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.schedule,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(widget.contractItem.schedulePayment
+                              .toString()),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    );
   }
 
   renewDataContract() async {
