@@ -26,7 +26,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
       false; // Запретить добавлять товар без остатка
 
   bool useWebExchange = false; // Обмен по вебсервису
-  bool useFTPExchange = true; // Обмен по FTP
+  bool useFTPExchange = false; // Обмен по FTP
   bool useMailExchange = false;
 
   bool deniedAddOrganization = false; // Запретить добавлять организации
@@ -358,11 +358,6 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     textFieldPathPicturesController.text =
         prefs.getString('settings_pathPictures') ?? '';
 
-    // При первом заполнении может быть не указан способ обмена
-    if (!useFTPExchange && !useWebExchange) {
-      useFTPExchange = true;
-    }
-
     setState(() {});
   }
 
@@ -408,10 +403,17 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setString('settings_FTPServer', textFieldFTPServerController.text);
     prefs.setString('settings_FTPPort', textFieldFTPPortController.text);
     prefs.setString('settings_FTPUser', textFieldFTPUserController.text);
-    prefs.setString(
-        'settings_FTPPassword', textFieldFTPPasswordController.text);
-    prefs.setString(
-        'settings_FTPWorkCatalog', textFieldFTPWorkCatalogController.text);
+    prefs.setString('settings_FTPPassword', textFieldFTPPasswordController.text);
+    prefs.setString('settings_FTPWorkCatalog', textFieldFTPWorkCatalogController.text);
+
+    /// Mail
+    prefs.setBool('settings_useMailExchange', useMailExchange);
+    prefs.setString('settings_MailSMTPServer', textFieldMailSMTPServerController.text);
+    prefs.setString('settings_MailSMTPPort', textFieldMailSMTPPortController.text);
+    prefs.setString('settings_MailPOPServer', textFieldMailPOPServerController.text);
+    prefs.setString('settings_MailPOPPort', textFieldMailPOPPortController.text);
+    prefs.setString('settings_MailUser', textFieldMailUserController.text);
+    prefs.setString('settings_MailPassword', textFieldMailPasswordController.text);
 
     /// Значения заполнения документов по-умолчанию
     prefs.setString('settings_uidOrganization', uidOrganization);
