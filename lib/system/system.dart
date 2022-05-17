@@ -50,7 +50,7 @@ nameGroup({String nameGroup = '', bool hideDivider = false}) {
         Text(nameGroup,
           style: const TextStyle(
             fontSize: 16,
-            color: Colors.blueGrey,
+            color: Colors.blue,
             fontWeight: FontWeight.bold,),
           textAlign: TextAlign.start,),
         if (!hideDivider) const Divider(),

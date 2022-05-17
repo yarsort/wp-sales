@@ -26,9 +26,8 @@ class _ScreenSettingsState extends State<ScreenSettings> {
       false; // Запретить добавлять товар без остатка
 
   bool useWebExchange = false; // Обмен по вебсервису
-  bool enabledTextFieldWebExchange = false;
-  bool useFTPExchange = false; // Обмен по FTP
-  bool enabledTextFieldFTPExchange = false;
+  bool useFTPExchange = true; // Обмен по FTP
+  bool useMailExchange = false;
 
   bool deniedAddOrganization = false; // Запретить добавлять организации
   bool deniedAddPartner = false; // Запретить добавлять партнеров
@@ -61,6 +60,15 @@ class _ScreenSettingsState extends State<ScreenSettings> {
       TextEditingController();
   TextEditingController textFieldFTPWorkCatalogController =
       TextEditingController();
+
+  /// Параметры Mail
+  TextEditingController textFieldMailSMTPServerController = TextEditingController();
+  TextEditingController textFieldMailSMTPPortController = TextEditingController();
+  TextEditingController textFieldMailPOPServerController = TextEditingController();
+  TextEditingController textFieldMailPOPPortController = TextEditingController();
+  TextEditingController textFieldMailUserController = TextEditingController();
+  TextEditingController textFieldMailPasswordController =
+  TextEditingController();
 
   /// Параметры WEB-сервиса
   TextEditingController textFieldWEBServerController = TextEditingController();
@@ -116,6 +124,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
       TextEditingController();
 
   bool _isObscure = true;
+  bool _isObscureMail = true;
 
   @override
   void initState() {
@@ -217,7 +226,18 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   listSettingsOther(),
                   nameGroup(
                       nameGroup: 'Виды обмена данными', hideDivider: false),
-                  listSettingsExchange(),
+                  listTypesExchange(),
+                  if(useFTPExchange)nameGroup(
+                      nameGroup: 'Параметры обмена через FTP', hideDivider: false),
+                  if(useFTPExchange)listSettingsExchangeFTP(),
+
+                  if(useMailExchange)nameGroup(
+                      nameGroup: 'Параметры обмена через E-mail', hideDivider: false),
+                  if(useMailExchange)listSettingsExchangeMail(),
+
+                  if(useWebExchange)nameGroup(
+                      nameGroup: 'Параметры обмена через Web', hideDivider: false),
+                  if(useWebExchange)listSettingsExchangeWeb(),
                 ],
               ),
             ],
@@ -241,7 +261,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
     //Обмен по ftp-серверу
     useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? true;
-    enabledTextFieldWebExchange = useFTPExchange;
+
     textFieldFTPServerController.text =
         prefs.getString('settings_FTPServer') ?? '';
     textFieldFTPPortController.text =
@@ -252,9 +272,29 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     textFieldFTPWorkCatalogController.text =
         prefs.getString('settings_FTPWorkCatalog') ?? '';
 
+    //Обмен по mail-серверу
+    useMailExchange = prefs.getBool('settings_useMailExchange') ?? false;
+
+    // SMTP
+    textFieldMailSMTPServerController.text =
+        prefs.getString('settings_MailSMTPServer') ?? '';
+    textFieldMailSMTPPortController.text =
+        prefs.getString('settings_MailSMTPPort') ?? '25';
+
+    // POP3
+    textFieldMailPOPServerController.text =
+        prefs.getString('settings_MailPOPServer') ?? '';
+    textFieldMailPOPPortController.text =
+        prefs.getString('settings_MailPOPPort') ?? '110';
+
+    textFieldMailUserController.text = prefs.getString('settings_MailUser') ?? '';
+    textFieldMailPasswordController.text =
+        prefs.getString('settings_MailPassword') ?? '';
+
+
     // Обмен по web-серверу
     useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
-    enabledTextFieldFTPExchange = useFTPExchange;
+
     textFieldWEBServerController.text =
         prefs.getString('settings_WEBServer') ?? '';
 
@@ -714,7 +754,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     );
   }
 
-  listSettingsExchange() {
+  listTypesExchange() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
@@ -729,10 +769,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       useFTPExchange = !useFTPExchange;
-                      enabledTextFieldFTPExchange = useFTPExchange;
 
-                      useWebExchange = !useFTPExchange;
-                      enabledTextFieldWebExchange = !useFTPExchange;
+                      // Отключим остальные флаги
+                      if(useFTPExchange){
+                        useWebExchange = false;
+                        useMailExchange = false;
+                      }
                     });
                   },
                 ),
@@ -741,258 +783,29 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             ),
           ),
 
-          /// FTP сервер
+          /// Использование обмена через Mail
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: IntrinsicHeight(
-              child: TextField(
-                enabled: enabledTextFieldFTPExchange,
-                keyboardType: TextInputType.text,
-                controller: textFieldFTPServerController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 2,
-                    minHeight: 2,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: const OutlineInputBorder(),
-                  labelStyle: const TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'FTP сервер',
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          textFieldFTPUserController.text = '';
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        //icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          /// Порт сервер
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: IntrinsicHeight(
-              child: TextField(
-                onChanged: (value) {},
-                enabled: enabledTextFieldFTPExchange,
-                keyboardType: TextInputType.number,
-                controller: textFieldFTPPortController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 2,
-                    minHeight: 2,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: const OutlineInputBorder(),
-                  labelStyle: const TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'FTP порт',
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          textFieldFTPPortController.text = '';
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        //icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          /// Имя FTP пользователя
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: IntrinsicHeight(
-              child: TextField(
-                onChanged: (value) {},
-                enabled: enabledTextFieldFTPExchange,
-                keyboardType: TextInputType.text,
-                controller: textFieldFTPUserController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 2,
-                    minHeight: 2,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: const OutlineInputBorder(),
-                  labelStyle: const TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'FTP пользователь',
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          textFieldFTPUserController.text = '';
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        //icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          /// Пароль FTP пользователя
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: IntrinsicHeight(
-              child: TextField(
-                onChanged: (value) {},
-                enabled: enabledTextFieldFTPExchange,
-                obscureText: _isObscure,
-                autocorrect: false,
-                enableSuggestions: false,
-                keyboardType: TextInputType.text,
-                controller: textFieldFTPPasswordController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 2,
-                    minHeight: 2,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: const OutlineInputBorder(),
-                  labelStyle: const TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'FTP пароль',
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isObscure = !_isObscure;
-                            });
-                          },
-                          icon: Icon(_isObscure
-                              ? Icons.visibility
-                              : Icons.visibility_off)),
-                      IconButton(
-                        onPressed: () {
-                          textFieldFTPPasswordController.text = '';
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        //icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          /// Рабочий каталог FTP
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: IntrinsicHeight(
-              child: TextField(
-                onChanged: (value) {},
-                enabled: enabledTextFieldFTPExchange,
-                keyboardType: TextInputType.text,
-                controller: textFieldFTPWorkCatalogController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 2,
-                    minHeight: 2,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: const OutlineInputBorder(),
-                  labelStyle: const TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'Рабочий каталог',
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          textFieldFTPWorkCatalogController.text = '';
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        //icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          /// Buttons Тестирование обмена
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                SizedBox(
-                  height: 40,
-                  width: (MediaQuery.of(context).size.width - 28),
-                  child: ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.blue)),
-                      onPressed: () async {
-                        /// Получение данных обмена
-                        final FTPConnect ftpClient = FTPConnect(
-                            textFieldFTPServerController.text,
-                            port: int.parse(textFieldFTPPortController.text),
-                            user: textFieldFTPUserController.text,
-                            pass: textFieldFTPPasswordController.text,
-                            timeout: 600,
-                            debug: true);
+                Checkbox(
+                  value: useMailExchange,
+                  onChanged: (value) {
+                    setState(() {
+                      useMailExchange = !useMailExchange;
 
-                        var res = await ftpClient.connect();
-                        if (!res) {
-                          showErrorMessage(
-                              'Ошибка подключения к серверу FTP!', context);
-                          return;
-                        } else {
-                          showMessage(
-                              'Подключение выполнено успешно!', context);
-                        }
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.update, color: Colors.white),
-                          SizedBox(width: 14),
-                          Text('Тест обмена'),
-                        ],
-                      )),
+                      // Отключим остальные флаги
+                      if(useMailExchange){
+                        useFTPExchange = false;
+                        useWebExchange = false;
+                      }
+                    });
+                  },
                 ),
+                const Flexible(child: Text('Обмен через E-mail сервер')),
               ],
             ),
           ),
-          const Divider(),
 
           /// Использование обмена через Web-сервис
           Padding(
@@ -1004,10 +817,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   onChanged: (value) {
                     setState(() {
                       useWebExchange = !useWebExchange;
-                      enabledTextFieldWebExchange = useWebExchange;
 
-                      useFTPExchange = !useWebExchange;
-                      enabledTextFieldFTPExchange = !useWebExchange;
+                      // Отключим остальные флаги
+                      if(useWebExchange){
+                        useFTPExchange = false;
+                        useMailExchange = false;
+                      }
                     });
                   },
                 ),
@@ -1015,46 +830,621 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          /// WEB сервер
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: IntrinsicHeight(
-              child: TextField(
-                onChanged: (value) {},
-                enabled: enabledTextFieldWebExchange,
-                keyboardType: TextInputType.text,
-                controller: textFieldWEBServerController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 2,
-                    minHeight: 2,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: const OutlineInputBorder(),
-                  labelStyle: const TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'WEB сервер',
-                  suffixIcon: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          textFieldWEBServerController.text = '';
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        //icon: const Icon(Icons.delete, color: Colors.red),
-                      ),
-                    ],
+  listSettingsExchangeFTP() {
+    return Visibility(
+      visible: useFTPExchange,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Column(
+          children: [
+            /// FTP сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  enabled: useFTPExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldFTPServerController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'FTP сервер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldFTPUserController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+
+            /// Порт сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useFTPExchange,
+                  keyboardType: TextInputType.number,
+                  controller: textFieldFTPPortController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'FTP порт',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldFTPPortController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Имя FTP пользователя
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useFTPExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldFTPUserController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'FTP пользователь',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldFTPUserController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Пароль FTP пользователя
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useFTPExchange,
+                  obscureText: _isObscure,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldFTPPasswordController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'FTP пароль',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscure = !_isObscure;
+                              });
+                            },
+                            icon: Icon(_isObscure
+                                ? Icons.visibility
+                                : Icons.visibility_off)),
+                        IconButton(
+                          onPressed: () {
+                            textFieldFTPPasswordController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Рабочий каталог FTP
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useFTPExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldFTPWorkCatalogController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Рабочий каталог',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldFTPWorkCatalogController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Buttons Тестирование обмена
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    width: (MediaQuery.of(context).size.width - 28),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                            MaterialStateProperty.all(Colors.blue)),
+                        onPressed: () async {
+                          /// Получение данных обмена
+                          final FTPConnect ftpClient = FTPConnect(
+                              textFieldFTPServerController.text,
+                              port: int.parse(textFieldFTPPortController.text),
+                              user: textFieldFTPUserController.text,
+                              pass: textFieldFTPPasswordController.text,
+                              timeout: 600,
+                              debug: true);
+
+                          var res = await ftpClient.connect();
+                          if (!res) {
+                            showErrorMessage(
+                                'Ошибка подключения к серверу FTP!', context);
+                            return;
+                          } else {
+                            showMessage(
+                                'Подключение выполнено успешно!', context);
+                          }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.update, color: Colors.white),
+                            SizedBox(width: 14),
+                            Text('Тест подключения к FTP'),
+                          ],
+                        )),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  listSettingsExchangeWeb() {
+    return Visibility(
+      visible: useWebExchange,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Column(
+          children: [
+            /// WEB сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useWebExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldWEBServerController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'WEB сервер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldWEBServerController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Divider(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  listSettingsExchangeMail() {
+    return Visibility(
+      visible: useMailExchange,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Column(
+          children: [
+            /// SMTP сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  enabled: useMailExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldMailSMTPServerController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'SMTP сервер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldMailSMTPServerController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Порт SMTP сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useMailExchange,
+                  keyboardType: TextInputType.number,
+                  controller: textFieldMailSMTPPortController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'SMTP порт',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldMailSMTPPortController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// POP сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  enabled: useMailExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldMailPOPServerController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'POP3 сервер',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldMailPOPServerController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Порт POP сервер
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useMailExchange,
+                  keyboardType: TextInputType.number,
+                  controller: textFieldMailPOPPortController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'POP3 порт',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldMailPOPPortController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Имя пользователя
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useMailExchange,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldMailUserController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'E-mail пользователя',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            textFieldMailUserController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Пароль пользователя
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+              child: IntrinsicHeight(
+                child: TextField(
+                  onChanged: (value) {},
+                  enabled: useMailExchange,
+                  obscureText: _isObscure,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  keyboardType: TextInputType.text,
+                  controller: textFieldMailPasswordController,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffixIconConstraints: const BoxConstraints(
+                      minWidth: 2,
+                      minHeight: 2,
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'E-mail пароль',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _isObscureMail = !_isObscureMail;
+                              });
+                            },
+                            icon: Icon(_isObscureMail
+                                ? Icons.visibility
+                                : Icons.visibility_off)),
+                        IconButton(
+                          onPressed: () {
+                            textFieldMailPasswordController.text = '';
+                          },
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          //icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Buttons Тестирование обмена
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    width: (MediaQuery.of(context).size.width - 28),
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                            MaterialStateProperty.all(Colors.blue)),
+                        onPressed: () async {
+
+                          //Проверка подключения к серверу почты
+
+                          var res = true;
+                          if (!res) {
+                            showErrorMessage(
+                                'Ошибка подключения к серверу FTP!', context);
+                            return;
+                          } else {
+                            showMessage(
+                                'Подключение выполнено успешно!', context);
+                          }
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.update, color: Colors.white),
+                            SizedBox(width: 14),
+                            Text('Тест подключения к почте'),
+                          ],
+                        )),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+          ],
+        ),
       ),
     );
   }
@@ -1123,7 +1513,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   labelStyle: TextStyle(
                     color: Colors.blueGrey,
                   ),
-                  labelText: 'UID пользователя',
+                  labelText: 'UID пользователя в учетной системе',
                 ),
               ),
             ),
