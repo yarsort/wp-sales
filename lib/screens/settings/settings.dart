@@ -64,8 +64,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   /// Параметры Mail
   TextEditingController textFieldMailSMTPServerController = TextEditingController();
   TextEditingController textFieldMailSMTPPortController = TextEditingController();
+  bool isSMTPServerSecure = false;
   TextEditingController textFieldMailPOPServerController = TextEditingController();
   TextEditingController textFieldMailPOPPortController = TextEditingController();
+  bool isPOPServerSecure = false;
   TextEditingController textFieldMailUserController = TextEditingController();
   TextEditingController textFieldMailPasswordController =
   TextEditingController();
@@ -280,12 +282,14 @@ class _ScreenSettingsState extends State<ScreenSettings> {
         prefs.getString('settings_MailSMTPServer') ?? '';
     textFieldMailSMTPPortController.text =
         prefs.getString('settings_MailSMTPPort') ?? '25';
+    isSMTPServerSecure = prefs.getBool('settings_MailSMTPServerSecure') ?? false;
 
     // POP3
     textFieldMailPOPServerController.text =
         prefs.getString('settings_MailPOPServer') ?? '';
     textFieldMailPOPPortController.text =
         prefs.getString('settings_MailPOPPort') ?? '110';
+    isPOPServerSecure = prefs.getBool('settings_MailPOPServerSecure') ?? false;
 
     textFieldMailUserController.text = prefs.getString('settings_MailUser') ?? '';
     textFieldMailPasswordController.text =
@@ -410,8 +414,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_useMailExchange', useMailExchange);
     prefs.setString('settings_MailSMTPServer', textFieldMailSMTPServerController.text);
     prefs.setString('settings_MailSMTPPort', textFieldMailSMTPPortController.text);
+    prefs.setBool('settings_MailSMTPServerSecure', isSMTPServerSecure);
     prefs.setString('settings_MailPOPServer', textFieldMailPOPServerController.text);
     prefs.setString('settings_MailPOPPort', textFieldMailPOPPortController.text);
+    prefs.setBool('settings_MailPOPServerSecure', isPOPServerSecure);
     prefs.setString('settings_MailUser', textFieldMailUserController.text);
     prefs.setString('settings_MailPassword', textFieldMailPasswordController.text);
 
@@ -1200,43 +1206,69 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             ),
 
             /// Порт SMTP сервер
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-              child: IntrinsicHeight(
-                child: TextField(
-                  onChanged: (value) {},
-                  enabled: useMailExchange,
-                  keyboardType: TextInputType.number,
-                  controller: textFieldMailSMTPPortController,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    suffixIconConstraints: const BoxConstraints(
-                      minWidth: 2,
-                      minHeight: 2,
-                    ),
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: const OutlineInputBorder(),
-                    labelStyle: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'SMTP порт',
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            textFieldMailSMTPPortController.text = '';
-                          },
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          //icon: const Icon(Icons.delete, color: Colors.red),
+            Row(children: [
+              /// Порт SMTP сервер
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 7, 0, 7),
+                  child: IntrinsicHeight(
+                    child: TextField(
+                      onChanged: (value) {},
+                      enabled: useMailExchange,
+                      keyboardType: TextInputType.number,
+                      controller: textFieldMailSMTPPortController,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 2,
+                          minHeight: 2,
                         ),
-                      ],
+                        contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        border: const OutlineInputBorder(),
+                        labelStyle: const TextStyle(
+                          color: Colors.blueGrey,
+                        ),
+                        labelText: 'SMTP порт',
+                        suffixIcon: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                textFieldMailSMTPPortController.text = '';
+                              },
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              //icon: const Icon(Icons.delete, color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              /// Защищенное соединение SMTP
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: isSMTPServerSecure,
+                        onChanged: (value) {
+                          setState(() {
+                            isSMTPServerSecure = !isSMTPServerSecure;
+                          });
+                        },
+                      ),
+                      const Flexible(child: Text('Защищенное соединение')),
+                    ],
+                  ),
+                ),
+              ),
+            ]),
 
             /// POP сервер
             Padding(
@@ -1277,42 +1309,70 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             ),
 
             /// Порт POP сервер
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-              child: IntrinsicHeight(
-                child: TextField(
-                  onChanged: (value) {},
-                  enabled: useMailExchange,
-                  keyboardType: TextInputType.number,
-                  controller: textFieldMailPOPPortController,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    suffixIconConstraints: const BoxConstraints(
-                      minWidth: 2,
-                      minHeight: 2,
-                    ),
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: const OutlineInputBorder(),
-                    labelStyle: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'POP3 порт',
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            textFieldMailPOPPortController.text = '';
-                          },
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          //icon: const Icon(Icons.delete, color: Colors.red),
+            Row(
+              children: [
+                /// Порт POP сервер
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 7, 0, 7),
+                    child: IntrinsicHeight(
+                      child: TextField(
+                        onChanged: (value) {},
+                        enabled: useMailExchange,
+                        keyboardType: TextInputType.number,
+                        controller: textFieldMailPOPPortController,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          suffixIconConstraints: const BoxConstraints(
+                            minWidth: 2,
+                            minHeight: 2,
+                          ),
+                          contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: const OutlineInputBorder(),
+                          labelStyle: const TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'POP3 порт',
+                          suffixIcon: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  textFieldMailPOPPortController.text = '';
+                                },
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                //icon: const Icon(Icons.delete, color: Colors.red),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+                /// Защищенное соединение POP
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: isPOPServerSecure,
+                          onChanged: (value) {
+                            setState(() {
+                              isPOPServerSecure = !isPOPServerSecure;
+                            });
+                          },
+                        ),
+                        const Flexible(child: Text('Защищенное соединение')),
                       ],
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
 
             /// Имя пользователя
@@ -1361,7 +1421,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                 child: TextField(
                   onChanged: (value) {},
                   enabled: useMailExchange,
-                  obscureText: _isObscure,
+                  obscureText: _isObscureMail,
                   autocorrect: false,
                   enableSuggestions: false,
                   keyboardType: TextInputType.text,

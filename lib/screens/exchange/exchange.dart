@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:enough_mail/enough_mail.dart';
 import 'package:flutter/material.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:path_provider/path_provider.dart';
@@ -289,7 +290,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _visibleIndicator = true;
     });
 
-    showMessage('Начало обмена...', context);
+    //showMessage('Начало обмена...', context);
 
     final SharedPreferences prefs = await _prefs;
 
@@ -300,7 +301,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       showMessage('Завершение загрузки из FTP.', context);
     }
 
-    bool useWebExchange = prefs.getBool('settings_useFTPExchange') ?? false;
+    bool useMailExchange = prefs.getBool('settings_useMailExchange') ?? false;
+    if (useMailExchange) {
+      showMessage('Загрузка данных из почты.', context);
+      await downloadDataFromEmail();
+      showMessage('Завершение загрузки из почты.', context);
+    }
+
+    bool useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
     if (useWebExchange) {
       await downloadDataFromWebServer();
     }
@@ -448,6 +456,109 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// 3. Запросы на какие-либо данные из учетной системы.
 
     await saveDownloadedData(listJSONFiles);
+  }
+
+  // Получение данных из E-mail
+  Future<void> downloadDataFromEmail() async {
+    if (!_loading) {
+      return;
+    }
+
+    /// Прочитаем настройки подключения
+    final SharedPreferences prefs = await _prefs;
+
+    List<String> listDownload = [];
+    setState(() {
+      _valueProgress = 0;
+    });
+
+    /// Определение пользвателя обмена
+    String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
+    if (settingsUIDUser.trim() == '') {
+      showMessage('В настройках не указан UID  пользователя!', context);
+      return;
+    }
+
+    /// Параметры подключения SMTP
+    String settingsMailSMTPServer = prefs.getString('settings_MailSMTPServer') ?? '';
+    String settingsMailSMTPPort = prefs.getString('settings_MailSMTPPort') ?? '25';
+
+    /// Параметры подключения POP3
+    String settingsMailPOPServer = prefs.getString('settings_MailPOPServer') ?? '';
+    int settingsMailPOPPort = int.parse(prefs.getString('settings_MailPOPPort') ?? '110');
+    bool isPopServerSecure = prefs.getBool('settings_MailPOPServerSecure') ?? false;
+
+    String settingsMailUser = prefs.getString('settings_MailUser') ?? '';
+    String settingsMailPassword = prefs.getString('settings_MailPassword') ?? '';
+
+    /// Проверка заполнения параметров подключения
+    if (settingsMailPOPServer.trim() == '') {
+      showMessage('В настройках не указано имя POP3 сервера!', context);
+      return;
+    }
+    if (settingsMailPOPPort.toString().trim() == '') {
+      showMessage('В настройках не указано порт POP3 сервера!', context);
+      return;
+    }
+    if (settingsMailUser.trim() == '') {
+      showMessage('В настройках не указано имя пользователя почты!', context);
+      return;
+    }
+    if (settingsMailPassword.trim() == '') {
+      showMessage('В настройках не указан пароль пользователя почты!', context);
+      return;
+    }
+
+    final client = PopClient();
+    try {
+      // Подключение к серверу
+      await client.connectToServer(settingsMailPOPServer, settingsMailPOPPort,
+          isSecure: isPopServerSecure);
+
+      // Авторизация
+      await client.login(settingsMailUser, settingsMailPassword);
+
+      final status = await client.status();
+
+      // Общее количество сообщений
+      var numberOfMessages = status.numberOfMessages;
+
+      // Текущее сообщение
+      var currentMessage = 1;
+
+      // Цикл получения писем
+      while (numberOfMessages >= currentMessage) {
+        var message = await client.retrieve(currentMessage);
+
+        var returnPath = message.getHeader('Return-Path');
+        debugPrint('Получатель: $returnPath');
+
+        // Получим тему письма
+        var subject = message.decodeSubject() ?? '';
+        debugPrint('Тема письма: $subject');
+
+        // Проверим что это письмо для текущего пользователя
+        if(!subject.contains(settingsUIDUser)){
+          currentMessage++;
+          continue;
+        }
+
+        break;
+
+        debugPrint('from: ${message.from} with subject "${message.decodeSubject()}"');
+        currentMessage++;
+      }
+
+      // Отключение от почтового сервера
+      await client.quit();
+
+    } on PopException catch (e) {
+      showErrorMessage('Ошибка почтового сервера!', context);
+      showErrorMessage('$e', context);
+      setState(() {_loading = false;});
+    }
+
+
   }
 
   // Получение данных из Web Server
@@ -1014,8 +1125,45 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbUpdateIncomingCashOrder(itemDoc);
         }
       }
+    }
 
-      //showMessage('Завершение отправки на FTP.', context);
+    bool useMailExchange = prefs.getBool('settings_useMailExchange') ?? false;
+    if (useMailExchange) {
+      showMessage('Отправка данных в учетную систему.', context);
+
+      // Добавим файлы
+      String pathZipFile = await generateDataSimple();
+      listToUpload.add(pathZipFile);
+
+      // Отправим на Email-сервер
+      var res = await uploadDataToMail(listToUpload);
+      if (res) {
+        /// Установим статус отправлено у записей
+        // Заказ покупателя
+        List<OrderCustomer> listDocsOrderCustomer =
+        await dbReadAllNewOrderCustomer();
+        for (var itemDoc in listDocsOrderCustomer) {
+          itemDoc.status = 2;
+          itemDoc.dateSendingTo1C = DateTime.now();
+          await dbUpdateOrderCustomerWithoutItems(itemDoc);
+        }
+        // Возврат заказа покупателя
+        List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
+        await dbReadAllNewReturnOrderCustomer();
+        for (var itemDoc in listDocsReturnOrderCustomer) {
+          itemDoc.status = 2;
+          itemDoc.dateSendingTo1C = DateTime.now();
+          await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
+        }
+        // Приходный кассовый ордер
+        List<IncomingCashOrder> listDocsIncomingCashOrder =
+        await dbReadAllNewIncomingCashOrder();
+        for (var itemDoc in listDocsIncomingCashOrder) {
+          itemDoc.status = 2;
+          itemDoc.dateSendingTo1C = DateTime.now();
+          await dbUpdateIncomingCashOrder(itemDoc);
+        }
+      }
     }
 
     bool useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
@@ -1024,7 +1172,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
   }
 
-// Получение данных из FTP Server
+  // Отправка данных на FTP Server
   Future<bool> uploadDataToFTP(List<String> listToUpload) async {
     if (!_loading) {
       return false;
@@ -1091,6 +1239,38 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
     }
     await ftpClient.disconnect();
+
+    // Если отправлены все файлы, значит все ОК! :)
+    if (countSendFiles == listToUpload.length) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // Отправка данных на Email Server
+  Future<bool> uploadDataToMail(List<String> listToUpload) async {
+    if (!_loading) {
+      return false;
+    }
+
+    // Если файлов для отправки нет, значит все ОК
+    if (listToUpload.isEmpty) {
+      return true;
+    }
+
+    /// Прочитаем настройки подключения
+    final SharedPreferences prefs = await _prefs;
+
+    // Найдем и отправим файлы на сервер
+    int countSendFiles = 0;
+    for (var pathFile in listToUpload) {
+      File fileToUpload = File(pathFile);
+      bool res = true;
+      if (res) {
+        countSendFiles++;
+      }
+    }
 
     // Если отправлены все файлы, значит все ОК! :)
     if (countSendFiles == listToUpload.length) {
