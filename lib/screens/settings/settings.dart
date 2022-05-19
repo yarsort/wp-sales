@@ -1,3 +1,4 @@
+import 'package:enough_mail/enough_mail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ftpconnect/ftpconnect.dart';
@@ -150,6 +151,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       ElevatedButton(
                           onPressed: () async {
                             await saveSettings();
+                            if (!mounted) return;
                             Navigator.of(context).pop(true);
                           },
                           child: const SizedBox(
@@ -439,6 +441,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setBool('settings_useWebExchange', useWebExchange);
     prefs.setString('settings_WEBServer', textFieldWEBServerController.text);
 
+    if (!mounted) return;
     showMessage('Настройки сохранены!', context);
   }
 
@@ -1063,7 +1066,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   SizedBox(
-                    height: 40,
+                    height: 50,
                     width: (MediaQuery.of(context).size.width - 28),
                     child: ElevatedButton(
                         style: ButtonStyle(
@@ -1081,10 +1084,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
                           var res = await ftpClient.connect();
                           if (!res) {
+                            if (!mounted) return;
                             showErrorMessage(
                                 'Ошибка подключения к серверу FTP!', context);
                             return;
                           } else {
+                            if (!mounted) return;
                             showMessage(
                                 'Подключение выполнено успешно!', context);
                           }
@@ -1472,7 +1477,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   SizedBox(
-                    height: 40,
+                    height: 50,
                     width: (MediaQuery.of(context).size.width - 28),
                     child: ElevatedButton(
                         style: ButtonStyle(
@@ -1481,15 +1486,52 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                         onPressed: () async {
 
                           //Проверка подключения к серверу почты
+                          /// Прочитаем настройки подключения
+                          final SharedPreferences prefs = await _prefs;
 
-                          var res = true;
-                          if (!res) {
-                            showErrorMessage(
-                                'Ошибка подключения к серверу FTP!', context);
+                          /// Параметры подключения POP3
+                          String settingsMailPOPServer = prefs.getString('settings_MailPOPServer') ?? '';
+                          int settingsMailPOPPort = int.parse(prefs.getString('settings_MailPOPPort') ?? '110');
+                          bool isPopServerSecure = prefs.getBool('settings_MailPOPServerSecure') ?? false;
+
+                          String settingsMailUser = prefs.getString('settings_MailUser') ?? '';
+                          String settingsMailPassword = prefs.getString('settings_MailPassword') ?? '';
+
+                          /// Проверка заполнения параметров подключения
+                          if (settingsMailPOPServer.trim() == '') {
+                            showMessage('В настройках не указано имя POP3 сервера!', context);
                             return;
-                          } else {
-                            showMessage(
-                                'Подключение выполнено успешно!', context);
+                          }
+                          if (settingsMailPOPPort.toString().trim() == '') {
+                            showMessage('В настройках не указано порт POP3 сервера!', context);
+                            return;
+                          }
+                          if (settingsMailUser.trim() == '') {
+                            showMessage('В настройках не указано имя пользователя почты!', context);
+                            return;
+                          }
+                          if (settingsMailPassword.trim() == '') {
+                            showMessage('В настройках не указан пароль пользователя почты!', context);
+                            return;
+                          }
+
+                          try {
+                            final client = PopClient();
+
+                            // Подключение к серверу
+                            await client.connectToServer(settingsMailPOPServer, settingsMailPOPPort,
+                                isSecure: isPopServerSecure);
+
+                            // Авторизация
+                            await client.login(settingsMailUser, settingsMailPassword);
+
+                            // Отключение от почтового сервера
+                            await client.quit();
+
+                            showMessage('Подключение выполнено успешно!', context);
+                          } on PopException catch (e) {
+                            showErrorMessage('Ошибка подключения к серверу FTP!', context);
+                            showErrorMessage('$e', context);
                           }
                         },
                         child: Row(

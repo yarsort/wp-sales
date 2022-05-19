@@ -472,16 +472,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _valueProgress = 0;
     });
 
+
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
+      if (!mounted) return;
       showMessage('В настройках не указан UID  пользователя!', context);
       return;
     }
-
-    /// Параметры подключения SMTP
-    String settingsMailSMTPServer = prefs.getString('settings_MailSMTPServer') ?? '';
-    String settingsMailSMTPPort = prefs.getString('settings_MailSMTPPort') ?? '25';
 
     /// Параметры подключения POP3
     String settingsMailPOPServer = prefs.getString('settings_MailPOPServer') ?? '';
@@ -493,24 +491,29 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     /// Проверка заполнения параметров подключения
     if (settingsMailPOPServer.trim() == '') {
+      if (!mounted) return;
       showMessage('В настройках не указано имя POP3 сервера!', context);
       return;
     }
     if (settingsMailPOPPort.toString().trim() == '') {
+      if (!mounted) return;
       showMessage('В настройках не указано порт POP3 сервера!', context);
       return;
     }
     if (settingsMailUser.trim() == '') {
+      if (!mounted) return;
       showMessage('В настройках не указано имя пользователя почты!', context);
       return;
     }
     if (settingsMailPassword.trim() == '') {
+      if (!mounted) return;
       showMessage('В настройках не указан пароль пользователя почты!', context);
       return;
     }
 
-    final client = PopClient();
     try {
+      final client = PopClient();
+
       // Подключение к серверу
       await client.connectToServer(settingsMailPOPServer, settingsMailPOPPort,
           isSecure: isPopServerSecure);
@@ -522,6 +525,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Общее количество сообщений
       var numberOfMessages = status.numberOfMessages;
+
+      final messageList = await client.list();
 
       // Текущее сообщение
       var currentMessage = 1;
@@ -553,12 +558,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       await client.quit();
 
     } on PopException catch (e) {
+      if (!mounted) return;
       showErrorMessage('Ошибка почтового сервера!', context);
       showErrorMessage('$e', context);
       setState(() {_loading = false;});
     }
-
-
   }
 
   // Получение данных из Web Server

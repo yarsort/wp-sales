@@ -28,7 +28,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.9.0"
+    version: "2.8.2"
   basic_utils:
     dependency: transitive
     description:
@@ -49,7 +49,7 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   cached_network_image_platform_interface:
     dependency: transitive
     description:
@@ -243,7 +243,7 @@ packages:
       name: flutter_lints
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "2.0.1"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -262,7 +262,7 @@ packages:
       name: flutter_slidable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -321,7 +321,7 @@ packages:
       name: lints
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.1"
+    version: "2.0.0"
   logging:
     dependency: transitive
     description:
@@ -671,5 +671,5 @@ packages:
     source: hosted
     version: "6.0.1"
 sdks:
-  dart: ">=2.17.0-0 <3.0.0"
-  flutter: ">=2.8.0"
+  dart: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"

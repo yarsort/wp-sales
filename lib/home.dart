@@ -368,9 +368,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       const Divider(),
                       Center(
                         child: Text(
-                            countNewOrderCustomer.toString() +
-                                ' из ' +
-                                countSendOrderCustomer.toString(),
+                            '$countNewOrderCustomer из $countSendOrderCustomer',
                             style: const TextStyle(
                                 fontSize: 16, color: Colors.black45)),
                       ),
@@ -446,9 +444,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                     children: [
                       const Divider(),
                       Text(
-                          countNewReturnOrderCustomer.toString() +
-                              ' из ' +
-                              countSendReturnOrderCustomer.toString(),
+                          '$countNewReturnOrderCustomer из $countSendReturnOrderCustomer',
                           style: const TextStyle(
                               fontSize: 16, color: Colors.black45)),
                     ],
@@ -521,9 +517,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                     children: [
                       const Divider(),
                       Text(
-                          countNewIncomingCashOrder.toString() +
-                              ' из ' +
-                              countSendIncomingCashOrder.toString(),
+                          '$countNewIncomingCashOrder из $countSendIncomingCashOrder',
                           style: const TextStyle(
                               fontSize: 16, color: Colors.black45)),
                     ],
