@@ -257,6 +257,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       widget.orderCustomer.datePaying = tempDatePaying;
     }
 
+    // Расчет реквизитов наименований на форме
     countItems = widget.orderCustomer.countItems;
     textFieldOrganizationController.text =
         widget.orderCustomer.nameOrganization;

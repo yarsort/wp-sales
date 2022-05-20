@@ -1132,7 +1132,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
             child: Card(
               elevation: 3,
               child: ListTile(
-                tileColor: Colors.lightGreen[50],
+                tileColor: incomingCashOrder.numberFrom1C != ''
+                    ? Colors.lightGreen[50]
+                    : Colors.deepOrange[50],
                 onTap: () async {
                   await Navigator.push(
                     context,

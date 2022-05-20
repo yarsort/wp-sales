@@ -27,14 +27,14 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
   double sumReturnOrderCustomerToday = 0.0;
   double sumIncomingCashOrderToday = 0.0;
 
-  int countNewOrderCustomer = 0;
   int countSendOrderCustomer = 0;
+  int countSendOrderCustomerWithNumber = 0;
 
-  int countNewReturnOrderCustomer = 0;
   int countSendReturnOrderCustomer = 0;
+  int countSendReturnOrderCustomerWithNumber = 0;
 
-  int countNewIncomingCashOrder = 0;
   int countSendIncomingCashOrder = 0;
+  int countSendIncomingCashOrderWithNumber = 0;
 
   bool loadingData = false;
 
@@ -173,20 +173,11 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     // Суммы документов
     await readSumDocumentToday();
 
-    // Прочитаем количество документов
-    await readCountDocuments();
-
     if (mounted) {
       setState(() {
         loadingData = false;
       });
     }
-  }
-
-  readCountDocuments() async {
-    countSendOrderCustomer = await dbGetCountSendOrderCustomer();
-    countSendReturnOrderCustomer = await dbGetCountSendReturnOrderCustomer();
-    countSendIncomingCashOrder = await dbGetCountSendIncomingCashOrder();
   }
 
   readSumDocumentToday() async {
@@ -208,7 +199,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             .toIso8601String();
 
     // Фильтр: по статусу
-    whereList.add('status = 1');
+    whereList.add('status = 2');
     whereList.add('(date >= ? AND date <= ?)');
 
     // Соединим условия отбора
@@ -219,9 +210,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     sumReturnOrderCustomerToday = 0.0;
     sumIncomingCashOrderToday = 0.0;
 
-    countNewOrderCustomer = 0;
-    countNewReturnOrderCustomer = 0;
-    countNewIncomingCashOrder = 0;
+    countSendOrderCustomer = 0;
+    countSendOrderCustomerWithNumber = 0;
+    countSendReturnOrderCustomer = 0;
+    countSendReturnOrderCustomerWithNumber = 0;
+    countSendIncomingCashOrder = 0;
+    countSendIncomingCashOrderWithNumber = 0;
 
     // Экземпляр базы даных
     final db = await instance.database;
@@ -235,7 +229,11 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
         .toList();
     for (var orderCustomer in listSendOrdersCustomer) {
       sumOrderCustomerToday = sumOrderCustomerToday + orderCustomer.sum;
-      countNewOrderCustomer = countNewOrderCustomer + 1;
+      if (orderCustomer.numberFrom1C.isEmpty) {
+        countSendOrderCustomer++;
+      } else {
+        countSendOrderCustomerWithNumber++;
+      }
     }
 
     // Запрос на возвраты заказов покупателя
@@ -247,7 +245,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
         .toList();
     for (var returnOrderCustomer in listSendReturnOrdersCustomer) {
       sumReturnOrderCustomerToday = sumReturnOrderCustomerToday + returnOrderCustomer.sum;
-      countNewReturnOrderCustomer = countNewReturnOrderCustomer + 1;
+
+      if (returnOrderCustomer.numberFrom1C.isEmpty) {
+        countSendReturnOrderCustomer++;
+      } else {
+        countSendReturnOrderCustomerWithNumber++;
+      }
     }
 
     // Запрос на оплаты
@@ -260,7 +263,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     for (var incomingCashOrder in listSendIncomingCashOrder) {
       sumIncomingCashOrderToday =
           sumIncomingCashOrderToday + incomingCashOrder.sum;
-      countNewIncomingCashOrder = countNewIncomingCashOrder + 1;
+
+      if (incomingCashOrder.numberFrom1C.isEmpty) {
+        countSendIncomingCashOrder++;
+      } else {
+        countSendIncomingCashOrderWithNumber++;
+      }
+
     }
   }
 
@@ -366,11 +375,30 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   subtitle: Column(
                     children: [
                       const Divider(),
-                      Center(
-                        child: Text(
-                            '$countNewOrderCustomer из $countSendOrderCustomer',
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.black45)),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Icon(Icons.repeat_one,
+                                  color: Colors.red, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  '$countSendOrderCustomer',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.red)),
+                              const SizedBox(width: 20),
+                              const Icon(Icons.repeat_one,
+                                  color: Colors.white, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  '$countSendOrderCustomerWithNumber',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.white)),
+                            ],
+                          )
+                        ],
                       ),
                     ],
                   ),
@@ -404,7 +432,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       Center(
                         child: Text(doubleToString(sumOrderCustomerToday),
                             style: const TextStyle(
-                                fontSize: 16, color: Colors.black45)),
+                                fontSize: 16, color: Colors.white)),
                       ),
                     ],
                   ),
@@ -443,10 +471,31 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   subtitle: Column(
                     children: [
                       const Divider(),
-                      Text(
-                          '$countNewReturnOrderCustomer из $countSendReturnOrderCustomer',
-                          style: const TextStyle(
-                              fontSize: 16, color: Colors.black45)),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Icon(Icons.repeat_one,
+                                  color: Colors.red, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  '$countSendReturnOrderCustomer',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.red)),
+                              const SizedBox(width: 20),
+                              const Icon(Icons.repeat_one,
+                                  color: Colors.white, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  '$countSendReturnOrderCustomerWithNumber',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.white)),
+                            ],
+                          )
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -478,7 +527,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       const Divider(),
                       Text(doubleToString(sumReturnOrderCustomerToday),
                           style: const TextStyle(
-                              fontSize: 16, color: Colors.black45)),
+                              fontSize: 16, color: Colors.white)),
                     ],
                   ),
                 ),
@@ -516,10 +565,31 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                   subtitle: Column(
                     children: [
                       const Divider(),
-                      Text(
-                          '$countNewIncomingCashOrder из $countSendIncomingCashOrder',
-                          style: const TextStyle(
-                              fontSize: 16, color: Colors.black45)),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Icon(Icons.repeat_one,
+                                  color: Colors.red, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  '$countSendIncomingCashOrder',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.red)),
+                              const SizedBox(width: 20),
+                              const Icon(Icons.repeat_one,
+                                  color: Colors.white, size: 20),
+                              const SizedBox(width: 5),
+                              Text(
+                                  '$countSendIncomingCashOrderWithNumber',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.white)),
+                            ],
+                          )
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -551,7 +621,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                       const Divider(),
                       Text(doubleToString(sumIncomingCashOrderToday),
                           style: const TextStyle(
-                              fontSize: 16, color: Colors.black45)),
+                              fontSize: 16, color: Colors.white)),
                     ],
                   ),
                 ),

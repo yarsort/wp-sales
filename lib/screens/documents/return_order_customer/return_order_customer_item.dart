@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wp_sales/import/import_db.dart';
@@ -336,8 +337,27 @@ class _ScreenItemReturnOrderCustomerState
     }
 
     // Проверка Организации
-    if ((textFieldPartnerController.text.trim() == '') ||
-        (textFieldOrganizationController.text.trim() == '')) {
+    if (textFieldOrganizationController.text.trim() == '') {
+      textFieldContractController.text = '';
+      widget.returnOrderCustomer.nameContract = '';
+      widget.returnOrderCustomer.uidContract = '';
+
+      widget.returnOrderCustomer.nameSettlementDocument = '';
+      widget.returnOrderCustomer.uidSettlementDocument = '';
+
+      textFieldPriceController.text = '';
+      widget.returnOrderCustomer.namePrice = '';
+      widget.returnOrderCustomer.uidPrice = '';
+
+      textFieldCurrencyController.text = '';
+      widget.returnOrderCustomer.nameCurrency = '';
+      widget.returnOrderCustomer.uidCurrency = '';
+
+      textFieldCashboxController.text = '';
+    }
+
+    // Проверка Партнера
+    if (textFieldPartnerController.text.trim() == '') {
       textFieldContractController.text = '';
       widget.returnOrderCustomer.nameContract = '';
       widget.returnOrderCustomer.uidContract = '';
@@ -508,14 +528,7 @@ class _ScreenItemReturnOrderCustomerState
                         builder: (context) => ScreenPartnerSelection(
                             returnOrderCustomer: widget.returnOrderCustomer)));
 
-                // Если изменили партнера, изменим его договор и валюту
-                widget.returnOrderCustomer.nameContract = '';
-                widget.returnOrderCustomer.uidContract = '';
-                widget.returnOrderCustomer.namePrice = '';
-                widget.returnOrderCustomer.uidPrice = '';
-                widget.returnOrderCustomer.nameCurrency = '';
-                widget.returnOrderCustomer.uidCurrency = '';
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Contract
@@ -535,12 +548,6 @@ class _ScreenItemReturnOrderCustomerState
                     MaterialPageRoute(
                         builder: (context) => ScreenContractSelection(
                             returnOrderCustomer: widget.returnOrderCustomer)));
-
-                // Если изменили контракт, изменим цену и валюту
-                widget.returnOrderCustomer.namePrice = '';
-                widget.returnOrderCustomer.uidPrice = '';
-                widget.returnOrderCustomer.nameCurrency = '';
-                widget.returnOrderCustomer.uidCurrency = '';
 
                 await updateHeader();
               }),
@@ -591,7 +598,7 @@ class _ScreenItemReturnOrderCustomerState
                         builder: (context) => ScreenPriceSelection(
                             returnOrderCustomer: widget.returnOrderCustomer)));
 
-                updateHeader();
+               await updateHeader();
               }),
 
           /// Warehouse
@@ -611,7 +618,7 @@ class _ScreenItemReturnOrderCustomerState
                     MaterialPageRoute(
                         builder: (context) => ScreenWarehouseSelection(
                             returnOrderCustomer: widget.returnOrderCustomer)));
-                updateHeader();
+                await updateHeader();
               }),
 
           /// Sum of document
@@ -857,114 +864,114 @@ class _ScreenItemReturnOrderCustomerState
                   padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
                   child: Card(
                       elevation: 2,
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: PopupMenuButton<String>(
-                          onSelected: (String value) async {
-                            if (value == 'delete') {
-                              itemsReturnOrder = List.from(itemsReturnOrder)
-                                ..removeAt(index);
-                              setState(() {
-                                ReturnOrderCustomer().allSum(
-                                    widget.returnOrderCustomer, itemsReturnOrder);
-                                ReturnOrderCustomer().allCount(
-                                    widget.returnOrderCustomer, itemsReturnOrder);
-                                updateHeader();
-                              });
-                            }
-                            if (value == 'edit') {
-                              Product productItem =
-                                  await dbReadProductUID(item.uid);
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ScreenAddItem(
-                                      returnOrderCustomer:
-                                          widget.returnOrderCustomer,
-                                      listItemReturnDoc: itemsReturnOrder,
-                                      indexItem: index,
-                                      product: productItem),
-                                ),
-                              );
-                              setState(() {
-                                ReturnOrderCustomer().allSum(
-                                    widget.returnOrderCustomer, itemsReturnOrder);
-                                ReturnOrderCustomer().allCount(
-                                    widget.returnOrderCustomer, itemsReturnOrder);
-                                updateHeader();
-                              });
-                            }
-                          },
-                          child: ListTile(
-                            title: Text(item.name),
-                            subtitle: Column(
-                              children: [
-                                const Divider(),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                        flex: 1,
-                                        child:
-                                            Text(doubleThreeToString(item.count))),
-                                    Expanded(flex: 1, child: Text(item.nameUnit)),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Text(doubleToString(item.price))),
-                                    Expanded(
-                                        flex: 1,
-                                        child: Text(doubleToString(item.sum))),
-                                  ],
-                                ),
-                              ],
+                      child: Slidable(
+                        // The end action pane is the one at the right or the bottom side.
+                        startActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (BuildContext context) async {
+                                itemsReturnOrder
+                                    .sort((a, b) => a.name.compareTo(b.name));
+                                setState(() {
+                                  countChangeDoc++;
+                                });
+                              },
+                              backgroundColor: const Color(0xFF0392CF),
+                              foregroundColor: Colors.white,
+                              icon: Icons.sort,
+                              //label: '',
                             ),
-                          ),
-                          itemBuilder: (BuildContext context) =>
-                              <PopupMenuEntry<String>>[
-                            PopupMenuItem<String>(
-                              value: 'view',
-                              child: Row(
-                                children: const [
-                                  Icon(
-                                    Icons.search,
-                                    color: Colors.blue,
+                            SlidableAction(
+                              onPressed: (BuildContext context) async {
+                                Product productItem =
+                                await dbReadProductUID(item.uid);
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ScreenProductItem(
+                                        productItem: productItem),
                                   ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text('Просмотр'),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem<String>(
-                              value: 'edit',
-                              child: Row(children: const [
-                                Icon(
-                                  Icons.edit,
-                                  color: Colors.blue,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text('Изменить')
-                              ]),
-                            ),
-                            PopupMenuItem<String>(
-                              value: 'delete',
-                              child: Row(
-                                children: const [
-                                  Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text('Удалить'),
-                                ],
-                              ),
+                                );
+                              },
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              icon: Icons.search,
+                              //label: 'Просмотр',
                             ),
                           ],
+                        ),
+                        endActionPane: ActionPane(
+                          motion: const ScrollMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (BuildContext context) async {
+                                Product productItem =
+                                await dbReadProductUID(item.uid);
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ScreenAddItem(
+                                          listItemReturnDoc: itemsReturnOrder,
+                                          returnOrderCustomer: widget.returnOrderCustomer,
+                                          indexItem: index,
+                                          product: productItem),
+                                    ));
+                                setState(() {
+                                  ReturnOrderCustomer()
+                                      .allSum(widget.returnOrderCustomer, itemsReturnOrder);
+                                  ReturnOrderCustomer()
+                                      .allCount(widget.returnOrderCustomer, itemsReturnOrder);
+                                  updateHeader();
+                                });
+                              },
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              icon: Icons.edit,
+                              //label: '',
+                            ),
+                            SlidableAction(
+                              onPressed: (BuildContext context) async {
+                                itemsReturnOrder = List.from(itemsReturnOrder)
+                                  ..removeAt(index);
+                                setState(() {
+                                  ReturnOrderCustomer()
+                                      .allSum(widget.returnOrderCustomer, itemsReturnOrder);
+                                  ReturnOrderCustomer()
+                                      .allCount(widget.returnOrderCustomer, itemsReturnOrder);
+                                  updateHeader();
+                                });
+                              },
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              //label: '',
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          title: Text(item.name),
+                          subtitle: Column(
+                            children: [
+                              const Divider(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                      flex: 1,
+                                      child:
+                                          Text(doubleThreeToString(item.count))),
+                                  Expanded(flex: 1, child: Text(item.nameUnit)),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Text(doubleToString(item.price))),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Text(doubleToString(item.sum))),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       )),
                 );

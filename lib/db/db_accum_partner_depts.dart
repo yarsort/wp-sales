@@ -198,7 +198,7 @@ Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptByUIDPartners(listPartne
       "SUM(${ItemAccumPartnerDeptFields.balanceForPayment}) AS balanceForPayment, "
       "SUM(${ItemAccumPartnerDeptFields.balance}) AS balance "
       "FROM $tableAccumPartnerDebts "
-      "WHERE ${ItemAccumPartnerDeptFields.balanceForPayment} > 0 AND ("
+      "WHERE ("
       "${ItemAccumPartnerDeptFields.uidPartner} IN (${listPartnersUID.map((e) => "'$e'").join(', ')})) "
       "GROUP BY ${ItemAccumPartnerDeptFields.uidPartner} "
       "ORDER BY ${ItemAccumPartnerDeptFields.balanceForPayment} DESC, "

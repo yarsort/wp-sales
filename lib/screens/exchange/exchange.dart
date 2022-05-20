@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:enough_mail/enough_mail.dart';
 import 'package:flutter/material.dart';
@@ -464,6 +465,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       return;
     }
 
+    /// Распакуем файлы данных их архивов по разным итерационным каталогам
+    List<String> listJSONFiles = [];
+
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
 
@@ -471,7 +475,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     setState(() {
       _valueProgress = 0;
     });
-
 
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
@@ -482,12 +485,16 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
 
     /// Параметры подключения POP3
-    String settingsMailPOPServer = prefs.getString('settings_MailPOPServer') ?? '';
-    int settingsMailPOPPort = int.parse(prefs.getString('settings_MailPOPPort') ?? '110');
-    bool isPopServerSecure = prefs.getBool('settings_MailPOPServerSecure') ?? false;
+    String settingsMailPOPServer =
+        prefs.getString('settings_MailPOPServer') ?? '';
+    int settingsMailPOPPort =
+        int.parse(prefs.getString('settings_MailPOPPort') ?? '110');
+    bool isPopServerSecure =
+        prefs.getBool('settings_MailPOPServerSecure') ?? false;
 
     String settingsMailUser = prefs.getString('settings_MailUser') ?? '';
-    String settingsMailPassword = prefs.getString('settings_MailPassword') ?? '';
+    String settingsMailPassword =
+        prefs.getString('settings_MailPassword') ?? '';
 
     /// Проверка заполнения параметров подключения
     if (settingsMailPOPServer.trim() == '') {
@@ -512,57 +519,84 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
 
     try {
-      final client = PopClient();
+      final client = PopClient(isLogEnabled: true);
 
-      // Подключение к серверу
+      // Connect
       await client.connectToServer(settingsMailPOPServer, settingsMailPOPPort,
           isSecure: isPopServerSecure);
-
-      // Авторизация
       await client.login(settingsMailUser, settingsMailPassword);
-
       final status = await client.status();
 
-      // Общее количество сообщений
-      var numberOfMessages = status.numberOfMessages;
+      // Список писем, которые в будущем надо будет обработать
+      List<int> listNumbersMessages = [];
 
-      final messageList = await client.list();
-
-      // Текущее сообщение
-      var currentMessage = 1;
-
-      // Цикл получения писем
-      while (numberOfMessages >= currentMessage) {
-        var message = await client.retrieve(currentMessage);
-
-        var returnPath = message.getHeader('Return-Path');
-        debugPrint('Получатель: $returnPath');
-
+      var countMessages = status.numberOfMessages;
+      while (countMessages > 0) {
         // Получим тему письма
-        var subject = message.decodeSubject() ?? '';
-        debugPrint('Тема письма: $subject');
+        var message = await client.retrieveTopLines(countMessages, 8);
 
-        // Проверим что это письмо для текущего пользователя
-        if(!subject.contains(settingsUIDUser)){
-          currentMessage++;
+        // Проверим это письмо для текущего пользователя?
+        var subject = message.decodeSubject() ?? ''; // На всякий случай
+        if (subject.contains(settingsUIDUser)) {
+          listNumbersMessages.add(countMessages);
+        }
+        countMessages--;
+      }
+
+      // Получим путь к временному каталогу устройства
+      Directory tempDir = await getTemporaryDirectory();
+
+      // Обработаем письма и получим данные из них: *.zip
+      for (var numberMessage in listNumbersMessages) {
+        var message = await client.retrieve(numberMessage);
+        if(message.hasAttachments() == false) {
           continue;
         }
 
-        break;
+        List<ContentInfo> listAttachments = message.findContentInfo();
+        for (var contentInfo in listAttachments) {
+          MimePart? mimePart = message.getPart(contentInfo.fetchId);
 
-        debugPrint('from: ${message.from} with subject "${message.decodeSubject()}"');
-        currentMessage++;
+          // Раскодируем данные
+          Uint8List? uint8List = mimePart?.decodeContentBinary();
+
+          // Если нет данных - пропустим
+          if(uint8List!.isEmpty) {continue;}
+
+          var nameFile = contentInfo.contentDisposition?.filename??'$settingsUIDUser.json';
+          var pathLocalFile = tempDir.path + '/' + nameFile;
+
+          // Запишем даные в файл
+          final File localFile = File(pathLocalFile);
+          await localFile.writeAsBytes(uint8List);
+
+          listJSONFiles.add(pathLocalFile);
+        }
       }
 
-      // Отключение от почтового сервера
+      // Disconnect
       await client.quit();
+
+      setState(() {
+        _valueProgress = 0.2;
+      });
 
     } on PopException catch (e) {
       if (!mounted) return;
       showErrorMessage('Ошибка почтового сервера!', context);
       showErrorMessage('$e', context);
-      setState(() {_loading = false;});
+      setState(() {
+        _loading = false;
+      });
     }
+
+    /// Получений список файлов в формате JSON, отправим на обработку
+    /// Файлами могут быть данные:
+    /// 1. Обмен товарами, партнерами, контрактами и т.д.
+    /// 2. Отчеты для менеджера по запросу.
+    /// 3. Запросы на какие-либо данные из учетной системы.
+
+    await saveDownloadedData(listJSONFiles);
   }
 
   // Получение данных из Web Server
@@ -1145,7 +1179,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         /// Установим статус отправлено у записей
         // Заказ покупателя
         List<OrderCustomer> listDocsOrderCustomer =
-        await dbReadAllNewOrderCustomer();
+            await dbReadAllNewOrderCustomer();
         for (var itemDoc in listDocsOrderCustomer) {
           itemDoc.status = 2;
           itemDoc.dateSendingTo1C = DateTime.now();
@@ -1153,7 +1187,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         }
         // Возврат заказа покупателя
         List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
-        await dbReadAllNewReturnOrderCustomer();
+            await dbReadAllNewReturnOrderCustomer();
         for (var itemDoc in listDocsReturnOrderCustomer) {
           itemDoc.status = 2;
           itemDoc.dateSendingTo1C = DateTime.now();
@@ -1161,7 +1195,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         }
         // Приходный кассовый ордер
         List<IncomingCashOrder> listDocsIncomingCashOrder =
-        await dbReadAllNewIncomingCashOrder();
+            await dbReadAllNewIncomingCashOrder();
         for (var itemDoc in listDocsIncomingCashOrder) {
           itemDoc.status = 2;
           itemDoc.dateSendingTo1C = DateTime.now();
@@ -1346,13 +1380,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     Directory tempDir = await getTemporaryDirectory();
 
     // Временное название для исключения дубликатов заказов от менеджера
-    String tempUID =  const Uuid().v4();
+    String tempUID = const Uuid().v4();
 
     // Путь к файлу обмена
-    String pathLocalFile = tempDir.path + '/orders_$settingsUidUser'+'_'+tempUID+'.json';
+    String pathLocalFile =
+        tempDir.path + '/orders_$settingsUidUser' + '_' + tempUID + '.json';
 
     // Путь к файлу архива
-    String pathLocalZipFile = tempDir.path + '/orders_$settingsUidUser'+'_'+tempUID+'.zip';
+    String pathLocalZipFile =
+        tempDir.path + '/orders_$settingsUidUser' + '_' + tempUID + '.zip';
 
     // Запишем даные в файл
     final File localFile = File(pathLocalFile);
