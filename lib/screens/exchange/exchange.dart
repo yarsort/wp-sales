@@ -213,6 +213,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                   setState(() {
                     _loading = true;
                     _visibleIndicator = true;
+                    _valueProgress = 0;
                   });
 
                   // Процесс обмена
@@ -332,9 +333,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     final SharedPreferences prefs = await _prefs;
 
     List<String> listDownload = [];
-    setState(() {
-      _valueProgress = 0;
-    });
 
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
@@ -471,11 +469,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
 
-    List<String> listDownload = [];
-    setState(() {
-      _valueProgress = 0;
-    });
-
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
@@ -583,7 +576,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     } on PopException catch (e) {
       if (!mounted) return;
-      showErrorMessage('Ошибка почтового сервера!', context);
+      showErrorMessage('Ошибка почтового сервера POP3!', context);
       showErrorMessage('$e', context);
       setState(() {
         _loading = false;
@@ -1300,13 +1293,77 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Прочитаем настройки подключения
     final SharedPreferences prefs = await _prefs;
 
+    /// Определение пользвателя обмена
+    String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
+    if (settingsUIDUser.trim() == '') {
+      if (!mounted) return false;
+      showMessage('В настройках не указан UID  пользователя!', context);
+      return false;
+    }
+
+    /// Параметры подключения POP3
+    String settingsMailSMTPServer =
+        prefs.getString('settings_MailSMTPServer') ?? '';
+    int settingsMailSMTPPort =
+    int.parse(prefs.getString('settings_MailSMTPPort') ?? '110');
+    bool isSMTPServerSecure =
+        prefs.getBool('settings_MailSMTPServerSecure') ?? false;
+
+    String settingsMailUser = prefs.getString('settings_MailUser') ?? '';
+    String settingsMailPassword =
+        prefs.getString('settings_MailPassword') ?? '';
+
+    /// Проверка заполнения параметров подключения
+    if (settingsMailSMTPServer.trim() == '') {
+      showMessage('В настройках не указано имя SMTP сервера!', context);
+      return false;
+    }
+    if (settingsMailSMTPPort.toString().trim() == '') {
+      showMessage('В настройках не указано порт SMTP сервера!', context);
+      return false;
+    }
+    if (settingsMailUser.trim() == '') {
+      showMessage('В настройках не указано имя пользователя почты!', context);
+      return false;
+    }
+    if (settingsMailPassword.trim() == '') {
+      showMessage('В настройках не указан пароль пользователя почты!', context);
+      return false;
+    }
+
     // Найдем и отправим файлы на сервер
     int countSendFiles = 0;
     for (var pathFile in listToUpload) {
       File fileToUpload = File(pathFile);
-      bool res = true;
-      if (res) {
-        countSendFiles++;
+
+      final client = SmtpClient('mail.adm.tools', isLogEnabled: true);
+
+      try {
+        await client.connectToServer(settingsMailSMTPServer, settingsMailSMTPPort,
+            isSecure: isSMTPServerSecure);
+        await client.ehlo();
+        await client.authenticate(settingsMailUser, settingsMailPassword);
+
+        final builder = MessageBuilder.prepareMultipartAlternativeMessage();
+        builder.from = [MailAddress('WP Sales', settingsMailUser)];
+        builder.to = [MailAddress('WP Sales', settingsMailUser)];
+        builder.subject = 'WP Sales: ' + settingsUIDUser;
+        builder.addTextPlain('Data from WP Sales.');
+        //builder.addTextHtml('<p>hello <b>world</b></p>');
+        builder.addFile(fileToUpload, MediaType.guessFromFileName(pathFile));
+
+        final mimeMessage = builder.buildMimeMessage();
+        final sendResponse = await client.sendMessage(mimeMessage);
+
+        if(sendResponse.isOkStatus) {
+          countSendFiles++;
+        }
+      } on SmtpException catch (e) {
+        showErrorMessage('Ошибка почтового сервера SMTP!', context);
+        showErrorMessage('$e', context);
+        setState(() {
+          _loading = false;
+        });
       }
     }
 
