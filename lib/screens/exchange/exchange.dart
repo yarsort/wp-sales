@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -20,6 +21,7 @@ class ScreenExchangeData extends StatefulWidget {
 
 class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final _scrollController = ScrollController();
 
   bool _loading = false; // факт загрузки
   double _valueProgress = 0.0;
@@ -65,7 +67,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                       ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
+                              MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
                             Navigator.of(context).pop(false);
                           },
@@ -109,6 +111,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
               actionButtons(),
               Expanded(
                 child: ListView.builder(
+                    controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
                     itemCount: listLogs.length,
                     itemBuilder: (context, index) {
@@ -147,6 +150,18 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     );
   }
 
+  addListLogs(message) {
+    setState(() {
+      listLogs.add(message);
+    });
+
+    // After 1 second, it takes you to the bottom of the ListView
+    Timer(
+      const Duration(seconds: 1),
+          () => _scrollController.jumpTo(_scrollController.position.maxScrollExtent),
+    );
+  }
+
   progressIndicator() {
     return Visibility(
       visible: _visibleIndicator,
@@ -166,13 +181,20 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         children: [
           SizedBox(
             height: 45,
-            width: MediaQuery.of(context).size.width / 2 - 20,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width / 2 - 20,
             child: ElevatedButton(
                 onPressed: () async {
                   if (_loading) {
                     showMessage('Обмен в процессе...', context);
                     return;
                   }
+
+                  listLogs.clear();
+
+                  addListLogs('Начало обмена.');
 
                   // Начало обмена
                   setState(() {
@@ -183,6 +205,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                   // Процесс обмена
                   await uploadData();
                   //await downloadData();
+
+                  addListLogs('Завершение обмена.');
 
                   // Окончание обмена
                   setState(() {
@@ -201,13 +225,20 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           ),
           SizedBox(
             height: 45,
-            width: MediaQuery.of(context).size.width / 2 - 20,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width / 2 - 20,
             child: ElevatedButton(
                 onPressed: () async {
                   if (_loading) {
                     showMessage('Обмен в процессе...', context);
                     return;
                   }
+
+                  listLogs.clear();
+
+                  addListLogs('Начало обмена.');
 
                   // Начало обмена
                   setState(() {
@@ -219,6 +250,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                   // Процесс обмена
                   await uploadData();
                   await downloadData();
+
+                  addListLogs('Завершение обмена.');
 
                   // Окончание обмена
                   setState(() {
@@ -266,7 +299,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       final File localZipFile = File(pathDownloadedFile);
       List listUnzippedFlies =
-          await FTPConnect.unZipFile(localZipFile, localJsonFile);
+      await FTPConnect.unZipFile(localZipFile, localJsonFile);
 
       for (var itemUnzippedFile in listUnzippedFlies) {
         listJSONFiles.add(itemUnzippedFile);
@@ -290,30 +323,26 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _visibleIndicator = true;
     });
 
-    //showMessage('Начало обмена...', context);
-
     final SharedPreferences prefs = await _prefs;
 
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
-      showMessage('Загрузка данных из FTP.', context);
+      addListLogs('Загрузка данных через FTP.');
       await downloadDataFromFTP();
-      showMessage('Завершение загрузки из FTP.', context);
+      addListLogs('Загрузка данных через FTP завершена.');
     }
 
     bool useMailExchange = prefs.getBool('settings_useMailExchange') ?? false;
     if (useMailExchange) {
-      showMessage('Загрузка данных из почты.', context);
+      addListLogs('Загрузка данных через E-mail.');
       await downloadDataFromEmail();
-      showMessage('Завершение загрузки из почты.', context);
+      addListLogs('Загрузка данных через E-mail завершена.');
     }
 
     bool useWebExchange = prefs.getBool('settings_useWebExchange') ?? false;
     if (useWebExchange) {
       await downloadDataFromWebServer();
     }
-
-    showMessage('Обмен успешно завершен.', context);
 
     setState(() {
       _loading = false;
@@ -335,7 +364,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
-      showMessage('В настройках не указан UID  пользователя!', context);
+      addListLogs('В настройках не указан UID  пользователя!');
       return;
     }
 
@@ -358,17 +387,17 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var res = await ftpClient.connect();
     if (!res) {
-      showErrorMessage('Ошибка подключения к серверу FTP!', context);
+      addListLogs('Ошибка подключения к серверу FTP!');
       return;
     } else {
-      // showMessage('Подключение выполнено успешно!');
+      addListLogs('Подключение к FTP выполнено успешно!');
     }
 
     // Установка рабочего каталога для чтения данных на сервере FTP
     if (settingsFTPWorkCatalog.trim() != '') {
       bool res = await ftpClient.changeDirectory(settingsFTPWorkCatalog);
       if (!res) {
-        showMessage('Ошибка установки рабочего каталога!', context);
+        addListLogs('Ошибка установки рабочего каталога!');
         await ftpClient.disconnect();
         return;
       }
@@ -376,7 +405,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     // Получим и обработаем каждое имя файла
     List<String> listDirectoryContentOnlyNames =
-        await ftpClient.listDirectoryContentOnlyNames();
+    await ftpClient.listDirectoryContentOnlyNames();
     for (var fileFTPPath in listDirectoryContentOnlyNames) {
       // Каждый файл обмена содержит в своем имени идентификатор получателя
       if (fileFTPPath.contains(settingsUIDUser)) {
@@ -406,18 +435,18 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       bool res = await ftpClient.downloadFileWithRetry(pathFile, localFile);
       if (res) {
         // Логируем про загруженный файл
-        //listLogs.add('Получен файл обмена: $localFile');
+        //addListLogs('Получен файл обмена: $localFile');
 
         bool resDel = await ftpClient.deleteFile(pathFile);
         if (!resDel) {
-          listLogs.add('Ошибка удаления файл обмена из FTP: $pathFile');
+          addListLogs('Ошибка удаления файл обмена из FTP: $pathFile');
         }
 
         // Добавим для дальнейшей обработки
         listLocalDownloaded.add(localFile.path.toString());
       } else {
         // Логируем про ошибку загрузки файла
-        listLogs.add('Ошибка скачивания файл обмена из FTP: $pathFile');
+        addListLogs('Ошибка скачивания файл обмена из FTP: $pathFile');
       }
     }
 
@@ -456,7 +485,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
       if (!mounted) return;
-      showMessage('В настройках не указан UID  пользователя!', context);
+      addListLogs('В настройках не указан UID  пользователя!');
       return;
     }
 
@@ -464,7 +493,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsMailPOPServer =
         prefs.getString('settings_MailPOPServer') ?? '';
     int settingsMailPOPPort =
-        int.parse(prefs.getString('settings_MailPOPPort') ?? '110');
+    int.parse(prefs.getString('settings_MailPOPPort') ?? '110');
     bool isPopServerSecure =
         prefs.getBool('settings_MailPOPServerSecure') ?? false;
 
@@ -475,22 +504,22 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Проверка заполнения параметров подключения
     if (settingsMailPOPServer.trim() == '') {
       if (!mounted) return;
-      showMessage('В настройках не указано имя POP3 сервера!', context);
+      addListLogs('В настройках не указано имя POP3 сервера!');
       return;
     }
     if (settingsMailPOPPort.toString().trim() == '') {
       if (!mounted) return;
-      showMessage('В настройках не указано порт POP3 сервера!', context);
+      addListLogs('В настройках не указано порт POP3 сервера!');
       return;
     }
     if (settingsMailUser.trim() == '') {
       if (!mounted) return;
-      showMessage('В настройках не указано имя пользователя почты!', context);
+      addListLogs('В настройках не указано имя пользователя почты!');
       return;
     }
     if (settingsMailPassword.trim() == '') {
       if (!mounted) return;
-      showMessage('В настройках не указан пароль пользователя почты!', context);
+      addListLogs('В настройках не указан пароль пользователя почты!');
       return;
     }
 
@@ -518,6 +547,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         }
         countMessages--;
       }
+
+      // Список скачанных архивов обмена
+      List<String> listLocalDownloaded = [];
 
       // Получим путь к временному каталогу устройства
       Directory tempDir = await getTemporaryDirectory();
@@ -549,16 +581,24 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           final File localFile = File(pathLocalFile);
           await localFile.writeAsBytes(uint8List);
 
-          listJSONFiles.add(pathLocalFile);
+          listLocalDownloaded.add(pathLocalFile);
         }
+
+        // Удалим обработанное письмо
+        await client.delete(numberMessage);
+      }
+
+      /// Распакуем файлы данных их архивов по разным итерационным каталогам
+      if (listLocalDownloaded.isNotEmpty) {
+        listJSONFiles = await unZipArchives(listLocalDownloaded);
       }
 
       // Disconnect
       await client.quit();
     } on PopException catch (e) {
       if (!mounted) return;
-      showErrorMessage('Ошибка почтового сервера POP3!', context);
-      showErrorMessage('$e', context);
+      addListLogs('Ошибка почтового сервера POP3!');
+      addListLogs('$e');
       setState(() {
         _loading = false;
       });
@@ -587,7 +627,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     //  Нет данных для скачивания и обработки
     if (listJSONFiles.isEmpty) {
-      listLogs.add('Данных для обновления не обнаружено!');
+      addListLogs('Данных для обновления не обнаружено!');
       setState(() {
         _valueProgress = 0.0;
       });
@@ -598,7 +638,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       _valueProgress = 0.2;
     });
 
-    showMessage('Начало обработки данных.', context);
+    addListLogs('Начало обработки данных.');
 
     /// Обработка данных обмена: чтение и запись данных
     //  Прочитаем каждый файл и запишем данных
@@ -706,13 +746,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateOrganization(Organization.fromJson(item));
           countItem++;
         }
-        listLogs.add('Организации: ' + countItem.toString() + ' шт');
+        addListLogs('Организации: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.1;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Организации". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -726,14 +766,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreatePartner(Partner.fromJson(item));
           countItem++;
         }
-        listLogs.add('Каталоги партнеров: ' + countItem.toString() + ' шт');
+        addListLogs('Каталоги партнеров: ' + countItem.toString() + ' шт');
 
         setState(() {
           _valueProgress = 0.2;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Каталоги партнеров". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -746,13 +786,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreatePartner(Partner.fromJson(item));
           countItem++;
         }
-        listLogs.add('Партнеры: ' + countItem.toString() + ' шт');
+        addListLogs('Партнеры: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.2;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Партнеры". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -766,13 +806,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateContract(Contract.fromJson(item));
           countItem++;
         }
-        listLogs.add('Контракты: ' + countItem.toString() + ' шт');
+        addListLogs('Контракты: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.3;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Контракты". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -793,7 +833,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Магазины". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -808,13 +848,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countItem++;
         }
         // После записи документов, обновим записи по регистраторам без номера документа
-        listLogs.add('Взаиморасчеты: ' + countItem.toString() + ' шт');
+        addListLogs('Взаиморасчеты: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.5;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки регистра накопления "Долги по контрактам". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -829,7 +869,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countItem++;
         }
         // После записи документов, обновим записи по регистраторам без номера документа
-        listLogs.add('Взаиморасчеты по документам расчета: ' +
+        addListLogs('Взаиморасчеты по документам расчета: ' +
             countItem.toString() +
             ' шт');
         setState(() {
@@ -837,7 +877,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки регистра накопления "Долги по контрактам по документам расчета". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -851,13 +891,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreatePrice(Price.fromJson(item));
           countItem++;
         }
-        listLogs.add('Типы цен: ' + countItem.toString() + ' шт');
+        addListLogs('Типы цен: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.65;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Типы цен". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -871,7 +911,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateWarehouse(Warehouse.fromJson(item));
           countItem++;
         }
-        listLogs.add('Склады: ' + countItem.toString() + ' шт');
+        addListLogs('Склады: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.7;
         });
@@ -891,7 +931,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateCashbox(Cashbox.fromJson(item));
           countItem++;
         }
-        listLogs.add('Кассы: ' + countItem.toString() + ' шт');
+        addListLogs('Кассы: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.7;
         });
@@ -911,14 +951,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateProduct(Product.fromJson(item));
           countItem++;
         }
-        listLogs.add('Каталоги товаров: ' + countItem.toString() + ' шт');
+        addListLogs('Каталоги товаров: ' + countItem.toString() + ' шт');
 
         setState(() {
           _valueProgress = 0.8;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Каталоги товаров". \n Описание ошибки:$e');
       setState(() {});
     }
@@ -931,7 +971,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateProduct(Product.fromJson(item));
           countItem++;
         }
-        listLogs.add('Товары: ' + countItem.toString() + ' шт');
+        addListLogs('Товары: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.85;
         });
@@ -952,13 +992,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateUnit(Unit.fromJson(item));
           countItem++;
         }
-        listLogs.add('Единицы измерения: ' + countItem.toString() + ' шт');
+        addListLogs('Единицы измерения: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.88;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки справочника "Единицы измерения". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -972,7 +1012,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateCurrency(Currency.fromJson(item));
           countItem++;
         }
-        listLogs.add('Валюты: ' + countItem.toString() + ' шт');
+        addListLogs('Валюты: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.89;
         });
@@ -993,13 +1033,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countItem++;
         }
 
-        listLogs.add('Остатки товаров: ' + countItem.toString() + ' шт');
+        addListLogs('Остатки товаров: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 0.9;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки регистра накопления "Остатки товаров". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -1013,13 +1053,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateProductPrice(AccumProductPrice.fromJson(item));
           countItem++;
         }
-        listLogs.add('Цены товаров: ' + countItem.toString() + ' шт');
+        addListLogs('Цены товаров: ' + countItem.toString() + ' шт');
         setState(() {
           _valueProgress = 1.0;
         });
       }
     } catch (e) {
-      listLogs.add(
+      addListLogs(
           'Ошибка обработки регистра сведений "Цены товаров". \n Описание ошибки: $e');
       setState(() {});
     }
@@ -1046,7 +1086,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           if (item['typeDoc'] == 'incomingCashOrder') {
             // Получим объект
             var incomingCashOrder =
-                await dbReadIncomingCashOrderUID(item['uidDoc']);
+            await dbReadIncomingCashOrderUID(item['uidDoc']);
 
             // Запишем номер документа из учетной системы
             incomingCashOrder.numberFrom1C = item['numberDoc'];
@@ -1058,11 +1098,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           if (item['typeDoc'] == 'returnOrderCustomer') {
             // Получим объект
             var returnOrderCustomer =
-                await dbReadReturnOrderCustomer(item['uidDoc']);
+            await dbReadReturnOrderCustomer(item['uidDoc']);
 
             // Получим товары
             var itemsOrder =
-                await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
+            await dbReadItemsReturnOrderCustomer(returnOrderCustomer.id);
 
             // Запишем номер документа из учетной системы
             returnOrderCustomer.numberFrom1C = item['numberDoc'];
@@ -1072,7 +1112,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           }
           countItem++;
         }
-        listLogs.add('Номера документов: ' + countItem.toString() + ' шт');
+        addListLogs('Номера документов: ' + countItem.toString() + ' шт');
       }
     } catch (e) {
       listLogs
@@ -1107,8 +1147,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       return;
     }
 
-    listLogs.clear();
-
     final SharedPreferences prefs = await _prefs;
     List<String> listToUpload = [];
 
@@ -1117,7 +1155,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Отправка на FTP
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
-      showMessage('Отправка данных в учетную систему.', context);
+      addListLogs('Отправка данных через FTP.');
 
       // Добавим файлы
       String pathZipFile = await generateDataSimple();
@@ -1125,12 +1163,16 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Отправим на FTP-сервер
       resultSending = await uploadDataToFTP(listToUpload);
+
+      if(resultSending){
+        addListLogs('Отправка данных через FTP завершена.');
+      }
     }
 
     /// Отправка на E-mail
     bool useMailExchange = prefs.getBool('settings_useMailExchange') ?? false;
     if (useMailExchange) {
-      showMessage('Отправка данных в учетную систему.', context);
+      addListLogs('Отправка данных через E-mail.');
 
       // Добавим файлы
       String pathZipFile = await generateDataSimple();
@@ -1138,13 +1180,17 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Отправим на Email-сервер
       resultSending = await uploadDataToMail(listToUpload);
+
+      if(resultSending){
+        addListLogs('Отправка данных через E-mail завершена.');
+      }
     }
 
     /// Установим статус отправлено у записей
     if (resultSending) {
       // Заказ покупателя
       List<OrderCustomer> listDocsOrderCustomer =
-          await dbReadAllNewOrderCustomer();
+      await dbReadAllNewOrderCustomer();
       for (var itemDoc in listDocsOrderCustomer) {
         itemDoc.status = 2;
         itemDoc.dateSendingTo1C = DateTime.now();
@@ -1152,7 +1198,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       // Возврат заказа покупателя
       List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
-          await dbReadAllNewReturnOrderCustomer();
+      await dbReadAllNewReturnOrderCustomer();
       for (var itemDoc in listDocsReturnOrderCustomer) {
         itemDoc.status = 2;
         itemDoc.dateSendingTo1C = DateTime.now();
@@ -1160,7 +1206,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
       // Приходный кассовый ордер
       List<IncomingCashOrder> listDocsIncomingCashOrder =
-          await dbReadAllNewIncomingCashOrder();
+      await dbReadAllNewIncomingCashOrder();
       for (var itemDoc in listDocsIncomingCashOrder) {
         itemDoc.status = 2;
         itemDoc.dateSendingTo1C = DateTime.now();
@@ -1191,7 +1237,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// Определение пользвателя обмена
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
-      showMessage('В настройках не указан UID  пользователя!', context);
+      addListLogs('В настройках не указан UID  пользователя!');
       return false;
     }
 
@@ -1214,17 +1260,17 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var res = await ftpClient.connect();
     if (!res) {
-      showErrorMessage('Ошибка подключения к серверу FTP!', context);
+      addListLogs('Ошибка подключения к серверу FTP!');
       return false;
     } else {
-      //showMessage('Подключение выполнено успешно!');
+      addListLogs('Подключение к FTP выполнено успешно!');
     }
 
     // Установка рабочего каталога для чтения данных на сервере FTP
     if (settingsFTPWorkCatalog.trim() != '') {
       bool res = await ftpClient.changeDirectory(settingsFTPWorkCatalog);
       if (!res) {
-        showMessage('Ошибка установки рабочего каталога!', context);
+        addListLogs('Ошибка установки рабочего каталога!');
         await ftpClient.disconnect();
         return false;
       }
@@ -1235,7 +1281,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     for (var pathFile in listToUpload) {
       File fileToUpload = File(pathFile);
       bool res =
-          await ftpClient.uploadFileWithRetry(fileToUpload, pRetryCount: 2);
+      await ftpClient.uploadFileWithRetry(fileToUpload, pRetryCount: 2);
       if (res) {
         countSendFiles++;
       }
@@ -1270,7 +1316,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
       if (!mounted) return false;
-      showMessage('В настройках не указан UID  пользователя!', context);
+      addListLogs('В настройках не указан UID  пользователя!');
       return false;
     }
 
@@ -1278,7 +1324,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsMailSMTPServer =
         prefs.getString('settings_MailSMTPServer') ?? '';
     int settingsMailSMTPPort =
-        int.parse(prefs.getString('settings_MailSMTPPort') ?? '110');
+    int.parse(prefs.getString('settings_MailSMTPPort') ?? '110');
     bool isSMTPServerSecure =
         prefs.getBool('settings_MailSMTPServerSecure') ?? false;
 
@@ -1288,19 +1334,19 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     /// Проверка заполнения параметров подключения
     if (settingsMailSMTPServer.trim() == '') {
-      showMessage('В настройках не указано имя SMTP сервера!', context);
+      addListLogs('В настройках не указано имя SMTP сервера!');
       return false;
     }
     if (settingsMailSMTPPort.toString().trim() == '') {
-      showMessage('В настройках не указано порт SMTP сервера!', context);
+      addListLogs('В настройках не указано порт SMTP сервера!');
       return false;
     }
     if (settingsMailUser.trim() == '') {
-      showMessage('В настройках не указано имя пользователя почты!', context);
+      addListLogs('В настройках не указано имя пользователя почты!');
       return false;
     }
     if (settingsMailPassword.trim() == '') {
-      showMessage('В настройках не указан пароль пользователя почты!', context);
+      addListLogs('В настройках не указан пароль пользователя почты!');
       return false;
     }
 
@@ -1321,12 +1367,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         final builder = MessageBuilder();
         builder.from = [MailAddress('WP Sales', settingsMailUser)];
         builder.to = [MailAddress('WP Sales', settingsMailUser)];
-        builder.subject = 'WP Sales. Data to server from user: ' + settingsNameUser;
+        builder.subject =
+            'WP Sales. Data to server from user: ' + settingsNameUser;
         builder.addTextHtml('<p>Data from <b>WP Sales</b> to server.</p>'
             '<p><b>Operation: </b> sending data to central system.<br>'
             '<b>User: </b> $settingsNameUser.<br>'
             '<b>E-Mail: </b> $settingsEmailUser.</p>');
-        await builder.addFile(fileToUpload, MediaType.guessFromFileName(pathFile));
+        await builder.addFile(
+            fileToUpload, MediaType.guessFromFileName(pathFile));
 
         final mimeMessage = builder.buildMimeMessage();
         final sendResponse = await client.sendMessage(mimeMessage);
@@ -1335,8 +1383,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countSendFiles++;
         }
       } on SmtpException catch (e) {
-        showErrorMessage('Ошибка почтового сервера SMTP!', context);
-        showErrorMessage('$e', context);
+        addListLogs('Ошибка почтового сервера SMTP!');
+        addListLogs('$e');
         setState(() {
           _loading = false;
         });
@@ -1371,7 +1419,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsEmailUser = prefs.getString('settings_EmailUser') ?? '';
 
     if (settingsUidUser.trim() == '') {
-      showMessage('В настройках не указан UID  пользователя!', context);
+      addListLogs('В настройках не указан UID  пользователя!');
       return '';
     }
 
@@ -1394,32 +1442,32 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     /// Получим массив документов: Заказы покупателя
     List<dynamic> listDocsOrderCustomer =
-        await createListDocsOrderCustomer(numberDocs, countOrderCustomer);
+    await createListDocsOrderCustomer(numberDocs, countOrderCustomer);
 
     if (countOrderCustomer > 0) {
-      listLogs.add('Отправлено: Заказ покупателя - ' +
+      addListLogs('Отправлено: Заказ покупателя - ' +
           countOrderCustomer.toString() +
           ' шт.');
     }
 
     /// Получим массив документов: Возвраты товаров от покупателей
     List<dynamic> listDocsReturnOrderCustomer =
-        await createListDocsReturnOrderCustomer(
-            numberDocs, countReturnOrderCustomer);
+    await createListDocsReturnOrderCustomer(
+        numberDocs, countReturnOrderCustomer);
 
     if (countReturnOrderCustomer > 0) {
-      listLogs.add('Отправлено: Возврат товаров покупателя - ' +
+      addListLogs('Отправлено: Возврат товаров покупателя - ' +
           countReturnOrderCustomer.toString() +
           ' шт.');
     }
 
     /// Получим массив документов: Приходные кассовые ордера
     List<dynamic> listDocsIncomingCashOrder =
-        await createListDocsIncomingCashOrder(
-            numberDocs, countIncomingCashOrder);
+    await createListDocsIncomingCashOrder(
+        numberDocs, countIncomingCashOrder);
 
     if (countIncomingCashOrder > 0) {
-      listLogs.add('Отправлено: Приходный кассовый ордер - ' +
+      addListLogs('Отправлено: Приходный кассовый ордер - ' +
           countIncomingCashOrder.toString() +
           ' шт.');
     }
@@ -1457,13 +1505,13 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     var res = await FTPConnect.zipFiles(paths, pathLocalZipFile);
     if (!res) {
-      showErrorMessage('Ошибка архивирования файла для отправки', context);
+      addListLogs('Ошибка архивирования файла для отправки');
     }
     return pathLocalZipFile;
   }
 
-  Future<List> createListDocsOrderCustomer(
-      List<dynamic> numberDocs, int countOrderCustomer) async {
+  Future<List> createListDocsOrderCustomer(List<dynamic> numberDocs,
+      int countOrderCustomer) async {
     // Получим данные для выгрузки
     List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
 
@@ -1497,7 +1545,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Конвертация товаров
       var listDataProduct = [];
       List<ItemOrderCustomer> listItemOrderCustomer =
-          await dbReadItemsOrderCustomer(itemDoc.id);
+      await dbReadItemsOrderCustomer(itemDoc.id);
       for (var itemOrderCustomer in listItemOrderCustomer) {
         var dataProduct = itemOrderCustomer.toJson();
         listDataProduct.add(dataProduct);
@@ -1514,11 +1562,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     return dataList;
   }
 
-  Future<List> createListDocsReturnOrderCustomer(
-      List<dynamic> numberDocs, int countReturnOrderCustomer) async {
+  Future<List> createListDocsReturnOrderCustomer(List<dynamic> numberDocs,
+      int countReturnOrderCustomer) async {
     // Получим данные для выгрузки
     List<ReturnOrderCustomer> listDocs =
-        await dbReadAllNewReturnOrderCustomer();
+    await dbReadAllNewReturnOrderCustomer();
 
     // Каждый документ выгрузим в JSON
     List dataList = [];
@@ -1550,7 +1598,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Конвертация товаров
       var listDataProduct = [];
       List<ItemReturnOrderCustomer> listItemOrderCustomer =
-          await dbReadItemsReturnOrderCustomer(itemDoc.id);
+      await dbReadItemsReturnOrderCustomer(itemDoc.id);
       for (var itemOrderCustomer in listItemOrderCustomer) {
         var dataProduct = itemOrderCustomer.toJson();
         listDataProduct.add(dataProduct);
@@ -1567,8 +1615,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     return dataList;
   }
 
-  Future<List> createListDocsIncomingCashOrder(
-      List<dynamic> numberDocs, int countIncomingCashOrder) async {
+  Future<List> createListDocsIncomingCashOrder(List<dynamic> numberDocs,
+      int countIncomingCashOrder) async {
     // Получим данные для выгрузки
     List<IncomingCashOrder> listDocs = await dbReadAllNewIncomingCashOrder();
 
