@@ -214,7 +214,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                     _loading = true;
                     _visibleIndicator = true;
                     _valueProgress = 0;
-                    listLogs.clear();
                   });
 
                   // Процесс обмена
@@ -438,16 +437,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// 1. Обмен товарами, партнерами, контрактами и т.д.
     /// 2. Отчеты для менеджера по запросу.
     /// 3. Запросы на какие-либо данные из учетной системы.
-
-    //  Нет данных для скачивания и обработки
-    if (listJSONFiles.isEmpty) {
-      listLogs.add('На FTP сервере обмена данных для обработки не обнаружено!');
-      setState(() {
-        _valueProgress = 0.0;
-      });
-      return;
-    }
-
     await saveDownloadedData(listJSONFiles);
   }
 
@@ -580,17 +569,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// 1. Обмен товарами, партнерами, контрактами и т.д.
     /// 2. Отчеты для менеджера по запросу.
     /// 3. Запросы на какие-либо данные из учетной системы.
-
-    //  Нет данных для скачивания и обработки
-    if (listJSONFiles.isEmpty) {
-      listLogs
-          .add('На E-mail сервере обмена данных для обработки не обнаружено!');
-      setState(() {
-        _valueProgress = 0.0;
-      });
-      return;
-    }
-
     await saveDownloadedData(listJSONFiles);
   }
 
@@ -604,6 +582,15 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
   // Обработка полученных данных из JSON: разделение потоков
   Future<void> saveDownloadedData(List<String> listJSONFiles) async {
     if (!_loading) {
+      return;
+    }
+
+    //  Нет данных для скачивания и обработки
+    if (listJSONFiles.isEmpty) {
+      listLogs.add('Данных для обновления не обнаружено!');
+      setState(() {
+        _valueProgress = 0.0;
+      });
       return;
     }
 
