@@ -200,7 +200,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
     // Фильтр: по статусу
     whereList.add('status = 2');
-    whereList.add('(date >= ? AND date <= ?)');
+    whereList.add('(dateSendingTo1C >= ? AND dateSendingTo1C <= ?)');
 
     // Соединим условия отбора
     whereString = whereList.join(' AND ');
@@ -382,12 +382,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               const Icon(Icons.repeat_one,
-                                  color: Colors.red, size: 20),
+                                  color: Colors.blueGrey, size: 20),
                               const SizedBox(width: 5),
                               Text(
                                   '$countSendOrderCustomer',
                                   style: const TextStyle(
-                                      fontSize: 16, color: Colors.red)),
+                                      fontSize: 16, color: Colors.blueGrey)),
                               const SizedBox(width: 20),
                               const Icon(Icons.repeat_one,
                                   color: Colors.white, size: 20),
@@ -408,7 +408,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                color: Colors.blue.shade200,
+                color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
                   onTap: () {
@@ -478,12 +478,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               const Icon(Icons.repeat_one,
-                                  color: Colors.red, size: 20),
+                                  color: Colors.blueGrey, size: 20),
                               const SizedBox(width: 5),
                               Text(
                                   '$countSendReturnOrderCustomer',
                                   style: const TextStyle(
-                                      fontSize: 16, color: Colors.red)),
+                                      fontSize: 16, color: Colors.blueGrey)),
                               const SizedBox(width: 20),
                               const Icon(Icons.repeat_one,
                                   color: Colors.white, size: 20),
@@ -504,7 +504,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                color: Colors.blue.shade200,
+                color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
                   onTap: () {
@@ -572,12 +572,12 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               const Icon(Icons.repeat_one,
-                                  color: Colors.red, size: 20),
+                                  color: Colors.blueGrey, size: 20),
                               const SizedBox(width: 5),
                               Text(
                                   '$countSendIncomingCashOrder',
                                   style: const TextStyle(
-                                      fontSize: 16, color: Colors.red)),
+                                      fontSize: 16, color: Colors.blueGrey)),
                               const SizedBox(width: 20),
                               const Icon(Icons.repeat_one,
                                   color: Colors.white, size: 20),
@@ -598,7 +598,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
             SizedBox(
               width: MediaQuery.of(context).size.width / 2 - 10,
               child: Card(
-                color: Colors.blue.shade200,
+                color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
                   onTap: () {

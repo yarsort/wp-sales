@@ -214,6 +214,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
                     _loading = true;
                     _visibleIndicator = true;
                     _valueProgress = 0;
+                    listLogs.clear();
                   });
 
                   // Процесс обмена
@@ -284,8 +285,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (!_loading) {
       return;
     }
-
-    listLogs.clear();
 
     setState(() {
       _loading = true;
@@ -394,16 +393,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       }
     }
 
-    //  Нет данных для скачивания и обработки
-    if (listDownload.isEmpty) {
-      listLogs.add('Данные для обработки не обнаружено!');
-      setState(() {
-        _valueProgress = 0.0;
-      });
-      await ftpClient.disconnect();
-      return;
-    }
-
     // Получим путь к временному каталогу устройства
     Directory tempDir = await getTemporaryDirectory();
     String tempPath = tempDir.path;
@@ -436,23 +425,28 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Отключимся от сервера
     await ftpClient.disconnect();
 
-    setState(() {
-      _valueProgress = 0.1;
-    });
+    /// Список файлов с данными в формате JSON
+    List<String> listJSONFiles = [];
 
     /// Распакуем файлы данных их архивов по разным итерационным каталогам
-    List<String> listJSONFiles = [];
-    listJSONFiles = await unZipArchives(listLocalDownloaded);
-
-    setState(() {
-      _valueProgress = 0.2;
-    });
+    if (listLocalDownloaded.isNotEmpty) {
+      listJSONFiles = await unZipArchives(listLocalDownloaded);
+    }
 
     /// Получений список файлов в формате JSON, отправим на обработку
     /// Файлами могут быть данные:
     /// 1. Обмен товарами, партнерами, контрактами и т.д.
     /// 2. Отчеты для менеджера по запросу.
     /// 3. Запросы на какие-либо данные из учетной системы.
+
+    //  Нет данных для скачивания и обработки
+    if (listJSONFiles.isEmpty) {
+      listLogs.add('На FTP сервере обмена данных для обработки не обнаружено!');
+      setState(() {
+        _valueProgress = 0.0;
+      });
+      return;
+    }
 
     await saveDownloadedData(listJSONFiles);
   }
@@ -463,7 +457,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       return;
     }
 
-    /// Распакуем файлы данных их архивов по разным итерационным каталогам
+    /// Список файлов с данными в формате JSON
     List<String> listJSONFiles = [];
 
     /// Прочитаем настройки подключения
@@ -512,7 +506,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     }
 
     try {
-      final client = PopClient(isLogEnabled: true);
+      final client = PopClient(isLogEnabled: false);
 
       // Connect
       await client.connectToServer(settingsMailPOPServer, settingsMailPOPPort,
@@ -542,7 +536,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Обработаем письма и получим данные из них: *.zip
       for (var numberMessage in listNumbersMessages) {
         var message = await client.retrieve(numberMessage);
-        if(message.hasAttachments() == false) {
+        if (message.hasAttachments() == false) {
           continue;
         }
 
@@ -554,9 +548,12 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           Uint8List? uint8List = mimePart?.decodeContentBinary();
 
           // Если нет данных - пропустим
-          if(uint8List!.isEmpty) {continue;}
+          if (uint8List!.isEmpty) {
+            continue;
+          }
 
-          var nameFile = contentInfo.contentDisposition?.filename??'$settingsUIDUser.json';
+          var nameFile = contentInfo.contentDisposition?.filename ??
+              '$settingsUIDUser.json';
           var pathLocalFile = tempDir.path + '/' + nameFile;
 
           // Запишем даные в файл
@@ -569,11 +566,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Disconnect
       await client.quit();
-
-      setState(() {
-        _valueProgress = 0.2;
-      });
-
     } on PopException catch (e) {
       if (!mounted) return;
       showErrorMessage('Ошибка почтового сервера POP3!', context);
@@ -588,6 +580,16 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     /// 1. Обмен товарами, партнерами, контрактами и т.д.
     /// 2. Отчеты для менеджера по запросу.
     /// 3. Запросы на какие-либо данные из учетной системы.
+
+    //  Нет данных для скачивания и обработки
+    if (listJSONFiles.isEmpty) {
+      listLogs
+          .add('На E-mail сервере обмена данных для обработки не обнаружено!');
+      setState(() {
+        _valueProgress = 0.0;
+      });
+      return;
+    }
 
     await saveDownloadedData(listJSONFiles);
   }
@@ -604,6 +606,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     if (!_loading) {
       return;
     }
+
+    setState(() {
+      _valueProgress = 0.2;
+    });
 
     showMessage('Начало обработки данных.', context);
 
@@ -1119,6 +1125,9 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     final SharedPreferences prefs = await _prefs;
     List<String> listToUpload = [];
 
+    var resultSending = false;
+
+    /// Отправка на FTP
     bool useFTPExchange = prefs.getBool('settings_useFTPExchange') ?? false;
     if (useFTPExchange) {
       showMessage('Отправка данных в учетную систему.', context);
@@ -1128,36 +1137,10 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       listToUpload.add(pathZipFile);
 
       // Отправим на FTP-сервер
-      var res = await uploadDataToFTP(listToUpload);
-      if (res) {
-        /// Установим статус отправлено у записей
-        // Заказ покупателя
-        List<OrderCustomer> listDocsOrderCustomer =
-            await dbReadAllNewOrderCustomer();
-        for (var itemDoc in listDocsOrderCustomer) {
-          itemDoc.status = 2;
-          itemDoc.dateSendingTo1C = DateTime.now();
-          await dbUpdateOrderCustomerWithoutItems(itemDoc);
-        }
-        // Возврат заказа покупателя
-        List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
-            await dbReadAllNewReturnOrderCustomer();
-        for (var itemDoc in listDocsReturnOrderCustomer) {
-          itemDoc.status = 2;
-          itemDoc.dateSendingTo1C = DateTime.now();
-          await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
-        }
-        // Приходный кассовый ордер
-        List<IncomingCashOrder> listDocsIncomingCashOrder =
-            await dbReadAllNewIncomingCashOrder();
-        for (var itemDoc in listDocsIncomingCashOrder) {
-          itemDoc.status = 2;
-          itemDoc.dateSendingTo1C = DateTime.now();
-          await dbUpdateIncomingCashOrder(itemDoc);
-        }
-      }
+      resultSending = await uploadDataToFTP(listToUpload);
     }
 
+    /// Отправка на E-mail
     bool useMailExchange = prefs.getBool('settings_useMailExchange') ?? false;
     if (useMailExchange) {
       showMessage('Отправка данных в учетную систему.', context);
@@ -1167,33 +1150,34 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       listToUpload.add(pathZipFile);
 
       // Отправим на Email-сервер
-      var res = await uploadDataToMail(listToUpload);
-      if (res) {
-        /// Установим статус отправлено у записей
-        // Заказ покупателя
-        List<OrderCustomer> listDocsOrderCustomer =
-            await dbReadAllNewOrderCustomer();
-        for (var itemDoc in listDocsOrderCustomer) {
-          itemDoc.status = 2;
-          itemDoc.dateSendingTo1C = DateTime.now();
-          await dbUpdateOrderCustomerWithoutItems(itemDoc);
-        }
-        // Возврат заказа покупателя
-        List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
-            await dbReadAllNewReturnOrderCustomer();
-        for (var itemDoc in listDocsReturnOrderCustomer) {
-          itemDoc.status = 2;
-          itemDoc.dateSendingTo1C = DateTime.now();
-          await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
-        }
-        // Приходный кассовый ордер
-        List<IncomingCashOrder> listDocsIncomingCashOrder =
-            await dbReadAllNewIncomingCashOrder();
-        for (var itemDoc in listDocsIncomingCashOrder) {
-          itemDoc.status = 2;
-          itemDoc.dateSendingTo1C = DateTime.now();
-          await dbUpdateIncomingCashOrder(itemDoc);
-        }
+      resultSending = await uploadDataToMail(listToUpload);
+    }
+
+    /// Установим статус отправлено у записей
+    if (resultSending) {
+      // Заказ покупателя
+      List<OrderCustomer> listDocsOrderCustomer =
+          await dbReadAllNewOrderCustomer();
+      for (var itemDoc in listDocsOrderCustomer) {
+        itemDoc.status = 2;
+        itemDoc.dateSendingTo1C = DateTime.now();
+        await dbUpdateOrderCustomerWithoutItems(itemDoc);
+      }
+      // Возврат заказа покупателя
+      List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
+          await dbReadAllNewReturnOrderCustomer();
+      for (var itemDoc in listDocsReturnOrderCustomer) {
+        itemDoc.status = 2;
+        itemDoc.dateSendingTo1C = DateTime.now();
+        await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
+      }
+      // Приходный кассовый ордер
+      List<IncomingCashOrder> listDocsIncomingCashOrder =
+          await dbReadAllNewIncomingCashOrder();
+      for (var itemDoc in listDocsIncomingCashOrder) {
+        itemDoc.status = 2;
+        itemDoc.dateSendingTo1C = DateTime.now();
+        await dbUpdateIncomingCashOrder(itemDoc);
       }
     }
 
@@ -1294,6 +1278,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     final SharedPreferences prefs = await _prefs;
 
     /// Определение пользвателя обмена
+    String settingsNameUser = prefs.getString('settings_nameUser') ?? '';
+    String settingsEmailUser = prefs.getString('settings_emailUser') ?? '';
     String settingsUIDUser = prefs.getString('settings_UIDUser') ?? '';
     if (settingsUIDUser.trim() == '') {
       if (!mounted) return false;
@@ -1305,7 +1291,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     String settingsMailSMTPServer =
         prefs.getString('settings_MailSMTPServer') ?? '';
     int settingsMailSMTPPort =
-    int.parse(prefs.getString('settings_MailSMTPPort') ?? '110');
+        int.parse(prefs.getString('settings_MailSMTPPort') ?? '110');
     bool isSMTPServerSecure =
         prefs.getBool('settings_MailSMTPServerSecure') ?? false;
 
@@ -1334,28 +1320,31 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Найдем и отправим файлы на сервер
     int countSendFiles = 0;
     for (var pathFile in listToUpload) {
-      File fileToUpload = File(pathFile);
-
-      final client = SmtpClient('mail.adm.tools', isLogEnabled: true);
+      final client = SmtpClient('mail.adm.tools', isLogEnabled: false);
 
       try {
-        await client.connectToServer(settingsMailSMTPServer, settingsMailSMTPPort,
+        await client.connectToServer(
+            settingsMailSMTPServer, settingsMailSMTPPort,
             isSecure: isSMTPServerSecure);
         await client.ehlo();
         await client.authenticate(settingsMailUser, settingsMailPassword);
 
-        final builder = MessageBuilder.prepareMultipartAlternativeMessage();
+        File fileToUpload = File(pathFile);
+
+        final builder = MessageBuilder();
         builder.from = [MailAddress('WP Sales', settingsMailUser)];
         builder.to = [MailAddress('WP Sales', settingsMailUser)];
-        builder.subject = 'WP Sales: ' + settingsUIDUser;
-        builder.addTextPlain('Data from WP Sales.');
-        //builder.addTextHtml('<p>hello <b>world</b></p>');
-        builder.addFile(fileToUpload, MediaType.guessFromFileName(pathFile));
+        builder.subject = 'WP Sales. Data to server from user: ' + settingsNameUser;
+        builder.addTextHtml('<p>Data from <b>WP Sales</b> to server.</p>'
+            '<p><b>Operation: </b> sending data to central system.<br>'
+            '<b>User: </b> $settingsNameUser.<br>'
+            '<b>E-Mail: </b> $settingsEmailUser.</p>');
+        await builder.addFile(fileToUpload, MediaType.guessFromFileName(pathFile));
 
         final mimeMessage = builder.buildMimeMessage();
         final sendResponse = await client.sendMessage(mimeMessage);
 
-        if(sendResponse.isOkStatus) {
+        if (sendResponse.isOkStatus) {
           countSendFiles++;
         }
       } on SmtpException catch (e) {
@@ -1412,16 +1401,41 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     // Номер документов для которых надо получить номера из учетной системы
     // Наличие номера говорит о том, что запись была зарегистрирована
     List numberDocs = []; // передается по процедурам
+    int countOrderCustomer = 0;
+    int countReturnOrderCustomer = 0;
+    int countIncomingCashOrder = 0;
 
-    // Получим массив документов: Заказы покупателя
+    /// Получим массив документов: Заказы покупателя
     List<dynamic> listDocsOrderCustomer =
-        await createListDocsOrderCustomer(numberDocs);
-    // Получим массив документов: Возвраты товаров от покупателей
+        await createListDocsOrderCustomer(numberDocs, countOrderCustomer);
+
+    if (countOrderCustomer > 0) {
+      listLogs.add('Отправлено: Заказ покупателя - ' +
+          countOrderCustomer.toString() +
+          ' шт.');
+    }
+
+    /// Получим массив документов: Возвраты товаров от покупателей
     List<dynamic> listDocsReturnOrderCustomer =
-        await createListDocsReturnOrderCustomer(numberDocs);
-    // Получим массив документов: Приходные кассовые ордера
+        await createListDocsReturnOrderCustomer(
+            numberDocs, countReturnOrderCustomer);
+
+    if (countReturnOrderCustomer > 0) {
+      listLogs.add('Отправлено: Возврат товаров покупателя - ' +
+          countReturnOrderCustomer.toString() +
+          ' шт.');
+    }
+
+    /// Получим массив документов: Приходные кассовые ордера
     List<dynamic> listDocsIncomingCashOrder =
-        await createListDocsIncomingCashOrder(numberDocs);
+        await createListDocsIncomingCashOrder(
+            numberDocs, countIncomingCashOrder);
+
+    if (countIncomingCashOrder > 0) {
+      listLogs.add('Отправлено: Приходный кассовый ордер - ' +
+          countIncomingCashOrder.toString() +
+          ' шт.');
+    }
 
     // Добавим данные на кодирование в JSON
     data['settings'] = dataSettings;
@@ -1461,7 +1475,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     return pathLocalZipFile;
   }
 
-  Future<List> createListDocsOrderCustomer(List<dynamic> numberDocs) async {
+  Future<List> createListDocsOrderCustomer(
+      List<dynamic> numberDocs, int countOrderCustomer) async {
     // Получим данные для выгрузки
     List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
 
@@ -1506,12 +1521,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Добавим документ в список
       dataList.add(data);
+
+      countOrderCustomer++;
     }
     return dataList;
   }
 
   Future<List> createListDocsReturnOrderCustomer(
-      List<dynamic> numberDocs) async {
+      List<dynamic> numberDocs, int countReturnOrderCustomer) async {
     // Получим данные для выгрузки
     List<ReturnOrderCustomer> listDocs =
         await dbReadAllNewReturnOrderCustomer();
@@ -1557,11 +1574,14 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Добавим документ в список
       dataList.add(data);
+
+      countReturnOrderCustomer++;
     }
     return dataList;
   }
 
-  Future<List> createListDocsIncomingCashOrder(List<dynamic> numberDocs) async {
+  Future<List> createListDocsIncomingCashOrder(
+      List<dynamic> numberDocs, int countIncomingCashOrder) async {
     // Получим данные для выгрузки
     List<IncomingCashOrder> listDocs = await dbReadAllNewIncomingCashOrder();
 
@@ -1594,6 +1614,8 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
       // Добавим документ в список
       dataList.add(data);
+
+      countIncomingCashOrder++;
     }
     return dataList;
   }
