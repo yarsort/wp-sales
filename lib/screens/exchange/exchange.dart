@@ -1098,7 +1098,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           if (item['typeDoc'] == 'returnOrderCustomer') {
             // Получим объект
             var returnOrderCustomer =
-            await dbReadReturnOrderCustomer(item['uidDoc']);
+            await dbReadReturnOrderCustomerUID(item['uidDoc']);
 
             // Получим товары
             var itemsOrder =

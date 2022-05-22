@@ -628,10 +628,10 @@ class _ScreenProductSelectionTreeViewState
 
           await renewItem();
 
-          if (listProducts.isEmpty) {
-            showMessage(
-                'Записей не найдено...',context);
-          }
+          // if (listProducts.isEmpty) {
+          //   showMessage(
+          //       'Записей не найдено...',context);
+          // }
         },
         onSubmitted: (String value) async {
           // Выключим иерархический просмотр
