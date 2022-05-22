@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_doc_return_order_customer.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -27,28 +28,31 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   bool visibleListSendParameters = false;
   bool visibleListTrashParameters = false;
 
-  /// Количество документов в списках на текущий момент
-  int countNewDocuments = 0;
-  int countSendDocuments = 0;
-  int countTrashDocuments = 0;
-
   String uidPartner = '';
   String uidContract = '';
   ReturnOrderCustomer newReturnOrderCustomer =
-      ReturnOrderCustomer(); // Шаблонный объект для отборов
+  ReturnOrderCustomer(); // Шаблонный объект для отборов
+  ReturnOrderCustomer sendReturnOrderCustomer =
+  ReturnOrderCustomer(); // Шаблонный объект для отборов
+  ReturnOrderCustomer trashReturnOrderCustomer =
+  ReturnOrderCustomer(); // Шаблонный объект для отборов
 
   /// Начало периода отбора
-  DateTime startPeriodOrders =
+  DateTime startPeriodDocs =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   /// Конец периода отбора
-  DateTime finishPeriodOrders = DateTime(DateTime.now().year,
+  DateTime finishPeriodDocs = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
   /// Списки документов
   List<ReturnOrderCustomer> listNewReturnOrdersCustomer = [];
   List<ReturnOrderCustomer> listSendReturnOrdersCustomer = [];
   List<ReturnOrderCustomer> listTrashReturnOrdersCustomer = [];
+
+  List<ReturnOrderCustomer> tempListNewReturnOrdersCustomer = [];
+  List<ReturnOrderCustomer> tempListSendReturnOrdersCustomer = [];
+  List<ReturnOrderCustomer> tempListTrashReturnOrdersCustomer = [];
 
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
@@ -104,43 +108,47 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
               Tab(text: 'Корзина'),
             ],
           ),
-          actions: [
-            IconButton(onPressed: () async {
-              var newReturnOrderCustomer = ReturnOrderCustomer();
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ScreenItemReturnOrderCustomer(
-                      returnOrderCustomer: newReturnOrderCustomer),
-                ),
-              );
-              await loadNewReturnDocuments();
-              setState(() {});
-            }, icon: const Icon(Icons.add)),
-          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            var newReturnOrderCustomer = ReturnOrderCustomer();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ScreenItemReturnOrderCustomer(
+                    returnOrderCustomer: newReturnOrderCustomer),
+              ),
+            );
+          },
+          tooltip: '+',
+          child: const Text(
+            "+",
+            style: TextStyle(fontSize: 30),
+          ),
         ),
         body: TabBarView(
           children: [
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listNewReturnParameters(),
-                yesNewReturnDocuments(),
+                listNewParameters(),
+                yesNewDocuments(),
+                //countTrashDocuments == 0 ? noDocuments() : yesNewDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listSendReturnParameters(),
-                yesSendReturnDocuments()
+                listSendParameters(),
+                yesSendDocuments()
                 //countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
               ],
             ),
             ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                listTrashReturnParameters(),
-                yesTrashReturnDocuments()
+                listTrashParameters(),
+                yesTrashDocuments()
                 //countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
               ],
             ),
@@ -153,12 +161,75 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   loadNewReturnDocuments() async {
     // Очистка списка заказов покупателя
     listNewReturnOrdersCustomer.clear();
-    countNewDocuments = 0;
+    tempListNewReturnOrdersCustomer.clear();
 
-    listNewReturnOrdersCustomer = await dbReadAllNewReturnOrderCustomer();
+    // Отбор по условиям
+    if (textFieldNewPeriodController.text.isNotEmpty ||
+        textFieldNewPartnerController.text.isNotEmpty) {
+
+      String dateStart = '';
+      String dateFinish = '';
+      String namePartner = newReturnOrderCustomer.uidPartner;
+      String whereString = '';
+      List whereList = [];
+
+      if(textFieldNewPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldNewPeriodController.text.substring(0,2);
+        String monthStart = textFieldNewPeriodController.text.substring(3,5);
+        String yearStart = textFieldNewPeriodController.text.substring(6,10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+
+        String dayFinish = textFieldNewPeriodController.text.substring(13,15);
+        String monthFinish = textFieldNewPeriodController.text.substring(16,18);
+        String yearFinish = textFieldNewPeriodController.text.substring(19,23);
+        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+      }
+
+      // Фильтр: по статусу
+      whereList.add('status = 1');
+
+      // Фильтр: по периоду
+      if(textFieldNewPeriodController.text.isNotEmpty) {
+        whereList.add('(date >= ? AND date <= ?)');
+      }
+
+      //Фильтр по партнеру
+      if(textFieldNewPartnerController.text.isNotEmpty) {
+        whereList.add('uidPartner = ?');
+      }
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      final db = await instance.database;
+
+      // Если есть период и партнер
+      if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
+        listNewReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+      // Если есть период
+      if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
+        listNewReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+      // Если есть период и партнер
+      if(textFieldNewPeriodController.text.isEmpty && textFieldNewPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[namePartner]);
+        listNewReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+    } else {
+      listNewReturnOrdersCustomer = await dbReadAllNewReturnOrderCustomer();
+    }
+
+    // Для возврата из поиска
+    tempListNewReturnOrdersCustomer.addAll(listNewReturnOrdersCustomer);
 
     // Количество документов в списке
-    countNewDocuments = listNewReturnOrdersCustomer.length;
+    var countNewDocuments = listNewReturnOrdersCustomer.length;
 
     debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
@@ -166,12 +237,75 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   loadSendReturnDocuments() async {
     // Очистка списка заказов покупателя
     listSendReturnOrdersCustomer.clear();
-    countSendDocuments = 0;
+    tempListSendReturnOrdersCustomer.clear();
 
-    listSendReturnOrdersCustomer = await dbReadAllSendReturnOrderCustomer();
+    // Отбор по условиям
+    if (textFieldSendPeriodController.text.isNotEmpty ||
+        textFieldSendPartnerController.text.isNotEmpty) {
+
+      String dateStart = '';
+      String dateFinish = '';
+      String namePartner = sendReturnOrderCustomer.uidPartner;
+      String whereString = '';
+      List whereList = [];
+
+      if(textFieldSendPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldSendPeriodController.text.substring(0,2);
+        String monthStart = textFieldSendPeriodController.text.substring(3,5);
+        String yearStart = textFieldSendPeriodController.text.substring(6,10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+
+        String dayFinish = textFieldSendPeriodController.text.substring(13,15);
+        String monthFinish = textFieldSendPeriodController.text.substring(16,18);
+        String yearFinish = textFieldSendPeriodController.text.substring(19,23);
+        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+      }
+
+      // Фильтр: по статусу
+      whereList.add('status = 2');
+
+      // Фильтр: по периоду
+      if(textFieldSendPeriodController.text.isNotEmpty) {
+        whereList.add('(date >= ? AND date <= ?)');
+      }
+
+      //Фильтр по партнеру
+      if(textFieldSendPartnerController.text.isNotEmpty) {
+        whereList.add('uidPartner = ?');
+      }
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      final db = await instance.database;
+
+      // Если есть период и партнер
+      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
+        listSendReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+      // Если есть период
+      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
+        listSendReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+      // Если есть период и партнер
+      if(textFieldNewPeriodController.text.isEmpty && textFieldSendPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[namePartner]);
+        listSendReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+    } else {
+      listSendReturnOrdersCustomer = await dbReadAllSendReturnOrderCustomer();
+    }
+
+    // Для возврата из поиска
+    tempListSendReturnOrdersCustomer.addAll(listSendReturnOrdersCustomer);
 
     // Количество документов в списке
-    countSendDocuments = listSendReturnOrdersCustomer.length;
+    var countSendDocuments = listSendReturnOrdersCustomer.length;
 
     debugPrint(
         'Количество отправленных документов: ' + countSendDocuments.toString());
@@ -180,25 +314,202 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   loadTrashReturnDocuments() async {
     // Очистка списка заказов покупателя
     listTrashReturnOrdersCustomer.clear();
-    countTrashDocuments = 0;
+    tempListTrashReturnOrdersCustomer.clear();
 
-    listTrashReturnOrdersCustomer = await dbReadAllTrashReturnOrderCustomer();
+    // Отбор по условиям
+    if (textFieldTrashPeriodController.text.isNotEmpty ||
+        textFieldTrashPartnerController.text.isNotEmpty) {
+
+      String dateStart = '';
+      String dateFinish = '';
+      String namePartner = trashReturnOrderCustomer.uidPartner;
+      String whereString = '';
+      List whereList = [];
+
+      if(textFieldTrashPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldTrashPeriodController.text.substring(0,2);
+        String monthStart = textFieldTrashPeriodController.text.substring(3,5);
+        String yearStart = textFieldTrashPeriodController.text.substring(6,10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+
+        String dayFinish = textFieldTrashPeriodController.text.substring(13,15);
+        String monthFinish = textFieldTrashPeriodController.text.substring(16,18);
+        String yearFinish = textFieldTrashPeriodController.text.substring(19,23);
+        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+      }
+
+      // Фильтр: по статусу
+      whereList.add('status = 3');
+
+      // Фильтр: по периоду
+      if(textFieldTrashPeriodController.text.isNotEmpty) {
+        whereList.add('(date >= ? AND date <= ?)');
+      }
+
+      //Фильтр по партнеру
+      if(textFieldTrashPartnerController.text.isNotEmpty) {
+        whereList.add('uidPartner = ?');
+      }
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      final db = await instance.database;
+
+      // Если есть период и партнер
+      if(textFieldTrashPeriodController.text.isNotEmpty && textFieldTrashPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
+        listTrashReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+      // Если есть период
+      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
+        listSendReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+      // Если есть период и партнер
+      if(textFieldTrashPeriodController.text.isEmpty && textFieldTrashPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESCx',[namePartner]);
+        listTrashReturnOrdersCustomer = result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
+      }
+
+    } else {
+      listTrashReturnOrdersCustomer = await dbReadAllTrashReturnOrderCustomer();
+    }
+
+    // Для возврата из поиска
+    tempListTrashReturnOrdersCustomer.addAll(listTrashReturnOrdersCustomer);
 
     // Количество документов в списке
-    countTrashDocuments = listTrashReturnOrdersCustomer.length;
+    var countTrashDocuments = listTrashReturnOrdersCustomer.length;
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
   }
 
-  listNewReturnParameters() {
+  void filterSearchResultsNewDocuments() {
+    /// Уберем пробелы
+    String query = textFieldNewSearchController.text.trim();
+
+    /// Искать можно только при наличии 3 и более символов
+    if (query.length < 3) {
+      setState(() {
+        listNewReturnOrdersCustomer.clear();
+        listNewReturnOrdersCustomer.addAll(tempListNewReturnOrdersCustomer);
+      });
+      return;
+    }
+
+    List<ReturnOrderCustomer> dummySearchList = <ReturnOrderCustomer>[];
+    dummySearchList.addAll(tempListNewReturnOrdersCustomer);
+
+    if (query.isNotEmpty) {
+      List<ReturnOrderCustomer> dummyListData = <ReturnOrderCustomer>[];
+
+      for (var item in dummySearchList) {
+        /// Поиск по имени
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      }
+      setState(() {
+        listNewReturnOrdersCustomer.clear();
+        listNewReturnOrdersCustomer.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        listNewReturnOrdersCustomer.clear();
+        listNewReturnOrdersCustomer.addAll(tempListNewReturnOrdersCustomer);
+      });
+    }
+  }
+
+  void filterSearchResultsSendDocuments() {
+    /// Уберем пробелы
+    String query = textFieldSendSearchController.text.trim();
+
+    /// Искать можно только при наличии 3 и более символов
+    if (query.length < 3) {
+      setState(() {
+        listSendReturnOrdersCustomer.clear();
+        listSendReturnOrdersCustomer.addAll(tempListSendReturnOrdersCustomer);
+      });
+      return;
+    }
+
+    List<ReturnOrderCustomer> dummySearchList = <ReturnOrderCustomer>[];
+    dummySearchList.addAll(tempListSendReturnOrdersCustomer);
+
+    if (query.isNotEmpty) {
+      List<ReturnOrderCustomer> dummyListData = <ReturnOrderCustomer>[];
+
+      for (var item in dummySearchList) {
+        /// Поиск по имени
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      }
+      setState(() {
+        listSendReturnOrdersCustomer.clear();
+        listSendReturnOrdersCustomer.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        listSendReturnOrdersCustomer.clear();
+        listSendReturnOrdersCustomer.addAll(tempListSendReturnOrdersCustomer);
+      });
+    }
+  }
+
+  void filterSearchResultsTrashDocuments() {
+    /// Уберем пробелы
+    String query = textFieldTrashSearchController.text.trim();
+
+    /// Искать можно только при наличии 3 и более символов
+    if (query.length < 3) {
+      setState(() {
+        listTrashReturnOrdersCustomer.clear();
+        listTrashReturnOrdersCustomer.addAll(tempListTrashReturnOrdersCustomer);
+      });
+      return;
+    }
+
+    List<ReturnOrderCustomer> dummySearchList = <ReturnOrderCustomer>[];
+    dummySearchList.addAll(tempListTrashReturnOrdersCustomer);
+
+    if (query.isNotEmpty) {
+      List<ReturnOrderCustomer> dummyListData = <ReturnOrderCustomer>[];
+
+      for (var item in dummySearchList) {
+        /// Поиск по имени
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      }
+      setState(() {
+        listTrashReturnOrdersCustomer.clear();
+        listTrashReturnOrdersCustomer.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        listTrashReturnOrdersCustomer.clear();
+        listTrashReturnOrdersCustomer.addAll(tempListTrashReturnOrdersCustomer);
+      });
+    }
+  }
+
+  listNewParameters() {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              //filterSearchResults(value);
+            onSubmitted: (String value) {
+              filterSearchResultsNewDocuments();
             },
             controller: textFieldNewSearchController,
             decoration: InputDecoration(
@@ -214,12 +525,16 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListNewParameters = !visibleListNewParameters;
-                      });
-
+                      filterSearchResultsNewDocuments();
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldNewSearchController.text = '';
+                      filterSearchResultsNewDocuments();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   IconButton(
                     onPressed: () async {
@@ -406,7 +721,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadNewReturnDocuments();
+                            filterSearchResultsNewDocuments();
                             setState(() {
                               visibleListNewParameters = false;
                             });
@@ -466,14 +781,14 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  listSendReturnParameters() {
+  listSendParameters() {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              //filterSearchResults(value);
+            onSubmitted: (String value) {
+              filterSearchResultsSendDocuments();
             },
             controller: textFieldSendSearchController,
             decoration: InputDecoration(
@@ -489,12 +804,16 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListSendParameters = !visibleListSendParameters;
-                      });
-
+                      filterSearchResultsSendDocuments();
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldSendSearchController.text = '';
+                      filterSearchResultsSendDocuments();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   IconButton(
                     onPressed: () async {
@@ -681,7 +1000,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadSendReturnDocuments();
+                            filterSearchResultsSendDocuments();
                             setState(() {
                               visibleListSendParameters = false;
                             });
@@ -741,14 +1060,14 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  listTrashReturnParameters() {
+  listTrashParameters() {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              //filterSearchResults(value);
+            onSubmitted: (String value) {
+              filterSearchResultsTrashDocuments();
             },
             controller: textFieldTrashSearchController,
             decoration: InputDecoration(
@@ -764,13 +1083,16 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListTrashParameters =
-                            !visibleListTrashParameters;
-                      });
-
+                      filterSearchResultsTrashDocuments();
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldTrashSearchController.text = '';
+                      filterSearchResultsTrashDocuments();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   IconButton(
                     onPressed: () async {
@@ -959,7 +1281,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadTrashReturnDocuments();
+                            filterSearchResultsTrashDocuments();
                             setState(() {
                               visibleListTrashParameters = false;
                             });
@@ -1019,7 +1341,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     );
   }
 
-  yesNewReturnDocuments() {
+  yesNewDocuments() {
     return ColumnListViewBuilder(
         itemCount: listNewReturnOrdersCustomer.length,
         itemBuilder: (context, index) {
@@ -1113,7 +1435,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
         });
   }
 
-  yesSendReturnDocuments() {
+  yesSendDocuments() {
     // Отображение списка заказов покупателя
     return ColumnListViewBuilder(
         itemCount: listSendReturnOrdersCustomer.length,
@@ -1248,7 +1570,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
         });
   }
 
-  yesTrashReturnDocuments() {
+  yesTrashDocuments() {
     // Отображение списка заказов покупателя
     return ColumnListViewBuilder(
         itemCount: listTrashReturnOrdersCustomer.length,

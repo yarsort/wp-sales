@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -27,28 +28,31 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   bool visibleListSendParameters = false;
   bool visibleListTrashParameters = false;
 
-  /// Количество документов в списках на текущий момент
-  int countNewDocuments = 0;
-  int countSendDocuments = 0;
-  int countTrashDocuments = 0;
-
   String uidPartner = '';
   String uidContract = '';
   IncomingCashOrder newIncomingCashOrder =
   IncomingCashOrder(); // Шаблонный объект для отборов
+  IncomingCashOrder sendIncomingCashOrder =
+  IncomingCashOrder(); // Шаблонный объект для отборов
+  IncomingCashOrder trashIncomingCashOrder =
+  IncomingCashOrder(); // Шаблонный объект для отборов
 
   /// Начало периода отбора
-  DateTime startPeriodOrders =
+  DateTime startPeriodDocs =
   DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   /// Конец периода отбора
-  DateTime finishPeriodOrders = DateTime(DateTime.now().year,
+  DateTime finishPeriodDocs = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
   /// Списки документов
   List<IncomingCashOrder> listNewIncomingCashOrder = [];
   List<IncomingCashOrder> listSendIncomingCashOrder = [];
   List<IncomingCashOrder> listTrashIncomingCashOrder = [];
+
+  List<IncomingCashOrder> tempListNewIncomingCashOrder = [];
+  List<IncomingCashOrder> tempListSendIncomingCashOrder = [];
+  List<IncomingCashOrder> tempListTrashIncomingCashOrder = [];
 
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
@@ -97,19 +101,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               Tab(text: 'Корзина'),
             ],
           ),
-          actions: [
-            IconButton(onPressed: () async {
-              var newIncomingCashOrder = IncomingCashOrder();
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ScreenItemIncomingCashOrder(
-                      incomingCashOrder: newIncomingCashOrder),
-                ),
-              );
-              loadData();
-            }, icon: const Icon(Icons.add)),
-          ],
         ),
         body: TabBarView(
           children: [
@@ -118,6 +109,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               children: [
                 listNewParameters(),
                 yesNewDocuments(),
+                //countTrashDocuments == 0 ? noDocuments() : yesNewDocuments(),
               ],
             ),
             ListView(
@@ -125,6 +117,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               children: [
                 listSendParameters(),
                 yesSendDocuments(),
+                //countSendDocuments == 0 ? noDocuments() : yesSendDocuments(),
               ],
             ),
             ListView(
@@ -132,6 +125,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               children: [
                 listTrashParameters(),
                 yesTrashDocuments(),
+                //countTrashDocuments == 0 ? noDocuments() : yesTrashDocuments(),
               ],
             ),
           ],
@@ -166,12 +160,75 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   loadNewDocuments() async {
     // Очистка списка заказов покупателя
     listNewIncomingCashOrder.clear();
-    countNewDocuments = 0;
+    tempListNewIncomingCashOrder.clear();
 
-    listNewIncomingCashOrder = await dbReadAllNewIncomingCashOrder();
+    // Отбор по условиям
+    if (textFieldNewPeriodController.text.isNotEmpty ||
+        textFieldNewPartnerController.text.isNotEmpty) {
+
+      String dateStart = '';
+      String dateFinish = '';
+      String namePartner = newIncomingCashOrder.uidPartner;
+      String whereString = '';
+      List whereList = [];
+
+      if(textFieldNewPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldNewPeriodController.text.substring(0,2);
+        String monthStart = textFieldNewPeriodController.text.substring(3,5);
+        String yearStart = textFieldNewPeriodController.text.substring(6,10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+
+        String dayFinish = textFieldNewPeriodController.text.substring(13,15);
+        String monthFinish = textFieldNewPeriodController.text.substring(16,18);
+        String yearFinish = textFieldNewPeriodController.text.substring(19,23);
+        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+      }
+
+      // Фильтр: по статусу
+      whereList.add('status = 1');
+
+      // Фильтр: по периоду
+      if(textFieldNewPeriodController.text.isNotEmpty) {
+        whereList.add('(date >= ? AND date <= ?)');
+      }
+
+      //Фильтр по партнеру
+      if(textFieldNewPartnerController.text.isNotEmpty) {
+        whereList.add('uidPartner = ?');
+      }
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      final db = await instance.database;
+
+      // Если есть период и партнер
+      if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
+        listNewIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+      // Если есть период
+      if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
+        listNewIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+      // Если есть период и партнер
+      if(textFieldNewPeriodController.text.isEmpty && textFieldNewPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[namePartner]);
+        listNewIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+    } else {
+      listNewIncomingCashOrder = await dbReadAllNewIncomingCashOrder();
+    }
+
+    // Для возврата из поиска
+    tempListNewIncomingCashOrder.addAll(listNewIncomingCashOrder);
 
     // Количество документов в списке
-    countNewDocuments = listNewIncomingCashOrder.length;
+    var countNewDocuments = listNewIncomingCashOrder.length;
 
     debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
@@ -179,12 +236,75 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   loadSendDocuments() async {
     // Очистка списка заказов покупателя
     listSendIncomingCashOrder.clear();
-    countSendDocuments = 0;
+    tempListSendIncomingCashOrder.clear();
 
-    listSendIncomingCashOrder = await dbReadAllSendIncomingCashOrder();
+    // Отбор по условиям
+    if (textFieldSendPeriodController.text.isNotEmpty ||
+        textFieldSendPartnerController.text.isNotEmpty) {
 
+      String dateStart = '';
+      String dateFinish = '';
+      String namePartner = sendIncomingCashOrder.uidPartner;
+      String whereString = '';
+      List whereList = [];
+
+      if(textFieldSendPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldSendPeriodController.text.substring(0,2);
+        String monthStart = textFieldSendPeriodController.text.substring(3,5);
+        String yearStart = textFieldSendPeriodController.text.substring(6,10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+
+        String dayFinish = textFieldSendPeriodController.text.substring(13,15);
+        String monthFinish = textFieldSendPeriodController.text.substring(16,18);
+        String yearFinish = textFieldSendPeriodController.text.substring(19,23);
+        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+      }
+
+      // Фильтр: по статусу
+      whereList.add('status = 2');
+
+      // Фильтр: по периоду
+      if(textFieldSendPeriodController.text.isNotEmpty) {
+        whereList.add('(date >= ? AND date <= ?)');
+      }
+
+      //Фильтр по партнеру
+      if(textFieldSendPartnerController.text.isNotEmpty) {
+        whereList.add('uidPartner = ?');
+      }
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      final db = await instance.database;
+
+      // Если есть период и партнер
+      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
+        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+      // Если есть период
+      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
+        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+      // Если есть период и партнер
+      if(textFieldNewPeriodController.text.isEmpty && textFieldSendPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[namePartner]);
+        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+    } else {
+      listSendIncomingCashOrder = await dbReadAllSendIncomingCashOrder();
+    }
+
+    // Для возврата из поиска
+    tempListSendIncomingCashOrder.addAll(listSendIncomingCashOrder);
+    
     // Количество документов в списке
-    countSendDocuments = listSendIncomingCashOrder.length;
+    var countSendDocuments = listSendIncomingCashOrder.length;
 
     debugPrint(
         'Количество отправленных документов: ' + countSendDocuments.toString());
@@ -193,15 +313,192 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   loadTrashDocuments() async {
     // Очистка списка заказов покупателя
     listTrashIncomingCashOrder.clear();
-    countTrashDocuments = 0;
+    tempListTrashIncomingCashOrder.clear();
 
-    listTrashIncomingCashOrder = await dbReadAllTrashIncomingCashOrder();
+    // Отбор по условиям
+    if (textFieldTrashPeriodController.text.isNotEmpty ||
+        textFieldTrashPartnerController.text.isNotEmpty) {
 
+      String dateStart = '';
+      String dateFinish = '';
+      String namePartner = trashIncomingCashOrder.uidPartner;
+      String whereString = '';
+      List whereList = [];
+
+      if(textFieldTrashPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldTrashPeriodController.text.substring(0,2);
+        String monthStart = textFieldTrashPeriodController.text.substring(3,5);
+        String yearStart = textFieldTrashPeriodController.text.substring(6,10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+
+        String dayFinish = textFieldTrashPeriodController.text.substring(13,15);
+        String monthFinish = textFieldTrashPeriodController.text.substring(16,18);
+        String yearFinish = textFieldTrashPeriodController.text.substring(19,23);
+        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+      }
+
+      // Фильтр: по статусу
+      whereList.add('status = 3');
+
+      // Фильтр: по периоду
+      if(textFieldTrashPeriodController.text.isNotEmpty) {
+        whereList.add('(date >= ? AND date <= ?)');
+      }
+
+      //Фильтр по партнеру
+      if(textFieldTrashPartnerController.text.isNotEmpty) {
+        whereList.add('uidPartner = ?');
+      }
+
+      // Соединим условия отбора
+      whereString = whereList.join(' AND ');
+
+      final db = await instance.database;
+
+      // Если есть период и партнер
+      if(textFieldTrashPeriodController.text.isNotEmpty && textFieldTrashPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
+        listTrashIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+      // Если есть период
+      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
+        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+      // Если есть период и партнер
+      if(textFieldTrashPeriodController.text.isEmpty && textFieldTrashPartnerController.text.isNotEmpty){
+        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESCx',[namePartner]);
+        listTrashIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      }
+
+    } else {
+      listTrashIncomingCashOrder = await dbReadAllTrashIncomingCashOrder();
+    }
+
+    // Для возврата из поиска
+    tempListTrashIncomingCashOrder.addAll(listTrashIncomingCashOrder);
+    
     // Количество документов в списке
-    countTrashDocuments = listTrashIncomingCashOrder.length;
+    var countTrashDocuments = listTrashIncomingCashOrder.length;
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
+  }
+
+  void filterSearchResultsNewDocuments() {
+    /// Уберем пробелы
+    String query = textFieldNewSearchController.text.trim();
+
+    /// Искать можно только при наличии 3 и более символов
+    if (query.length < 3) {
+      setState(() {
+        listNewIncomingCashOrder.clear();
+        listNewIncomingCashOrder.addAll(tempListNewIncomingCashOrder);
+      });
+      return;
+    }
+
+    List<IncomingCashOrder> dummySearchList = <IncomingCashOrder>[];
+    dummySearchList.addAll(tempListNewIncomingCashOrder);
+
+    if (query.isNotEmpty) {
+      List<IncomingCashOrder> dummyListData = <IncomingCashOrder>[];
+
+      for (var item in dummySearchList) {
+        /// Поиск по имени
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      }
+      setState(() {
+        listNewIncomingCashOrder.clear();
+        listNewIncomingCashOrder.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        listNewIncomingCashOrder.clear();
+        listNewIncomingCashOrder.addAll(tempListNewIncomingCashOrder);
+      });
+    }
+  }
+
+  void filterSearchResultsSendDocuments() {
+    /// Уберем пробелы
+    String query = textFieldSendSearchController.text.trim();
+
+    /// Искать можно только при наличии 3 и более символов
+    if (query.length < 3) {
+      setState(() {
+        listSendIncomingCashOrder.clear();
+        listSendIncomingCashOrder.addAll(tempListSendIncomingCashOrder);
+      });
+      return;
+    }
+
+    List<IncomingCashOrder> dummySearchList = <IncomingCashOrder>[];
+    dummySearchList.addAll(tempListSendIncomingCashOrder);
+
+    if (query.isNotEmpty) {
+      List<IncomingCashOrder> dummyListData = <IncomingCashOrder>[];
+
+      for (var item in dummySearchList) {
+        /// Поиск по имени
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      }
+      setState(() {
+        listSendIncomingCashOrder.clear();
+        listSendIncomingCashOrder.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        listSendIncomingCashOrder.clear();
+        listSendIncomingCashOrder.addAll(tempListSendIncomingCashOrder);
+      });
+    }
+  }
+
+  void filterSearchResultsTrashDocuments() {
+    /// Уберем пробелы
+    String query = textFieldTrashSearchController.text.trim();
+
+    /// Искать можно только при наличии 3 и более символов
+    if (query.length < 3) {
+      setState(() {
+        listTrashIncomingCashOrder.clear();
+        listTrashIncomingCashOrder.addAll(tempListTrashIncomingCashOrder);
+      });
+      return;
+    }
+
+    List<IncomingCashOrder> dummySearchList = <IncomingCashOrder>[];
+    dummySearchList.addAll(tempListTrashIncomingCashOrder);
+
+    if (query.isNotEmpty) {
+      List<IncomingCashOrder> dummyListData = <IncomingCashOrder>[];
+
+      for (var item in dummySearchList) {
+        /// Поиск по имени
+        if (item.namePartner.toLowerCase().contains(query.toLowerCase())) {
+          dummyListData.add(item);
+        }
+      }
+      setState(() {
+        listTrashIncomingCashOrder.clear();
+        listTrashIncomingCashOrder.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        listTrashIncomingCashOrder.clear();
+        listTrashIncomingCashOrder.addAll(tempListTrashIncomingCashOrder);
+      });
+    }
   }
 
   listNewParameters() {
@@ -210,8 +507,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              //filterSearchResults(value);
+            onSubmitted: (String value) {
+              filterSearchResultsNewDocuments();
             },
             controller: textFieldNewSearchController,
             decoration: InputDecoration(
@@ -227,12 +524,20 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                 children: [
                   IconButton(
                     onPressed: () async {
+                      filterSearchResultsNewDocuments();
                       setState(() {
                         visibleListNewParameters = !visibleListNewParameters;
                       });
 
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldNewSearchController.text = '';
+                      filterSearchResultsNewDocuments();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   IconButton(
                     onPressed: () async {
@@ -419,7 +724,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadNewDocuments();
+                            filterSearchResultsNewDocuments();
                             setState(() {
                               visibleListNewParameters = false;
                             });
@@ -485,8 +790,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              //filterSearchResults(value);
+            onSubmitted: (String value) {
+              filterSearchResultsSendDocuments();
             },
             controller: textFieldSendSearchController,
             decoration: InputDecoration(
@@ -502,12 +807,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListSendParameters = !visibleListSendParameters;
-                      });
-
+                      filterSearchResultsSendDocuments();
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldSendSearchController.text = '';
+                      filterSearchResultsSendDocuments();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   IconButton(
                     onPressed: () async {
@@ -694,7 +1003,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadSendDocuments();
+                            filterSearchResultsSendDocuments();
                             setState(() {
                               visibleListSendParameters = false;
                             });
@@ -760,8 +1069,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
           child: TextField(
-            onChanged: (String value) {
-              //filterSearchResults(value);
+            onSubmitted: (String value) {
+              filterSearchResultsTrashDocuments();
             },
             controller: textFieldTrashSearchController,
             decoration: InputDecoration(
@@ -777,13 +1086,16 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                 children: [
                   IconButton(
                     onPressed: () async {
-                      setState(() {
-                        visibleListTrashParameters =
-                        !visibleListTrashParameters;
-                      });
-
+                      filterSearchResultsTrashDocuments();
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      textFieldTrashSearchController.text = '';
+                      filterSearchResultsTrashDocuments();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   IconButton(
                     onPressed: () async {
@@ -972,7 +1284,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       width: (MediaQuery.of(context).size.width - 49) / 2,
                       child: ElevatedButton(
                           onPressed: () async {
-                            await loadTrashDocuments();
+                            filterSearchResultsTrashDocuments();
                             setState(() {
                               visibleListTrashParameters = false;
                             });
@@ -1035,7 +1347,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   yesNewDocuments() {
 
     return ColumnListViewBuilder(
-        itemCount: countNewDocuments,
+        itemCount: listNewIncomingCashOrder.length,
         itemBuilder: (context, index) {
           final incomingCashOrder = listNewIncomingCashOrder[index];
           return Padding(
@@ -1124,7 +1436,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   yesSendDocuments() {
     // Отображение списка заказов покупателя
     return ColumnListViewBuilder(
-        itemCount: countSendDocuments,
+        itemCount: listSendIncomingCashOrder.length,
         itemBuilder: (context, index) {
           final incomingCashOrder = listSendIncomingCashOrder[index];
           return Padding(
@@ -1249,7 +1561,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   yesTrashDocuments() {
     // Отображение списка заказов покупателя
     return ColumnListViewBuilder(
-        itemCount: countTrashDocuments,
+        itemCount: listTrashIncomingCashOrder.length,
         itemBuilder: (context, index) {
           final incomingCashOrder = listTrashIncomingCashOrder[index];
           return Padding(

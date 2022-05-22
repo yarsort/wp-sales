@@ -311,7 +311,7 @@ Future<List<ItemReturnOrderCustomer>> dbReadItemsReturnOrderCustomer(int idRetur
 
 Future<List<ReturnOrderCustomer>> dbReadAllNewReturnOrderCustomer() async {
   final db = await instance.database;
-  String orderBy = '${ReturnOrderCustomerFields.date} ASC';
+  String orderBy = '${ReturnOrderCustomerFields.date} DESC';
   final result = await db.query(
       tableReturnOrderCustomer,
       where: '${ReturnOrderCustomerFields.status} = ?',
@@ -323,7 +323,7 @@ Future<List<ReturnOrderCustomer>> dbReadAllNewReturnOrderCustomer() async {
 
 Future<List<ReturnOrderCustomer>> dbReadAllSendReturnOrderCustomer() async {
   final db = await instance.database;
-  String orderBy = '${ReturnOrderCustomerFields.date} ASC';
+  String orderBy = '${ReturnOrderCustomerFields.date} DESC';
   final result = await db.query(
       tableReturnOrderCustomer,
       where: '${ReturnOrderCustomerFields.status} = ?',
@@ -335,7 +335,7 @@ Future<List<ReturnOrderCustomer>> dbReadAllSendReturnOrderCustomer() async {
 
 Future<List<ReturnOrderCustomer>> dbReadAllTrashReturnOrderCustomer() async {
   final db = await instance.database;
-  String orderBy = '${ReturnOrderCustomerFields.date} ASC';
+  String orderBy = '${ReturnOrderCustomerFields.date} DESC';
   final result = await db.query(
       tableReturnOrderCustomer,
       where: '${ReturnOrderCustomerFields.status} = ?',

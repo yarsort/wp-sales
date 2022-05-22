@@ -27,11 +27,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   bool visibleListSendParameters = false;
   bool visibleListTrashParameters = false;
 
-  /// Количество документов в списках на текущий момент
-  int countNewDocuments = 0;
-  int countSendDocuments = 0;
-  int countTrashDocuments = 0;
-
   String uidPartner = '';
   String uidContract = '';
   OrderCustomer newOrderCustomer =
@@ -42,11 +37,11 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   OrderCustomer(); // Шаблонный объект для отборов
 
   /// Начало периода отбора
-  DateTime startPeriodOrders =
+  DateTime startPeriodDocs =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   /// Конец периода отбора
-  DateTime finishPeriodOrders = DateTime(DateTime.now().year,
+  DateTime finishPeriodDocs = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
   /// Списки документов
@@ -116,20 +111,22 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               Tab(text: 'Корзина'),
             ],
           ),
-          actions: [
-            IconButton(onPressed: () async {
-              var newOrderCustomer = OrderCustomer();
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ScreenItemOrderCustomer(
-                      orderCustomer: newOrderCustomer),
-                ),
-              );
-              await loadNewDocuments();
-              setState(() {});
-            }, icon: const Icon(Icons.add)),
-          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            var newOrderCustomer = OrderCustomer();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
+              ),
+            );
+          },
+          tooltip: '+',
+          child: const Text(
+            "+",
+            style: TextStyle(fontSize: 30),
+          ),
         ),
         body: TabBarView(
           children: [
@@ -138,6 +135,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               children: [
                 listNewParameters(),
                 yesNewDocuments(),
+                //countTrashDocuments == 0 ? noDocuments() : yesNewDocuments(),
               ],
             ),
             ListView(
@@ -166,7 +164,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Очистка списка заказов покупателя
     listNewOrdersCustomer.clear();
     tempListNewOrdersCustomer.clear();
-    countNewDocuments = 0;
 
     // Отбор по условиям
     if (textFieldNewPeriodController.text.isNotEmpty ||
@@ -210,19 +207,19 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
       // Если есть период и партнер
       if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish,namePartner]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
         listNewOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
       // Если есть период
       if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
         listNewOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
       // Если есть период и партнер
       if(textFieldNewPeriodController.text.isEmpty && textFieldNewPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[namePartner]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[namePartner]);
         listNewOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
@@ -230,10 +227,11 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       listNewOrdersCustomer = await dbReadAllNewOrderCustomer();
     }
 
+    // Для возврата из поиска
     tempListNewOrdersCustomer.addAll(listNewOrdersCustomer);
 
     // Количество документов в списке
-    countNewDocuments = listNewOrdersCustomer.length;
+    var countNewDocuments = listNewOrdersCustomer.length;
 
     debugPrint('Количество новых документов: ' + countNewDocuments.toString());
   }
@@ -242,7 +240,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Очистка списка заказов покупателя
     listSendOrdersCustomer.clear();
     tempListSendOrdersCustomer.clear();
-    countSendDocuments = 0;
 
     // Отбор по условиям
     if (textFieldSendPeriodController.text.isNotEmpty ||
@@ -286,19 +283,19 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
       // Если есть период и партнер
       if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish,namePartner]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
         listSendOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
       // Если есть период
       if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
         listSendOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
       // Если есть период и партнер
       if(textFieldNewPeriodController.text.isEmpty && textFieldSendPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[namePartner]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[namePartner]);
         listSendOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
@@ -306,8 +303,11 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       listSendOrdersCustomer = await dbReadAllSendOrderCustomer();
     }
 
+    // Для возврата из поиска
+    tempListSendOrdersCustomer.addAll(listSendOrdersCustomer);
+
     // Количество документов в списке
-    countSendDocuments = listSendOrdersCustomer.length;
+    var countSendDocuments = listSendOrdersCustomer.length;
 
     debugPrint(
         'Количество отправленных документов: ' + countSendDocuments.toString());
@@ -317,7 +317,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Очистка списка заказов покупателя
     listTrashOrdersCustomer.clear();
     tempListTrashOrdersCustomer.clear();
-    countTrashDocuments = 0;
 
     // Отбор по условиям
     if (textFieldTrashPeriodController.text.isNotEmpty ||
@@ -361,19 +360,19 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
       // Если есть период и партнер
       if(textFieldTrashPeriodController.text.isNotEmpty && textFieldTrashPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish,namePartner]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
         listTrashOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
       // Если есть период
       if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[dateStart,dateFinish]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
         listSendOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
       // Если есть период и партнер
       if(textFieldTrashPeriodController.text.isEmpty && textFieldTrashPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date ASC',[namePartner]);
+        final result = await db.rawQuery('SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESCx',[namePartner]);
         listTrashOrdersCustomer = result.map((json) => OrderCustomer.fromJson(json)).toList();
       }
 
@@ -381,8 +380,11 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       listTrashOrdersCustomer = await dbReadAllTrashOrderCustomer();
     }
 
+    // Для возврата из поиска
+    tempListTrashOrdersCustomer.addAll(listTrashOrdersCustomer);
+
     // Количество документов в списке
-    countTrashDocuments = listTrashOrdersCustomer.length;
+    var countTrashDocuments = listTrashOrdersCustomer.length;
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
