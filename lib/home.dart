@@ -173,11 +173,9 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     // Суммы документов
     await readSumDocumentToday();
 
-    if (mounted) {
-      setState(() {
-        loadingData = false;
-      });
-    }
+    setState(() {
+      loadingData = false;
+    });
   }
 
   readSumDocumentToday() async {
@@ -357,12 +355,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                                 const ScreenOrderCustomerList()));
+                    await renewItem();
                   },
                   title: const Center(
                       child: Text(
@@ -411,12 +410,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                             const ScreenOrderCustomerList()));
+                    await renewItem();
                   },
                   title: const Center(
                       child: Text(
@@ -453,12 +453,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                             const ScreenReturnOrderCustomerList()));
+                    await renewItem();
                   },
                   title: const Center(
                       child: Text(
@@ -507,12 +508,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                                 const ScreenReturnOrderCustomerList()));
+                    await renewItem();
                   },
                   title: const Center(
                       child: Text(
@@ -547,12 +549,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                             const ScreenIncomingCashOrderList()));
+                    await renewItem();
                   },
                   title: const Center(
                       child: Text(
@@ -601,12 +604,13 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 color: Colors.blue.shade300,
                 elevation: 3,
                 child: ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                             const ScreenIncomingCashOrderList()));
+                    await renewItem();
                   },
                   title: const Center(
                       child: Text(

@@ -181,6 +181,9 @@ class _ScreenItemIncomingCashOrderState
     textFieldBalanceController.text = doubleToString(debts['balance']);
     textFieldBalanceForPaymentController.text =
         doubleToString(debts['balanceForPayment']);
+
+    // Установим расчитанную сумму долга как сумму оплаты
+    widget.incomingCashOrder.sum = doubleToString(debts['balance']);
   }
 
   Future<bool> saveDocument() async {
@@ -258,7 +261,7 @@ class _ScreenItemIncomingCashOrderState
         widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
         widget.incomingCashOrder.uidContract = orderCustomer.uidContract;
         widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
-        widget.incomingCashOrder.sum = orderCustomer.sum;
+        //widget.incomingCashOrder.sum = orderCustomer.sum;
       } else {
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text =
