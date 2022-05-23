@@ -113,14 +113,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
+          onPressed: () async {
             var newOrderCustomer = OrderCustomer();
-            Navigator.push(
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
               ),
             );
+            await loadNewDocuments();
+            setState(() {});
           },
           tooltip: '+',
           child: const Text(
@@ -388,6 +390,45 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
+  }
+
+  deleteTrashDocuments() async {
+    // Попробуем удалить документы из корзины
+    await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: const Text('Очистить корзину?'),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                      onPressed: () async {
+                        for (var item in listTrashOrdersCustomer) {
+                          dbDeleteOrderCustomer(item.id);
+                        }
+                        showMessage('Корзина очищена!', context);
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const SizedBox(
+                          width: 60, child: Center(child: Text('Да')))),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const SizedBox(
+                        width: 60,
+                        child: Center(child: Text('Нет')),
+                      )),
+                ],
+              ),
+            ],
+          );
+        });
   }
 
   void filterSearchResultsNewDocuments() {
@@ -1176,6 +1217,38 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               Icon(Icons.delete, color: Colors.white),
                               SizedBox(width: 14),
                               Text('Очистить'),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// Button Delete all
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: MediaQuery.of(context).size.width - 28,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.grey)),
+                          onPressed: () async {
+                            await deleteTrashDocuments();
+                            await loadTrashDocuments();
+                            visibleListTrashParameters = false;
+                            setState(() {});
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.delete, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Очистить корзину'),
                             ],
                           )),
                     ),

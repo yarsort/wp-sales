@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/init_db.dart';
+import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
@@ -102,6 +103,24 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
             ],
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            var newIncomingCashOrder = IncomingCashOrder();
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: newIncomingCashOrder),
+              ),
+            );
+            await loadNewDocuments();
+            setState(() {});
+          },
+          tooltip: '+',
+          child: const Text(
+            "+",
+            style: TextStyle(fontSize: 30),
+          ),
+        ),
         body: TabBarView(
           children: [
             ListView(
@@ -129,22 +148,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
               ],
             ),
           ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            var newIncomingCashOrder = IncomingCashOrder();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: newIncomingCashOrder),
-              ),
-            );
-          },
-          tooltip: '+',
-          child: const Text(
-            "+",
-            style: TextStyle(fontSize: 30),
-          ),
         ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
@@ -385,6 +388,45 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
+  }
+
+  deleteTrashDocuments() async {
+    // Попробуем удалить документы из корзины
+    await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: const Text('Очистить корзину?'),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                      onPressed: () async {
+                        for (var item in listTrashIncomingCashOrder) {
+                          dbDeleteIncomingCashOrder(item.id);
+                        }
+                        showMessage('Корзина очищена!', context);
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const SizedBox(
+                          width: 60, child: Center(child: Text('Да')))),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const SizedBox(
+                        width: 60,
+                        child: Center(child: Text('Нет')),
+                      )),
+                ],
+              ),
+            ],
+          );
+        });
   }
 
   void filterSearchResultsNewDocuments() {
@@ -1329,6 +1371,38 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                               Icon(Icons.delete, color: Colors.white),
                               SizedBox(width: 14),
                               Text('Очистить'),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// Button Delete all
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                      width: MediaQuery.of(context).size.width - 28,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.grey)),
+                          onPressed: () async {
+                            await deleteTrashDocuments();
+                            await loadTrashDocuments();
+                            visibleListTrashParameters = false;
+                            setState(() {});
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.delete, color: Colors.white),
+                              SizedBox(width: 14),
+                              Text('Очистить корзину'),
                             ],
                           )),
                     ),
