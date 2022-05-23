@@ -39,6 +39,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
+  bool disablePartnerHierarchy = false;
   bool showPartnerHierarchy = true;
 
   bool deniedAddPartner = false;
@@ -117,6 +118,11 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
 
     /// Восстановление последнего выбранного каталога
     final SharedPreferences prefs = await _prefs;
+
+    disablePartnerHierarchy = prefs.getBool('settings_disablePartnerHierarchy')??false;
+
+    // При открытии формы прочитаем настройки отображения иерархии
+    showPartnerHierarchy = !disablePartnerHierarchy;
 
     // Очистим дерево каталогов иерархии
     treeParentItems.clear();

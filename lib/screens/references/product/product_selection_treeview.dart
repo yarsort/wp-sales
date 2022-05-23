@@ -49,6 +49,7 @@ class _ScreenProductSelectionTreeViewState
 
   bool loadingData = false;
 
+  bool disableProductHierarchy = false;
   bool showProductHierarchy = true;
 
   /// Поле ввода: Поиск
@@ -260,6 +261,11 @@ class _ScreenProductSelectionTreeViewState
 
     /// Восстановление последнего выбранного каталога
     final SharedPreferences prefs = await _prefs;
+
+    disableProductHierarchy = prefs.getBool('settings_disableProductHierarchy')??false;
+
+    // При открытии формы прочитаем настройки отображения иерархии
+    showProductHierarchy = !disableProductHierarchy;
 
     // Очистим дерево каталогов иерархии
     treeParentItems.clear();

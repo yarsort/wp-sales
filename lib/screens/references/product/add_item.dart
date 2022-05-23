@@ -427,6 +427,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                   backgroundColor:
                                       MaterialStateProperty.all(Colors.blue)),
                               onPressed: () async {
+                                await calculateCount();
+
                                 // Добавим товар в заказ покупателя
                                 if (widget.orderCustomer != null) {
                                   bool result = await addProductToOrderCustomer();
@@ -742,7 +744,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         double count = 0.0;
         double discount = 0.0;
         double price = 0.0;
-        double sum = 0.0;
+        //double sum = 0.0;
 
         for (var itemUnit in listUnits) {
           var indexUnitItem = widget.listItemReturnDoc?.indexWhere((element) =>

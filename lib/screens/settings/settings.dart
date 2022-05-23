@@ -126,6 +126,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
   TextEditingController textFieldPathPicturesController =
       TextEditingController();
 
+  // Выключить иерархию партнеров
+  bool disablePartnerHierarchy = false;
+
+  // Выключить иерархию продуктов
+  bool disableProductHierarchy = false;
+
+  // Видимость паролей
   bool _isObscure = true;
   bool _isObscureMail = true;
 
@@ -204,13 +211,13 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ListView(
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  nameGroup(nameGroup: 'Загрузка картинок в подборе'),
+                  nameGroup(nameGroup: 'Подбор элементов'),
                   listSettingsPictures(),
-                  nameGroup(nameGroup: 'Тип данных приложения'),
-                  listSettingsTypeData(),
+                  // nameGroup(nameGroup: 'Тип данных приложения'),
+                  // listSettingsTypeData(),
                   nameGroup(nameGroup: 'Редактирование данных'),
                   listSettingsMain(),
-                  nameGroup(nameGroup: 'Добавление данных'),
+                  nameGroup(nameGroup: 'Добавление новых данных'),
                   listSettingsAddData(),
                 ],
               ),
@@ -360,9 +367,12 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     textFieldCountDateSendingController.text =
         countDateSending.toString();
 
+    /// Работа с подбором элементов
     // Картинки в Интернете. Путь + UID товара + '.jpg'
     textFieldPathPicturesController.text =
         prefs.getString('settings_pathPictures') ?? '';
+    disablePartnerHierarchy = prefs.getBool('settings_disablePartnerHierarchy') ?? false;
+    disableProductHierarchy = prefs.getBool('settings_disableProductHierarchy') ?? false;
 
     setState(() {});
   }
@@ -433,9 +443,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
     prefs.setInt('settings_countDatePaying', countDatePaying.toInt());
     prefs.setInt('settings_countDateSending', countDateSending.toInt());
 
-    /// Картинки
+    /// Работа с подбором элементов
     prefs.setString(
         'settings_pathPictures', textFieldPathPicturesController.text);
+    prefs.setBool('settings_disablePartnerHierarchy', disablePartnerHierarchy);
+    prefs.setBool('settings_disableProductHierarchy', disableProductHierarchy);
 
     /// Web-service
     prefs.setBool('settings_useWebExchange', useWebExchange);
@@ -474,7 +486,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   listSettingsMain() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
         children: [
           /// Запрет на изменение настроек
@@ -578,7 +590,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   listSettingsAddData() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
         children: [
           /// Запрет на добавление: Организация
@@ -1660,6 +1672,42 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                   ),
                 ),
               ),
+            ),
+          ),
+
+          /// Выключить иерархию партнеров
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: disablePartnerHierarchy,
+                  onChanged: (value) {
+                    setState(() {
+                      disablePartnerHierarchy = !disablePartnerHierarchy;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Выключить иерархию партнеров')),
+              ],
+            ),
+          ),
+
+          /// Выключить иерархию товаров
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: disableProductHierarchy,
+                  onChanged: (value) {
+                    setState(() {
+                      disableProductHierarchy = !disableProductHierarchy;
+                    });
+                  },
+                ),
+                const Flexible(child: Text('Выключить иерархию товаров')),
+              ],
             ),
           ),
         ],

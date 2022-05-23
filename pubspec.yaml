@@ -39,7 +39,7 @@ dependencies:
   firebase_core: ^1.13.1
   path_provider: ^2.0.9
   ftpconnect: ^1.0.1  # FTP - для обмена
-  enough_mail: ^2.0.0 # E-mail - для обмена
+  enough_mail: ^2.0.1 # E-mail - для обмена
   cached_network_image: ^3.2.1 # Для отображения картинок товаров в подборе
   flutter_barcode_scanner: ^2.0.0 # Для сканирования товаров в подборе
   package_info_plus: ^1.4.2   # Для вывода версии приложения в виджетах
@@ -50,11 +50,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-dependency_overrides:
-  # xml: ^6.0.1
-  enough_mail:
-    git:
-      url: https://github.com/Enough-Software/enough_mail.git
+#dependency_overrides:
+#  # xml: ^6.0.1
+#  enough_mail:
+#    git:
+#      url: https://github.com/Enough-Software/enough_mail.git
 
 dev_dependencies:
   flutter_test:
