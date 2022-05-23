@@ -187,7 +187,7 @@ Future<IncomingCashOrder> dbReadIncomingCashOrderUID(String uid) async {
 
 Future<List<IncomingCashOrder>> dbReadAllNewIncomingCashOrder() async {
   final db = await instance.database;
-  String orderBy = '${IncomingCashOrderFields.date} ASC';
+  String orderBy = '${IncomingCashOrderFields.date} DESC';
   final result = await db.query(tableIncomingCashOrder,
       where: '${IncomingCashOrderFields.status} = ?',
       whereArgs: [1],
@@ -198,7 +198,7 @@ Future<List<IncomingCashOrder>> dbReadAllNewIncomingCashOrder() async {
 
 Future<List<IncomingCashOrder>> dbReadAllSendIncomingCashOrder() async {
   final db = await instance.database;
-  String orderBy = '${IncomingCashOrderFields.date} ASC';
+  String orderBy = '${IncomingCashOrderFields.date} DESC';
   final result = await db.query(
       tableIncomingCashOrder,
       where: '${IncomingCashOrderFields.status} = ?',
@@ -210,7 +210,7 @@ Future<List<IncomingCashOrder>> dbReadAllSendIncomingCashOrder() async {
 
 Future<List<IncomingCashOrder>> dbReadAllTrashIncomingCashOrder() async {
   final db = await instance.database;
-  String orderBy = '${IncomingCashOrderFields.date} ASC';
+  String orderBy = '${IncomingCashOrderFields.date} DESC';
   final result = await db.query(
       tableIncomingCashOrder,
       where: '${IncomingCashOrderFields.status} = ?',

@@ -690,16 +690,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         if (count == 0) {
           textFieldCountController.text = doubleThreeToString(1.0);
           textFieldDiscountController.text = doubleThreeToString(0.0);
-          //textFieldSumController.text = doubleToString(price);
         }
 
       }
-
-      // Выделим текст после фокусировки
-      textFieldCountController.selection = TextSelection(
-        baseOffset: 0,
-        extentOffset: textFieldCountController.text.length,
-      );
     }
 
     /// Возврат товаров от покупателя
@@ -781,10 +774,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         if (count == 0) {
           textFieldCountController.text = doubleThreeToString(1.0);
           textFieldDiscountController.text = doubleThreeToString(0.0);
-          //textFieldSumController.text = doubleToString(price);
         }
       }
     }
+
+    /// Выделим текст после заполнения и фокусировки
+    textFieldCountController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: textFieldCountController.text.length,
+    );
 
     setState(() {});
   }
