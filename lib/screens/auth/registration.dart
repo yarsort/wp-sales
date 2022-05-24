@@ -190,10 +190,11 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
           backgroundColor: MaterialStateProperty.all(Colors.blue[200]),
         ),
         onPressed: () async {
-          Navigator.pushAndRemoveUntil(
-              (context),
-              MaterialPageRoute(builder: (context) => const ScreenLogin()),
-                  (route) => false);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  const ScreenLogin()));
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -245,7 +246,7 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
                           'assets/images/wpsales_logo.png',
                           fit: BoxFit.contain,
                         )),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 15),
                     secondNameField,
                     const SizedBox(height: 15),
                     firstNameField,
