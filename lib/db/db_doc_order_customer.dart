@@ -366,3 +366,60 @@ Future<int> dbGetCountTrashOrderCustomer() async {
       where: '${OrderCustomerFields.status} = ?', whereArgs: [3]);
   return result.map((json) => OrderCustomer.fromJson(json)).toList().length;
 }
+
+Future<double> dbGetSumNewOrderCustomer() async {
+  final db = await instance.database;
+
+  final result = await db.rawQuery("SELECT "
+      "${OrderCustomerFields.uidPartner} AS uidPartner, "
+      "SUM(${OrderCustomerFields.sum}) AS sum "
+      "FROM $tableOrderCustomer "
+      "WHERE "
+      "${OrderCustomerFields.status} = 1 "
+      "GROUP BY ${OrderCustomerFields.uidPartner};");
+  List<OrderCustomer> listDocs = result.map((json) => OrderCustomer.fromJson(json)).toList();
+
+  double sum = 0.0;
+  for (var item in listDocs) {
+    sum = sum + item.sum;
+  }
+  return sum;
+}
+
+Future<double> dbGetSumSendOrderCustomer() async {
+  final db = await instance.database;
+
+  final result = await db.rawQuery("SELECT "
+      "${OrderCustomerFields.uidPartner} AS uidPartner, "
+      "SUM(${OrderCustomerFields.sum}) AS sum "
+      "FROM $tableOrderCustomer "
+      "WHERE "
+      "${OrderCustomerFields.status} = 2 "
+      "GROUP BY ${OrderCustomerFields.uidPartner};");
+  List<OrderCustomer> listDocs = result.map((json) => OrderCustomer.fromJson(json)).toList();
+
+  double sum = 0.0;
+  for (var item in listDocs) {
+    sum = sum + item.sum;
+  }
+  return sum;
+}
+
+Future<double> dbGetSumTrashOrderCustomer() async {
+  final db = await instance.database;
+
+  final result = await db.rawQuery("SELECT "
+      "${OrderCustomerFields.uidPartner} AS uidPartner, "
+      "SUM(${OrderCustomerFields.sum}) AS sum "
+      "FROM $tableOrderCustomer "
+      "WHERE "
+      "${OrderCustomerFields.status} = 1 "
+      "GROUP BY ${OrderCustomerFields.uidPartner};");
+  List<OrderCustomer> listDocs = result.map((json) => OrderCustomer.fromJson(json)).toList();
+
+  double sum = 0.0;
+  for (var item in listDocs) {
+    sum = sum + item.sum;
+  }
+  return sum;
+}

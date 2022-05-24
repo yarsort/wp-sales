@@ -47,6 +47,13 @@ class _ScreenIncomingCashOrderListState
   DateTime finishPeriodDocs = DateTime(DateTime.now().year,
       DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
+  DateTime startPeriodDocsToday =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+  /// Конец периода отбора
+  DateTime finishPeriodDocsToday = DateTime(DateTime.now().year,
+      DateTime.now().month, DateTime.now().day, 23, 59, 59);
+
   /// Списки документов
   List<IncomingCashOrder> listNewIncomingCashOrder = [];
   List<IncomingCashOrder> listSendIncomingCashOrder = [];
@@ -58,35 +65,46 @@ class _ScreenIncomingCashOrderListState
 
   /// Количество
   int countNewDocs = 0;
-  TextEditingController textFieldCountNewDocsController = TextEditingController();
+  TextEditingController textFieldCountNewDocsController =
+      TextEditingController();
   int countSendDocs = 0;
-  TextEditingController textFieldCountSendDocsController = TextEditingController();
+  TextEditingController textFieldCountSendDocsController =
+      TextEditingController();
   int countTrashDocs = 0;
-  TextEditingController textFieldCountTrashDocsController = TextEditingController();
+  TextEditingController textFieldCountTrashDocsController =
+      TextEditingController();
 
   /// Количество за сутки
   int countNewDocsToday = 0;
-  TextEditingController textFieldCountNewDocsTodayController = TextEditingController();
+  TextEditingController textFieldCountNewDocsTodayController =
+      TextEditingController();
   int countSendDocsToday = 0;
-  TextEditingController textFieldCountSendDocsTodayController = TextEditingController();
+  TextEditingController textFieldCountSendDocsTodayController =
+      TextEditingController();
   int countTrashDocsToday = 0;
-  TextEditingController textFieldCountTrashDocsTodayController = TextEditingController();
+  TextEditingController textFieldCountTrashDocsTodayController =
+      TextEditingController();
 
   /// Суммы
   double sumNewDocs = 0.0;
   TextEditingController textFieldSumNewDocsController = TextEditingController();
   double sumSendDocs = 0.0;
-  TextEditingController textFieldSumSendDocsController = TextEditingController();
+  TextEditingController textFieldSumSendDocsController =
+      TextEditingController();
   double sumTrashDocs = 0.0;
-  TextEditingController textFieldSumTrashDocsController = TextEditingController();
+  TextEditingController textFieldSumTrashDocsController =
+      TextEditingController();
 
   /// Суммы за сутки
   double sumNewDocsToday = 0.0;
-  TextEditingController textFieldSumNewDocsTodayController = TextEditingController();
+  TextEditingController textFieldSumNewDocsTodayController =
+      TextEditingController();
   double sumSendDocsToday = 0.0;
-  TextEditingController textFieldSumSendDocsTodayController = TextEditingController();
+  TextEditingController textFieldSumSendDocsTodayController =
+      TextEditingController();
   double sumTrashDocsToday = 0.0;
-  TextEditingController textFieldSumTrashDocsTodayController = TextEditingController();
+  TextEditingController textFieldSumTrashDocsTodayController =
+      TextEditingController();
 
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
@@ -200,30 +218,37 @@ class _ScreenIncomingCashOrderListState
     listNewIncomingCashOrder.clear();
     tempListNewIncomingCashOrder.clear();
 
+    String namePartner = newIncomingCashOrder.uidPartner;
+    String whereString = '';
+    List whereList = [];
+
+    // textFieldNewPeriodController.text =
+    //     shortDateToString(startPeriodDocs) +
+    //         ' - ' +
+    //         shortDateToString(finishPeriodDocs);
+
     // Отбор по условиям
     if (textFieldNewPeriodController.text.isNotEmpty ||
         textFieldNewPartnerController.text.isNotEmpty) {
-      String dateStart = '';
-      String dateFinish = '';
-      String namePartner = newIncomingCashOrder.uidPartner;
-      String whereString = '';
-      List whereList = [];
-
       if (textFieldNewPeriodController.text.isNotEmpty) {
         String dayStart = textFieldNewPeriodController.text.substring(0, 2);
         String monthStart = textFieldNewPeriodController.text.substring(3, 5);
         String yearStart = textFieldNewPeriodController.text.substring(6, 10);
-        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart')
-            .toIso8601String();
+
+        startPeriodDocs = DateTime.parse('$yearStart-$monthStart-$dayStart');
 
         String dayFinish = textFieldNewPeriodController.text.substring(13, 15);
         String monthFinish =
             textFieldNewPeriodController.text.substring(16, 18);
         String yearFinish = textFieldNewPeriodController.text.substring(19, 23);
-        dateFinish =
-            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
-                .toIso8601String();
+
+        finishPeriodDocs =
+            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59');
       }
+
+      debugPrint('Период документов: НОВЫЕ...');
+      debugPrint('Начало периода: ' + startPeriodDocs.toString());
+      debugPrint('Конец периода: ' + finishPeriodDocs.toString());
 
       // Фильтр: по статусу
       whereList.add('status = 1');
@@ -248,7 +273,11 @@ class _ScreenIncomingCashOrderListState
           textFieldNewPartnerController.text.isNotEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
-            [dateStart, dateFinish, namePartner]);
+            [
+              startPeriodDocs.toIso8601String(),
+              finishPeriodDocs.toIso8601String(),
+              namePartner
+            ]);
         listNewIncomingCashOrder =
             result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
@@ -258,7 +287,10 @@ class _ScreenIncomingCashOrderListState
           textFieldNewPartnerController.text.isEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
-            [dateStart, dateFinish]);
+            [
+              startPeriodDocs.toIso8601String(),
+              finishPeriodDocs.toIso8601String()
+            ]);
         listNewIncomingCashOrder =
             result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
@@ -290,31 +322,35 @@ class _ScreenIncomingCashOrderListState
     listSendIncomingCashOrder.clear();
     tempListSendIncomingCashOrder.clear();
 
+    String namePartner = sendIncomingCashOrder.uidPartner;
+    String whereString = '';
+    List whereList = [];
+
+    textFieldSendPeriodController.text = shortDateToString(startPeriodDocs) +
+        ' - ' +
+        shortDateToString(finishPeriodDocs);
+
     // Отбор по условиям
     if (textFieldSendPeriodController.text.isNotEmpty ||
         textFieldSendPartnerController.text.isNotEmpty) {
-      String dateStart = '';
-      String dateFinish = '';
-      String namePartner = sendIncomingCashOrder.uidPartner;
-      String whereString = '';
-      List whereList = [];
-
       if (textFieldSendPeriodController.text.isNotEmpty) {
         String dayStart = textFieldSendPeriodController.text.substring(0, 2);
         String monthStart = textFieldSendPeriodController.text.substring(3, 5);
         String yearStart = textFieldSendPeriodController.text.substring(6, 10);
-        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart')
-            .toIso8601String();
+        startPeriodDocs = DateTime.parse('$yearStart-$monthStart-$dayStart');
 
         String dayFinish = textFieldSendPeriodController.text.substring(13, 15);
         String monthFinish =
             textFieldSendPeriodController.text.substring(16, 18);
         String yearFinish =
             textFieldSendPeriodController.text.substring(19, 23);
-        dateFinish =
-            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
-                .toIso8601String();
+        finishPeriodDocs =
+            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59');
       }
+
+      debugPrint('Период документов: ОТПРАВЛЕНО...');
+      debugPrint('Начало периода: ' + startPeriodDocs.toString());
+      debugPrint('Конец периода: ' + finishPeriodDocs.toString());
 
       // Фильтр: по статусу
       whereList.add('status = 2');
@@ -339,7 +375,11 @@ class _ScreenIncomingCashOrderListState
           textFieldSendPartnerController.text.isNotEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
-            [dateStart, dateFinish, namePartner]);
+            [
+              startPeriodDocs.toIso8601String(),
+              finishPeriodDocs.toIso8601String(),
+              namePartner
+            ]);
         listSendIncomingCashOrder =
             result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
@@ -349,7 +389,10 @@ class _ScreenIncomingCashOrderListState
           textFieldSendPartnerController.text.isEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
-            [dateStart, dateFinish]);
+            [
+              startPeriodDocs.toIso8601String(),
+              finishPeriodDocs.toIso8601String()
+            ]);
         listSendIncomingCashOrder =
             result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
@@ -382,21 +425,23 @@ class _ScreenIncomingCashOrderListState
     listTrashIncomingCashOrder.clear();
     tempListTrashIncomingCashOrder.clear();
 
+    // textFieldTrashPeriodController.text =
+    //     shortDateToString(startPeriodDocs) +
+    //         ' - ' +
+    //         shortDateToString(finishPeriodDocs);
+
+    String namePartner = trashIncomingCashOrder.uidPartner;
+    String whereString = '';
+    List whereList = [];
+
     // Отбор по условиям
     if (textFieldTrashPeriodController.text.isNotEmpty ||
         textFieldTrashPartnerController.text.isNotEmpty) {
-      String dateStart = '';
-      String dateFinish = '';
-      String namePartner = trashIncomingCashOrder.uidPartner;
-      String whereString = '';
-      List whereList = [];
-
       if (textFieldTrashPeriodController.text.isNotEmpty) {
         String dayStart = textFieldTrashPeriodController.text.substring(0, 2);
         String monthStart = textFieldTrashPeriodController.text.substring(3, 5);
         String yearStart = textFieldTrashPeriodController.text.substring(6, 10);
-        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart')
-            .toIso8601String();
+        startPeriodDocs = DateTime.parse('$yearStart-$monthStart-$dayStart');
 
         String dayFinish =
             textFieldTrashPeriodController.text.substring(13, 15);
@@ -404,10 +449,13 @@ class _ScreenIncomingCashOrderListState
             textFieldTrashPeriodController.text.substring(16, 18);
         String yearFinish =
             textFieldTrashPeriodController.text.substring(19, 23);
-        dateFinish =
-            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
-                .toIso8601String();
+        finishPeriodDocs =
+            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59');
       }
+
+      debugPrint('Период документов: КОРЗИНА...');
+      debugPrint('Начало периода: ' + startPeriodDocs.toString());
+      debugPrint('Конец периода: ' + finishPeriodDocs.toString());
 
       // Фильтр: по статусу
       whereList.add('status = 3');
@@ -432,7 +480,11 @@ class _ScreenIncomingCashOrderListState
           textFieldTrashPartnerController.text.isNotEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
-            [dateStart, dateFinish, namePartner]);
+            [
+              startPeriodDocs.toIso8601String(),
+              finishPeriodDocs.toIso8601String(),
+              namePartner
+            ]);
         listTrashIncomingCashOrder =
             result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
@@ -442,7 +494,10 @@ class _ScreenIncomingCashOrderListState
           textFieldSendPartnerController.text.isEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
-            [dateStart, dateFinish]);
+            [
+              startPeriodDocs.toIso8601String(),
+              finishPeriodDocs.toIso8601String()
+            ]);
         listSendIncomingCashOrder =
             result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
@@ -470,22 +525,27 @@ class _ScreenIncomingCashOrderListState
         'Количество удаленных документов: ' + countTrashDocuments.toString());
   }
 
-  calculateNewDocuments(){
+  calculateNewDocuments() async {
+    sumNewDocsToday = 0.0;
+    sumSendDocsToday = 0.0;
+    sumTrashDocsToday = 0.0;
+    countNewDocsToday = 0;
+    countSendDocsToday = 0;
+    countTrashDocsToday = 0;
 
     // Начало текущего дня
     DateTime dateA =
-    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
     // Конец текущего дня
-    DateTime dateB = DateTime(DateTime.now().year,
-        DateTime.now().month, DateTime.now().day, 23, 59, 59);
+    DateTime dateB = DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, 23, 59, 59);
 
     /// Новые
-    for(var itemDoc in tempListNewIncomingCashOrder){
-      sumNewDocs = sumNewDocs + itemDoc.sum;
+    for (var itemDoc in tempListNewIncomingCashOrder) {
       countNewDocs++;
-
-      // Подсчет за сегодня
+      sumNewDocs = sumNewDocs + itemDoc.sum;
+      // Подсчет за период
       DateTime dateC = itemDoc.date;
       if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
         sumNewDocsToday = sumNewDocsToday + itemDoc.sum;
@@ -494,11 +554,10 @@ class _ScreenIncomingCashOrderListState
     }
 
     /// Отправленные
-    for(var itemDoc in tempListSendIncomingCashOrder){
-      sumSendDocs = sumSendDocs + itemDoc.sum;
+    for (var itemDoc in tempListSendIncomingCashOrder) {
       countSendDocs++;
-
-      // Подсчет за сегодня
+      sumSendDocs = sumSendDocs + itemDoc.sum;
+      // Подсчет за период
       DateTime dateC = itemDoc.date;
       if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
         //dateC is between dateA and dateB
@@ -508,11 +567,10 @@ class _ScreenIncomingCashOrderListState
     }
 
     /// Удаленные
-    for(var itemDoc in tempListTrashIncomingCashOrder){
-      sumTrashDocs = sumTrashDocs + itemDoc.sum;
+    for (var itemDoc in tempListTrashIncomingCashOrder) {
       countTrashDocs++;
-
-      // Подсчет за сегодня
+      sumTrashDocs = sumTrashDocs + itemDoc.sum;
+      // Подсчет за период
       DateTime dateC = itemDoc.date;
       if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
         sumTrashDocsToday = sumTrashDocsToday + itemDoc.sum;
@@ -526,7 +584,8 @@ class _ScreenIncomingCashOrderListState
     textFieldCountSendDocsController.text = countSendDocs.toString();
     textFieldCountSendDocsTodayController.text = countSendDocsToday.toString();
     textFieldCountTrashDocsController.text = countTrashDocs.toString();
-    textFieldCountTrashDocsTodayController.text = countTrashDocsToday.toString();
+    textFieldCountTrashDocsTodayController.text =
+        countTrashDocsToday.toString();
 
     /// Сумма
     textFieldSumNewDocsController.text = doubleToString(sumNewDocs);
@@ -534,7 +593,8 @@ class _ScreenIncomingCashOrderListState
     textFieldSumSendDocsController.text = doubleToString(sumSendDocs);
     textFieldSumSendDocsTodayController.text = doubleToString(sumSendDocsToday);
     textFieldSumTrashDocsController.text = doubleToString(sumTrashDocs);
-    textFieldSumTrashDocsTodayController.text = doubleToString(sumTrashDocsToday);
+    textFieldSumTrashDocsTodayController.text =
+        doubleToString(sumTrashDocsToday);
 
     setState(() {});
   }
@@ -752,6 +812,7 @@ class _ScreenIncomingCashOrderListState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               nameGroup(nameGroup: 'Параметры отбора'),
+
               /// Количество документов
               Row(
                 children: [
@@ -769,7 +830,7 @@ class _ScreenIncomingCashOrderListState
                           labelStyle: TextStyle(
                             color: Colors.blueGrey,
                           ),
-                          labelText: 'Количество (общее)',
+                          labelText: 'Количество (период)',
                         ),
                       ),
                     ),
@@ -814,7 +875,7 @@ class _ScreenIncomingCashOrderListState
                           labelStyle: TextStyle(
                             color: Colors.blueGrey,
                           ),
-                          labelText: 'Сумма (общее)',
+                          labelText: 'Сумма (период)',
                         ),
                       ),
                     ),
@@ -871,20 +932,30 @@ class _ScreenIncomingCashOrderListState
                             );
 
                             if (_datePick != null) {
-                              setState(() {
-                                textPeriod =
-                                    shortDateToString(_datePick.start) +
-                                        ' - ' +
-                                        shortDateToString(_datePick.end);
-                                textFieldNewPeriodController.text = textPeriod;
-                              });
+                              startPeriodDocs = _datePick.start;
+                              finishPeriodDocs = _datePick.end;
+
+                              textFieldNewPeriodController.text =
+                                  shortDateToString(startPeriodDocs) +
+                                      ' - ' +
+                                      shortDateToString(finishPeriodDocs);
+                              setState(() {});
                             }
                           },
                           icon:
                               const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
-                          onPressed: () async {},
+                          onPressed: () async {
+                            startPeriodDocs = startPeriodDocsToday;
+                            finishPeriodDocs = finishPeriodDocsToday;
+
+                            textFieldNewPeriodController.text =
+                                shortDateToString(startPeriodDocs) +
+                                    ' - ' +
+                                    shortDateToString(finishPeriodDocs);
+                            setState(() {});
+                          },
                           icon: const Icon(Icons.delete, color: Colors.red),
                         ),
                       ],
@@ -1000,7 +1071,7 @@ class _ScreenIncomingCashOrderListState
                   children: [
                     SizedBox(
                       height: 40,
-                      width: (MediaQuery.of(context).size.width - 49) / 2,
+                      width: MediaQuery.of(context).size.width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
                             filterSearchResultsNewDocuments();
@@ -1014,40 +1085,6 @@ class _ScreenIncomingCashOrderListState
                               Icon(Icons.update, color: Colors.white),
                               SizedBox(width: 14),
                               Text('Заполнить')
-                            ],
-                          )),
-                    ),
-                    const SizedBox(
-                      width: 14,
-                    ),
-                    SizedBox(
-                      height: 40,
-                      width: (MediaQuery.of(context).size.width - 35) / 2,
-                      child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
-                          onPressed: () async {
-                            await loadNewDocuments();
-                            setState(() {
-                              textFieldNewPartnerController.text = '';
-                              textFieldNewContractController.text = '';
-                              textFieldNewPeriodController.text = '';
-
-                              newIncomingCashOrder.uidPartner = '';
-                              newIncomingCashOrder.namePartner = '';
-                              newIncomingCashOrder.uidContract = '';
-                              newIncomingCashOrder.nameContract = '';
-
-                              visibleListNewParameters = false;
-                            });
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.delete, color: Colors.white),
-                              SizedBox(width: 14),
-                              Text('Очистить'),
                             ],
                           )),
                     ),
@@ -1118,6 +1155,7 @@ class _ScreenIncomingCashOrderListState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               nameGroup(nameGroup: 'Параметры отбора'),
+
               /// Количество документов
               Row(
                 children: [
@@ -1135,7 +1173,7 @@ class _ScreenIncomingCashOrderListState
                           labelStyle: TextStyle(
                             color: Colors.blueGrey,
                           ),
-                          labelText: 'Количество (общее)',
+                          labelText: 'Количество (период)',
                         ),
                       ),
                     ),
@@ -1180,7 +1218,7 @@ class _ScreenIncomingCashOrderListState
                           labelStyle: TextStyle(
                             color: Colors.blueGrey,
                           ),
-                          labelText: 'Сумма (общее)',
+                          labelText: 'Сумма (период)',
                         ),
                       ),
                     ),
@@ -1237,65 +1275,15 @@ class _ScreenIncomingCashOrderListState
                             );
 
                             if (_datePick != null) {
-                              setState(() {
-                                textPeriod =
-                                    shortDateToString(_datePick.start) +
-                                        ' - ' +
-                                        shortDateToString(_datePick.end);
-                                textFieldSendPeriodController.text = textPeriod;
-                              });
-                            }
-                          },
-                          icon:
-                          const Icon(Icons.date_range, color: Colors.blue),
-                        ),
-                        IconButton(
-                          onPressed: () async {},
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                              startPeriodDocs = _datePick.start;
+                              finishPeriodDocs = _datePick.end;
 
-              /// Period
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldSendPeriodController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: const OutlineInputBorder(),
-                    labelStyle: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Период',
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min, //
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            var _datePick = await showDateRangePicker(
-                              context: context,
-                              initialDateRange: DateTimeRange(
-                                  start: firstDate, end: lastDate),
-                              helpText: 'Выберите период',
-                              firstDate: DateTime(2021, 1, 1),
-                              lastDate: lastDate,
-                            );
-
-                            if (_datePick != null) {
-                              setState(() {
-                                textPeriod =
-                                    shortDateToString(_datePick.start) +
-                                        ' - ' +
-                                        shortDateToString(_datePick.end);
-                                textFieldSendPeriodController.text = textPeriod;
-                              });
+                              textFieldSendPeriodController.text =
+                                  shortDateToString(startPeriodDocs) +
+                                      ' - ' +
+                                      shortDateToString(finishPeriodDocs);
                             }
+                            setState(() {});
                           },
                           icon:
                               const Icon(Icons.date_range, color: Colors.blue),
@@ -1417,13 +1405,13 @@ class _ScreenIncomingCashOrderListState
                   children: [
                     SizedBox(
                       height: 40,
-                      width: (MediaQuery.of(context).size.width - 49) / 2,
+                      width: MediaQuery.of(context).size.width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
-                            filterSearchResultsSendDocuments();
-                            setState(() {
-                              visibleListSendParameters = false;
-                            });
+                            visibleListSendParameters = false;
+                            await loadSendDocuments();
+                            await calculateNewDocuments();
+                            setState(() {});
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1431,40 +1419,6 @@ class _ScreenIncomingCashOrderListState
                               Icon(Icons.update, color: Colors.white),
                               SizedBox(width: 14),
                               Text('Заполнить')
-                            ],
-                          )),
-                    ),
-                    const SizedBox(
-                      width: 14,
-                    ),
-                    SizedBox(
-                      height: 40,
-                      width: (MediaQuery.of(context).size.width - 35) / 2,
-                      child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
-                          onPressed: () async {
-                            await loadSendDocuments();
-                            setState(() {
-                              textFieldSendPartnerController.text = '';
-                              textFieldSendContractController.text = '';
-                              textFieldSendPeriodController.text = '';
-
-                              newIncomingCashOrder.uidPartner = '';
-                              newIncomingCashOrder.namePartner = '';
-                              newIncomingCashOrder.uidContract = '';
-                              newIncomingCashOrder.nameContract = '';
-
-                              visibleListSendParameters = false;
-                            });
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.delete, color: Colors.white),
-                              SizedBox(width: 14),
-                              Text('Очистить'),
                             ],
                           )),
                     ),
@@ -1566,21 +1520,30 @@ class _ScreenIncomingCashOrderListState
                             );
 
                             if (_datePick != null) {
-                              setState(() {
-                                textPeriod =
-                                    shortDateToString(_datePick.start) +
-                                        ' - ' +
-                                        shortDateToString(_datePick.end);
-                                textFieldTrashPeriodController.text =
-                                    textPeriod;
-                              });
+                              startPeriodDocs = _datePick.start;
+                              finishPeriodDocs = _datePick.end;
+
+                              textFieldTrashPeriodController.text =
+                                  shortDateToString(startPeriodDocs) +
+                                      ' - ' +
+                                      shortDateToString(finishPeriodDocs);
                             }
+                            setState(() {});
                           },
                           icon:
                               const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
-                          onPressed: () async {},
+                          onPressed: () async {
+                            startPeriodDocs = startPeriodDocsToday;
+                            finishPeriodDocs = finishPeriodDocsToday;
+
+                            textFieldTrashPeriodController.text =
+                                shortDateToString(startPeriodDocs) +
+                                    ' - ' +
+                                    shortDateToString(finishPeriodDocs);
+                            setState(() {});
+                          },
                           icon: const Icon(Icons.delete, color: Colors.red),
                         ),
                       ],
@@ -1696,13 +1659,13 @@ class _ScreenIncomingCashOrderListState
                   children: [
                     SizedBox(
                       height: 40,
-                      width: (MediaQuery.of(context).size.width - 49) / 2,
+                      width: MediaQuery.of(context).size.width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
-                            filterSearchResultsTrashDocuments();
-                            setState(() {
-                              visibleListTrashParameters = false;
-                            });
+                            visibleListTrashParameters = false;
+                            await loadTrashDocuments();
+                            await calculateNewDocuments();
+                            setState(() {});
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -1710,40 +1673,6 @@ class _ScreenIncomingCashOrderListState
                               Icon(Icons.update, color: Colors.white),
                               SizedBox(width: 14),
                               Text('Заполнить')
-                            ],
-                          )),
-                    ),
-                    const SizedBox(
-                      width: 14,
-                    ),
-                    SizedBox(
-                      height: 40,
-                      width: (MediaQuery.of(context).size.width - 35) / 2,
-                      child: ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
-                          onPressed: () async {
-                            await loadTrashDocuments();
-                            setState(() {
-                              textFieldTrashPartnerController.text = '';
-                              textFieldTrashContractController.text = '';
-                              textFieldTrashPeriodController.text = '';
-
-                              newIncomingCashOrder.uidPartner = '';
-                              newIncomingCashOrder.namePartner = '';
-                              newIncomingCashOrder.uidContract = '';
-                              newIncomingCashOrder.nameContract = '';
-
-                              visibleListTrashParameters = false;
-                            });
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.delete, color: Colors.white),
-                              SizedBox(width: 14),
-                              Text('Очистить'),
                             ],
                           )),
                     ),
