@@ -17,12 +17,13 @@ class ScreenIncomingCashOrderList extends StatefulWidget {
       _ScreenIncomingCashOrderListState();
 }
 
-class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderList> {
+class _ScreenIncomingCashOrderListState
+    extends State<ScreenIncomingCashOrderList> {
   /// Поля ввода: Поиск
   TextEditingController textFieldNewSearchController = TextEditingController();
   TextEditingController textFieldSendSearchController = TextEditingController();
   TextEditingController textFieldTrashSearchController =
-  TextEditingController();
+      TextEditingController();
 
   /// Видимость панелей отбора документов
   bool visibleListNewParameters = false;
@@ -32,15 +33,15 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   String uidPartner = '';
   String uidContract = '';
   IncomingCashOrder newIncomingCashOrder =
-  IncomingCashOrder(); // Шаблонный объект для отборов
+      IncomingCashOrder(); // Шаблонный объект для отборов
   IncomingCashOrder sendIncomingCashOrder =
-  IncomingCashOrder(); // Шаблонный объект для отборов
+      IncomingCashOrder(); // Шаблонный объект для отборов
   IncomingCashOrder trashIncomingCashOrder =
-  IncomingCashOrder(); // Шаблонный объект для отборов
+      IncomingCashOrder(); // Шаблонный объект для отборов
 
   /// Начало периода отбора
   DateTime startPeriodDocs =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   /// Конец периода отбора
   DateTime finishPeriodDocs = DateTime(DateTime.now().year,
@@ -55,6 +56,38 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   List<IncomingCashOrder> tempListSendIncomingCashOrder = [];
   List<IncomingCashOrder> tempListTrashIncomingCashOrder = [];
 
+  /// Количество
+  int countNewDocs = 0;
+  TextEditingController textFieldCountNewDocsController = TextEditingController();
+  int countSendDocs = 0;
+  TextEditingController textFieldCountSendDocsController = TextEditingController();
+  int countTrashDocs = 0;
+  TextEditingController textFieldCountTrashDocsController = TextEditingController();
+
+  /// Количество за сутки
+  int countNewDocsToday = 0;
+  TextEditingController textFieldCountNewDocsTodayController = TextEditingController();
+  int countSendDocsToday = 0;
+  TextEditingController textFieldCountSendDocsTodayController = TextEditingController();
+  int countTrashDocsToday = 0;
+  TextEditingController textFieldCountTrashDocsTodayController = TextEditingController();
+
+  /// Суммы
+  double sumNewDocs = 0.0;
+  TextEditingController textFieldSumNewDocsController = TextEditingController();
+  double sumSendDocs = 0.0;
+  TextEditingController textFieldSumSendDocsController = TextEditingController();
+  double sumTrashDocs = 0.0;
+  TextEditingController textFieldSumTrashDocsController = TextEditingController();
+
+  /// Суммы за сутки
+  double sumNewDocsToday = 0.0;
+  TextEditingController textFieldSumNewDocsTodayController = TextEditingController();
+  double sumSendDocsToday = 0.0;
+  TextEditingController textFieldSumSendDocsTodayController = TextEditingController();
+  double sumTrashDocsToday = 0.0;
+  TextEditingController textFieldSumTrashDocsTodayController = TextEditingController();
+
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
   DateTime firstDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
@@ -64,22 +97,22 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   TextEditingController textFieldNewPeriodController = TextEditingController();
   TextEditingController textFieldSendPeriodController = TextEditingController();
   TextEditingController textFieldTrashPeriodController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Партнер
   TextEditingController textFieldNewPartnerController = TextEditingController();
   TextEditingController textFieldSendPartnerController =
-  TextEditingController();
+      TextEditingController();
   TextEditingController textFieldTrashPartnerController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Договор или торговая точка
   TextEditingController textFieldNewContractController =
-  TextEditingController();
+      TextEditingController();
   TextEditingController textFieldSendContractController =
-  TextEditingController();
+      TextEditingController();
   TextEditingController textFieldTrashContractController =
-  TextEditingController();
+      TextEditingController();
 
   @override
   void initState() {
@@ -109,7 +142,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
             await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: newIncomingCashOrder),
+                builder: (context) => ScreenItemIncomingCashOrder(
+                    incomingCashOrder: newIncomingCashOrder),
               ),
             );
             await loadNewDocuments();
@@ -157,6 +191,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     await loadNewDocuments();
     await loadSendDocuments();
     await loadTrashDocuments();
+    calculateNewDocuments();
     setState(() {});
   }
 
@@ -168,35 +203,38 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     // Отбор по условиям
     if (textFieldNewPeriodController.text.isNotEmpty ||
         textFieldNewPartnerController.text.isNotEmpty) {
-
       String dateStart = '';
       String dateFinish = '';
       String namePartner = newIncomingCashOrder.uidPartner;
       String whereString = '';
       List whereList = [];
 
-      if(textFieldNewPeriodController.text.isNotEmpty) {
-        String dayStart = textFieldNewPeriodController.text.substring(0,2);
-        String monthStart = textFieldNewPeriodController.text.substring(3,5);
-        String yearStart = textFieldNewPeriodController.text.substring(6,10);
-        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+      if (textFieldNewPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldNewPeriodController.text.substring(0, 2);
+        String monthStart = textFieldNewPeriodController.text.substring(3, 5);
+        String yearStart = textFieldNewPeriodController.text.substring(6, 10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart')
+            .toIso8601String();
 
-        String dayFinish = textFieldNewPeriodController.text.substring(13,15);
-        String monthFinish = textFieldNewPeriodController.text.substring(16,18);
-        String yearFinish = textFieldNewPeriodController.text.substring(19,23);
-        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+        String dayFinish = textFieldNewPeriodController.text.substring(13, 15);
+        String monthFinish =
+            textFieldNewPeriodController.text.substring(16, 18);
+        String yearFinish = textFieldNewPeriodController.text.substring(19, 23);
+        dateFinish =
+            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
+                .toIso8601String();
       }
 
       // Фильтр: по статусу
       whereList.add('status = 1');
 
       // Фильтр: по периоду
-      if(textFieldNewPeriodController.text.isNotEmpty) {
+      if (textFieldNewPeriodController.text.isNotEmpty) {
         whereList.add('(date >= ? AND date <= ?)');
       }
 
       //Фильтр по партнеру
-      if(textFieldNewPartnerController.text.isNotEmpty) {
+      if (textFieldNewPartnerController.text.isNotEmpty) {
         whereList.add('uidPartner = ?');
       }
 
@@ -206,23 +244,34 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
       final db = await instance.database;
 
       // Если есть период и партнер
-      if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
-        listNewIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldNewPeriodController.text.isNotEmpty &&
+          textFieldNewPartnerController.text.isNotEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [dateStart, dateFinish, namePartner]);
+        listNewIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
 
       // Если есть период
-      if(textFieldNewPeriodController.text.isNotEmpty && textFieldNewPartnerController.text.isEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
-        listNewIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldNewPeriodController.text.isNotEmpty &&
+          textFieldNewPartnerController.text.isEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [dateStart, dateFinish]);
+        listNewIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
 
       // Если есть период и партнер
-      if(textFieldNewPeriodController.text.isEmpty && textFieldNewPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[namePartner]);
-        listNewIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldNewPeriodController.text.isEmpty &&
+          textFieldNewPartnerController.text.isNotEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [namePartner]);
+        listNewIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
-
     } else {
       listNewIncomingCashOrder = await dbReadAllNewIncomingCashOrder();
     }
@@ -244,35 +293,39 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     // Отбор по условиям
     if (textFieldSendPeriodController.text.isNotEmpty ||
         textFieldSendPartnerController.text.isNotEmpty) {
-
       String dateStart = '';
       String dateFinish = '';
       String namePartner = sendIncomingCashOrder.uidPartner;
       String whereString = '';
       List whereList = [];
 
-      if(textFieldSendPeriodController.text.isNotEmpty) {
-        String dayStart = textFieldSendPeriodController.text.substring(0,2);
-        String monthStart = textFieldSendPeriodController.text.substring(3,5);
-        String yearStart = textFieldSendPeriodController.text.substring(6,10);
-        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+      if (textFieldSendPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldSendPeriodController.text.substring(0, 2);
+        String monthStart = textFieldSendPeriodController.text.substring(3, 5);
+        String yearStart = textFieldSendPeriodController.text.substring(6, 10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart')
+            .toIso8601String();
 
-        String dayFinish = textFieldSendPeriodController.text.substring(13,15);
-        String monthFinish = textFieldSendPeriodController.text.substring(16,18);
-        String yearFinish = textFieldSendPeriodController.text.substring(19,23);
-        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+        String dayFinish = textFieldSendPeriodController.text.substring(13, 15);
+        String monthFinish =
+            textFieldSendPeriodController.text.substring(16, 18);
+        String yearFinish =
+            textFieldSendPeriodController.text.substring(19, 23);
+        dateFinish =
+            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
+                .toIso8601String();
       }
 
       // Фильтр: по статусу
       whereList.add('status = 2');
 
       // Фильтр: по периоду
-      if(textFieldSendPeriodController.text.isNotEmpty) {
+      if (textFieldSendPeriodController.text.isNotEmpty) {
         whereList.add('(date >= ? AND date <= ?)');
       }
 
       //Фильтр по партнеру
-      if(textFieldSendPartnerController.text.isNotEmpty) {
+      if (textFieldSendPartnerController.text.isNotEmpty) {
         whereList.add('uidPartner = ?');
       }
 
@@ -282,30 +335,41 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
       final db = await instance.database;
 
       // Если есть период и партнер
-      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
-        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldSendPeriodController.text.isNotEmpty &&
+          textFieldSendPartnerController.text.isNotEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [dateStart, dateFinish, namePartner]);
+        listSendIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
 
       // Если есть период
-      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
-        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldSendPeriodController.text.isNotEmpty &&
+          textFieldSendPartnerController.text.isEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [dateStart, dateFinish]);
+        listSendIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
 
       // Если есть период и партнер
-      if(textFieldNewPeriodController.text.isEmpty && textFieldSendPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[namePartner]);
-        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldNewPeriodController.text.isEmpty &&
+          textFieldSendPartnerController.text.isNotEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [namePartner]);
+        listSendIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
-
     } else {
       listSendIncomingCashOrder = await dbReadAllSendIncomingCashOrder();
     }
 
     // Для возврата из поиска
     tempListSendIncomingCashOrder.addAll(listSendIncomingCashOrder);
-    
+
     // Количество документов в списке
     var countSendDocuments = listSendIncomingCashOrder.length;
 
@@ -321,35 +385,40 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
     // Отбор по условиям
     if (textFieldTrashPeriodController.text.isNotEmpty ||
         textFieldTrashPartnerController.text.isNotEmpty) {
-
       String dateStart = '';
       String dateFinish = '';
       String namePartner = trashIncomingCashOrder.uidPartner;
       String whereString = '';
       List whereList = [];
 
-      if(textFieldTrashPeriodController.text.isNotEmpty) {
-        String dayStart = textFieldTrashPeriodController.text.substring(0,2);
-        String monthStart = textFieldTrashPeriodController.text.substring(3,5);
-        String yearStart = textFieldTrashPeriodController.text.substring(6,10);
-        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart').toIso8601String();
+      if (textFieldTrashPeriodController.text.isNotEmpty) {
+        String dayStart = textFieldTrashPeriodController.text.substring(0, 2);
+        String monthStart = textFieldTrashPeriodController.text.substring(3, 5);
+        String yearStart = textFieldTrashPeriodController.text.substring(6, 10);
+        dateStart = DateTime.parse('$yearStart-$monthStart-$dayStart')
+            .toIso8601String();
 
-        String dayFinish = textFieldTrashPeriodController.text.substring(13,15);
-        String monthFinish = textFieldTrashPeriodController.text.substring(16,18);
-        String yearFinish = textFieldTrashPeriodController.text.substring(19,23);
-        dateFinish = DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59').toIso8601String();
+        String dayFinish =
+            textFieldTrashPeriodController.text.substring(13, 15);
+        String monthFinish =
+            textFieldTrashPeriodController.text.substring(16, 18);
+        String yearFinish =
+            textFieldTrashPeriodController.text.substring(19, 23);
+        dateFinish =
+            DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59')
+                .toIso8601String();
       }
 
       // Фильтр: по статусу
       whereList.add('status = 3');
 
       // Фильтр: по периоду
-      if(textFieldTrashPeriodController.text.isNotEmpty) {
+      if (textFieldTrashPeriodController.text.isNotEmpty) {
         whereList.add('(date >= ? AND date <= ?)');
       }
 
       //Фильтр по партнеру
-      if(textFieldTrashPartnerController.text.isNotEmpty) {
+      if (textFieldTrashPartnerController.text.isNotEmpty) {
         whereList.add('uidPartner = ?');
       }
 
@@ -359,35 +428,115 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
       final db = await instance.database;
 
       // Если есть период и партнер
-      if(textFieldTrashPeriodController.text.isNotEmpty && textFieldTrashPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish,namePartner]);
-        listTrashIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldTrashPeriodController.text.isNotEmpty &&
+          textFieldTrashPartnerController.text.isNotEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [dateStart, dateFinish, namePartner]);
+        listTrashIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
 
       // Если есть период
-      if(textFieldSendPeriodController.text.isNotEmpty && textFieldSendPartnerController.text.isEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',[dateStart,dateFinish]);
-        listSendIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldSendPeriodController.text.isNotEmpty &&
+          textFieldSendPartnerController.text.isEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESC',
+            [dateStart, dateFinish]);
+        listSendIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
 
       // Если есть период и партнер
-      if(textFieldTrashPeriodController.text.isEmpty && textFieldTrashPartnerController.text.isNotEmpty){
-        final result = await db.rawQuery('SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESCx',[namePartner]);
-        listTrashIncomingCashOrder = result.map((json) => IncomingCashOrder.fromJson(json)).toList();
+      if (textFieldTrashPeriodController.text.isEmpty &&
+          textFieldTrashPartnerController.text.isNotEmpty) {
+        final result = await db.rawQuery(
+            'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date DESCx',
+            [namePartner]);
+        listTrashIncomingCashOrder =
+            result.map((json) => IncomingCashOrder.fromJson(json)).toList();
       }
-
     } else {
       listTrashIncomingCashOrder = await dbReadAllTrashIncomingCashOrder();
     }
 
     // Для возврата из поиска
     tempListTrashIncomingCashOrder.addAll(listTrashIncomingCashOrder);
-    
+
     // Количество документов в списке
     var countTrashDocuments = listTrashIncomingCashOrder.length;
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
+  }
+
+  calculateNewDocuments(){
+
+    // Начало текущего дня
+    DateTime dateA =
+    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    // Конец текущего дня
+    DateTime dateB = DateTime(DateTime.now().year,
+        DateTime.now().month, DateTime.now().day, 23, 59, 59);
+
+    /// Новые
+    for(var itemDoc in tempListNewIncomingCashOrder){
+      sumNewDocs = sumNewDocs + itemDoc.sum;
+      countNewDocs++;
+
+      // Подсчет за сегодня
+      DateTime dateC = itemDoc.date;
+      if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
+        sumNewDocsToday = sumNewDocsToday + itemDoc.sum;
+        countNewDocsToday++;
+      }
+    }
+
+    /// Отправленные
+    for(var itemDoc in tempListSendIncomingCashOrder){
+      sumSendDocs = sumSendDocs + itemDoc.sum;
+      countSendDocs++;
+
+      // Подсчет за сегодня
+      DateTime dateC = itemDoc.date;
+      if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
+        //dateC is between dateA and dateB
+        sumSendDocsToday = sumSendDocsToday + itemDoc.sum;
+        countSendDocsToday++;
+      }
+    }
+
+    /// Удаленные
+    for(var itemDoc in tempListTrashIncomingCashOrder){
+      sumTrashDocs = sumTrashDocs + itemDoc.sum;
+      countTrashDocs++;
+
+      // Подсчет за сегодня
+      DateTime dateC = itemDoc.date;
+      if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
+        sumTrashDocsToday = sumTrashDocsToday + itemDoc.sum;
+        countTrashDocsToday++;
+      }
+    }
+
+    /// Количество
+    textFieldCountNewDocsController.text = countNewDocs.toString();
+    textFieldCountNewDocsTodayController.text = countNewDocsToday.toString();
+    textFieldCountSendDocsController.text = countSendDocs.toString();
+    textFieldCountSendDocsTodayController.text = countSendDocsToday.toString();
+    textFieldCountTrashDocsController.text = countTrashDocs.toString();
+    textFieldCountTrashDocsTodayController.text = countTrashDocsToday.toString();
+
+    /// Сумма
+    textFieldSumNewDocsController.text = doubleToString(sumNewDocs);
+    textFieldSumNewDocsTodayController.text = doubleToString(sumNewDocsToday);
+    textFieldSumSendDocsController.text = doubleToString(sumSendDocs);
+    textFieldSumSendDocsTodayController.text = doubleToString(sumSendDocsToday);
+    textFieldSumTrashDocsController.text = doubleToString(sumTrashDocs);
+    textFieldSumTrashDocsTodayController.text = doubleToString(sumTrashDocsToday);
+
+    setState(() {});
   }
 
   deleteTrashDocuments() async {
@@ -414,7 +563,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.all(Colors.red)),
+                              MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         Navigator.of(context).pop(true);
                       },
@@ -570,7 +719,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       setState(() {
                         visibleListNewParameters = !visibleListNewParameters;
                       });
-
                     },
                     icon: const Icon(Icons.search, color: Colors.blue),
                   ),
@@ -596,6 +744,105 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
             ),
           ),
         ),
+        /// Количество документов
+        const Padding(
+          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+          child: Text('Количество документов:',
+              style: TextStyle(fontSize: 14, color: Colors.grey)),
+        ),
+        Row(
+          children: [
+            /// Count
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldCountNewDocsController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Количество (общее)',
+                  ),
+                ),
+              ),
+            ),
+
+            /// Count (today)
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldCountNewDocsTodayController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Количество (сегодня)',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        /// Сумма документов
+        const Padding(
+          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
+          child: Text('Сумма документов:',
+              style: TextStyle(fontSize: 14, color: Colors.grey)),
+        ),
+        Row(
+          children: [
+            /// Sum
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldSumNewDocsController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Количество (общее)',
+                  ),
+                ),
+              ),
+            ),
+
+            /// Sum (today)
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldSumNewDocsTodayController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Количество (сегодня)',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        /// Скрытые отборы
         Visibility(
           visible: visibleListNewParameters,
           child: Column(
@@ -646,7 +893,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             }
                           },
                           icon:
-                          const Icon(Icons.date_range, color: Colors.blue),
+                              const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {},
@@ -682,7 +929,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenPartnerSelection(
-                                            incomingCashOrder: newIncomingCashOrder)));
+                                            incomingCashOrder:
+                                                newIncomingCashOrder)));
                             setState(() {
                               textFieldNewPartnerController.text =
                                   newIncomingCashOrder.namePartner;
@@ -730,7 +978,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenContractSelection(
-                                            incomingCashOrder: newIncomingCashOrder)));
+                                            incomingCashOrder:
+                                                newIncomingCashOrder)));
                             setState(() {
                               textFieldNewContractController.text =
                                   newIncomingCashOrder.nameContract;
@@ -789,7 +1038,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
                             await loadNewDocuments();
                             setState(() {
@@ -925,7 +1174,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             }
                           },
                           icon:
-                          const Icon(Icons.date_range, color: Colors.blue),
+                              const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {},
@@ -961,7 +1210,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenPartnerSelection(
-                                            incomingCashOrder: newIncomingCashOrder)));
+                                            incomingCashOrder:
+                                                newIncomingCashOrder)));
                             setState(() {
                               textFieldSendPartnerController.text =
                                   newIncomingCashOrder.namePartner;
@@ -1009,7 +1259,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenContractSelection(
-                                            incomingCashOrder: newIncomingCashOrder)));
+                                            incomingCashOrder:
+                                                newIncomingCashOrder)));
                             setState(() {
                               textFieldSendContractController.text =
                                   newIncomingCashOrder.nameContract;
@@ -1068,7 +1319,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
                             await loadSendDocuments();
                             setState(() {
@@ -1143,7 +1394,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                     onPressed: () async {
                       setState(() {
                         visibleListTrashParameters =
-                        !visibleListTrashParameters;
+                            !visibleListTrashParameters;
                       });
                     },
                     icon: visibleListTrashParameters
@@ -1206,7 +1457,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                             }
                           },
                           icon:
-                          const Icon(Icons.date_range, color: Colors.blue),
+                              const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {},
@@ -1242,7 +1493,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenPartnerSelection(
-                                            incomingCashOrder: newIncomingCashOrder)));
+                                            incomingCashOrder:
+                                                newIncomingCashOrder)));
                             setState(() {
                               textFieldTrashPartnerController.text =
                                   newIncomingCashOrder.namePartner;
@@ -1290,7 +1542,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ScreenContractSelection(
-                                            incomingCashOrder: newIncomingCashOrder)));
+                                            incomingCashOrder:
+                                                newIncomingCashOrder)));
                             setState(() {
                               textFieldTrashContractController.text =
                                   newIncomingCashOrder.nameContract;
@@ -1349,7 +1602,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                           onPressed: () async {
                             await loadTrashDocuments();
                             setState(() {
@@ -1390,7 +1643,7 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                              MaterialStateProperty.all(Colors.grey)),
+                                  MaterialStateProperty.all(Colors.grey)),
                           onPressed: () async {
                             await deleteTrashDocuments();
                             await loadTrashDocuments();
@@ -1419,7 +1672,6 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
   }
 
   yesNewDocuments() {
-
     return ColumnListViewBuilder(
         itemCount: listNewIncomingCashOrder.length,
         itemBuilder: (context, index) {
@@ -1434,7 +1686,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
+                      builder: (context) => ScreenItemIncomingCashOrder(
+                          incomingCashOrder: incomingCashOrder),
                     ),
                   );
                   loadData();
@@ -1457,7 +1710,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                         const Icon(Icons.recent_actors,
                             color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
+                        Flexible(
+                            flex: 1,
+                            child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1471,7 +1726,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(incomingCashOrder.date)),
+                                  Text(shortDateToString(
+                                      incomingCashOrder.date)),
                                 ],
                               )
                             ],
@@ -1485,20 +1741,21 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(incomingCashOrder.sum) + ' грн'),
+                                  Text(doubleToString(incomingCashOrder.sum) +
+                                      ' грн'),
                                 ],
                               ),
                             ],
                           ))
                     ]),
                     const SizedBox(height: 5),
-                    if (incomingCashOrder.comment != '') Row(
-                        children: [
-                      const Icon(Icons.text_fields,
-                          color: Colors.blue, size: 20),
-                      const SizedBox(width: 5),
-                      Text(incomingCashOrder.comment),
-                    ]),
+                    if (incomingCashOrder.comment != '')
+                      Row(children: [
+                        const Icon(Icons.text_fields,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Text(incomingCashOrder.comment),
+                      ]),
                   ],
                 ),
               ),
@@ -1525,7 +1782,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
+                      builder: (context) => ScreenItemIncomingCashOrder(
+                          incomingCashOrder: incomingCashOrder),
                     ),
                   );
                   loadData();
@@ -1539,7 +1797,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
+                        Flexible(
+                            flex: 1,
+                            child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1553,7 +1813,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(incomingCashOrder.date)),
+                                  Text(shortDateToString(
+                                      incomingCashOrder.date)),
                                 ],
                               ),
                             ],
@@ -1567,7 +1828,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(incomingCashOrder.sum) + ' грн'),
+                                  Text(doubleToString(incomingCashOrder.sum) +
+                                      ' грн'),
                                 ],
                               ),
                             ],
@@ -1583,14 +1845,15 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 children: [
                                   incomingCashOrder.numberFrom1C != ''
                                       ? const Icon(Icons.numbers,
-                                      color: Colors.green, size: 20)
+                                          color: Colors.green, size: 20)
                                       : const Icon(Icons.numbers,
-                                      color: Colors.red, size: 20),
+                                          color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
                                   incomingCashOrder.numberFrom1C != ''
-                                      ? Text(shortDateToString(incomingCashOrder.dateSendingTo1C)) :
-                                  const Text('Даты нет!',
-                                      style: TextStyle(color: Colors.red)),
+                                      ? Text(shortDateToString(
+                                          incomingCashOrder.dateSendingTo1C))
+                                      : const Text('Даты нет!',
+                                          style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],
@@ -1603,27 +1866,27 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                 children: [
                                   incomingCashOrder.numberFrom1C != ''
                                       ? const Icon(Icons.repeat_one,
-                                      color: Colors.green, size: 20)
+                                          color: Colors.green, size: 20)
                                       : const Icon(Icons.repeat_one,
-                                      color: Colors.red, size: 20),
+                                          color: Colors.red, size: 20),
                                   const SizedBox(width: 5),
                                   incomingCashOrder.numberFrom1C != ''
-                                      ? Text(incomingCashOrder.numberFrom1C) :
-                                  const Text('Номера нет!',
-                                      style: TextStyle(color: Colors.red)),
+                                      ? Text(incomingCashOrder.numberFrom1C)
+                                      : const Text('Номера нет!',
+                                          style: TextStyle(color: Colors.red)),
                                 ],
                               )
                             ],
                           ))
                     ]),
                     const SizedBox(height: 5),
-                    if (incomingCashOrder.comment != '') Row(
-                        children: [
-                          const Icon(Icons.text_fields,
-                              color: Colors.blue, size: 20),
-                          const SizedBox(width: 5),
-                          Text(incomingCashOrder.comment),
-                        ]),
+                    if (incomingCashOrder.comment != '')
+                      Row(children: [
+                        const Icon(Icons.text_fields,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Text(incomingCashOrder.comment),
+                      ]),
                   ],
                 ),
               ),
@@ -1648,7 +1911,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ScreenItemIncomingCashOrder(incomingCashOrder: incomingCashOrder),
+                      builder: (context) => ScreenItemIncomingCashOrder(
+                          incomingCashOrder: incomingCashOrder),
                     ),
                   );
                   loadData();
@@ -1662,7 +1926,9 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                         const Icon(Icons.recent_actors,
                             color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(flex: 1, child: Text(incomingCashOrder.nameContract)),
+                        Flexible(
+                            flex: 1,
+                            child: Text(incomingCashOrder.nameContract)),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -1676,7 +1942,8 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.history_toggle_off,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(incomingCashOrder.date)),
+                                  Text(shortDateToString(
+                                      incomingCashOrder.date)),
                                 ],
                               )
                             ],
@@ -1690,20 +1957,21 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
                                   const Icon(Icons.price_change,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(doubleToString(incomingCashOrder.sum) + ' грн'),
+                                  Text(doubleToString(incomingCashOrder.sum) +
+                                      ' грн'),
                                 ],
                               ),
                             ],
                           ))
                     ]),
                     const SizedBox(height: 5),
-                    if (incomingCashOrder.comment != '') Row(
-                        children: [
-                          const Icon(Icons.text_fields,
-                              color: Colors.blue, size: 20),
-                          const SizedBox(width: 5),
-                          Text(incomingCashOrder.comment),
-                        ]),
+                    if (incomingCashOrder.comment != '')
+                      Row(children: [
+                        const Icon(Icons.text_fields,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Text(incomingCashOrder.comment),
+                      ]),
                   ],
                 ),
               ),
@@ -1711,5 +1979,4 @@ class _ScreenIncomingCashOrderListState extends State<ScreenIncomingCashOrderLis
           );
         });
   }
-  
 }

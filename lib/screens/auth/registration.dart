@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/home.dart';
+import 'package:wp_sales/screens/auth/login.dart';
 import 'package:wp_sales/system/system.dart';
 
 class ScreenRegistration extends StatefulWidget {
@@ -184,23 +185,53 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
           ],
         ));
 
+    final loginButton = ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.blue[200]),
+        ),
+        onPressed: () async {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  const ScreenLogin()));
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            SizedBox(height: 50,),
+            Text('Войти',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),),
+            SizedBox(height: 50,),
+          ],
+        ));
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blue),
-          onPressed: () {
-            // passing this to our root
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Colors.white),
+      //     onPressed: () {
+      //       // passing this to our root
+      //       Navigator.of(context).pop();
+      //     },
+      //   ),
+      // ),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
-            color: Colors.white,
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/background_splash.jpg"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            //color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(36.0),
               child: Form(
@@ -210,23 +241,25 @@ class _ScreenRegistrationState extends State<ScreenRegistration> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                        height: 100,
+                        height: MediaQuery.of(context).size.height * 0.15,
                         child: Image.asset(
                           'assets/images/wpsales_logo.png',
                           fit: BoxFit.contain,
                         )),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     secondNameField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     firstNameField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     emailField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     passwordField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     confirmPasswordField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     signUpButton,
+                    const SizedBox(height: 15),
+                    loginButton,
                     const SizedBox(height: 15),
                   ],
                 ),

@@ -97,12 +97,42 @@ class _ScreenLoginState extends State<ScreenLogin> {
           ],
         ));
 
+    final registration2Button = ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.blue[200]),
+        ),
+        onPressed: () async {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                  const ScreenRegistration()));
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            SizedBox(height: 50,),
+            Text('Зарегистрироватся',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),),
+            SizedBox(height: 50,),
+          ],
+        ));
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           child: Container(
-            color: Colors.white,
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/background_splash.jpg"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            //color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(36.0),
               child: Form(
@@ -112,7 +142,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     SizedBox(
-                         height: 100,
+                         height: MediaQuery.of(context).size.height * 0.15,
                          child: Image.asset(
                            'assets/images/wpsales_logo.png',
                            fit: BoxFit.contain,
@@ -122,32 +152,12 @@ class _ScreenLoginState extends State<ScreenLogin> {
                     //     child: FlutterLogo(size: 150,)),
                     const SizedBox(height: 45),
                     emailField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     passwordField,
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 15),
                     login2Button,
                     const SizedBox(height: 15),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const Text('У Вас нет аккаунта? '),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ScreenRegistration()));
-                            },
-                            child: const Text(
-                              'Зарегистрироватся',
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
-                            ),
-                          )
-                        ])
+                    registration2Button,
                   ],
                 ),
               ),

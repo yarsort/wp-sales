@@ -54,6 +54,38 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
   List<ReturnOrderCustomer> tempListSendReturnOrdersCustomer = [];
   List<ReturnOrderCustomer> tempListTrashReturnOrdersCustomer = [];
 
+  /// Количество
+  int countNewDocs = 0;
+  TextEditingController textFieldCountNewDocsController = TextEditingController();
+  int countSendDocs = 0;
+  TextEditingController textFieldCountSendDocsController = TextEditingController();
+  int countTrashDocs = 0;
+  TextEditingController textFieldCountTrashDocsController = TextEditingController();
+
+  /// Количество за сутки
+  int countNewDocsToday = 0;
+  TextEditingController textFieldCountNewDocsTodayController = TextEditingController();
+  int countSendDocsToday = 0;
+  TextEditingController textFieldCountSendDocsTodayController = TextEditingController();
+  int countTrashDocsToday = 0;
+  TextEditingController textFieldCountTrashDocsTodayController = TextEditingController();
+
+  /// Суммы
+  double sumNewDocs = 0.0;
+  TextEditingController textFieldSumNewDocsController = TextEditingController();
+  double sumSendDocs = 0.0;
+  TextEditingController textFieldSumSendDocsController = TextEditingController();
+  double sumTrashDocs = 0.0;
+  TextEditingController textFieldSumTrashDocsController = TextEditingController();
+
+  /// Суммы за сутки
+  double sumNewDocsToday = 0.0;
+  TextEditingController textFieldSumNewDocsTodayController = TextEditingController();
+  double sumSendDocsToday = 0.0;
+  TextEditingController textFieldSumSendDocsTodayController = TextEditingController();
+  double sumTrashDocsToday = 0.0;
+  TextEditingController textFieldSumTrashDocsTodayController = TextEditingController();
+
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
   DateTime firstDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
@@ -90,6 +122,7 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
     await loadNewDocuments();
     await loadSendDocuments();
     await loadTrashDocuments();
+    calculateNewDocuments();
     setState(() {});
   }
 
@@ -388,6 +421,75 @@ class _ScreenReturnOrderCustomerListState extends State<ScreenReturnOrderCustome
 
     debugPrint(
         'Количество удаленных документов: ' + countTrashDocuments.toString());
+  }
+
+  calculateNewDocuments(){
+
+    // Начало текущего дня
+    DateTime dateA =
+    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    // Конец текущего дня
+    DateTime dateB = DateTime(DateTime.now().year,
+        DateTime.now().month, DateTime.now().day, 23, 59, 59);
+
+    /// Новые
+    for(var itemDoc in tempListNewReturnOrdersCustomer){
+      sumNewDocs = sumNewDocs + itemDoc.sum;
+      countNewDocs++;
+
+      // Подсчет за сегодня
+      DateTime dateC = itemDoc.date;
+      if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
+        sumNewDocsToday = sumNewDocsToday + itemDoc.sum;
+        countNewDocsToday++;
+      }
+    }
+
+    /// Отправленные
+    for(var itemDoc in tempListSendReturnOrdersCustomer){
+      sumSendDocs = sumSendDocs + itemDoc.sum;
+      countSendDocs++;
+
+      // Подсчет за сегодня
+      DateTime dateC = itemDoc.date;
+      if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
+        //dateC is between dateA and dateB
+        sumSendDocsToday = sumSendDocsToday + itemDoc.sum;
+        countSendDocsToday++;
+      }
+    }
+
+    /// Удаленные
+    for(var itemDoc in tempListTrashReturnOrdersCustomer){
+      sumTrashDocs = sumTrashDocs + itemDoc.sum;
+      countTrashDocs++;
+
+      // Подсчет за сегодня
+      DateTime dateC = itemDoc.date;
+      if (dateA.isBefore(dateC) && dateB.isAfter(dateC)) {
+        sumTrashDocsToday = sumTrashDocsToday + itemDoc.sum;
+        countTrashDocsToday++;
+      }
+    }
+
+    /// Количество
+    textFieldCountNewDocsController.text = countNewDocs.toString();
+    textFieldCountNewDocsTodayController.text = countNewDocsToday.toString();
+    textFieldCountSendDocsController.text = countSendDocs.toString();
+    textFieldCountSendDocsTodayController.text = countSendDocsToday.toString();
+    textFieldCountTrashDocsController.text = countTrashDocs.toString();
+    textFieldCountTrashDocsTodayController.text = countTrashDocsToday.toString();
+
+    /// Сумма
+    textFieldSumNewDocsController.text = doubleToString(sumNewDocs);
+    textFieldSumNewDocsTodayController.text = doubleToString(sumNewDocsToday);
+    textFieldSumSendDocsController.text = doubleToString(sumSendDocs);
+    textFieldSumSendDocsTodayController.text = doubleToString(sumSendDocsToday);
+    textFieldSumTrashDocsController.text = doubleToString(sumTrashDocs);
+    textFieldSumTrashDocsTodayController.text = doubleToString(sumTrashDocsToday);
+
+    setState(() {});
   }
 
   deleteTrashDocuments() async {

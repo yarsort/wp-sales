@@ -58,59 +58,61 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.blue,
-      ),
-      child: Container(
-        decoration: const BoxDecoration(),
-        child: WillPopScope(
-          onWillPop: () async {
-            bool backStatus = onWillPop();
-            if (backStatus) {
-              exit(0);
-            }
-            return false;
-          },
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 200,
-                  ),
-                  SizedBox(
-                      height: 150,
-                      child: Image.asset(
-                        "assets/images/wpsales_logo.png",
-                        fit: BoxFit.contain,
-                      )),
-                  const SizedBox(
-                    height: 80,
-                  ),
-                  const Text(
-                    'Помощник менеджера \n продаж',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 27,
-                        color: Colors.white),textAlign: TextAlign.center,
-                  ),
-                  const Expanded(
-                    child: SizedBox(),
-                  ),
-                  Text(
-                    'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
-                    style: const TextStyle(color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(
-                    height: 60,
-                  ),
-                ],
-              ),
+    return WillPopScope(
+      onWillPop: () async {
+        bool backStatus = onWillPop();
+        if (backStatus) {
+          exit(0);
+        }
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Container(
+          height: MediaQuery.of(context).size.height,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            image: DecorationImage(
+              image: AssetImage("assets/images/background_splash.jpg"),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  height: 200,
+                ),
+                SizedBox(
+                    height: 150,
+                    child: Image.asset(
+                      "assets/images/wpsales_logo.png",
+                      fit: BoxFit.contain,
+                    )),
+                const SizedBox(
+                  height: 80,
+                ),
+                const Text(
+                  'Помощник менеджера \n продаж',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 27,
+                      color: Colors.blue),textAlign: TextAlign.center,
+                ),
+                const Expanded(
+                  child: SizedBox(),
+                ),
+                Text(
+                  'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
+                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+              ],
             ),
           ),
         ),
