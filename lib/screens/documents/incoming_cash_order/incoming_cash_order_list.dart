@@ -744,114 +744,102 @@ class _ScreenIncomingCashOrderListState
             ),
           ),
         ),
-        /// Количество документов
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-          child: Text('Количество документов:',
-              style: TextStyle(fontSize: 14, color: Colors.grey)),
-        ),
-        Row(
-          children: [
-            /// Count
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldCountNewDocsController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: OutlineInputBorder(),
-                    labelStyle: TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Количество (общее)',
-                  ),
-                ),
-              ),
-            ),
 
-            /// Count (today)
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldCountNewDocsTodayController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: OutlineInputBorder(),
-                    labelStyle: TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Количество (сегодня)',
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        /// Сумма документов
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-          child: Text('Сумма документов:',
-              style: TextStyle(fontSize: 14, color: Colors.grey)),
-        ),
-        Row(
-          children: [
-            /// Sum
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldSumNewDocsController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: OutlineInputBorder(),
-                    labelStyle: TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Количество (общее)',
-                  ),
-                ),
-              ),
-            ),
-
-            /// Sum (today)
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldSumNewDocsTodayController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: OutlineInputBorder(),
-                    labelStyle: TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Количество (сегодня)',
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
         /// Скрытые отборы
         Visibility(
           visible: visibleListNewParameters,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: Text('Параметры отбора:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              nameGroup(nameGroup: 'Параметры отбора'),
+              /// Количество документов
+              Row(
+                children: [
+                  /// Count
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldCountNewDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Count (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldCountNewDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              /// Сумма документов
+              Row(
+                children: [
+                  /// Sum
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldSumNewDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Sum (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldSumNewDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               /// Period
@@ -1129,10 +1117,146 @@ class _ScreenIncomingCashOrderListState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: Text('Параметры отбора:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              nameGroup(nameGroup: 'Параметры отбора'),
+              /// Количество документов
+              Row(
+                children: [
+                  /// Count
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldCountSendDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Count (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldCountSendDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              /// Сумма документов
+              Row(
+                children: [
+                  /// Sum
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldSumSendDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Sum (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldSumSendDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              /// Period
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+                child: TextField(
+                  controller: textFieldSendPeriodController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    border: const OutlineInputBorder(),
+                    labelStyle: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                    labelText: 'Период',
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min, //
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            var _datePick = await showDateRangePicker(
+                              context: context,
+                              initialDateRange: DateTimeRange(
+                                  start: firstDate, end: lastDate),
+                              helpText: 'Выберите период',
+                              firstDate: DateTime(2021, 1, 1),
+                              lastDate: lastDate,
+                            );
+
+                            if (_datePick != null) {
+                              setState(() {
+                                textPeriod =
+                                    shortDateToString(_datePick.start) +
+                                        ' - ' +
+                                        shortDateToString(_datePick.end);
+                                textFieldSendPeriodController.text = textPeriod;
+                              });
+                            }
+                          },
+                          icon:
+                          const Icon(Icons.date_range, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () async {},
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
 
               /// Period
@@ -1411,11 +1535,7 @@ class _ScreenIncomingCashOrderListState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: Text('Параметры отбора:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
-              ),
+              nameGroup(nameGroup: 'Параметры отбора'),
 
               /// Period
               Padding(

@@ -701,10 +701,95 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: Text('Параметры отбора:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              nameGroup(nameGroup: 'Параметры отбора'),
+              /// Количество документов
+              Row(
+                children: [
+                  /// Count
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldCountNewDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Count (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldCountNewDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              /// Сумма документов
+              Row(
+                children: [
+                  /// Sum
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldSumNewDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Sum (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldSumNewDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               /// Period
@@ -929,10 +1014,95 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: Text('Параметры отбора:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey)),
+              nameGroup(nameGroup: 'Параметры отбора'),
+              /// Количество документов
+              Row(
+                children: [
+                  /// Count
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldCountSendDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Count (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldCountSendDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Количество (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              /// Сумма документов
+              Row(
+                children: [
+                  /// Sum
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
+                      child: TextField(
+                        controller: textFieldSumSendDocsController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (общее)',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// Sum (today)
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
+                      child: TextField(
+                        controller: textFieldSumSendDocsTodayController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.blueGrey,
+                          ),
+                          labelText: 'Сумма (сегодня)',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               /// Period
