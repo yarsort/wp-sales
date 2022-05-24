@@ -255,8 +255,8 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     final resultIncomingCashOrder = await db.rawQuery(
         'SELECT * FROM $tableIncomingCashOrder WHERE $whereString ORDER BY date ASC',
         [dateStart, dateFinish]);
-    List<OrderCustomer> listSendIncomingCashOrder = resultIncomingCashOrder
-        .map((json) => OrderCustomer.fromJson(json))
+    List<IncomingCashOrder> listSendIncomingCashOrder = resultIncomingCashOrder
+        .map((json) => IncomingCashOrder.fromJson(json))
         .toList();
     for (var incomingCashOrder in listSendIncomingCashOrder) {
       sumIncomingCashOrderToday =

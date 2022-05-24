@@ -93,7 +93,7 @@ class _ScreenProductSelectionTreeViewState
 
   // Количество элементов в автозагрузке списка
   int _currentMax = 0;
-  int countLoadItems = 20;
+  int countLoadItems = 50;
 
   @override
   void initState() {
@@ -483,13 +483,18 @@ class _ScreenProductSelectionTreeViewState
     }
 
     /// Сортировка списка: сначала каталоги, потом элементы
-    listDataProducts.sort((a, b) => a.name.compareTo(b.name));
-    listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
+    //listDataProducts.sort((a, b) => a.name.compareTo(b.name));
+    //listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
 
-    /// Заполним список товаров для отображения на форме
+    /// Заполним список товаров: КАТАЛОГИ
     for (var newItem in listDataProducts) {
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
       if (newItem.uid == parentProduct.uid) {
+        continue;
+      }
+
+      // Заполняем только каталоги!
+      if (newItem.isGroup == 0) {
         continue;
       }
 
@@ -501,11 +506,16 @@ class _ScreenProductSelectionTreeViewState
             continue;
           }
         }
-      } else {
-        // Без иерархии показывать каталоги нельзя!
-        if (newItem.isGroup == 1) {
+        // Добавим каталог товаров
+        listProducts.add(newItem);
+      }
+    }
+
+    /// Заполним список товаров: ТОВАРЫ
+    for (var newItem in listDataProducts) {
+      // Заполняем только товары
+      if (newItem.isGroup == 1) {
           continue;
-        }
       }
 
       // Добавим товар
