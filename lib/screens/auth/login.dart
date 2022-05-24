@@ -147,10 +147,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                            'assets/images/wpsales_logo.png',
                            fit: BoxFit.contain,
                          )),
-                    // const SizedBox(
-                    //     height: 150,
-                    //     child: FlutterLogo(size: 150,)),
-                    const SizedBox(height: 45),
+                    const SizedBox(height: 30),
                     emailField,
                     const SizedBox(height: 15),
                     passwordField,
