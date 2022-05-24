@@ -82,8 +82,8 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: 200,
+                const Expanded(
+                  child: SizedBox(),
                 ),
                 SizedBox(
                     height: 150,
@@ -110,7 +110,7 @@ class _ScreenSplashScreenState extends State<ScreenSplashScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(
-                  height: 40,
+                  height: 50,
                 ),
               ],
             ),

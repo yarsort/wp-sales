@@ -156,6 +156,9 @@ class _ScreenLoginState extends State<ScreenLogin> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+                    const Expanded(
+                      child: SizedBox(),
+                    ),
                     SizedBox(
                          height: MediaQuery.of(context).size.height * 0.15,
                          child: Image.asset(
@@ -179,7 +182,7 @@ class _ScreenLoginState extends State<ScreenLogin> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(
-                      height: 40,
+                      height: 25,
                     ),
                   ],
                 ),
