@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wp_sales/home.dart';
 import 'package:wp_sales/screens/auth/registration.dart';
 
@@ -21,8 +22,22 @@ class _ScreenLoginState extends State<ScreenLogin> {
   // firebase
   final _auth = FirebaseAuth.instance;
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+  );
+
   // string for displaying the error Message
   String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +170,17 @@ class _ScreenLoginState extends State<ScreenLogin> {
                     login2Button,
                     const SizedBox(height: 15),
                     registration2Button,
+                    const Expanded(
+                      child: SizedBox(),
+                    ),
+                    Text(
+                      'TM Yarsoft. Version: ${_packageInfo.version}. Build:  ${_packageInfo.buildNumber}',
+                      style: const TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
                   ],
                 ),
               ),
@@ -173,6 +199,13 @@ class _ScreenLoginState extends State<ScreenLogin> {
         backgroundColor: Colors.blue,
       ),
     );
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
   }
 
   // Login function
