@@ -104,7 +104,7 @@ class _ScreenOrderCustomerSelectionState extends State<ScreenOrderCustomerSelect
         itemBuilder: (context, index) {
           final orderCustomer = listParentOrdersCustomer[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
