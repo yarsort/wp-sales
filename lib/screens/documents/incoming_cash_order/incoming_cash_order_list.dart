@@ -165,6 +165,7 @@ class _ScreenIncomingCashOrderListState
               ),
             );
             await loadNewDocuments();
+            await calculateNewDocuments();
             setState(() {});
           },
           tooltip: '+',

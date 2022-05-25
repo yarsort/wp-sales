@@ -172,6 +172,7 @@ class _ScreenReturnOrderCustomerListState
               ),
             );
             await loadNewDocuments();
+            await calculateNewDocuments();
             setState(() {});
           },
           tooltip: '+',

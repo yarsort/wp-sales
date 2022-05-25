@@ -746,7 +746,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateOrganization(Organization.fromJson(item));
           countItem++;
         }
-        addListLogs('Организации: ' + countItem.toString() + ' шт');
+        addListLogs('Организации: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.1;
         });
@@ -766,7 +766,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreatePartner(Partner.fromJson(item));
           countItem++;
         }
-        addListLogs('Каталоги партнеров: ' + countItem.toString() + ' шт');
+        addListLogs('Каталоги партнеров: ' + countItem.toString() + ' шт.');
 
         setState(() {
           _valueProgress = 0.2;
@@ -786,7 +786,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreatePartner(Partner.fromJson(item));
           countItem++;
         }
-        addListLogs('Партнеры: ' + countItem.toString() + ' шт');
+        addListLogs('Партнеры: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.2;
         });
@@ -806,7 +806,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateContract(Contract.fromJson(item));
           countItem++;
         }
-        addListLogs('Контракты: ' + countItem.toString() + ' шт');
+        addListLogs('Контракты: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.3;
         });
@@ -827,7 +827,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countItem++;
         }
         listLogs
-            .add('Магазины (торговые точки): ' + countItem.toString() + ' шт');
+            .add('Магазины (торговые точки): ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.4;
         });
@@ -848,7 +848,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countItem++;
         }
         // После записи документов, обновим записи по регистраторам без номера документа
-        addListLogs('Взаиморасчеты: ' + countItem.toString() + ' шт');
+        addListLogs('Взаиморасчеты: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.5;
         });
@@ -871,7 +871,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         // После записи документов, обновим записи по регистраторам без номера документа
         addListLogs('Взаиморасчеты по документам расчета: ' +
             countItem.toString() +
-            ' шт');
+            ' шт.');
         setState(() {
           _valueProgress = 0.55;
         });
@@ -891,7 +891,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreatePrice(Price.fromJson(item));
           countItem++;
         }
-        addListLogs('Типы цен: ' + countItem.toString() + ' шт');
+        addListLogs('Типы цен: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.65;
         });
@@ -911,7 +911,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateWarehouse(Warehouse.fromJson(item));
           countItem++;
         }
-        addListLogs('Склады: ' + countItem.toString() + ' шт');
+        addListLogs('Склады: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.7;
         });
@@ -931,7 +931,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateCashbox(Cashbox.fromJson(item));
           countItem++;
         }
-        addListLogs('Кассы: ' + countItem.toString() + ' шт');
+        addListLogs('Кассы: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.7;
         });
@@ -951,7 +951,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateProduct(Product.fromJson(item));
           countItem++;
         }
-        addListLogs('Каталоги товаров: ' + countItem.toString() + ' шт');
+        addListLogs('Каталоги товаров: ' + countItem.toString() + ' шт.');
 
         setState(() {
           _valueProgress = 0.8;
@@ -971,7 +971,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateProduct(Product.fromJson(item));
           countItem++;
         }
-        addListLogs('Товары: ' + countItem.toString() + ' шт');
+        addListLogs('Товары: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.85;
         });
@@ -992,7 +992,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateUnit(Unit.fromJson(item));
           countItem++;
         }
-        addListLogs('Единицы измерения: ' + countItem.toString() + ' шт');
+        addListLogs('Единицы измерения: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.88;
         });
@@ -1012,7 +1012,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateCurrency(Currency.fromJson(item));
           countItem++;
         }
-        addListLogs('Валюты: ' + countItem.toString() + ' шт');
+        addListLogs('Валюты: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.89;
         });
@@ -1033,7 +1033,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           countItem++;
         }
 
-        addListLogs('Остатки товаров: ' + countItem.toString() + ' шт');
+        addListLogs('Остатки товаров: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 0.9;
         });
@@ -1053,7 +1053,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           await dbCreateProductPrice(AccumProductPrice.fromJson(item));
           countItem++;
         }
-        addListLogs('Цены товаров: ' + countItem.toString() + ' шт');
+        addListLogs('Цены товаров: ' + countItem.toString() + ' шт.');
         setState(() {
           _valueProgress = 1.0;
         });
@@ -1112,7 +1112,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
           }
           countItem++;
         }
-        addListLogs('Номера документов: ' + countItem.toString() + ' шт');
+        addListLogs('Номера документов: ' + countItem.toString() + ' шт.');
       }
     } catch (e) {
       listLogs
@@ -1531,17 +1531,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         continue;
       }
 
-      // Заполним структуру для получения номера доумента из учетной системы
-      var dataNumber = {};
-
-      // Добавим номер (UID) документа
-      dataNumber['uid'] = itemDoc.uid;
-      dataNumber['typeDoc'] = 'orderCustomer';
-      numberDocs.add(dataNumber);
-
-      // Конвертация данных шапки
-      var data = itemDoc.toJson();
-
       // Конвертация товаров
       var listDataProduct = [];
       List<ItemOrderCustomer> listItemOrderCustomer =
@@ -1551,8 +1540,22 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         listDataProduct.add(dataProduct);
       }
 
+      // Нет товаров - нет отправки!
+      if(listItemOrderCustomer.isEmpty){
+        continue;
+      }
+
+      // Конвертация данных шапки
+      var data = itemDoc.toJson();
+
       // Добавим товары документа
       data['products'] = listDataProduct;
+
+      // Добавим номер (UID) документа
+      var dataNumber = {};
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'orderCustomer';
+      numberDocs.add(dataNumber);
 
       // Добавим документ в список
       dataList.add(data);
@@ -1584,25 +1587,28 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
         continue;
       }
 
-      // Заполним структуру для получения номера доумента из учетной системы
-      var dataNumber = {};
+      // Конвертация товаров
+      var listDataProduct = [];
+      List<ItemReturnOrderCustomer> listItemReturnOrderCustomer =
+      await dbReadItemsReturnOrderCustomer(itemDoc.id);
+      for (var itemOrderCustomer in listItemReturnOrderCustomer) {
+        var dataProduct = itemOrderCustomer.toJson();
+        listDataProduct.add(dataProduct);
+      }
+
+      // Нет товаров - нет отправки!
+      if(listItemReturnOrderCustomer.isEmpty){
+        continue;
+      }
 
       // Добавим номер (UID) документа
+      var dataNumber = {};
       dataNumber['uid'] = itemDoc.uid;
       dataNumber['typeDoc'] = 'returnOrderCustomer';
       numberDocs.add(dataNumber);
 
       // Конвертация данных шапки
       var data = itemDoc.toJson();
-
-      // Конвертация товаров
-      var listDataProduct = [];
-      List<ItemReturnOrderCustomer> listItemOrderCustomer =
-      await dbReadItemsReturnOrderCustomer(itemDoc.id);
-      for (var itemOrderCustomer in listItemOrderCustomer) {
-        var dataProduct = itemOrderCustomer.toJson();
-        listDataProduct.add(dataProduct);
-      }
 
       // Добавим товары документа
       data['products'] = listDataProduct;

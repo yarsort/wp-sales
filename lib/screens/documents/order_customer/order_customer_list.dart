@@ -174,6 +174,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               ),
             );
             await loadNewDocuments();
+            await calculateNewDocuments();
             setState(() {});
           },
           tooltip: '+',
