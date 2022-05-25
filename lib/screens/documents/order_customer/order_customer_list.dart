@@ -399,7 +399,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       }
 
       // Если есть период и партнер
-      if (textFieldNewPeriodController.text.isEmpty &&
+      if (textFieldSendPartnerController.text.isEmpty &&
           textFieldSendPartnerController.text.isNotEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',
@@ -492,8 +492,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
       }
 
       // Если есть период
-      if (textFieldSendPeriodController.text.isNotEmpty &&
-          textFieldSendPartnerController.text.isEmpty) {
+      if (textFieldTrashPeriodController.text.isNotEmpty &&
+          textFieldTrashPartnerController.text.isEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableOrderCustomer WHERE $whereString ORDER BY date DESC',
             [

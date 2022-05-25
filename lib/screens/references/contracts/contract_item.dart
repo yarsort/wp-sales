@@ -907,18 +907,11 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                 ],
                 child: ListTile(
                   title: itemDept.nameDoc != ''
-                      ? Text(itemDept.nameDoc)
-                      : const Text('Нет данных заказа'),
+                      ? Text(itemDept.nameDoc + ' №' +itemDept.numberDoc)
+                      : Text(itemDept.nameSettlementDocument + ' №' +itemDept.numberDoc),
                   subtitle: Column(
                     children: [
-                      const Divider(),
-                      Row(children: [
-                        Flexible(
-                            child: Text(itemDept.nameSettlementDocument +
-                                ' от ' +
-                                shortDateToString(itemDept.dateDoc))),
-                      ]),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           const Icon(Icons.person,

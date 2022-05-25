@@ -157,7 +157,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   listHeaderOrder() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
         children: [
           /// Name
@@ -169,6 +169,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
               },
               controller: textFieldNameController,
               decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: const OutlineInputBorder(),
                 labelStyle: const TextStyle(
                   color: Colors.blueGrey,
@@ -197,7 +198,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
               keyboardType: TextInputType.number,
               controller: textFieldCourseController,
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -214,7 +215,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
               controller: textFieldMultiplicityController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -230,6 +231,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             child: TextField(
               controller: textFieldCommentController,
               decoration: const InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -301,7 +303,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
 
   listService() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Column(
         children: [
           /// Поле ввода: UID
@@ -310,8 +312,8 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             child: TextField(
               controller: textFieldUIDController,
               readOnly: true,
-
               decoration: const InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -327,8 +329,8 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             child: TextField(
               controller: textFieldCodeController,
               readOnly: true,
-
               decoration: const InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,

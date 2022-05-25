@@ -395,7 +395,7 @@ class _ScreenReturnOrderCustomerListState
       }
 
       // Если есть период и партнер
-      if (textFieldNewPeriodController.text.isEmpty &&
+      if (textFieldSendPeriodController.text.isEmpty &&
           textFieldSendPartnerController.text.isNotEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',
@@ -486,8 +486,8 @@ class _ScreenReturnOrderCustomerListState
       }
 
       // Если есть период
-      if (textFieldSendPeriodController.text.isNotEmpty &&
-          textFieldSendPartnerController.text.isEmpty) {
+      if (textFieldTrashPeriodController.text.isNotEmpty &&
+          textFieldTrashPartnerController.text.isEmpty) {
         final result = await db.rawQuery(
             'SELECT * FROM $tableReturnOrderCustomer WHERE $whereString ORDER BY date DESC',
             [
@@ -1014,56 +1014,6 @@ class _ScreenReturnOrderCustomerListState
                 ),
               ),
 
-              /// Contract
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldNewContractController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: const OutlineInputBorder(),
-                    labelStyle: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Договор (торговая точка)',
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        ScreenContractSelection(
-                                            returnOrderCustomer:
-                                                newReturnOrderCustomer)));
-                            setState(() {
-                              textFieldNewContractController.text =
-                                  newReturnOrderCustomer.nameContract;
-                            });
-                          },
-                          icon: const Icon(Icons.recent_actors,
-                              color: Colors.blue),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            setState(() {
-                              textFieldNewContractController.text = '';
-                              newReturnOrderCustomer.uidContract = '';
-                              newReturnOrderCustomer.nameContract = '';
-                            });
-                          },
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
               /// Button refresh
               Padding(
                 padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -1357,56 +1307,6 @@ class _ScreenReturnOrderCustomerListState
                 ),
               ),
 
-              /// Contract
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldSendContractController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: const OutlineInputBorder(),
-                    labelStyle: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Договор (торговая точка)',
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        ScreenContractSelection(
-                                            returnOrderCustomer:
-                                                newReturnOrderCustomer)));
-                            setState(() {
-                              textFieldSendContractController.text =
-                                  newReturnOrderCustomer.nameContract;
-                            });
-                          },
-                          icon: const Icon(Icons.recent_actors,
-                              color: Colors.blue),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            setState(() {
-                              textFieldSendContractController.text = '';
-                              newReturnOrderCustomer.uidContract = '';
-                              newReturnOrderCustomer.nameContract = '';
-                            });
-                          },
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
               /// Button refresh
               Padding(
                 padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
@@ -1605,56 +1505,6 @@ class _ScreenReturnOrderCustomerListState
                               textFieldTrashPartnerController.text = '';
                               newReturnOrderCustomer.uidPartner = '';
                               newReturnOrderCustomer.namePartner = '';
-                            });
-                          },
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              /// Contract
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                child: TextField(
-                  controller: textFieldTrashContractController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    border: const OutlineInputBorder(),
-                    labelStyle: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                    labelText: 'Договор (торговая точка)',
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        ScreenContractSelection(
-                                            returnOrderCustomer:
-                                                newReturnOrderCustomer)));
-                            setState(() {
-                              textFieldTrashContractController.text =
-                                  newReturnOrderCustomer.nameContract;
-                            });
-                          },
-                          icon: const Icon(Icons.recent_actors,
-                              color: Colors.blue),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            setState(() {
-                              textFieldTrashContractController.text = '';
-                              newReturnOrderCustomer.uidContract = '';
-                              newReturnOrderCustomer.nameContract = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),

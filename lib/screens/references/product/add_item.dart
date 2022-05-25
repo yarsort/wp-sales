@@ -717,7 +717,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         // Подставим 1 единицу
         if (count == 0) {
           textFieldCountController.text = doubleThreeToString(1.0);
-          textFieldDiscountController.text = doubleThreeToString(0.0);
+          textFieldDiscountController.text = doubleToString(0.0);
         }
       }
     }
@@ -799,7 +799,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         // Подставим 1 единицу
         if (count == 0) {
           textFieldCountController.text = doubleThreeToString(1.0);
-          textFieldDiscountController.text = doubleThreeToString(0.0);
+          textFieldDiscountController.text = doubleToString(0.0);
         }
       }
     }

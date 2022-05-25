@@ -198,7 +198,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
 
     // Фильтр: по статусу
     whereList.add('status = 2');
-    whereList.add('(dateSendingTo1C >= ? AND dateSendingTo1C <= ?)');
+    whereList.add('(date >= ? AND date <= ?)');
 
     // Соединим условия отбора
     whereString = whereList.join(' AND ');

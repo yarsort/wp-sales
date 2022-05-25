@@ -199,6 +199,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
             child: TextField(
               controller: textFieldNameController,
               decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: const OutlineInputBorder(),
                 labelStyle: const TextStyle(
                   color: Colors.blueGrey,
@@ -222,10 +223,11 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
 
           /// VendorCode
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
               controller: textFieldVendorCodeController,
               decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: const OutlineInputBorder(),
                 labelStyle: const TextStyle(
                   color: Colors.blueGrey,
@@ -272,11 +274,12 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
 
           /// Barcode
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 7),
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
             child: TextField(
               keyboardType: TextInputType.number,
               controller: textFieldBarcodeController,
               decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: const OutlineInputBorder(),
                 labelStyle: const TextStyle(
                   color: Colors.blueGrey,
@@ -304,6 +307,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
             child: TextField(
               controller: textFieldCommentController,
               decoration: const InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
