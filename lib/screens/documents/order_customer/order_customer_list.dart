@@ -531,9 +531,18 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     sumNewDocsToday = 0.0;
     sumSendDocsToday = 0.0;
     sumTrashDocsToday = 0.0;
+
     countNewDocsToday = 0;
     countSendDocsToday = 0;
     countTrashDocsToday = 0;
+
+    sumNewDocs = 0.0;
+    sumSendDocs = 0.0;
+    sumTrashDocs = 0.0;
+
+    countNewDocs = 0;
+    countSendDocs = 0;
+    countTrashDocs = 0;
 
     // Начало текущего дня
     DateTime dateA =

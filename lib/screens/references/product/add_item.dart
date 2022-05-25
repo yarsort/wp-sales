@@ -86,17 +86,19 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   }
 
   fillData() async {
-
     final SharedPreferences prefs = await _prefs;
 
     // Получим разрешение на редактирование цены
-    deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ?? true; // Запретить изменять тип цены в документах
+    deniedEditPrice = prefs.getBool('settings_deniedEditPrice') ??
+        true; // Запретить изменять тип цены в документах
 
     // Получим разрешение на редактирование скидки
-    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount') ?? true; // Запретить изменять тип цены в документах
+    deniedEditDiscount = prefs.getBool('settings_deniedEditDiscount') ??
+        true; // Запретить изменять тип цены в документах
 
     renewItem();
   }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -219,6 +221,23 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
                         child: TextField(
+                          onSubmitted: (value) {
+                            calculateCount();
+                          },
+                          onTap: () {
+                            // Выделим текст после фокусировки
+                            textFieldPriceController.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset:
+                                  textFieldPriceController.text.length,
+                            );
+                          },
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true, signed: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d{0,2}'))
+                          ],
                           readOnly: deniedEditPrice,
                           controller: textFieldPriceController,
                           decoration: const InputDecoration(
@@ -244,9 +263,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           },
                           onTap: () {
                             // Выделим текст после фокусировки
-                            textFieldDiscountController.selection = TextSelection(
+                            textFieldDiscountController.selection =
+                                TextSelection(
                               baseOffset: 0,
-                              extentOffset: textFieldDiscountController.text.length,
+                              extentOffset:
+                                  textFieldDiscountController.text.length,
                             );
                           },
                           keyboardType: const TextInputType.numberWithOptions(
@@ -320,9 +341,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                         padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                         child: TextField(
                           autofocus: true,
-                          onChanged: (value) {
-                            //calculateCount();
-                          },
                           onSubmitted: (value) {
                             calculateCount();
                           },
@@ -330,7 +348,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                             // Выделим текст после фокусировки
                             textFieldCountController.selection = TextSelection(
                               baseOffset: 0,
-                              extentOffset: textFieldCountController.text.length,
+                              extentOffset:
+                                  textFieldCountController.text.length,
                             );
                           },
                           keyboardType: const TextInputType.numberWithOptions(
@@ -359,9 +378,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                     calculateCount();
 
                                     // Выделим текст после фокусировки
-                                    textFieldCountController.selection = TextSelection(
+                                    textFieldCountController.selection =
+                                        TextSelection(
                                       baseOffset: 0,
-                                      extentOffset: textFieldCountController.text.length,
+                                      extentOffset:
+                                          textFieldCountController.text.length,
                                     );
                                   },
                                   icon: const Icon(Icons.remove,
@@ -377,9 +398,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                     calculateCount();
 
                                     // Выделим текст после фокусировки
-                                    textFieldCountController.selection = TextSelection(
+                                    textFieldCountController.selection =
+                                        TextSelection(
                                       baseOffset: 0,
-                                      extentOffset: textFieldCountController.text.length,
+                                      extentOffset:
+                                          textFieldCountController.text.length,
                                     );
                                   },
                                   icon:
@@ -431,7 +454,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
                                 // Добавим товар в заказ покупателя
                                 if (widget.orderCustomer != null) {
-                                  bool result = await addProductToOrderCustomer();
+                                  bool result =
+                                      await addProductToOrderCustomer();
                                   if (result == false) {
                                     return;
                                   }
@@ -439,7 +463,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
                                 // Добавим товар в возврат товаров от покупателя
                                 if (widget.returnOrderCustomer != null) {
-                                  bool result = await addProductToReturnOrderCustomer();
+                                  bool result =
+                                      await addProductToReturnOrderCustomer();
                                   if (result == false) {
                                     return;
                                   }
@@ -474,9 +499,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           child: SizedBox(
                               width: 50,
                               height: 50,
-                              child: CircularProgressIndicator(color: Colors.grey, strokeWidth: 2,))),
-                      errorWidget: (context, url, error) =>
-                      const Icon(Icons.wallpaper, color: Colors.grey, size: 50,),
+                              child: CircularProgressIndicator(
+                                color: Colors.grey,
+                                strokeWidth: 2,
+                              ))),
+                      errorWidget: (context, url, error) => const Icon(
+                        Icons.wallpaper,
+                        color: Colors.grey,
+                        size: 50,
+                      ),
                       imageUrl: pathImage,
                     ),
                   ),
@@ -505,9 +536,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
     /// Картинки в Интернете. Путь + UID товара + '.jpg'
     final SharedPreferences prefs = await _prefs;
-    String pathPictures = prefs.getString('settings_pathPictures')??'';
+    String pathPictures = prefs.getString('settings_pathPictures') ?? '';
     if (pathPictures.isNotEmpty) {
-      if(pathPictures.endsWith('/') == false){
+      if (pathPictures.endsWith('/') == false) {
         pathPictures = pathPictures + '/';
       }
       pathImage = pathPictures + widget.product.uid + '.jpg';
@@ -531,8 +562,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         await dbReadAccumProductPriceByUIDProducts(listProductsUID);
     listAccumProductRest =
         await dbReadAccumProductRestByUIDProducts(listProductsUID);
-    listUnits =
-        await dbReadUnitsProduct(uidProduct);
+    listUnits = await dbReadUnitsProduct(uidProduct);
 
     // Посортируем что бы штуки были первыми
     listUnits.sort((a, b) => b.name.compareTo(a.name));
@@ -593,7 +623,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     /// Вывод единицы измерения
     if (listUnits.isNotEmpty) {
       for (var itemUnit in listUnits) {
-        if(itemUnit.uid == widget.product.uidUnit) {
+        if (itemUnit.uid == widget.product.uidUnit) {
           selectedUnit = itemUnit;
         }
       }
@@ -616,12 +646,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     if (widget.listItemDoc != null) {
       // Если нашли товар в списке товаров заказа.
       if (widget.indexItem != null) {
-
         var itemList = widget.listItemDoc?[widget.indexItem!];
 
         // Подставим единицу измерения
-        var indexUnitItem = listUnits.indexWhere((element) =>
-        element.uid == itemList?.uidUnit);
+        var indexUnitItem =
+            listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
 
         if (indexUnitItem >= 0) {
           selectedUnit = listUnits[indexUnitItem];
@@ -636,28 +665,26 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         }
 
         // Подставим из заказа количество
-        double count    = itemList?.count ?? 0.0;
+        double count = itemList?.count ?? 0.0;
         double discount = itemList?.discount ?? 0.0;
-        double price    = itemList?.price ?? 0.0;
+        double price = itemList?.price ?? 0.0;
 
-        double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
-        double sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
+        double sumWithoutDiscount = price * count * selectedUnit.multiplicity;
+        double sum = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
         textFieldCountController.text = doubleThreeToString(count);
         textFieldDiscountController.text = doubleToString(discount);
         textFieldPriceController.text = doubleToString(price);
         textFieldSumController.text = doubleToString(sum);
-
       } else {
-
         double count = 0.0;
         double discount = 0.0;
         double price = 0.0;
         double sum = 0.0;
 
         for (var itemUnit in listUnits) {
-          var indexUnitItem = widget.listItemDoc?.indexWhere((element) =>
-          element.uidUnit == itemUnit.uid);
+          var indexUnitItem = widget.listItemDoc
+              ?.indexWhere((element) => element.uidUnit == itemUnit.uid);
 
           if (indexUnitItem! >= 0) {
             selectedUnit = itemUnit;
@@ -676,8 +703,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             discount = itemList?.discount ?? 0.0;
             price = itemList?.price ?? 0.0;
 
-            double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
-            sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
+            double sumWithoutDiscount =
+                price * count * selectedUnit.multiplicity;
+            sum = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
             textFieldDiscountController.text = doubleToString(discount);
             textFieldCountController.text = doubleThreeToString(count);
@@ -691,7 +719,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
           textFieldCountController.text = doubleThreeToString(1.0);
           textFieldDiscountController.text = doubleThreeToString(0.0);
         }
-
       }
     }
 
@@ -700,12 +727,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     if (widget.listItemReturnDoc != null) {
       // Если нашли товар в списке товаров заказа.
       if (widget.indexItem != null) {
-
         var itemList = widget.listItemReturnDoc?[widget.indexItem!];
 
         // Подставим единицу измерения
-        var indexUnitItem = listUnits.indexWhere((element) =>
-        element.uid == itemList?.uidUnit);
+        var indexUnitItem =
+            listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
 
         if (indexUnitItem >= 0) {
           selectedUnit = listUnits[indexUnitItem];
@@ -720,28 +746,26 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         }
 
         // Подставим из заказа количество
-        double count    = itemList?.count ?? 0.0;
+        double count = itemList?.count ?? 0.0;
         double discount = itemList?.discount ?? 0.0;
-        double price    = itemList?.price ?? 0.0;
+        double price = itemList?.price ?? 0.0;
 
-        double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
-        double sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
+        double sumWithoutDiscount = price * count * selectedUnit.multiplicity;
+        double sum = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
         textFieldCountController.text = doubleThreeToString(count);
         textFieldDiscountController.text = doubleToString(discount);
         textFieldPriceController.text = doubleToString(price);
         textFieldSumController.text = doubleToString(sum);
-
       } else {
-
         double count = 0.0;
         double discount = 0.0;
         double price = 0.0;
         //double sum = 0.0;
 
         for (var itemUnit in listUnits) {
-          var indexUnitItem = widget.listItemReturnDoc?.indexWhere((element) =>
-          element.uidUnit == itemUnit.uid);
+          var indexUnitItem = widget.listItemReturnDoc
+              ?.indexWhere((element) => element.uidUnit == itemUnit.uid);
 
           if (indexUnitItem! >= 0) {
             selectedUnit = itemUnit;
@@ -760,8 +784,10 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             discount = itemList?.discount ?? 0.0;
             price = itemList?.price ?? 0.0;
 
-            double sumWithoutDiscount     = price * count * selectedUnit.multiplicity;
-            double sum      = sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
+            double sumWithoutDiscount =
+                price * count * selectedUnit.multiplicity;
+            double sum =
+                sumWithoutDiscount - (sumWithoutDiscount / 100 * discount);
 
             textFieldCountController.text = doubleThreeToString(count);
             textFieldDiscountController.text = doubleToString(discount);
@@ -797,10 +823,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     var price = double.parse(
         doubleThreeToString(double.parse(textFieldPriceController.text)));
 
-    textFieldCountController.text = doubleThreeToString(count);
+    textFieldPriceController.text = doubleToString(price);
     textFieldDiscountController.text = doubleToString(discount);
+    textFieldCountController.text = doubleThreeToString(count);
 
-    var sum = (count * price) - ((count * price) / 100 * discount);
+    var sum = (count * price * selectedUnit.multiplicity) -
+        ((count * price * selectedUnit.multiplicity) / 100 * discount);
 
     textFieldSumController.text = doubleToString(sum);
   }
@@ -832,7 +860,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   }
 
   Future<bool> addProductToOrderCustomer() async {
-
     final SharedPreferences prefs = await _prefs;
 
     // Получим количество товара, которое добавляем
@@ -845,16 +872,16 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     var price = double.parse(
         doubleToString(double.parse(textFieldPriceController.text)));
 
-    var sum = double.parse(
-        doubleToString(double.parse(textFieldSumController.text)));
+    var sum =
+        double.parse(doubleToString(double.parse(textFieldSumController.text)));
 
     /// Добавление товаров в заказе покупателя
     if (widget.listItemDoc != null) {
-
       // Контроль добавления товара, если на остатке его нет
-      bool deniedAddProductWithoutRest = prefs.getBool('settings_deniedAddProductWithoutRest')!;
-      if(deniedAddProductWithoutRest){
-        if(count * selectedUnit.multiplicity > countOnWarehouse){
+      bool deniedAddProductWithoutRest =
+          prefs.getBool('settings_deniedAddProductWithoutRest')!;
+      if (deniedAddProductWithoutRest) {
+        if (count * selectedUnit.multiplicity > countOnWarehouse) {
           showErrorMessage('Товара недостаточно на остатке!', context);
           return false;
         }
@@ -873,7 +900,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         itemList?.discount = discount;
         itemList?.sum = sum;
       } else {
-
         ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
             id: 0,
             idOrderCustomer: widget.orderCustomer?.id ?? 0,
@@ -903,9 +929,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     var price = double.parse(
         doubleToString(double.parse(textFieldPriceController.text)));
 
-    var sum = double.parse(
-        doubleToString(double.parse(textFieldSumController.text)));
-
+    var sum =
+        double.parse(doubleToString(double.parse(textFieldSumController.text)));
 
     // Найдем индекс строки товара в заказе по товару который добавляем
     var indexItem = widget.listItemReturnDoc?.indexWhere((element) =>
@@ -918,9 +943,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
       var itemList = widget.listItemReturnDoc?[indexItem];
       itemList?.count = count;
       itemList?.discount = discount;
-      itemList?.sum = itemList.price * itemList.count * selectedUnit.multiplicity;
+      itemList?.sum =
+          itemList.price * itemList.count * selectedUnit.multiplicity;
     } else {
-
       ItemReturnOrderCustomer itemReturnOrderCustomer = ItemReturnOrderCustomer(
           id: 0,
           idReturnOrderCustomer: widget.returnOrderCustomer?.id ?? 0,
