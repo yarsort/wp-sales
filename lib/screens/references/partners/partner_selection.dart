@@ -504,8 +504,8 @@ class PartnerItemSelection extends StatelessWidget {
             }
             returnOrderCustomer?.uidContract = itemContract.uid;
             returnOrderCustomer?.nameContract = itemContract.name;
-            orderCustomer?.uidPrice = itemContract.uidPrice;
-            orderCustomer?.namePrice = itemContract.namePrice;
+            returnOrderCustomer?.uidPrice = itemContract.uidPrice;
+            returnOrderCustomer?.namePrice = itemContract.namePrice;
           }
         }
 

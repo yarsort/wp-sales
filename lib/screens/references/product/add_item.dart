@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:math_expressions/math_expressions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
@@ -33,6 +33,37 @@ class ScreenAddItem extends StatefulWidget {
 class _ScreenAddItemState extends State<ScreenAddItem> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  // Array of button
+  final List<String> buttons = [
+    'C',
+    '+/-',
+    '%',
+    'DEL',
+    '7',
+    '8',
+    '9',
+    '/',
+    '4',
+    '5',
+    '6',
+    'x',
+    '1',
+    '2',
+    '3',
+    '-',
+    '0',
+    '.',
+    '=',
+    '+',
+  ];
+  Size get preferredSize => const Size.fromHeight(280);
+  var userInput = '';
+  var answer = '';
+
+  final FocusNode _nodePrice = FocusNode();
+  final FocusNode _nodeDiscount = FocusNode();
+  final FocusNode _nodeCount = FocusNode();
+
   bool visibleImage = true;
 
   String pathImage = '';
@@ -49,14 +80,14 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
   /// Поле ввода: Product name
   TextEditingController textFieldProductNameController =
-      TextEditingController();
+  TextEditingController();
 
   /// Поле ввода: Unit name
   TextEditingController textFieldUnitNameController = TextEditingController();
 
   /// Поле ввода: Warehouse name
   TextEditingController textFieldWarehouseNameController =
-      TextEditingController();
+  TextEditingController();
 
   /// Поле ввода: Warehouse value
   TextEditingController textFieldWarehouseController = TextEditingController();
@@ -83,6 +114,14 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   void initState() {
     super.initState();
     fillData();
+  }
+
+  @override
+  void dispose() {
+    _nodeCount.dispose();
+    _nodeDiscount.dispose();
+    _nodePrice.dispose();
+    super.dispose();
   }
 
   fillData() async {
@@ -121,12 +160,14 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         body: TabBarView(
           children: [
             ListView(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               children: [
                 /// Product name
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 21, 14, 7),
                   child: TextField(
-                    maxLines: 3,
+                    maxLines: 2,
                     readOnly: true,
                     controller: textFieldProductNameController,
                     decoration: const InputDecoration(
@@ -179,40 +220,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                   ),
                 ),
 
-                // /// Price name
-                // Padding(
-                //   padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                //   child: TextField(
-                //     readOnly: true,
-                //     controller: textFieldPriceNameController,
-                //     decoration: const InputDecoration(
-                //       contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                //       border: OutlineInputBorder(),
-                //       labelStyle: TextStyle(
-                //         color: Colors.blueGrey,
-                //       ),
-                //       labelText: 'Тип цены',
-                //     ),
-                //   ),
-                // ),
-                //
-                // /// Warehouse name
-                // Padding(
-                //   padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-                //   child: TextField(
-                //     readOnly: true,
-                //     controller: textFieldWarehouseNameController,
-                //     decoration: const InputDecoration(
-                //       contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                //       border: OutlineInputBorder(),
-                //       labelStyle: TextStyle(
-                //         color: Colors.blueGrey,
-                //       ),
-                //       labelText: 'Склад',
-                //     ),
-                //   ),
-                // ),
-
                 Row(
                   children: [
                     /// Price
@@ -221,6 +228,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(14, 7, 7, 7),
                         child: TextField(
+                          focusNode: _nodePrice,
                           onSubmitted: (value) {
                             calculateCount();
                           },
@@ -229,16 +237,16 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                             textFieldPriceController.selection = TextSelection(
                               baseOffset: 0,
                               extentOffset:
-                                  textFieldPriceController.text.length,
+                              textFieldPriceController.text.length,
                             );
                           },
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true, signed: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d{0,2}'))
-                          ],
-                          readOnly: deniedEditPrice,
+                          // keyboardType: const TextInputType.numberWithOptions(
+                          //     decimal: true, signed: true),
+                          // inputFormatters: [
+                          //   FilteringTextInputFormatter.allow(
+                          //       RegExp(r'^\d*\.?\d{0,2}'))
+                          // ],
+                          readOnly: true,
                           controller: textFieldPriceController,
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -258,25 +266,26 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
                         child: TextField(
-                          onSubmitted: (value) {
-                            calculateCount();
-                          },
-                          onTap: () {
-                            // Выделим текст после фокусировки
-                            textFieldDiscountController.selection =
-                                TextSelection(
-                              baseOffset: 0,
-                              extentOffset:
-                                  textFieldDiscountController.text.length,
-                            );
-                          },
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true, signed: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d{0,2}'))
-                          ],
-                          readOnly: deniedEditDiscount,
+                          focusNode: _nodeDiscount,
+                          // onSubmitted: (value) {
+                          //   calculateCount();
+                          // },
+                          // onTap: () {
+                          //   // Выделим текст после фокусировки
+                          //   textFieldDiscountController.selection =
+                          //       TextSelection(
+                          //         baseOffset: 0,
+                          //         extentOffset:
+                          //         textFieldDiscountController.text.length,
+                          //       );
+                          // },
+                          // keyboardType: const TextInputType.numberWithOptions(
+                          //     decimal: true, signed: true),
+                          // inputFormatters: [
+                          //   FilteringTextInputFormatter.allow(
+                          //       RegExp(r'^\d*\.?\d{0,2}'))
+                          // ],
+                          readOnly: true,
                           controller: textFieldDiscountController,
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -323,7 +332,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           controller: textFieldWarehouseController,
                           decoration: InputDecoration(
                             contentPadding:
-                                const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: const OutlineInputBorder(),
                             labelStyle: const TextStyle(
                               color: Colors.blueGrey,
@@ -336,10 +345,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
                     /// Count to document
                     Expanded(
-                      flex: 4,
+                      flex: 3,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                         child: TextField(
+                          readOnly: true,
                           autofocus: true,
                           onSubmitted: (value) {
                             calculateCount();
@@ -349,85 +359,86 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                             textFieldCountController.selection = TextSelection(
                               baseOffset: 0,
                               extentOffset:
-                                  textFieldCountController.text.length,
+                              textFieldCountController.text.length,
                             );
                           },
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true, signed: true),
+                          // keyboardType: const TextInputType.numberWithOptions(
+                          //     decimal: true, signed: true),
                           controller: textFieldCountController,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d{0,3}'))
-                          ],
-                          decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            border: const OutlineInputBorder(),
-                            labelStyle: const TextStyle(
+                          // inputFormatters: [
+                          //   FilteringTextInputFormatter.allow(
+                          //       RegExp(r'^\d*\.?\d{0,3}'))
+                          // ],
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            border: OutlineInputBorder(),
+                            labelStyle: TextStyle(
                               color: Colors.blueGrey,
                             ),
                             labelText: 'Количество',
-                            suffixIcon: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Отнять
-                                IconButton(
-                                  onPressed: () {
-                                    minusCountOnForm();
-                                    calculateCount();
-
-                                    // Выделим текст после фокусировки
-                                    textFieldCountController.selection =
-                                        TextSelection(
-                                      baseOffset: 0,
-                                      extentOffset:
-                                          textFieldCountController.text.length,
-                                    );
-                                  },
-                                  icon: const Icon(Icons.remove,
-                                      color: Colors.blue),
-                                  //icon: const Icon(Icons.delete, color: Colors.red),
-                                ),
-                                // Добавить
-                                IconButton(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 1, 1, 1),
-                                  onPressed: () {
-                                    plusCountOnForm();
-                                    calculateCount();
-
-                                    // Выделим текст после фокусировки
-                                    textFieldCountController.selection =
-                                        TextSelection(
-                                      baseOffset: 0,
-                                      extentOffset:
-                                          textFieldCountController.text.length,
-                                    );
-                                  },
-                                  icon:
-                                      const Icon(Icons.add, color: Colors.blue),
-                                ),
-                              ],
-                            ),
+                            // suffixIcon: Row(
+                            //   mainAxisAlignment: MainAxisAlignment.end,
+                            //   mainAxisSize: MainAxisSize.min,
+                            //   children: [
+                            //     // Отнять
+                            //     IconButton(
+                            //       onPressed: () {
+                            //         minusCountOnForm();
+                            //         calculateCount();
+                            //
+                            //         // Выделим текст после фокусировки
+                            //         textFieldCountController.selection =
+                            //             TextSelection(
+                            //           baseOffset: 0,
+                            //           extentOffset:
+                            //               textFieldCountController.text.length,
+                            //         );
+                            //       },
+                            //       icon: const Icon(Icons.remove,
+                            //           color: Colors.blue),
+                            //       //icon: const Icon(Icons.delete, color: Colors.red),
+                            //     ),
+                            //     // Добавить
+                            //     IconButton(
+                            //       padding:
+                            //           const EdgeInsets.fromLTRB(10, 1, 1, 1),
+                            //       onPressed: () {
+                            //         plusCountOnForm();
+                            //         calculateCount();
+                            //
+                            //         // Выделим текст после фокусировки
+                            //         textFieldCountController.selection =
+                            //             TextSelection(
+                            //           baseOffset: 0,
+                            //           extentOffset:
+                            //               textFieldCountController.text.length,
+                            //         );
+                            //       },
+                            //       icon:
+                            //           const Icon(Icons.add, color: Colors.blue),
+                            //     ),
+                            //   ],
+                            // ),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
+
+                /// Кнопки: Отменить и Добавить
                 Row(
                   children: [
                     Expanded(
                       flex: 3,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 7, 7, 14),
+                        padding: const EdgeInsets.fromLTRB(14, 7, 7, 0),
                         child: SizedBox(
                           height: 50,
                           child: ElevatedButton(
                               style: ButtonStyle(
                                   backgroundColor:
-                                      MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.red)),
                               onPressed: () async {
                                 // Закроем окно
                                 Navigator.of(context).pop();
@@ -440,22 +451,22 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       ),
                     ),
                     Expanded(
-                      flex: 4,
+                      flex: 3,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(7, 7, 14, 14),
+                        padding: const EdgeInsets.fromLTRB(7, 7, 14, 0),
                         child: SizedBox(
                           height: 50,
                           child: ElevatedButton(
                               style: ButtonStyle(
                                   backgroundColor:
-                                      MaterialStateProperty.all(Colors.blue)),
+                                  MaterialStateProperty.all(Colors.blue)),
                               onPressed: () async {
                                 await calculateCount();
 
                                 // Добавим товар в заказ покупателя
                                 if (widget.orderCustomer != null) {
                                   bool result =
-                                      await addProductToOrderCustomer();
+                                  await addProductToOrderCustomer();
                                   if (result == false) {
                                     return;
                                   }
@@ -464,7 +475,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                 // Добавим товар в возврат товаров от покупателя
                                 if (widget.returnOrderCustomer != null) {
                                   bool result =
-                                      await addProductToReturnOrderCustomer();
+                                  await addProductToReturnOrderCustomer();
                                   if (result == false) {
                                     return;
                                   }
@@ -484,6 +495,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     ),
                   ],
                 ),
+
+                const Divider(),
+                calculatorGrid(),
               ],
             ),
             ListView(
@@ -559,9 +573,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     listProductsUID.add(uidProduct);
 
     listAccumProductPrice =
-        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+    await dbReadAccumProductPriceByUIDProducts(listProductsUID);
     listAccumProductRest =
-        await dbReadAccumProductRestByUIDProducts(listProductsUID);
+    await dbReadAccumProductRestByUIDProducts(listProductsUID);
     listUnits = await dbReadUnitsProduct(uidProduct);
 
     // Посортируем что бы штуки были первыми
@@ -650,7 +664,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
         // Подставим единицу измерения
         var indexUnitItem =
-            listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
+        listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
 
         if (indexUnitItem >= 0) {
           selectedUnit = listUnits[indexUnitItem];
@@ -731,7 +745,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
         // Подставим единицу измерения
         var indexUnitItem =
-            listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
+        listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
 
         if (indexUnitItem >= 0) {
           selectedUnit = listUnits[indexUnitItem];
@@ -873,13 +887,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         doubleToString(double.parse(textFieldPriceController.text)));
 
     var sum =
-        double.parse(doubleToString(double.parse(textFieldSumController.text)));
+    double.parse(doubleToString(double.parse(textFieldSumController.text)));
 
     /// Добавление товаров в заказе покупателя
     if (widget.listItemDoc != null) {
       // Контроль добавления товара, если на остатке его нет
       bool deniedAddProductWithoutRest =
-          prefs.getBool('settings_deniedAddProductWithoutRest')!;
+      prefs.getBool('settings_deniedAddProductWithoutRest')!;
       if (deniedAddProductWithoutRest) {
         if (count * selectedUnit.multiplicity > countOnWarehouse) {
           showErrorMessage('Товара недостаточно на остатке!', context);
@@ -889,8 +903,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
       // Найдем индекс строки товара в заказе по товару который добавляем
       var indexItem = widget.listItemDoc?.indexWhere((element) =>
-              element.uid == widget.product.uid &&
-              element.uidUnit == selectedUnit.uid) ??
+      element.uid == widget.product.uid &&
+          element.uidUnit == selectedUnit.uid) ??
           -1;
 
       // Если нашли товар в списке товаров заказа
@@ -930,12 +944,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         doubleToString(double.parse(textFieldPriceController.text)));
 
     var sum =
-        double.parse(doubleToString(double.parse(textFieldSumController.text)));
+    double.parse(doubleToString(double.parse(textFieldSumController.text)));
 
     // Найдем индекс строки товара в заказе по товару который добавляем
     var indexItem = widget.listItemReturnDoc?.indexWhere((element) =>
-            element.uid == widget.product.uid &&
-            element.uidUnit == selectedUnit.uid) ??
+    element.uid == widget.product.uid &&
+        element.uidUnit == selectedUnit.uid) ??
         -1;
 
     // Если нашли товар в списке товаров заказа
@@ -1010,6 +1024,175 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 ),
               ));
         },
+      ),
+    );
+  }
+
+  bool isOperator(String x) {
+    if (x == '/' || x == 'x' || x == '-' || x == '+' || x == '=') {
+      return true;
+    }
+    return false;
+  }
+
+  void equalPressed() {
+    String finalUserInput = userInput;
+    finalUserInput = userInput.replaceAll('x', '*');
+
+    Parser p = Parser();
+    Expression exp = p.parse(finalUserInput);
+
+    ContextModel cm = ContextModel();
+    double eval = exp.evaluate(EvaluationType.REAL, cm);
+    answer = eval.toString();
+  }
+
+  calculatorGrid() {
+    return SizedBox(
+      height: 250,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+        child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: buttons.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 2.2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              /// Clear Button
+              if (index == 0) {
+                return MyButton(
+                  onTap: () {
+                    setState(() {
+                      userInput = '';
+                      answer = '0';
+                    });
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.blue[50],
+                  textColor: Colors.black,
+                );
+              }
+
+              /// +/- button
+              else if (index == 1) {
+                return MyButton(
+                  onTap: () {
+                    setState(() {
+                      userInput += buttons[index];
+                    });
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.blue[50],
+                  textColor: Colors.black,
+                );
+              }
+
+              /// % Button
+              else if (index == 2) {
+                return MyButton(
+                  onTap: () {
+                    setState(() {
+                      //userInput += buttons[index];
+                    });
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.blue[50],
+                  textColor: Colors.black,
+                );
+              }
+
+              /// Delete Button
+              else if (index == 3) {
+                return MyButton(
+                  onTap: () {
+                    setState(() {
+                      userInput = userInput.substring(0, userInput.length - 1);
+                    });
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.blue[50],
+                  textColor: Colors.black,
+                );
+              }
+
+              /// Equal_to Button
+              else if (index == 18) {
+                return MyButton(
+                  onTap: () {
+                    setState(() {
+                      equalPressed();
+                    });
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.red,
+                  textColor: Colors.white,
+                );
+              }
+
+              ///  other buttons
+              else {
+                return MyButton(
+                  onTap: () {
+                    setState(() {
+                      userInput += buttons[index];
+                    });
+                  },
+                  buttonText: buttons[index],
+                  color: isOperator(buttons[index])
+                      ? Colors.blue
+                      : Colors.white,
+                  textColor:
+                  isOperator(buttons[index]) ? Colors.white : Colors.black,
+                );
+              }
+            }),
+      ),
+    );
+  }
+}
+
+// creating Stateless Widget for buttons
+class MyButton extends StatelessWidget {
+  // declaring variables
+  final color;
+  final Color textColor;
+  final String buttonText;
+  final onTap;
+
+  //Constructor
+  MyButton(
+      {required this.color,
+        required this.textColor,
+        required this.buttonText,
+        required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(0.2),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: Container(
+            color: color,
+            child: Center(
+              child: Text(
+                buttonText,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

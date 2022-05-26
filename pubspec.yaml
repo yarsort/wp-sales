@@ -44,6 +44,7 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0 # Для сканирования товаров в подборе
   package_info_plus: ^1.4.2   # Для вывода версии приложения в виджетах
   flutter_slidable: ^1.2.1  # Контекстное меню списка товаров документа
+  math_expressions: ^2.3.0
 
 
   # The following adds the Cupertino Icons font to your application.
