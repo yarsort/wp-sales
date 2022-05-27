@@ -38,7 +38,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     'C',
     ' ',
     '%',
-    'DEL',
+    'Del',
     '7',
     '8',
     '9',
@@ -51,8 +51,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     '2',
     '3',
     '-',
-    '0',
     '.',
+    '0',
     '=',
     '+',
   ];
@@ -467,10 +467,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
                 calculatorGrid(),
 
+                /// Result of calculation
                 Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 7),
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 7),
                       child: SizedBox(
                         height: 40,
                         width: MediaQuery.of(context).size.width - 28,
@@ -1121,7 +1122,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
   calculatorGrid() {
     return SizedBox(
-      height: 250,
+      //height: 250,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
         child: GridView.builder(
@@ -1130,13 +1131,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
             itemCount: buttons.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              childAspectRatio: 2.2,
+              childAspectRatio: 1.7,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
             ),
             itemBuilder: (BuildContext context, int index) {
               /// Clear Button
-              if (index == 0) {
+              if (buttons[index] == 'C') {
                 return MyButton(
                   onTap: () {
                     setState(() {
@@ -1146,13 +1147,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     });
                   },
                   buttonText: buttons[index],
-                  color: Colors.blue[50],
+                  color: Colors.blue[100],
                   textColor: Colors.black,
                 );
               }
 
               /// +/- button
-              else if (index == 1) {
+              else if (buttons[index] == ' ') {
                 return MyButton(
                   onTap: () {
                     setState(() {
@@ -1161,13 +1162,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     });
                   },
                   buttonText: buttons[index],
-                  color: Colors.blue[50],
+                  color: Colors.blue[100],
                   textColor: Colors.black,
                 );
               }
 
               /// % Button
-              else if (index == 2) {
+              else if (buttons[index] == '%') {
                 return MyButton(
                   onTap: () {
                     setState(() {
@@ -1175,13 +1176,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     });
                   },
                   buttonText: buttons[index],
-                  color: Colors.blue[50],
+                  color: Colors.blue[100],
                   textColor: Colors.black,
                 );
               }
 
               /// Delete Button
-              else if (index == 3) {
+              else if (buttons[index] == 'Del') {
                 return MyButton(
                   onTap: () {
                     setState(() {
@@ -1193,13 +1194,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     });
                   },
                   buttonText: buttons[index],
-                  color: Colors.blue[50],
+                  color: Colors.blue[100],
                   textColor: Colors.black,
                 );
               }
 
               /// Equal_to Button
-              else if (index == 18) {
+              else if (buttons[index] == '=') {
                 return MyButton(
                   onTap: () {
                     setState(() {
@@ -1212,6 +1213,88 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 );
               }
 
+              /// - Button
+              else if (buttons[index] == '-') {
+                return MyButton(
+                  onTap: () {
+                    var isFirstOperatorSymbol = false;
+                    if (userInput.isEmpty) {
+                      if (_nodeCount.hasFocus) {
+                        userInput = textFieldCountController.text;
+                        userInput += '-1';
+                        isFirstOperatorSymbol = true;
+                      }
+                      if (_nodeDiscount.hasFocus) {
+                        userInput = textFieldDiscountController.text;
+                        userInput += '-1';
+                        isFirstOperatorSymbol = true;
+                      }
+                      if (_nodePrice.hasFocus) {
+                        userInput = textFieldPriceController.text;
+                        userInput += '-1';
+                        isFirstOperatorSymbol = true;
+                      }
+                      setState(() {
+                        equalPressed();
+                        if (isFirstOperatorSymbol){
+                          userInput = '';
+                        }
+                      });
+                    } else {
+                      setState(() {
+                        userInput += buttons[index];
+                        equalPressed();
+                      });
+                    }
+
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                );
+              }
+
+              /// + Button
+              else if (buttons[index] == '+') {
+                return MyButton(
+                  onTap: () {
+                    var isFirstOperatorSymbol = false;
+                    if (userInput.isEmpty) {
+                      if (_nodeCount.hasFocus) {
+                        userInput = textFieldCountController.text;
+                        userInput += '+1';
+                        isFirstOperatorSymbol = true;
+                      }
+                      if (_nodeDiscount.hasFocus) {
+                        userInput = textFieldDiscountController.text;
+                        userInput += '+1';
+                        isFirstOperatorSymbol = true;
+                      }
+                      if (_nodePrice.hasFocus) {
+                        userInput = textFieldPriceController.text;
+                        userInput += '+1';
+                        isFirstOperatorSymbol = true;
+                      }
+                      setState(() {
+                        equalPressed();
+                        if (isFirstOperatorSymbol){
+                          userInput = '';
+                        }
+                      });
+                    } else {
+                      setState(() {
+                        userInput += buttons[index];
+                        equalPressed();
+                      });
+                    }
+
+                  },
+                  buttonText: buttons[index],
+                  color: Colors.blue,
+                  textColor: Colors.white,
+                );
+              }
+
               ///  other buttons
               else {
                 return MyButton(
@@ -1219,7 +1302,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     if (isOperator(buttons[index])){
                       if(userInput.isEmpty){
                         if (_nodeCount.hasFocus) {
-                          userInput = textFieldDiscountController.text;
+                          userInput = textFieldCountController.text;
                         }
                         if (_nodeDiscount.hasFocus) {
                           userInput = textFieldDiscountController.text;
@@ -1236,7 +1319,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                   },
                   buttonText: buttons[index],
                   color:
-                      isOperator(buttons[index]) ? Colors.blue[50] : Colors.white,
+                      isOperator(buttons[index]) ? Colors.blue[100] : Colors.blue[50],
                   textColor:
                       isOperator(buttons[index]) ? Colors.black : Colors.black,
                 );
