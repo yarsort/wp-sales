@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_screens.dart';
@@ -17,6 +18,9 @@ class ScreenHomePage extends StatefulWidget {
 }
 
 class _ScreenHomePageState extends State<ScreenHomePage> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   DateTime currentBackPressTime = DateTime.now();
 
   List<Contract> listForPaymentContracts = [];
@@ -108,7 +112,15 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
     );
   }
 
+  saveSetting() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setBool('settings_useTestData', false);
+  }
+
   renewItem() async {
+    // Скинем флаг использования демо-данных
+    await saveSetting();
+
     setState(() {
       loadingData = true;
     });

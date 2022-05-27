@@ -36,7 +36,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   // Array of button
   final List<String> buttons = [
     'C',
-    '+/-',
+    ' ',
     '%',
     'DEL',
     '7',
@@ -56,9 +56,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     '=',
     '+',
   ];
+
+  /// Калькулятор :)
   Size get preferredSize => const Size.fromHeight(280);
   var userInput = '';
   var answer = '';
+  TextEditingController textFieldResultController = TextEditingController();
 
   final FocusNode _nodePrice = FocusNode();
   final FocusNode _nodeDiscount = FocusNode();
@@ -80,14 +83,14 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
   /// Поле ввода: Product name
   TextEditingController textFieldProductNameController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Unit name
   TextEditingController textFieldUnitNameController = TextEditingController();
 
   /// Поле ввода: Warehouse name
   TextEditingController textFieldWarehouseNameController =
-  TextEditingController();
+      TextEditingController();
 
   /// Поле ввода: Warehouse value
   TextEditingController textFieldWarehouseController = TextEditingController();
@@ -233,11 +236,15 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                             calculateCount();
                           },
                           onTap: () {
+                            setState(() {
+                              userInput = '';
+                              textFieldResultController.text = '';
+                            });
                             // Выделим текст после фокусировки
                             textFieldPriceController.selection = TextSelection(
                               baseOffset: 0,
                               extentOffset:
-                              textFieldPriceController.text.length,
+                                  textFieldPriceController.text.length,
                             );
                           },
                           // keyboardType: const TextInputType.numberWithOptions(
@@ -270,15 +277,19 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           // onSubmitted: (value) {
                           //   calculateCount();
                           // },
-                          // onTap: () {
-                          //   // Выделим текст после фокусировки
-                          //   textFieldDiscountController.selection =
-                          //       TextSelection(
-                          //         baseOffset: 0,
-                          //         extentOffset:
-                          //         textFieldDiscountController.text.length,
-                          //       );
-                          // },
+                          onTap: () {
+                            setState(() {
+                              userInput = '';
+                              textFieldResultController.text = '';
+                            });
+                            // Выделим текст после фокусировки
+                            textFieldDiscountController.selection =
+                                TextSelection(
+                              baseOffset: 0,
+                              extentOffset:
+                                  textFieldDiscountController.text.length,
+                            );
+                          },
                           // keyboardType: const TextInputType.numberWithOptions(
                           //     decimal: true, signed: true),
                           // inputFormatters: [
@@ -332,7 +343,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           controller: textFieldWarehouseController,
                           decoration: InputDecoration(
                             contentPadding:
-                            const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: const OutlineInputBorder(),
                             labelStyle: const TextStyle(
                               color: Colors.blueGrey,
@@ -349,26 +360,25 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(7, 7, 14, 7),
                         child: TextField(
+                          focusNode: _nodeCount,
                           readOnly: true,
                           autofocus: true,
                           onSubmitted: (value) {
                             calculateCount();
                           },
                           onTap: () {
+                            setState(() {
+                              userInput = '';
+                              textFieldResultController.text = '';
+                            });
                             // Выделим текст после фокусировки
                             textFieldCountController.selection = TextSelection(
                               baseOffset: 0,
                               extentOffset:
-                              textFieldCountController.text.length,
+                                  textFieldCountController.text.length,
                             );
                           },
-                          // keyboardType: const TextInputType.numberWithOptions(
-                          //     decimal: true, signed: true),
                           controller: textFieldCountController,
-                          // inputFormatters: [
-                          //   FilteringTextInputFormatter.allow(
-                          //       RegExp(r'^\d*\.?\d{0,3}'))
-                          // ],
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                             border: OutlineInputBorder(),
@@ -376,49 +386,6 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                               color: Colors.blueGrey,
                             ),
                             labelText: 'Количество',
-                            // suffixIcon: Row(
-                            //   mainAxisAlignment: MainAxisAlignment.end,
-                            //   mainAxisSize: MainAxisSize.min,
-                            //   children: [
-                            //     // Отнять
-                            //     IconButton(
-                            //       onPressed: () {
-                            //         minusCountOnForm();
-                            //         calculateCount();
-                            //
-                            //         // Выделим текст после фокусировки
-                            //         textFieldCountController.selection =
-                            //             TextSelection(
-                            //           baseOffset: 0,
-                            //           extentOffset:
-                            //               textFieldCountController.text.length,
-                            //         );
-                            //       },
-                            //       icon: const Icon(Icons.remove,
-                            //           color: Colors.blue),
-                            //       //icon: const Icon(Icons.delete, color: Colors.red),
-                            //     ),
-                            //     // Добавить
-                            //     IconButton(
-                            //       padding:
-                            //           const EdgeInsets.fromLTRB(10, 1, 1, 1),
-                            //       onPressed: () {
-                            //         plusCountOnForm();
-                            //         calculateCount();
-                            //
-                            //         // Выделим текст после фокусировки
-                            //         textFieldCountController.selection =
-                            //             TextSelection(
-                            //           baseOffset: 0,
-                            //           extentOffset:
-                            //               textFieldCountController.text.length,
-                            //         );
-                            //       },
-                            //       icon:
-                            //           const Icon(Icons.add, color: Colors.blue),
-                            //     ),
-                            //   ],
-                            // ),
                           ),
                         ),
                       ),
@@ -438,7 +405,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           child: ElevatedButton(
                               style: ButtonStyle(
                                   backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
+                                      MaterialStateProperty.all(Colors.red)),
                               onPressed: () async {
                                 // Закроем окно
                                 Navigator.of(context).pop();
@@ -459,14 +426,14 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                           child: ElevatedButton(
                               style: ButtonStyle(
                                   backgroundColor:
-                                  MaterialStateProperty.all(Colors.blue)),
+                                      MaterialStateProperty.all(Colors.blue)),
                               onPressed: () async {
                                 await calculateCount();
 
                                 // Добавим товар в заказ покупателя
                                 if (widget.orderCustomer != null) {
                                   bool result =
-                                  await addProductToOrderCustomer();
+                                      await addProductToOrderCustomer();
                                   if (result == false) {
                                     return;
                                   }
@@ -475,7 +442,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                                 // Добавим товар в возврат товаров от покупателя
                                 if (widget.returnOrderCustomer != null) {
                                   bool result =
-                                  await addProductToReturnOrderCustomer();
+                                      await addProductToReturnOrderCustomer();
                                   if (result == false) {
                                     return;
                                   }
@@ -497,7 +464,26 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 ),
 
                 const Divider(),
+
                 calculatorGrid(),
+
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 7),
+                      child: SizedBox(
+                        height: 40,
+                        width: MediaQuery.of(context).size.width - 28,
+                        child: MyButton(
+                          onTap: () {},
+                          buttonText: textFieldResultController.text,
+                          color: Colors.blue[50],
+                          textColor: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
             ListView(
@@ -573,9 +559,9 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     listProductsUID.add(uidProduct);
 
     listAccumProductPrice =
-    await dbReadAccumProductPriceByUIDProducts(listProductsUID);
+        await dbReadAccumProductPriceByUIDProducts(listProductsUID);
     listAccumProductRest =
-    await dbReadAccumProductRestByUIDProducts(listProductsUID);
+        await dbReadAccumProductRestByUIDProducts(listProductsUID);
     listUnits = await dbReadUnitsProduct(uidProduct);
 
     // Посортируем что бы штуки были первыми
@@ -664,7 +650,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
         // Подставим единицу измерения
         var indexUnitItem =
-        listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
+            listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
 
         if (indexUnitItem >= 0) {
           selectedUnit = listUnits[indexUnitItem];
@@ -745,7 +731,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
         // Подставим единицу измерения
         var indexUnitItem =
-        listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
+            listUnits.indexWhere((element) => element.uid == itemList?.uidUnit);
 
         if (indexUnitItem >= 0) {
           selectedUnit = listUnits[indexUnitItem];
@@ -845,6 +831,25 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         ((count * price * selectedUnit.multiplicity) / 100 * discount);
 
     textFieldSumController.text = doubleToString(sum);
+
+    if (_nodeCount.hasFocus) {
+      textFieldCountController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldCountController.text.length,
+      );
+    }
+    if (_nodeDiscount.hasFocus) {
+      textFieldDiscountController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldDiscountController.text.length,
+      );
+    }
+    if (_nodePrice.hasFocus) {
+      textFieldPriceController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldPriceController.text.length,
+      );
+    }
   }
 
   plusCountOnForm() {
@@ -887,13 +892,13 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         doubleToString(double.parse(textFieldPriceController.text)));
 
     var sum =
-    double.parse(doubleToString(double.parse(textFieldSumController.text)));
+        double.parse(doubleToString(double.parse(textFieldSumController.text)));
 
     /// Добавление товаров в заказе покупателя
     if (widget.listItemDoc != null) {
       // Контроль добавления товара, если на остатке его нет
       bool deniedAddProductWithoutRest =
-      prefs.getBool('settings_deniedAddProductWithoutRest')!;
+          prefs.getBool('settings_deniedAddProductWithoutRest')!;
       if (deniedAddProductWithoutRest) {
         if (count * selectedUnit.multiplicity > countOnWarehouse) {
           showErrorMessage('Товара недостаточно на остатке!', context);
@@ -903,8 +908,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
 
       // Найдем индекс строки товара в заказе по товару который добавляем
       var indexItem = widget.listItemDoc?.indexWhere((element) =>
-      element.uid == widget.product.uid &&
-          element.uidUnit == selectedUnit.uid) ??
+              element.uid == widget.product.uid &&
+              element.uidUnit == selectedUnit.uid) ??
           -1;
 
       // Если нашли товар в списке товаров заказа
@@ -944,12 +949,12 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
         doubleToString(double.parse(textFieldPriceController.text)));
 
     var sum =
-    double.parse(doubleToString(double.parse(textFieldSumController.text)));
+        double.parse(doubleToString(double.parse(textFieldSumController.text)));
 
     // Найдем индекс строки товара в заказе по товару который добавляем
     var indexItem = widget.listItemReturnDoc?.indexWhere((element) =>
-    element.uid == widget.product.uid &&
-        element.uidUnit == selectedUnit.uid) ??
+            element.uid == widget.product.uid &&
+            element.uidUnit == selectedUnit.uid) ??
         -1;
 
     // Если нашли товар в списке товаров заказа
@@ -1036,15 +1041,82 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
   }
 
   void equalPressed() {
+    double answerDouble = 0.0;
+
     String finalUserInput = userInput;
     finalUserInput = userInput.replaceAll('x', '*');
 
-    Parser p = Parser();
-    Expression exp = p.parse(finalUserInput);
+    // Пропустим эти начальные символы
+    if (finalUserInput == 'C' ||
+        finalUserInput == '+/-' ||
+        finalUserInput == '%' ||
+        finalUserInput == '/' ||
+        finalUserInput == 'x' ||
+        finalUserInput == '=' ||
+        finalUserInput == '-' ||
+        finalUserInput == '.' ||
+        finalUserInput == '*' ||
+        finalUserInput == '+') {
+      userInput = '';
+      finalUserInput = '';
+      return;
+    }
 
-    ContextModel cm = ContextModel();
-    double eval = exp.evaluate(EvaluationType.REAL, cm);
-    answer = eval.toString();
+    // Ввод пользователя перепишем результатом
+    textFieldResultController.text = userInput;
+
+    if (finalUserInput.isNotEmpty) {
+      Parser p = Parser();
+      try {
+        Expression exp = p.parse(finalUserInput);
+        ContextModel cm = ContextModel();
+        answerDouble = exp.evaluate(EvaluationType.REAL, cm);
+        answer = answerDouble.toString();
+      } catch (e) {
+        return;
+        showErrorMessage('Error: $e', context);
+        userInput = '';
+        finalUserInput = '';
+        answerDouble = 0.0;
+      }
+    } else {
+      answerDouble = 0.0;
+      answer = answerDouble.toString();
+    }
+
+    if (answerDouble < 0) {
+      answerDouble = 0.0;
+      userInput = '';
+      finalUserInput = '';
+    }
+
+    // Test
+    debugPrint(answer);
+
+    if (_nodeCount.hasFocus) {
+      textFieldCountController.text = doubleThreeToString(answerDouble);
+      textFieldCountController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldCountController.text.length,
+      );
+    }
+    if (_nodeDiscount.hasFocus) {
+      textFieldDiscountController.text = doubleToString(answerDouble);
+      textFieldDiscountController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldDiscountController.text.length,
+      );
+    }
+    if (_nodePrice.hasFocus) {
+      textFieldPriceController.text = doubleToString(answerDouble);
+      textFieldPriceController.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: textFieldPriceController.text.length,
+      );
+    }
+
+    // Рассчитаем сумму
+    calculateCount();
   }
 
   calculatorGrid() {
@@ -1070,6 +1142,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     setState(() {
                       userInput = '';
                       answer = '0';
+                      equalPressed();
                     });
                   },
                   buttonText: buttons[index],
@@ -1084,6 +1157,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                   onTap: () {
                     setState(() {
                       userInput += buttons[index];
+                      equalPressed();
                     });
                   },
                   buttonText: buttons[index],
@@ -1111,7 +1185,11 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                 return MyButton(
                   onTap: () {
                     setState(() {
+                      if (userInput.isEmpty) {
+                        return;
+                      }
                       userInput = userInput.substring(0, userInput.length - 1);
+                      equalPressed();
                     });
                   },
                   buttonText: buttons[index],
@@ -1129,8 +1207,8 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                     });
                   },
                   buttonText: buttons[index],
-                  color: Colors.red,
-                  textColor: Colors.white,
+                  color: Colors.blue[50],
+                  textColor: Colors.black,
                 );
               }
 
@@ -1138,16 +1216,29 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
               else {
                 return MyButton(
                   onTap: () {
+                    if (isOperator(buttons[index])){
+                      if(userInput.isEmpty){
+                        if (_nodeCount.hasFocus) {
+                          userInput = textFieldDiscountController.text;
+                        }
+                        if (_nodeDiscount.hasFocus) {
+                          userInput = textFieldDiscountController.text;
+                        }
+                        if (_nodePrice.hasFocus) {
+                          userInput = textFieldPriceController.text;
+                        }
+                      }
+                    }
                     setState(() {
                       userInput += buttons[index];
+                      equalPressed();
                     });
                   },
                   buttonText: buttons[index],
-                  color: isOperator(buttons[index])
-                      ? Colors.blue
-                      : Colors.white,
+                  color:
+                      isOperator(buttons[index]) ? Colors.blue[50] : Colors.white,
                   textColor:
-                  isOperator(buttons[index]) ? Colors.white : Colors.black,
+                      isOperator(buttons[index]) ? Colors.black : Colors.black,
                 );
               }
             }),
@@ -1167,9 +1258,9 @@ class MyButton extends StatelessWidget {
   //Constructor
   MyButton(
       {required this.color,
-        required this.textColor,
-        required this.buttonText,
-        required this.onTap});
+      required this.textColor,
+      required this.buttonText,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
