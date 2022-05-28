@@ -202,6 +202,7 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
                         onSelected: (Unit value) {
                           setState(() {
                             selectedUnit = value;
+                            calculateCount();
                             textFieldUnitNameController.text =
                                 selectedUnit.name +
                                     ' (к: ' +

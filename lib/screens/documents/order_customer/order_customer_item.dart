@@ -242,7 +242,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
       /// Добавим 1 сутки (по-умолчанию) или из настроек
       var countDateSending = prefs.getInt('settings_countDateSending') ?? 1;
-      if (countDateSending == 0){
+      if (countDateSending == 0) {
         countDateSending = 1;
       }
       var tempDateSending = today.add(Duration(days: countDateSending));
@@ -250,7 +250,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
       /// Добавим 7 суток (по-умолчанию) или из настроек
       var countDatePaying = prefs.getInt('settings_countDatePaying') ?? 7;
-      if (countDatePaying == 0){
+      if (countDatePaying == 0) {
         countDatePaying = 1;
       }
       var tempDatePaying = today.add(Duration(days: countDatePaying));
@@ -273,8 +273,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     double allWeight = 0.0;
     for (var item in itemsOrder) {
       Unit unitProduct = await dbReadUnitUID(item.uidUnit);
-      allWeight = allWeight +
-          unitProduct.weight * item.count * unitProduct.multiplicity;
+      allWeight = allWeight + unitProduct.weight * item.count;
     }
     textFieldWeightController.text = doubleThreeToString(allWeight);
 
@@ -1082,17 +1081,27 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                                     child:
                                         Text(doubleThreeToString(item.count))),
                                 Expanded(
-                                    flex: 1,
-                                    child: Text(item.nameUnit)),
+                                    flex: 2,
+                                    child: Text(
+                                      item.nameUnit,
+                                      textAlign: TextAlign.center,
+                                    )),
                                 Expanded(
                                     flex: 2,
-                                    child: Text(doubleToString(item.price))),
+                                    child: Text(doubleToString(item.price),
+                                        textAlign: TextAlign.center)),
                                 Expanded(
                                     flex: 2,
-                                    child: Text(doubleToString(item.discount)+' %', textAlign: TextAlign.center,)),
+                                    child: Text(
+                                      doubleToString(item.discount) + ' %',
+                                      textAlign: TextAlign.center,
+                                    )),
                                 Expanded(
                                     flex: 2,
-                                    child: Text(doubleToString(item.sum), textAlign: TextAlign.right,)),
+                                    child: Text(
+                                      doubleToString(item.sum),
+                                      textAlign: TextAlign.right,
+                                    )),
                               ],
                             ),
                           ],
@@ -1337,217 +1346,213 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
   listServiceOrder() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
-      child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-              child: TextField(
-                controller: textFieldUUIDController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'UUID',
-                ),
+      child: Column(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldUUIDController,
+            readOnly: true,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                color: Colors.blueGrey,
               ),
+              labelText: 'UUID',
             ),
+          ),
+        ),
 
-            /// Date sending to 1C
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-              child: TextField(
-                controller: textFieldDateSendingTo1CController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'Дата отправки в 1С',
-                ),
+        /// Date sending to 1C
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldDateSendingTo1CController,
+            readOnly: true,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                color: Colors.blueGrey,
               ),
+              labelText: 'Дата отправки в 1С',
             ),
+          ),
+        ),
 
-            /// Number sending to 1C
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-              child: TextField(
-                controller: textFieldNumberFrom1CController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  border: OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                    color: Colors.blueGrey,
-                  ),
-                  labelText: 'Номер документа в 1С',
-                ),
+        /// Number sending to 1C
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: TextField(
+            controller: textFieldNumberFrom1CController,
+            readOnly: true,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+              border: OutlineInputBorder(),
+              labelStyle: TextStyle(
+                color: Colors.blueGrey,
               ),
+              labelText: 'Номер документа в 1С',
             ),
+          ),
+        ),
 
-            /// Sending to 1C
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-            //   child: Row(
-            //     children: [
-            //       Checkbox(
-            //         value: sendYesTo1C,
-            //         onChanged: (value) {
-            //           setState(() {
-            //             countChangeDoc++;
-            //
-            //             /// Если нельзя отправлять в 1С, то скажем об этом
-            //             if (sendNoTo1C) {
-            //               const snackBar = SnackBar(
-            //                 content: Text(
-            //                     'Ошибка! Установлен флаг: Не отправлять в 1С!'),
-            //               );
-            //               ScaffoldMessenger.of(context).showSnackBar(snackBar);
-            //
-            //               /// Снятие флага на повторную отправку в учетную систему
-            //               sendYesTo1C = false;
-            //             } else {
-            //               /// Флаг отметки на отправку
-            //               sendYesTo1C = !sendYesTo1C;
-            //             }
-            //
-            //             if (!sendYesTo1C) {
-            //               /// Отметим статус заказа как неотправленный
-            //               widget.orderCustomer.status = 1;
-            //
-            //               /// Очистка даты отправки заказа вручную
-            //               textFieldDateSendingTo1CController.text = '';
-            //             } else {
-            //               /// Отметим статус заказа как отправленный
-            //               widget.orderCustomer.status = 2;
-            //
-            //               /// Фиксация даты отправки заказа вручную
-            //               textFieldDateSendingTo1CController.text =
-            //                   shortDateToString(DateTime.now());
-            //             }
-            //
-            //             widget.orderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
-            //           });
-            //         },
-            //       ),
-            //       const Text('Отправлено в учетную систему'),
-            //     ],
-            //   ),
-            // ),
+        /// Sending to 1C
+        // Padding(
+        //   padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+        //   child: Row(
+        //     children: [
+        //       Checkbox(
+        //         value: sendYesTo1C,
+        //         onChanged: (value) {
+        //           setState(() {
+        //             countChangeDoc++;
+        //
+        //             /// Если нельзя отправлять в 1С, то скажем об этом
+        //             if (sendNoTo1C) {
+        //               const snackBar = SnackBar(
+        //                 content: Text(
+        //                     'Ошибка! Установлен флаг: Не отправлять в 1С!'),
+        //               );
+        //               ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        //
+        //               /// Снятие флага на повторную отправку в учетную систему
+        //               sendYesTo1C = false;
+        //             } else {
+        //               /// Флаг отметки на отправку
+        //               sendYesTo1C = !sendYesTo1C;
+        //             }
+        //
+        //             if (!sendYesTo1C) {
+        //               /// Отметим статус заказа как неотправленный
+        //               widget.orderCustomer.status = 1;
+        //
+        //               /// Очистка даты отправки заказа вручную
+        //               textFieldDateSendingTo1CController.text = '';
+        //             } else {
+        //               /// Отметим статус заказа как отправленный
+        //               widget.orderCustomer.status = 2;
+        //
+        //               /// Фиксация даты отправки заказа вручную
+        //               textFieldDateSendingTo1CController.text =
+        //                   shortDateToString(DateTime.now());
+        //             }
+        //
+        //             widget.orderCustomer.sendYesTo1C = sendYesTo1C ? 1 : 0;
+        //           });
+        //         },
+        //       ),
+        //       const Text('Отправлено в учетную систему'),
+        //     ],
+        //   ),
+        // ),
 
-            /// No Sending to 1C
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: sendNoTo1C,
-                    onChanged: (value) {
-                      setState(() {
-                        countChangeDoc++;
+        /// No Sending to 1C
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 14, 0),
+          child: Row(
+            children: [
+              Checkbox(
+                value: sendNoTo1C,
+                onChanged: (value) {
+                  setState(() {
+                    countChangeDoc++;
 
-                        /// Если нельзя отправлять в 1С, то скажем об этом
-                        if (sendYesTo1C) {
-                          const snackBar = SnackBar(
-                            content: Text('Ошибка! Заказ уже отправлен в 1С!'),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          sendNoTo1C = false;
-                        } else {
-                          sendNoTo1C = !sendNoTo1C;
-                        }
+                    /// Если нельзя отправлять в 1С, то скажем об этом
+                    if (sendYesTo1C) {
+                      const snackBar = SnackBar(
+                        content: Text('Ошибка! Заказ уже отправлен в 1С!'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      sendNoTo1C = false;
+                    } else {
+                      sendNoTo1C = !sendNoTo1C;
+                    }
 
-                        widget.orderCustomer.sendNoTo1C = sendNoTo1C ? 1 : 0;
-                      });
+                    widget.orderCustomer.sendNoTo1C = sendNoTo1C ? 1 : 0;
+                  });
+                },
+              ),
+              const Text('Не отправлять в учетную систему'),
+            ],
+          ),
+        ),
+
+        /// Buttons Переотправить
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// Переотправить документ
+              SizedBox(
+                height: 50,
+                width: (MediaQuery.of(context).size.width - 28),
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.blue)),
+                    onPressed: () async {
+                      /// Отметим статус заказа как неотправленный
+                      widget.orderCustomer.status = 1;
+                      widget.orderCustomer.dateSending = DateTime(1900, 1, 1);
+                      widget.orderCustomer.dateSendingTo1C =
+                          DateTime(1900, 1, 1);
+                      widget.orderCustomer.sendYesTo1C = 0;
+                      widget.orderCustomer.sendNoTo1C = 0;
+
+                      var result = await saveDocument();
+                      if (result) {
+                        showMessage('Запись отправлена на отправку!', context);
+                        Navigator.of(context).pop(true);
+                      }
                     },
-                  ),
-                  const Text('Не отправлять в учетную систему'),
-                ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.refresh, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Отправить повторно'),
+                      ],
+                    )),
               ),
-            ),
+            ],
+          ),
+        ),
 
-            /// Buttons Переотправить
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  /// Переотправить документ
-                  SizedBox(
-                    height: 50,
-                    width: (MediaQuery.of(context).size.width - 28),
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.blue)),
-                        onPressed: () async {
-                          /// Отметим статус заказа как неотправленный
-                          widget.orderCustomer.status = 1;
-                          widget.orderCustomer.dateSending =
-                              DateTime(1900, 1, 1);
-                          widget.orderCustomer.dateSendingTo1C =
-                              DateTime(1900, 1, 1);
-                          widget.orderCustomer.sendYesTo1C = 0;
-                          widget.orderCustomer.sendNoTo1C = 0;
-
-                          var result = await saveDocument();
-                          if (result) {
-                            showMessage(
-                                'Запись отправлена на отправку!', context);
-                            Navigator.of(context).pop(true);
-                          }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.refresh, color: Colors.white),
-                            SizedBox(width: 14),
-                            Text('Отправить повторно'),
-                          ],
-                        )),
-                  ),
-                ],
+        /// Buttons Удалить
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              /// Удалить запись
+              SizedBox(
+                height: 50,
+                width: (MediaQuery.of(context).size.width - 28),
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.red)),
+                    onPressed: () async {
+                      var result = await deleteDocument();
+                      if (result) {
+                        showMessage('Запись удалена!', context);
+                        Navigator.of(context).pop(true);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.delete, color: Colors.white),
+                        SizedBox(width: 14),
+                        Text('Удалить в корзину'),
+                      ],
+                    )),
               ),
-            ),
-
-            /// Buttons Удалить
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 7, 14, 14),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  /// Удалить запись
-                  SizedBox(
-                    height: 50,
-                    width: (MediaQuery.of(context).size.width - 28),
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.red)),
-                        onPressed: () async {
-                          var result = await deleteDocument();
-                          if (result) {
-                            showMessage('Запись удалена!', context);
-                            Navigator.of(context).pop(true);
-                          }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.delete, color: Colors.white),
-                            SizedBox(width: 14),
-                            Text('Удалить в корзину'),
-                          ],
-                        )),
-                  ),
-                ],
-              ),
-            ),
-          ]),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:enough_mail/enough_mail.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ftpconnect/ftpconnect.dart';
@@ -1578,7 +1579,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                 keyboardType: TextInputType.text,
                 controller: textFieldNameUserController,
                 decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(
                     color: Colors.blueGrey,
@@ -1597,7 +1598,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                 keyboardType: TextInputType.emailAddress,
                 controller: textFieldEmailUserController,
                 decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(
                     color: Colors.blueGrey,
@@ -1624,7 +1625,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                 keyboardType: TextInputType.text,
                 controller: textFieldUIDUserController,
                 decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   border: OutlineInputBorder(),
                   labelStyle: TextStyle(
                     color: Colors.blueGrey,
@@ -1634,6 +1635,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
               ),
             ),
           ),
+
+          /// Delete account
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+            child:  deleteAccount()),
         ],
       ),
     );
@@ -1937,4 +1943,60 @@ class _ScreenSettingsState extends State<ScreenSettings> {
       ),
     );
   }
+
+  deleteAccount() async {
+    // Попробуем удалить документы из корзины
+    await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: const Text('Удалить данные аккаунта?'),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                      onPressed: () async {
+                        // firebase
+                        final _auth = FirebaseAuth.instance;
+
+                        try {
+                          var user = _auth.currentUser;
+                          await user?.delete();
+
+                          showMessage('Аккаунт удален!', context);
+                          Navigator.of(context).pop(true);
+
+                          // ОТправим на страницу авторизации
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                  const ScreenLogin()),
+                                  (Route<dynamic> route) => false);
+                        } catch (e) {
+                          showErrorMessage(e.toString(), context);
+                          Navigator.of(context).pop(true);
+                          return;
+                        }
+                      },
+                      child: const SizedBox(
+                          width: 60, child: Center(child: Text('Да')))),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                          MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const SizedBox(
+                        width: 60,
+                        child: Center(child: Text('Нет')),
+                      )),
+                ],
+              ),
+            ],
+          );
+        });
+  }
+
 }
