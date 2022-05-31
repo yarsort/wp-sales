@@ -33,6 +33,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
 
   /// Позиции товаров в заказе
   List<ItemOrderCustomer> itemsOrder = [];
+  double allWeight = 0.0;
 
   /// Позиции товаров в заказе
   List<dynamic> listDocsByParent = [];
@@ -283,7 +284,7 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
     textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
 
-    double allWeight = 0.0;
+    allWeight = 0.0;
     for (var item in itemsOrder) {
       Unit unitProduct = await dbReadUnitUID(item.uidUnit);
       allWeight = allWeight + unitProduct.weight * item.count;
@@ -394,6 +395,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
       }
       firstOpen = false;
     }
+
+    allWeight = 0.0;
+    for (var item in itemsOrder) {
+      Unit unitProduct = await dbReadUnitUID(item.uidUnit);
+      allWeight = allWeight + unitProduct.weight * item.count;
+    }
+    textFieldWeightController.text = doubleThreeToString(allWeight);
 
     // Количество документов в списке
     countItems = itemsOrder.length;
