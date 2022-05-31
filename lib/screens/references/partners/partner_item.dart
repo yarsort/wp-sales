@@ -436,20 +436,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             return ContractItem(contractItem: contractItem);
           }),
     );
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(9, 0, 9, 14),
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        itemCount: listContracts.length,
-        itemBuilder: (context, index) {
-          var contractItem = listContracts[index];
-          return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: ContractItem(contractItem: contractItem));
-        },
-      ),
-    );
   }
 
   listService() {
@@ -575,13 +561,15 @@ class _ContractItemState extends State<ContractItem> {
                   flex: 4,
                   child: Column(
                     children: [
-                      const SizedBox(height: 5),
                       Row(
                         children: [
                           const Icon(Icons.phone,
                               color: Colors.blue, size: 20),
                           const SizedBox(width: 5),
-                          Text(widget.contractItem.phone),
+                          Flexible(
+                              child: widget.contractItem.phone != ''
+                                  ? Text(widget.contractItem.phone)
+                                  : const Text('Нет данных')),
                         ],
                       ),
                       const SizedBox(height: 5),
@@ -591,7 +579,9 @@ class _ContractItemState extends State<ContractItem> {
                               color: Colors.blue, size: 20),
                           const SizedBox(width: 5),
                           Flexible(
-                              child: Text(widget.contractItem.address)),
+                              child: widget.contractItem.address != ''
+                                  ? Text(widget.contractItem.address)
+                                  : const Text('Нет данных')),
                         ],
                       )
                     ],
@@ -617,16 +607,6 @@ class _ContractItemState extends State<ContractItem> {
                               color: Colors.red, size: 20),
                           const SizedBox(width: 5),
                           Text(doubleToString(balanceForPayment)),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          const Icon(Icons.schedule,
-                              color: Colors.blue, size: 20),
-                          const SizedBox(width: 5),
-                          Text(widget.contractItem.schedulePayment
-                              .toString()),
                         ],
                       ),
                     ],

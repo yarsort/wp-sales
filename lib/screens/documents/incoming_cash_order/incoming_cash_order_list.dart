@@ -1587,7 +1587,7 @@ class _ScreenIncomingCashOrderListState
         itemBuilder: (context, index) {
           final incomingCashOrder = listNewIncomingCashOrder[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
@@ -1606,6 +1606,16 @@ class _ScreenIncomingCashOrderListState
                 subtitle: Column(
                   children: [
                     const Divider(),
+                    Row(
+                      children: [
+                        const Icon(Icons.date_range,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(
+                            child: Text(fullDateToString(incomingCashOrder.date))),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     Row(
                       children: [
                         const Icon(Icons.fact_check,
@@ -1681,7 +1691,7 @@ class _ScreenIncomingCashOrderListState
         itemBuilder: (context, index) {
           final incomingCashOrder = listSendIncomingCashOrder[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
@@ -1702,6 +1712,16 @@ class _ScreenIncomingCashOrderListState
                 subtitle: Column(
                   children: [
                     const Divider(),
+                    Row(
+                      children: [
+                        const Icon(Icons.date_range,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(
+                            child: Text(fullDateToString(incomingCashOrder.date))),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
@@ -1745,7 +1765,7 @@ class _ScreenIncomingCashOrderListState
                             ],
                           ))
                     ]),
-                    const SizedBox(height: 5),
+                    const Divider(),
                     Row(children: [
                       Expanded(
                           flex: 3,
@@ -1812,7 +1832,7 @@ class _ScreenIncomingCashOrderListState
         itemBuilder: (context, index) {
           final incomingCashOrder = listTrashIncomingCashOrder[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
@@ -1831,6 +1851,16 @@ class _ScreenIncomingCashOrderListState
                 subtitle: Column(
                   children: [
                     const Divider(),
+                    Row(
+                      children: [
+                        const Icon(Icons.date_range,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(
+                            child: Text(fullDateToString(incomingCashOrder.date))),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     Row(
                       children: [
                         const Icon(Icons.recent_actors,

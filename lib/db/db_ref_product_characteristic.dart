@@ -30,6 +30,10 @@ class ItemProductCharacteristicFields {
 
 /// Создание таблиц БД
 Future createTableProductCharacteristic(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableProductCharacteristic");
+
   await db.execute('''
     CREATE TABLE $tableProductCharacteristic (    
       ${ItemProductCharacteristicFields.id} $idType,     

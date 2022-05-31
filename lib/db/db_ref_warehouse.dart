@@ -36,6 +36,10 @@ class ItemWarehouseFields {
 
 /// Создание таблиц БД
 Future createTableWarehouse(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableWarehouse");
+
   await db.execute('''
     CREATE TABLE $tableWarehouse (    
       ${ItemWarehouseFields.id} $idType,

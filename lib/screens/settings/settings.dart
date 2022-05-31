@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/import/import_screens.dart';
@@ -1637,9 +1639,27 @@ class _ScreenSettingsState extends State<ScreenSettings> {
           ),
 
           /// Delete account
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child:  deleteAccount()),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+          //   child:  ElevatedButton(
+          //       style: ButtonStyle(
+          //           backgroundColor:
+          //           MaterialStateProperty.all(Colors.grey)),
+          //       onPressed: () async {
+          //         var res = await deleteAccount();
+          //         if (res){
+          //           // Отправим на страницу авторизации
+          //           Navigator.of(context).pushAndRemoveUntil(
+          //               MaterialPageRoute(
+          //                   builder: (context) =>
+          //                   const ScreenLogin()),
+          //                   (Route<dynamic> route) => false);
+          //         }
+          //       },
+          //       child: SizedBox(
+          //           height: 40,
+          //           width: MediaQuery.of(context).size.width - 28,
+          //           child: const Center(child: Text('Удалить аккаунт пользователя')))),),
         ],
       ),
     );
@@ -1946,11 +1966,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
   deleteAccount() async {
     // Попробуем удалить документы из корзины
-    await showDialog<bool>(
+    final value = await showDialog<bool>(
         context: context,
         builder: (context) {
           return AlertDialog(
-            content: const Text('Удалить данные аккаунта?'),
+            content: const Text('Удалить аккаунта пользователя и выйти из приложения?'),
             actions: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1964,19 +1984,23 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                           var user = _auth.currentUser;
                           await user?.delete();
 
+                          final db = await instance.database;
+                          if (db.isOpen) {
+                            await db.close();
+                          }
+
+                          // Удалим БД
+                          var databasesPath = await getDatabasesPath();
+                          var path = databasesPath + instance.nameDB;
+                          await deleteDatabase(path);
+
                           showMessage('Аккаунт удален!', context);
+
                           Navigator.of(context).pop(true);
 
-                          // ОТправим на страницу авторизации
-                          Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                  const ScreenLogin()),
-                                  (Route<dynamic> route) => false);
                         } catch (e) {
                           showErrorMessage(e.toString(), context);
                           Navigator.of(context).pop(true);
-                          return;
                         }
                       },
                       child: const SizedBox(
@@ -1986,7 +2010,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                           backgroundColor:
                           MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
-                        Navigator.of(context).pop(true);
+                        Navigator.of(context).pop(false);
                       },
                       child: const SizedBox(
                         width: 60,
@@ -1997,6 +2021,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             ],
           );
         });
+    return value == true;
   }
 
 }

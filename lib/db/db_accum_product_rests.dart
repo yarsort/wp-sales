@@ -29,6 +29,10 @@ class ItemAccumProductRestsFields {
 
 /// Создание таблиц БД
 Future createTableAccumProductRests(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableAccumProductRests");
+
   await db.execute('''
     CREATE TABLE $tableAccumProductRests (    
       ${ItemAccumProductRestsFields.id} $idType,

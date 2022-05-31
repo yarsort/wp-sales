@@ -106,6 +106,9 @@ class ItemOrderCustomerFields {
 /// Создание таблиц БД
 Future createTableOrderCustomer(db) async {
 
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableOrderCustomer");
+
   /// Документ.ЗаказПокупателя
   await db.execute('''
     CREATE TABLE $tableOrderCustomer (    
@@ -422,4 +425,15 @@ Future<double> dbGetSumTrashOrderCustomer() async {
     sum = sum + item.sum;
   }
   return sum;
+}
+
+Future<List<OrderCustomer>> dbReadAllSendOrderCustomerWithoutNumbers() async {
+  final db = await instance.database;
+  String orderBy = '${OrderCustomerFields.date} DESC';
+  final result = await db.query(tableOrderCustomer,
+      where: '${OrderCustomerFields.status} = ? AND ${OrderCustomerFields.numberFrom1C} = ?',
+      whereArgs: [2, ''],
+      orderBy: orderBy);
+
+  return result.map((json) => OrderCustomer.fromJson(json)).toList();
 }

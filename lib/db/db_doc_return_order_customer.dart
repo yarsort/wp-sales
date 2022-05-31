@@ -107,6 +107,9 @@ class ItemReturnOrderCustomerFields {
 /// Создание таблиц БД
 Future createTableReturnOrderCustomer(db) async {
 
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableReturnOrderCustomer");
+
   /// Документ.ВозвратТоваровОтПокупателя
   await db.execute('''
     CREATE TABLE $tableReturnOrderCustomer (    
@@ -371,4 +374,16 @@ Future<int> dbGetCountTrashReturnOrderCustomer() async {
   final result = await db.query(tableReturnOrderCustomer,
       where: '${ReturnOrderCustomerFields.status} = ?', whereArgs: [3]);
   return result.map((json) => ReturnOrderCustomer.fromJson(json)).toList().length;
+}
+
+Future<List<ReturnOrderCustomer>> dbReadAllSendReturnOrderCustomerWithoutNumbers() async {
+  final db = await instance.database;
+  String orderBy = '${ReturnOrderCustomerFields.date} DESC';
+  final result = await db.query(
+      tableReturnOrderCustomer,
+      where: '${ReturnOrderCustomerFields.status} = ? AND ${ReturnOrderCustomerFields.numberFrom1C} = ?',
+      whereArgs: [2, ''],
+      orderBy: orderBy);
+
+  return result.map((json) => ReturnOrderCustomer.fromJson(json)).toList();
 }

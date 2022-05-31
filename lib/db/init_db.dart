@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wp_sales/import/import_db.dart';
@@ -17,7 +16,13 @@ class DatabaseHelper {
   static final DatabaseHelper db = DatabaseHelper._();
   static Database? _database;
 
+  String nameBD = 'WPSalesDB_0002.db';
+
   DatabaseHelper._init();
+
+  get nameDB {
+    return nameBD;
+  }
 
   Future<Database> get database async {
     // if (_database != null) {
@@ -33,7 +38,7 @@ class DatabaseHelper {
     if (_database != null) {
       return _database!;
     }
-    _database = await _initDB('WPSalesDB_0002.db');
+    _database = await _initDB(nameBD);
     return _database!;
   }
 

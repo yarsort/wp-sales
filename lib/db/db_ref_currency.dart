@@ -36,6 +36,10 @@ class ItemCurrencyFields {
 
 /// Создание таблиц БД
 Future createTableCurrency(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableCurrency");
+
   await db.execute('''
     CREATE TABLE $tableCurrency (    
       ${ItemCurrencyFields.id} $idType,

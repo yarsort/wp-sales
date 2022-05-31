@@ -64,6 +64,10 @@ class ItemContractFields {
 
 /// Создание таблиц БД
 Future createTableContract(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableContract");
+
   await db.execute('''
     CREATE TABLE $tableContract (
       ${ItemContractFields.id} $idType,

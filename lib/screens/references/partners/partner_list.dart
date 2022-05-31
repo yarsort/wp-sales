@@ -365,7 +365,10 @@ class PartnerItem extends StatelessWidget {
                       children: [
                         const Icon(Icons.phone, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Text(partner.phone),
+                        Flexible(
+                            child: partner.phone != ''
+                                ? Text(partner.phone)
+                                : const Text('Нет данных')),
                       ],
                     ),
                     const SizedBox(height: 5),
@@ -373,7 +376,10 @@ class PartnerItem extends StatelessWidget {
                       children: [
                         const Icon(Icons.home, color: Colors.blue, size: 20),
                         const SizedBox(width: 5),
-                        Flexible(child: Text(partner.address)),
+                        Flexible(
+                            child: partner.address != ''
+                                ? Text(partner.address)
+                                : const Text('Нет данных')),
                       ],
                     )
                   ],

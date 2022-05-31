@@ -35,6 +35,10 @@ class ItemOrganizationFields {
 
 /// Создание таблиц БД
 Future createTableOrganization(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableOrganization");
+
   await db.execute('''
     CREATE TABLE $tableOrganization (    
       ${ItemOrganizationFields.id} $idType,

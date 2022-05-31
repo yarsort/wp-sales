@@ -42,6 +42,10 @@ class ItemAccumPartnerDeptFields {
 
 /// Создание таблиц БД
 Future createTableAccumPartnerDebts(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableAccumPartnerDebts");
+
   await db.execute('''
     CREATE TABLE $tableAccumPartnerDebts (    
       ${ItemAccumPartnerDeptFields.id} $idType,

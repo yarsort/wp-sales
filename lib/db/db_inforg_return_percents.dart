@@ -23,6 +23,10 @@ class ItemInfoRgReturnPercentsFields {
 
 /// Создание таблиц БД
 Future createTableInfoRgReturnPercents(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableInfoRgReturnPercents");
+
   await db.execute('''
     CREATE TABLE $tableInfoRgReturnPercents (    
       ${ItemInfoRgReturnPercentsFields.id} $idType,            

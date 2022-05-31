@@ -1587,7 +1587,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
         itemBuilder: (context, index) {
           final orderCustomer = listNewOrdersCustomer[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
@@ -1606,6 +1606,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 subtitle: Column(
                   children: [
                     const Divider(),
+                    Row(
+                      children: [
+                        const Icon(Icons.date_range,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(
+                            child: Text(fullDateToString(orderCustomer.date))),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
@@ -1626,7 +1636,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
+                                  Text(shortDateToString(orderCustomer.dateSending)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -1636,7 +1646,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(shortDateToString(
-                                      orderCustomer.dateSending)),
+                                      orderCustomer.datePaying)),
                                 ],
                               )
                             ],
@@ -1690,7 +1700,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
         itemBuilder: (context, index) {
           final orderCustomer = listSendOrdersCustomer[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
@@ -1712,6 +1722,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   children: [
                     const Divider(),
                     Row(
+                      children: [
+                        const Icon(Icons.date_range,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(
+                            child: Text(fullDateToString(orderCustomer.date))),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         const Icon(Icons.domain, color: Colors.blue, size: 20),
@@ -1731,7 +1751,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   const Icon(Icons.access_time,
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.date)),
+                                  Text(shortDateToString(orderCustomer.dateSending)),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -1741,7 +1761,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                       color: Colors.blue, size: 20),
                                   const SizedBox(width: 5),
                                   Text(shortDateToString(
-                                      orderCustomer.dateSending)),
+                                      orderCustomer.datePaying)),
                                 ],
                               ),
                             ],
@@ -1772,7 +1792,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             ],
                           ))
                     ]),
-                    const SizedBox(height: 5),
+                    const Divider(),
                     Row(children: [
                       Expanded(
                           flex: 3,
@@ -1833,7 +1853,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
         itemBuilder: (context, index) {
           final orderCustomer = listTrashOrdersCustomer[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
               child: ListTile(
@@ -1852,6 +1872,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                 subtitle: Column(
                   children: [
                     const Divider(),
+                    Row(
+                      children: [
+                        const Icon(Icons.date_range,
+                            color: Colors.blue, size: 20),
+                        const SizedBox(width: 5),
+                        Flexible(
+                            child: Text(fullDateToString(orderCustomer.date))),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [

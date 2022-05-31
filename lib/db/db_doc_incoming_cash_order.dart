@@ -69,6 +69,9 @@ class IncomingCashOrderFields {
 /// Создание таблиц БД
 Future createTableIncomingCashOrder(db) async {
 
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableIncomingCashOrder");
+
   /// Документ.ПриходныйКассовыйОрдер
   await db.execute('''
     CREATE TABLE $tableIncomingCashOrder (    
@@ -246,4 +249,15 @@ Future<int> dbGetCountTrashIncomingCashOrder() async {
   final result = await db.query(tableIncomingCashOrder,
       where: '${IncomingCashOrderFields.status} = ?', whereArgs: [3]);
   return result.map((json) => IncomingCashOrder.fromJson(json)).toList().length;
+}
+
+Future<List<IncomingCashOrder>> dbReadAllSendIncomingCashOrderWithoutNumbers() async {
+  final db = await instance.database;
+  String orderBy = '${IncomingCashOrderFields.date} DESC';
+  final result = await db.query(tableIncomingCashOrder,
+      where: '${IncomingCashOrderFields.status} = ? AND ${IncomingCashOrderFields.numberFrom1C} = ?',
+      whereArgs: [2, ''],
+      orderBy: orderBy);
+
+  return result.map((json) => IncomingCashOrder.fromJson(json)).toList();
 }

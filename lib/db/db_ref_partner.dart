@@ -44,6 +44,10 @@ class ItemPartnerFields {
 }
 
 Future createTablePartner(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tablePartner");
+
   await db.execute('''
     CREATE TABLE $tablePartner (    
       ${ItemPartnerFields.id} $idType,

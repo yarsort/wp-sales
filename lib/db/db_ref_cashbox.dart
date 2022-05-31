@@ -33,6 +33,10 @@ class ItemCashboxFields {
 
 /// Создание таблиц БД
 Future createTableCashbox(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableCashbox");
+
   await db.execute('''
     CREATE TABLE $tableCashbox (    
       ${ItemCashboxFields.id} $idType,

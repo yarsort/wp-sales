@@ -40,6 +40,10 @@ class ItemStoreFields {
 
 /// Создание таблиц БД
 Future createTableStore(db) async {
+
+  // Удалим если она существовала до этого
+  await db.execute("DROP TABLE IF EXISTS $tableStore");
+
   await db.execute('''
     CREATE TABLE $tableStore (    
       ${ItemStoreFields.id} $idType,

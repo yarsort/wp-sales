@@ -29,6 +29,11 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   List<String> listLogs = [];
 
+  // Список отправленных доументов
+  List<OrderCustomer> listSendOrderCustomer = [];
+  List<ReturnOrderCustomer> listSendReturnOrderCustomer = [];
+  List<IncomingCashOrder> listSendIncomingCashOrder = [];
+
   @override
   void initState() {
     super.initState();
@@ -1188,26 +1193,23 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     /// Установим статус отправлено у записей
     if (resultSending) {
-      // Заказ покупателя
-      List<OrderCustomer> listDocsOrderCustomer =
-      await dbReadAllNewOrderCustomer();
-      for (var itemDoc in listDocsOrderCustomer) {
+
+      /// Заказ покупателя
+      for (var itemDoc in listSendOrderCustomer) {
         itemDoc.status = 2;
         itemDoc.dateSendingTo1C = DateTime.now();
         await dbUpdateOrderCustomerWithoutItems(itemDoc);
       }
-      // Возврат заказа покупателя
-      List<ReturnOrderCustomer> listDocsReturnOrderCustomer =
-      await dbReadAllNewReturnOrderCustomer();
-      for (var itemDoc in listDocsReturnOrderCustomer) {
+
+      /// Возврат заказа покупателя
+      for (var itemDoc in listSendReturnOrderCustomer) {
         itemDoc.status = 2;
         itemDoc.dateSendingTo1C = DateTime.now();
         await dbUpdateReturnOrderCustomerWithoutItems(itemDoc);
       }
-      // Приходный кассовый ордер
-      List<IncomingCashOrder> listDocsIncomingCashOrder =
-      await dbReadAllNewIncomingCashOrder();
-      for (var itemDoc in listDocsIncomingCashOrder) {
+
+      /// Приходный кассовый ордер
+      for (var itemDoc in listSendIncomingCashOrder) {
         itemDoc.status = 2;
         itemDoc.dateSendingTo1C = DateTime.now();
         await dbUpdateIncomingCashOrder(itemDoc);
@@ -1512,8 +1514,12 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
   Future<List> createListDocsOrderCustomer(List<dynamic> numberDocs,
       int countOrderCustomer) async {
+
+    listSendOrderCustomer.clear();
+
     // Получим данные для выгрузки
     List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
+    List<OrderCustomer> listSendDocs = await dbReadAllSendOrderCustomerWithoutNumbers();
 
     // Каждый документ выгрузим в JSON
     List dataList = [];
@@ -1560,16 +1566,39 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Добавим документ в список
       dataList.add(data);
 
+      // Добавим для того. что бы после отправки проставить статус: Отправлено
+      listSendOrderCustomer.add(itemDoc);
+
       countOrderCustomer++;
     }
+
+    // Перезапросим номера у всех отправленных документов без номера из системы
+    for (var itemDoc in listSendDocs){
+      // Если этот документ уже отправлялся выше по коду, то пропустим
+      if (listDocs.contains(itemDoc)) {
+        continue;
+      }
+
+      // Добавим номер (UID) документа
+      var dataNumber = {};
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'orderCustomer';
+      numberDocs.add(dataNumber);
+    }
+
     return dataList;
   }
 
   Future<List> createListDocsReturnOrderCustomer(List<dynamic> numberDocs,
       int countReturnOrderCustomer) async {
+
+    listSendReturnOrderCustomer.clear();
+
     // Получим данные для выгрузки
     List<ReturnOrderCustomer> listDocs =
     await dbReadAllNewReturnOrderCustomer();
+    List<ReturnOrderCustomer> listSendDocs =
+    await dbReadAllSendReturnOrderCustomerWithoutNumbers();
 
     // Каждый документ выгрузим в JSON
     List dataList = [];
@@ -1616,15 +1645,38 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Добавим документ в список
       dataList.add(data);
 
+      // Добавим для того. что бы после отправки проставить статус: Отправлено
+      listSendReturnOrderCustomer.add(itemDoc);
+
       countReturnOrderCustomer++;
     }
+
+    // Перезапросим номера у всех отправленных документов без номера из системы
+    for (var itemDoc in listSendDocs){
+      // Если этот документ уже отправлялся выше по коду, то пропустим
+      if (listDocs.contains(itemDoc)) {
+        continue;
+      }
+
+      // Добавим номер (UID) документа
+      var dataNumber = {};
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'returnOrderCustomer';
+      numberDocs.add(dataNumber);
+    }
+
     return dataList;
   }
 
   Future<List> createListDocsIncomingCashOrder(List<dynamic> numberDocs,
       int countIncomingCashOrder) async {
+
+    listSendIncomingCashOrder.clear();
+
     // Получим данные для выгрузки
     List<IncomingCashOrder> listDocs = await dbReadAllNewIncomingCashOrder();
+
+    List<IncomingCashOrder> listSendDocs = await dbReadAllSendIncomingCashOrderWithoutNumbers();
 
     // Каждый документ выгрузим в JSON
     List dataList = [];
@@ -1656,8 +1708,26 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       // Добавим документ в список
       dataList.add(data);
 
+      // Добавим для того. что бы после отправки проставить статус: Отправлено
+      listSendIncomingCashOrder.add(itemDoc);
+
       countIncomingCashOrder++;
     }
+
+    // Перезапросим номера у всех отправленных документов без номера из системы
+    for (var itemDoc in listSendDocs){
+      // Если этот документ уже отправлялся выше по коду, то пропустим
+      if (listDocs.contains(itemDoc)) {
+        continue;
+      }
+
+      // Добавим номер (UID) документа
+      var dataNumber = {};
+      dataNumber['uid'] = itemDoc.uid;
+      dataNumber['typeDoc'] = 'incomingCashOrder';
+      numberDocs.add(dataNumber);
+    }
+
     return dataList;
   }
 }

@@ -777,14 +777,14 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
   /// Вкладка Заказы
 
   listOrderCustomer() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ColumnListViewBuilder(
-          itemCount: listAccumPartnerDept.length,
-          itemBuilder: (context, index) {
-            final itemDept = listAccumPartnerDept[index];
-            return Card(
-              elevation: 2,
+    return ColumnListViewBuilder(
+        itemCount: listAccumPartnerDept.length,
+        itemBuilder: (context, index) {
+          final itemDept = listAccumPartnerDept[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
+            child: Card(
+              elevation: 3,
               child: PopupMenuButton<String>(
                 onSelected: (String value) async {
                   // Создадим подчиненный документ возврата заказа
@@ -911,14 +911,14 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                       : Text(itemDept.nameSettlementDocument + ' №' +itemDept.numberDoc),
                   subtitle: Column(
                     children: [
-                      const SizedBox(height: 10),
+                      const Divider(),
                       Row(
                         children: [
-                          const Icon(Icons.person,
+                          const Icon(Icons.date_range,
                               color: Colors.blue, size: 20),
                           const SizedBox(width: 5),
                           Flexible(
-                              child: Text(widget.contractItem.namePartner)),
+                              child: Text(fullDateToString(itemDept.dateDoc))),
                         ],
                       ),
                       const SizedBox(height: 5),
@@ -929,15 +929,15 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                           Flexible(
                               child: widget.contractItem.address != ''
                                   ? Text(widget.contractItem.address)
-                                  : const Text('Адрес не указан')),
+                                  : const Text('Нет данных')),
                         ],
                       ),
+                      const SizedBox(height: 5),
                       Row(children: [
                         Expanded(
                           flex: 4,
                           child: Column(
                             children: [
-                              const SizedBox(height: 15),
                               Row(
                                 children: [
                                   const Icon(Icons.phone,
@@ -946,7 +946,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                                   Flexible(
                                       child: widget.contractItem.phone != ''
                                           ? Text(widget.contractItem.phone)
-                                          : const Text('Телефон не указан')),
+                                          : const Text('Нет данных')),
                                 ],
                               ),
                               const SizedBox(height: 5),
@@ -967,7 +967,6 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                           flex: 2,
                           child: Column(
                             children: [
-                              const SizedBox(height: 15),
                               Row(
                                 children: [
                                   const Icon(Icons.price_change,
@@ -994,9 +993,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                   ),
                 ),
               ),
-            );
-          }),
-    );
+            ),
+          );
+        });
   }
 
   /// Вкладка Служебные
