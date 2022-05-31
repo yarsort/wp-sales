@@ -131,16 +131,29 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                           },
                           child: const SizedBox(
                               width: 60, child: Center(child: Text('Да')))),
+                      const SizedBox(width: 10,),
                       ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
+                                  MaterialStateProperty.all(Colors.blue)),
                           onPressed: () async {
                             Navigator.of(context).pop(true);
                           },
                           child: const SizedBox(
                             width: 60,
                             child: Center(child: Text('Нет')),
+                          )),
+                      const SizedBox(width: 10,),
+                      ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                              MaterialStateProperty.all(Colors.red)),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                          },
+                          child: const SizedBox(
+                            width: 60,
+                            child: Center(child: Text('Отмена')),
                           )),
                     ],
                   ),
