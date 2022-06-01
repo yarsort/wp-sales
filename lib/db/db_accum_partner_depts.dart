@@ -42,7 +42,6 @@ class ItemAccumPartnerDeptFields {
 
 /// Создание таблиц БД
 Future createTableAccumPartnerDebts(db) async {
-
   // Удалим если она существовала до этого
   await db.execute("DROP TABLE IF EXISTS $tableAccumPartnerDebts");
 
@@ -137,7 +136,7 @@ Future<Map> dbReadSumAccumPartnerDeptByContractDoc({
   );
 
   List<AccumPartnerDept> listAccumPartnerDept =
-  result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -168,8 +167,29 @@ Future<Map> dbReadSumAccumPartnerDeptByContract(
     whereArgs: [uidContract],
   );
 
-  List<AccumPartnerDept> listAccumPartnerDept =
-  result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+  List<AccumPartnerDept> tempListAccumPartnerDept =
+      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+
+  List<AccumPartnerDept> listAccumPartnerDept = [];
+
+  // Свернем долги по договору
+  for (var itemDebts in tempListAccumPartnerDept) {
+    // Ищем контракт в списке и увеличиваем баланс по каждому из них
+    var indexItem = listAccumPartnerDept
+        .indexWhere((element) => element.numberDoc == itemDebts.numberDoc);
+
+    // Если нашли долг в списке отобранных, иначе добавим новую апись в список
+    if (indexItem >= 0) {
+      var itemList = listAccumPartnerDept[indexItem];
+      itemList.balance = itemList.balance + itemDebts.balance;
+      itemList.balanceForPayment =
+          itemList.balanceForPayment + itemDebts.balanceForPayment;
+    } else {
+      listAccumPartnerDept.add(itemDebts);
+    }
+  }
+
+  listAccumPartnerDept.removeWhere((item) => item.balance == 0);
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -195,7 +215,49 @@ Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDept() async {
   return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 }
 
-Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptByUIDPartners(listPartnersUID) async {
+Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptByUIDPartners(
+    listPartnersUID) async {
+  final db = await instance.database;
+  final result = await db.rawQuery("SELECT "
+      "${ItemAccumPartnerDeptFields.uidPartner}, "
+      "${ItemAccumPartnerDeptFields.uidContract}, "
+      "${ItemAccumPartnerDeptFields.numberDoc}, "
+      "${ItemAccumPartnerDeptFields.balance}, "
+      "${ItemAccumPartnerDeptFields.balanceForPayment} "
+      "FROM $tableAccumPartnerDebts "
+      "WHERE ("
+      "${ItemAccumPartnerDeptFields.uidPartner} IN (${listPartnersUID.map((e) => "'$e'").join(', ')}))");
+  
+  List<AccumPartnerDept> tempListAccumPartnerDept =
+      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+
+  List<AccumPartnerDept> listAccumPartnerDept = [];
+
+  // Свернем долги по партнеру
+  for (var itemDebts in tempListAccumPartnerDept) {
+    // Ищем контракт в списке и увеличиваем баланс по каждому из них
+    var indexItem = listAccumPartnerDept.indexWhere((element) =>
+        element.uidPartner == itemDebts.uidPartner
+        );
+
+    // Если нашли долг в списке отобранных, иначе добавим новую апись в список
+    if (indexItem >= 0) {
+      var itemList = listAccumPartnerDept[indexItem];
+      itemList.balance = itemList.balance + itemDebts.balance;
+      itemList.balanceForPayment =
+          itemList.balanceForPayment + itemDebts.balanceForPayment;
+    } else {
+      listAccumPartnerDept.add(itemDebts);
+    }
+  }
+
+  listAccumPartnerDept.removeWhere((item) => item.balance == 0);
+
+  return listAccumPartnerDept;
+}
+
+Future<List<AccumPartnerDept>> dbReadAllAccumPartnerDeptByUIDPartnersOld(
+    listPartnersUID) async {
   final db = await instance.database;
   final result = await db.rawQuery("SELECT "
       "${ItemAccumPartnerDeptFields.uidPartner}, "
@@ -241,7 +303,7 @@ Future<Map> dbReadAllAccumDeptsSums() async {
       "         ${ItemAccumPartnerDeptFields.balance} DESC;");
 
   List<AccumPartnerDept> listAccumPartnerDept =
-  result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+      result.map((json) => AccumPartnerDept.fromJson(json)).toList();
 
   // Сумируем все записи по отбору, потому что могут быть сторно у документов
   double balance = 0.0;
@@ -288,14 +350,23 @@ Future<bool> dbCreateAccumPartnerDeptsByRegistrar(
           incomingCashOrder.status != 3 &&
           incomingCashOrder.status != 0 &&
           incomingCashOrder.sum > 0) {
+        var posSymbolNumber = incomingCashOrder.nameParent.indexOf('№');
+        var nameDoc = incomingCashOrder.nameParent
+            .substring(0, posSymbolNumber - 1)
+            .trim();
+        var numberDoc = incomingCashOrder.nameParent
+            .substring(posSymbolNumber + 1, incomingCashOrder.nameParent.length)
+            .trim();
+
         AccumPartnerDept accumDeptPartner = AccumPartnerDept()
           ..idRegistrar = incomingCashOrder.id
           ..uidOrganization = incomingCashOrder.uidOrganization
           ..uidPartner = incomingCashOrder.uidPartner
           ..uidContract = incomingCashOrder.uidContract
           ..uidDoc = incomingCashOrder.uidParent
-          ..nameDoc = incomingCashOrder.nameParent
-          ..balanceForPayment = -incomingCashOrder.sum // Сторно
+          ..nameDoc = nameDoc
+          ..numberDoc = numberDoc
+          ..balanceForPayment = 0.0 // Сторно
           ..balance = -incomingCashOrder.sum; // Сторно
 
         await txn.insert(tableAccumPartnerDebts, accumDeptPartner.toJson());

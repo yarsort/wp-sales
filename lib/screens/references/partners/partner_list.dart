@@ -391,21 +391,20 @@ class PartnerItem extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.price_change,
-                            color: Colors.green, size: 20),
+                        const Text(''),
                         const SizedBox(width: 5),
-                        Text(doubleToString(balance)),
                       ],
                     ),
                     const SizedBox(height: 5),
                     Row(
                       children: [
                         const Icon(Icons.price_change,
-                            color: Colors.red, size: 20),
+                            color: Colors.green, size: 20),
                         const SizedBox(width: 5),
-                        Text(doubleToString(balanceForPayment)),
+                        Text(doubleToString(balance)),
                       ],
                     ),
+
                   ],
                 ),
               ),

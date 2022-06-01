@@ -225,6 +225,9 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
       }
     }
 
+    // Удалим балансы с нулевым остатком, после оплат через ПКО
+    listAccumPartnerDept.removeWhere((item) => item.balance == 0);
+
     // Получить баланс заказа
     Map debts = await dbReadSumAccumPartnerDeptByContract(
         uidContract: widget.contractItem.uid);

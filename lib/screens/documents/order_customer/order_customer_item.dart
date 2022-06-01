@@ -120,10 +120,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                 content: const Text('Сохранить документ?'),
                 actions: <Widget>[
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: (MediaQuery.of(context).size.width-110) / 2,
+                        width: (MediaQuery.of(context).size.width-120) / 2,
                         child: ElevatedButton(
                             onPressed: () async {
                               var result = await saveDocument();
@@ -137,11 +137,11 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                       ),
                       const SizedBox(width: 10,),
                       SizedBox(
-                        width: (MediaQuery.of(context).size.width-110) / 2,
+                        width: (MediaQuery.of(context).size.width-120) / 2,
                         child: ElevatedButton(
                             style: ButtonStyle(
                                 backgroundColor:
-                                    MaterialStateProperty.all(Colors.blue)),
+                                MaterialStateProperty.all(Colors.blue)),
                             onPressed: () async {
                               Navigator.of(context).pop(true);
                             },
@@ -154,10 +154,10 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                   ),
                   //const SizedBox(height: 5,),
                   Row(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: (MediaQuery.of(context).size.width-96),
+                        width: (MediaQuery.of(context).size.width-110),
                         child: ElevatedButton(
                             style: ButtonStyle(
                                 backgroundColor:
