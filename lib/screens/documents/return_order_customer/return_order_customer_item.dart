@@ -111,7 +111,6 @@ class _ScreenItemReturnOrderCustomerState
           return true;
         }
 
-        // Попробуем записать документ
         final value = await showDialog<bool>(
             context: context,
             builder: (context) {
@@ -119,42 +118,56 @@ class _ScreenItemReturnOrderCustomerState
                 content: const Text('Сохранить документ?'),
                 actions: <Widget>[
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            var result = await saveDocument();
-                            if (result) {
-                              showMessage('Запись сохранена!', context);
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width-110) / 2,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              var result = await saveDocument();
+                              if (result) {
+                                showMessage('Запись сохранена!', context);
+                                Navigator.of(context).pop(true);
+                              }
+                            },
+                            child: const SizedBox(
+                                width: 60, child: Center(child: Text('Да')))),
+                      ),
+                      const SizedBox(width: 10,),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width-110) / 2,
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                MaterialStateProperty.all(Colors.blue)),
+                            onPressed: () async {
                               Navigator.of(context).pop(true);
-                            }
-                          },
-                          child: const SizedBox(
-                              width: 60, child: Center(child: Text('Да')))),
-                      const SizedBox(width: 10,),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.blue)),
-                          onPressed: () async {
-                            Navigator.of(context).pop(true);
-                          },
-                          child: const SizedBox(
-                            width: 60,
-                            child: Center(child: Text('Нет')),
-                          )),
-                      const SizedBox(width: 10,),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                          },
-                          child: const SizedBox(
-                            width: 60,
-                            child: Center(child: Text('Отмена')),
-                          )),
+                            },
+                            child: const SizedBox(
+                              width: 60,
+                              child: Center(child: Text('Нет')),
+                            )),
+                      ),
+                    ],
+                  ),
+                  //const SizedBox(height: 5,),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width-96),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                MaterialStateProperty.all(Colors.red)),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                            },
+                            child: const SizedBox(
+                              width: 60,
+                              child: Center(child: Text('Отмена')),
+                            )),
+                      ),
                     ],
                   ),
                 ],
@@ -311,6 +324,7 @@ class _ScreenItemReturnOrderCustomerState
 
     // Теперь запишем идентификатор объекта
     if (widget.returnOrderCustomer.uid == '') {
+      countChangeDoc = 1;
       widget.returnOrderCustomer.uid = const Uuid().v4();
     }
 
