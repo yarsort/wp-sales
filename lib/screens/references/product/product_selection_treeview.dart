@@ -1123,7 +1123,7 @@ class _ProductItemState extends State<ProductItem> {
                           widget.product.nameUnit,
                       style: widget.countOnWarehouse > 0
                           ? const TextStyle(fontSize: 15, color: Colors.blue)
-                          : const TextStyle(fontSize: 15),
+                          : const TextStyle(fontSize: 15, color: Colors.red),
                     ),
                   ],
                 ),
