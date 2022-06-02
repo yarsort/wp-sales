@@ -1341,11 +1341,12 @@ class MyButton extends StatelessWidget {
   final onTap;
 
   //Constructor
-  MyButton(
-      {required this.color,
-      required this.textColor,
-      required this.buttonText,
-      required this.onTap});
+  const MyButton(
+      {Key? key,
+        required this.color,
+        required this.textColor,
+        required this.buttonText,
+        required this.onTap});
 
   @override
   Widget build(BuildContext context) {
