@@ -326,21 +326,21 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
           ),
 
           /// Balance for payment
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
-            child: TextField(
-              controller: textFieldBalanceForPaymentController,
-              readOnly: true,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(
-                  color: Colors.blueGrey,
-                ),
-                labelText: 'Баланс партнера (просроченный по оплате)',
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(14, 7, 14, 7),
+          //   child: TextField(
+          //     controller: textFieldBalanceForPaymentController,
+          //     readOnly: true,
+          //     decoration: const InputDecoration(
+          //       contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+          //       border: OutlineInputBorder(),
+          //       labelStyle: TextStyle(
+          //         color: Colors.blueGrey,
+          //       ),
+          //       labelText: 'Баланс партнера (просроченный по оплате)',
+          //     ),
+          //   ),
+          // ),
 
           /// Divider
           const Padding(
