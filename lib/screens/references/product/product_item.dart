@@ -307,7 +307,7 @@ class _ScreenProductItemState extends State<ScreenProductItem> {
             child: TextField(
               controller: textFieldCommentController,
               decoration: const InputDecoration(
-                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,

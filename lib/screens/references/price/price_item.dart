@@ -267,7 +267,7 @@ class _ScreenPriceItemState extends State<ScreenPriceItem> {
             controller: textFieldUIDController,
             readOnly: true,
             decoration: const InputDecoration(
-              contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
               border: OutlineInputBorder(),
               labelStyle: TextStyle(
                 color: Colors.blueGrey,

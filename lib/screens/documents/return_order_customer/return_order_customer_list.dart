@@ -3,7 +3,6 @@ import 'package:wp_sales/db/db_doc_return_order_customer.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/doc_return_order_customer.dart';
 import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
-import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';

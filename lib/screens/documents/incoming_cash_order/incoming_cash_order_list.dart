@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:wp_sales/db/db_doc_incoming_cash_order.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
-import 'package:wp_sales/screens/references/contracts/contract_selection.dart';
 import 'package:wp_sales/screens/references/partners/partner_selection.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenIncomingCashOrderList extends StatefulWidget {

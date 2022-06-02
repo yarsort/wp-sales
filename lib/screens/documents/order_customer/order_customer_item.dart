@@ -299,13 +299,6 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
     textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse;
     textFieldSumController.text = doubleToString(widget.orderCustomer.sum);
 
-    allWeight = 0.0;
-    for (var item in itemsOrder) {
-      Unit unitProduct = await dbReadUnitUID(item.uidUnit);
-      allWeight = allWeight + unitProduct.weight * item.count;
-    }
-    textFieldWeightController.text = doubleThreeToString(allWeight);
-
     textFieldDateSendingController.text =
         shortDateToString(widget.orderCustomer.dateSending);
     textFieldDatePayingController.text =

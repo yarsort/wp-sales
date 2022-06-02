@@ -231,7 +231,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
             child: TextField(
               controller: textFieldCommentController,
               decoration: const InputDecoration(
-                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -313,7 +313,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
               controller: textFieldUIDController,
               readOnly: true,
               decoration: const InputDecoration(
-                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
@@ -330,7 +330,7 @@ class _ScreenCurrencyItemState extends State<ScreenCurrencyItem> {
               controller: textFieldCodeController,
               readOnly: true,
               decoration: const InputDecoration(
-                contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 border: OutlineInputBorder(),
                 labelStyle: TextStyle(
                   color: Colors.blueGrey,
