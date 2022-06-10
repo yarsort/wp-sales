@@ -321,6 +321,17 @@ Future<Map> dbReadAllAccumDeptsSums() async {
   return mapBalance;
 }
 
+Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByPartner(
+    {required String uidPartner}) async {
+  final db = await instance.database;
+  final result = await db.query(
+    tableAccumPartnerDebts,
+    where: '${ItemAccumPartnerDeptFields.uidPartner} = ?',
+    whereArgs: [uidPartner],
+  );
+  return result.map((json) => AccumPartnerDept.fromJson(json)).toList();
+}
+
 Future<List<AccumPartnerDept>> dbReadAccumPartnerDeptByContract(
     {required String uidContract}) async {
   final db = await instance.database;

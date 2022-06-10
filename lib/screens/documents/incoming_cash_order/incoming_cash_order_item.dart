@@ -208,7 +208,7 @@ class _ScreenItemIncomingCashOrderState
         doubleToString(debts['balanceForPayment']);
 
     // Установим расчитанную сумму долга как сумму оплаты
-    widget.incomingCashOrder.sum = doubleToString(debts['balance']);
+    widget.incomingCashOrder.sum = debts['balance'];
   }
 
   Future<bool> saveDocument() async {
@@ -281,12 +281,10 @@ class _ScreenItemIncomingCashOrderState
           textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
 
-        widget.incomingCashOrder.uidOrganization =
-            orderCustomer.uidOrganization;
-        widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
-        widget.incomingCashOrder.uidContract = orderCustomer.uidContract;
-        widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
-        //widget.incomingCashOrder.sum = orderCustomer.sum;
+        // widget.incomingCashOrder.uidOrganization = orderCustomer.uidOrganization;
+        // widget.incomingCashOrder.uidPartner = orderCustomer.uidPartner;
+        // widget.incomingCashOrder.uidContract = orderCustomer.uidContract;
+        // widget.incomingCashOrder.uidCashbox = orderCustomer.uidCashbox;
       } else {
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text =

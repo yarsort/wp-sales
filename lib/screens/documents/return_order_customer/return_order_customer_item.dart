@@ -268,10 +268,10 @@ class _ScreenItemReturnOrderCustomerState
           textFieldOrderCustomerController.text = 'Заказ № <номер не получен>';
         }
 
-        widget.returnOrderCustomer.uidOrganization = orderCustomer.uidOrganization;
-        widget.returnOrderCustomer.uidPartner      = orderCustomer.uidPartner;
-        widget.returnOrderCustomer.uidContract     = orderCustomer.uidContract;
-        widget.returnOrderCustomer.uidPrice        = orderCustomer.uidPrice;
+        // widget.returnOrderCustomer.uidOrganization = orderCustomer.uidOrganization;
+        // widget.returnOrderCustomer.uidPartner      = orderCustomer.uidPartner;
+        // widget.returnOrderCustomer.uidContract     = orderCustomer.uidContract;
+        // widget.returnOrderCustomer.uidPrice        = orderCustomer.uidPrice;
       } else {
         // Наименование заказа покупателя
         textFieldOrderCustomerController.text = widget.returnOrderCustomer.nameParent;

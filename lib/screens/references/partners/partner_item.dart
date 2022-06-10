@@ -4,6 +4,8 @@ import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_contract.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/import/import_model.dart';
+import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
+import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
 import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
@@ -22,6 +24,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
 
   List<Contract> tempItems = [];
   List<Contract> listContracts = [];
+  List<AccumPartnerDept> listAccumPartnerDept = [];
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
@@ -57,6 +60,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   void initState() {
     super.initState();
     renewItem();
+    readBalance();
   }
 
   renewItem() async {
@@ -115,18 +119,51 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     }
   }
 
+  readBalance() async {
+    listAccumPartnerDept.clear();
+    List<AccumPartnerDept> listDebts = await dbReadAccumPartnerDeptByPartner(
+        uidPartner: widget.partnerItem.uid);
+
+    /// Сортировка списка: сначала старые документы
+    listDebts.sort((a, b) => a.dateDoc.compareTo(b.dateDoc));
+
+    // Свернем долги по договору
+    for (var itemDebts in listDebts) {
+      // Ищем контракт в списке и увеличиваем баланс по каждому из них
+      var indexItem = listAccumPartnerDept.indexWhere((element) =>
+      element.numberDoc == itemDebts.numberDoc);
+
+      // Если нашли долг в списке отобранных, иначе добавим новую апись в список
+      if (indexItem >= 0) {
+        var itemList = listAccumPartnerDept[indexItem];
+        itemList.balance = itemList.balance + itemDebts.balance;
+        itemList.balanceForPayment =
+            itemList.balanceForPayment + itemDebts.balanceForPayment;
+      } else {
+        listAccumPartnerDept.add(itemDebts);
+      }
+    }
+
+    // Удалим балансы с нулевым остатком, после оплат через ПКО
+    listAccumPartnerDept.removeWhere((item) => item.balance == 0);
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
           title: const Text('Партнер'),
           bottom: const TabBar(
+            isScrollable: true,
             tabs: [
               Tab(text: 'Главная'),
               Tab(text: 'Контракты'),
+              Tab(text: 'К оплате'),
               Tab(text: 'Служебные'),
             ],
           ),
@@ -138,7 +175,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listHeaderOrder(),
-
               ],
             ),
             ListView(
@@ -146,6 +182,12 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               shrinkWrap: false,
               children: [
                 listViewContracts(),
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                listDebtsCustomer(),
               ],
             ),
             ListView(
@@ -198,16 +240,6 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
       debugPrint(error.toString());
       return false;
     }
-  }
-
-  showMessage(String textMessage) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:Text(textMessage),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Colors.blue,
-      ),
-    );
   }
 
   listHeaderOrder() {
@@ -381,7 +413,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
                       onPressed: () async {
                         var result = await saveItem();
                         if (result) {
-                          showMessage('Запись сохранена!');
+                          showMessage('Запись сохранена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },
@@ -436,6 +468,210 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             return ContractItem(contractItem: contractItem);
           }),
     );
+  }
+
+  listDebtsCustomer() {
+    return ColumnListViewBuilder(
+        itemCount: listAccumPartnerDept.length,
+        itemBuilder: (context, index) {
+          final itemDept = listAccumPartnerDept[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
+            child: Card(
+              elevation: 3,
+              child: PopupMenuButton<String>(
+                onSelected: (String value) async {
+                  // Создадим подчиненный документ возврата заказа
+                  if (value == 'return_order_customer') {
+                    // Создадим объект
+                    var newReturnOrderCustomer = ReturnOrderCustomer();
+                    newReturnOrderCustomer.uidOrganization =
+                        itemDept.uidOrganization;
+                    newReturnOrderCustomer.uidPartner = itemDept.uidPartner;
+                    newReturnOrderCustomer.uidContract = itemDept.uidContract;
+
+                    newReturnOrderCustomer.uidParent = itemDept.uidDoc;
+                    newReturnOrderCustomer.nameParent =
+                        itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                    newReturnOrderCustomer.uidSettlementDocument =
+                        itemDept.uidSettlementDocument;
+                    newReturnOrderCustomer.nameSettlementDocument =
+                        itemDept.nameSettlementDocument;
+
+                    // Откроем форму документа
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemReturnOrderCustomer(
+                            returnOrderCustomer: newReturnOrderCustomer),
+                      ),
+                    );
+                  }
+
+                  // Создадим подчиненный документ оплаты заказа
+                  if (value == 'incoming_cash_order') {
+                    // Создадим объект
+                    var newIncomingCashOrder = IncomingCashOrder();
+                    newIncomingCashOrder.uidOrganization =
+                        itemDept.uidOrganization;
+                    newIncomingCashOrder.uidPartner = itemDept.uidPartner;
+                    newIncomingCashOrder.uidContract = itemDept.uidContract;
+                    newIncomingCashOrder.uidParent = itemDept.uidDoc;
+
+                    newIncomingCashOrder.uidParent = itemDept.uidDoc;
+                    newIncomingCashOrder.nameParent =
+                        itemDept.nameDoc + ' № ' + itemDept.numberDoc;
+                    newIncomingCashOrder.uidSettlementDocument =
+                        itemDept.uidSettlementDocument;
+                    newIncomingCashOrder.nameSettlementDocument =
+                        itemDept.nameSettlementDocument;
+
+                    if (itemDept.balance > 0) {
+                      if (itemDept.balanceForPayment > 0) {
+                        newIncomingCashOrder.sum = itemDept.balanceForPayment;
+                      } else {
+                        newIncomingCashOrder.sum = itemDept.balance;
+                      }
+                    } else {
+                      showMessage(
+                          'Сумма баланса равна или меньше ноля!', context);
+                      return;
+                    }
+
+                    // Откроем форму документа
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemIncomingCashOrder(
+                            incomingCashOrder: newIncomingCashOrder),
+                      ),
+                    );
+                  }
+
+                  // Обновим список баланса после создания документа, если создание завершено
+                  readBalance();
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'return_order_customer',
+                    child: Row(children: const [
+                      Icon(
+                        Icons.undo,
+                        color: Colors.blue,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text('Возврат заказа')
+                    ]),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'incoming_cash_order',
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.payment,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('Оплата заказа'),
+                      ],
+                    ),
+                  ),
+                ],
+                child: ListTile(
+                  title: itemDept.nameDoc != ''
+                      ? Text(itemDept.nameDoc + ' №' +itemDept.numberDoc)
+                      : Text(itemDept.nameSettlementDocument + ' №' +itemDept.numberDoc),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        children: [
+                          const Icon(Icons.date_range,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: Text(fullDateToString(itemDept.dateDoc))),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.home, color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: widget.partnerItem.address != ''
+                                  ? Text(widget.partnerItem.address)
+                                  : const Text('Нет данных')),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(children: [
+                        Expanded(
+                          flex: 4,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.phone,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Flexible(
+                                      child: widget.partnerItem.phone != ''
+                                          ? Text(widget.partnerItem.phone)
+                                          : const Text('Нет данных')),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.schedule,
+                                      color: Colors.blue, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(widget.partnerItem.schedulePayment
+                                      .toString() +
+                                      ' дня(ей) отсрочки'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.green, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(itemDept.balance)),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(Icons.price_change,
+                                      color: Colors.red, size: 20),
+                                  const SizedBox(width: 5),
+                                  Text(doubleToString(
+                                      itemDept.balanceForPayment)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   listService() {
@@ -495,7 +731,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
                       onPressed: () async {
                         var result = await deleteItem();
                         if (result) {
-                          showMessage('Запись удалена!');
+                          showMessage('Запись удалена!', context);
                           Navigator.of(context).pop(true);
                         }
                       },

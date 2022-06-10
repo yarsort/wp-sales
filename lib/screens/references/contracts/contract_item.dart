@@ -150,7 +150,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
                     ],
                   ),
                 ),
-                listOrderCustomer(),
+                listDebtsCustomer(),
               ],
             ),
             ListView(
@@ -779,7 +779,7 @@ class _ScreenContractItemState extends State<ScreenContractItem> {
 
   /// Вкладка Заказы
 
-  listOrderCustomer() {
+  listDebtsCustomer() {
     return ColumnListViewBuilder(
         itemCount: listAccumPartnerDept.length,
         itemBuilder: (context, index) {
