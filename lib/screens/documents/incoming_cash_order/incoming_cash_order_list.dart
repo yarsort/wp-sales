@@ -1032,10 +1032,10 @@ class _ScreenIncomingCashOrderListState
                       width: MediaQuery.of(context).size.width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
-                            filterSearchResultsNewDocuments();
-                            setState(() {
-                              visibleListNewParameters = false;
-                            });
+                            visibleListNewParameters = false;
+                            await loadNewDocuments();
+                            await calculateNewDocuments();
+                            setState(() {});
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

@@ -34,14 +34,13 @@ class ScreenPartnerSelection extends StatefulWidget {
 }
 
 class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
+
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
-  bool disablePartnerHierarchy = false;
   bool showPartnerHierarchy = true;
-
   bool deniedAddPartner = false;
 
   // Текущий выбранный каталог иерархии товаров
@@ -119,7 +118,7 @@ class _ScreenPartnerSelectionState extends State<ScreenPartnerSelection> {
     /// Восстановление последнего выбранного каталога
     final SharedPreferences prefs = await _prefs;
 
-    disablePartnerHierarchy = prefs.getBool('settings_disablePartnerHierarchy')??false;
+    var disablePartnerHierarchy = prefs.getBool('settings_disablePartnerHierarchy')??false;
 
     // При открытии формы прочитаем настройки отображения иерархии
     showPartnerHierarchy = !disablePartnerHierarchy;

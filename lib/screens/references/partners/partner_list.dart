@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_sales/db/db_accum_partner_depts.dart';
 import 'package:wp_sales/db/db_ref_partner.dart';
 import 'package:wp_sales/models/accum_partner_depts.dart';
@@ -17,11 +18,13 @@ class ScreenPartnerList extends StatefulWidget {
 }
 
 class _ScreenPartnerListState extends State<ScreenPartnerList> {
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   /// Поле ввода: Поиск
   TextEditingController textFieldSearchController = TextEditingController();
 
   bool showPartnerHierarchy = true;
-
   bool deniedAddPartner = false;
 
   // Текущий выбранный каталог иерархии товаров
@@ -42,7 +45,7 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
   @override
   void initState() {
     super.initState();
-    renewItem();
+    startLoad();
   }
 
   @override
@@ -83,7 +86,44 @@ class _ScreenPartnerListState extends State<ScreenPartnerList> {
     );
   }
 
-  void renewItem() async {
+  loadSettings() async {
+
+    /// Восстановление последнего выбранного каталога
+    final SharedPreferences prefs = await _prefs;
+
+    var disablePartnerHierarchy = prefs.getBool('settings_disablePartnerHierarchy')??false;
+
+    // При открытии формы прочитаем настройки отображения иерархии
+    showPartnerHierarchy = !disablePartnerHierarchy;
+
+    // // Очистим дерево каталогов иерархии
+    // treeParentItems.clear();
+    //
+    // // Восстановим иерархию списка
+    // String stringList = prefs.getString('settings_treeParentPartnerFromSetting')??'';
+    // List<String> tempListTreeParentPartnerFromSettings = stringList.split(',');
+    //
+    // for (var item in tempListTreeParentPartnerFromSettings) {
+    //   Partner partner = await dbReadPartnerUID(item);
+    //   parentPartner = partner;
+    //   treeParentItems.add(partner);
+    //   debugPrint('Каталог: ' + partner.name);
+    // }
+    //
+    // // Из иерархии надо удалить последний элемент, так как он есть в parentPartner
+    // if(treeParentItems.isNotEmpty) {
+    //   treeParentItems.removeAt(treeParentItems.length-1);
+    // }
+    //
+    // debugPrint('Восстановление иерархии каталога: ' + tempListTreeParentPartnerFromSettings.length.toString());
+  }
+
+  startLoad() async {
+    await loadSettings();
+    await renewItem();
+  }
+
+  renewItem() async {
     // Главный каталог всегда будет с таким идентификатором
     if (parentPartner.uid == '') {
       parentPartner.uid = '00000000-0000-0000-0000-000000000000';
