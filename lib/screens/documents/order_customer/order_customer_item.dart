@@ -1300,6 +1300,15 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     // Создадим подчиненный документ
                     var newReturnOrderCustomer = ReturnOrderCustomer();
                     newReturnOrderCustomer.uidParent = widget.orderCustomer.uid;
+                    newReturnOrderCustomer.uidOrganization = widget.orderCustomer.uidOrganization;
+                    newReturnOrderCustomer.nameOrganization = widget.orderCustomer.nameOrganization;
+                    newReturnOrderCustomer.uidPartner = widget.orderCustomer.uidPartner;
+                    newReturnOrderCustomer.namePartner = widget.orderCustomer.namePartner;
+                    newReturnOrderCustomer.uidContract = widget.orderCustomer.uidContract;
+                    newReturnOrderCustomer.nameContract = widget.orderCustomer.nameContract;
+                    newReturnOrderCustomer.uidPrice = widget.orderCustomer.uidPrice;
+                    newReturnOrderCustomer.namePrice = widget.orderCustomer.namePrice;
+
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -1319,6 +1328,13 @@ class _ScreenItemOrderCustomerState extends State<ScreenItemOrderCustomer> {
                     // Создадим подчиненный документ
                     var newIncomingCashOrder = IncomingCashOrder();
                     newIncomingCashOrder.uidParent = widget.orderCustomer.uid;
+                    newIncomingCashOrder.uidOrganization = widget.orderCustomer.uidOrganization;
+                    newIncomingCashOrder.nameOrganization = widget.orderCustomer.nameOrganization;
+                    newIncomingCashOrder.uidPartner = widget.orderCustomer.uidPartner;
+                    newIncomingCashOrder.namePartner = widget.orderCustomer.namePartner;
+                    newIncomingCashOrder.uidContract = widget.orderCustomer.uidContract;
+                    newIncomingCashOrder.nameContract = widget.orderCustomer.nameContract;
+
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
