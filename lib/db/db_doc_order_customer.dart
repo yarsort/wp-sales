@@ -168,7 +168,7 @@ Future createTableItemOrderCustomer(db) async {
 Future<OrderCustomer> dbCreateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCustomer> itemsOrderCustomer) async {
   final db = await instance.database;
   try {
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       orderCustomer.id =
       await txn.insert(tableOrderCustomer, orderCustomer.toJson());
 
@@ -203,7 +203,7 @@ Future<int> dbUpdateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCus
   final db = await instance.database;
   int intOperation = 0;
   try {
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       intOperation = intOperation +
           await txn.update(
             tableOrderCustomer,
@@ -236,7 +236,7 @@ Future<int> dbUpdateOrderCustomer(OrderCustomer orderCustomer, List<ItemOrderCus
 Future<int> dbDeleteOrderCustomer(int id) async {
   final db = await instance.database;
   try {
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       txn.delete(
         tableOrderCustomer,
         where: '${OrderCustomerFields.id} = ?',

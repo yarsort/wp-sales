@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/db_doc_order_customer.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/models/doc_order_customer.dart';
@@ -322,13 +324,13 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     listSendOrdersCustomer.clear();
     tempListSendOrdersCustomer.clear();
 
-    textFieldSendPeriodController.text = shortDateToString(startPeriodDocs) +
-        ' - ' +
-        shortDateToString(finishPeriodDocs);
-
     String namePartner = sendOrderCustomer.uidPartner;
     String whereString = '';
     List whereList = [];
+
+    textFieldSendPeriodController.text = shortDateToString(startPeriodDocs) +
+        ' - ' +
+        shortDateToString(finishPeriodDocs);
 
     // Отбор по условиям
     if (textFieldSendPeriodController.text.isNotEmpty ||
@@ -1703,142 +1705,215 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
-              child: ListTile(
-                tileColor: orderCustomer.numberFrom1C != ''
-                    ? Colors.lightGreen[50]
-                    : Colors.deepOrange[50],
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
-                    ),
-                  );
-                  loadData();
-                },
-                title: Text(orderCustomer.namePartner),
-                subtitle: Column(
+              child: Slidable(
+                endActionPane: ActionPane(
+                  motion: const ScrollMotion(),
                   children: [
-                    const Divider(),
-                    Row(
-                      children: [
-                        const Icon(Icons.date_range,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            child: Text(fullDateToString(orderCustomer.date))),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                          ),
+                        );
+                        loadData();
+                      },
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      icon: Icons.edit,
+                      //label: '',
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        const Icon(Icons.domain, color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            flex: 1, child: Text(orderCustomer.nameContract)),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) async {
+
+                        /// Получим копию объекта
+                        OrderCustomer oldOrderCustomer = await dbReadOrderCustomer(orderCustomer.id);
+                        List<ItemOrderCustomer> oldItemOrderCustomer = await dbReadItemsOrderCustomer(orderCustomer.id);
+
+                        OrderCustomer newOrderCustomer = OrderCustomer.fromJson(oldOrderCustomer.toJson());
+
+                        /// Очистим реквизиты перед записью
+                        newOrderCustomer.date = DateTime.now();
+                        newOrderCustomer.datePaying = DateTime(1900, 1, 1);
+                        newOrderCustomer.dateSending = DateTime(1900, 1, 1);
+                        newOrderCustomer.dateSendingTo1C = DateTime(1900, 1, 1);
+                        newOrderCustomer.numberFrom1C = '';
+                        newOrderCustomer.status = 1;
+
+                        /// Очистим для записи нового документа
+                        newOrderCustomer.id = 0;
+                        newOrderCustomer.uid = const Uuid().v4();
+                        for (var itemOrderCustomer in oldItemOrderCustomer) {
+                          itemOrderCustomer.id = 0;
+                        }
+
+                        /// Сумма товаров в заказе
+                        OrderCustomer().allSum(newOrderCustomer, oldItemOrderCustomer);
+
+                        /// Количество товаров в заказе
+                        OrderCustomer().allCount(newOrderCustomer, oldItemOrderCustomer);
+
+                        /// Запишем данные нового документа
+                        await dbCreateOrderCustomer(newOrderCustomer, oldItemOrderCustomer);
+
+                        /// Откроем на редактирование
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
+                          ),
+                        );
+
+                        // Обновим список
+                        loadData();
+                      },
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      icon: Icons.copy,
+                      //label: '',
                     ),
-                    const SizedBox(height: 5),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.access_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.history_toggle_off,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(
-                                      orderCustomer.datePaying)),
-                                ],
-                              ),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) +
-                                      ' грн'),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.format_list_numbered_rtl,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() +
-                                      ' поз'),
-                                ],
-                              ),
-                            ],
-                          ))
-                    ]),
-                    const Divider(),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.more_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(
-                                      orderCustomer.dateSendingTo1C)),
-                                ],
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  orderCustomer.numberFrom1C != ''
-                                      ? const Icon(Icons.repeat_one,
-                                          color: Colors.green, size: 20)
-                                      : const Icon(Icons.repeat_one,
-                                          color: Colors.red, size: 20),
-                                  const SizedBox(width: 5),
-                                  orderCustomer.numberFrom1C != ''
-                                      ? Text(orderCustomer.numberFrom1C)
-                                      : const Text('Нет данных!',
-                                          style: TextStyle(color: Colors.red)),
-                                ],
-                              )
-                            ],
-                          ))
-                    ]),
-                    const SizedBox(height: 5),
-                    if (orderCustomer.comment != '')
-                      Row(children: [
-                        const Icon(Icons.text_fields,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Text(orderCustomer.comment),
-                      ]),
                   ],
+                ),
+                child: ListTile(
+                  tileColor: orderCustomer.numberFrom1C != ''
+                      ? Colors.lightGreen[50]
+                      : Colors.deepOrange[50],
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                      ),
+                    );
+                    loadData();
+                  },
+                  title: Text(orderCustomer.namePartner),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        children: [
+                          const Icon(Icons.date_range,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: Text(fullDateToString(orderCustomer.date))),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          const Icon(Icons.domain, color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              flex: 1, child: Text(orderCustomer.nameContract)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.access_time,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(shortDateToString(orderCustomer.dateSending)),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.history_toggle_off,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(shortDateToString(
+                                        orderCustomer.datePaying)),
+                                  ],
+                                ),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.price_change,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(doubleToString(orderCustomer.sum) +
+                                        ' грн'),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.format_list_numbered_rtl,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(orderCustomer.countItems.toString() +
+                                        ' поз'),
+                                  ],
+                                ),
+                              ],
+                            ))
+                      ]),
+                      const Divider(),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.more_time,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(shortDateToString(
+                                        orderCustomer.dateSendingTo1C)),
+                                  ],
+                                )
+                              ],
+                            )),
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    orderCustomer.numberFrom1C != ''
+                                        ? const Icon(Icons.repeat_one,
+                                            color: Colors.green, size: 20)
+                                        : const Icon(Icons.repeat_one,
+                                            color: Colors.red, size: 20),
+                                    const SizedBox(width: 5),
+                                    orderCustomer.numberFrom1C != ''
+                                        ? Text(orderCustomer.numberFrom1C)
+                                        : const Text('Нет данных!',
+                                            style: TextStyle(color: Colors.red)),
+                                  ],
+                                )
+                              ],
+                            ))
+                      ]),
+                      const SizedBox(height: 5),
+                      if (orderCustomer.comment != '')
+                        Row(children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(orderCustomer.comment),
+                        ]),
+                    ],
+                  ),
                 ),
               ),
             ),

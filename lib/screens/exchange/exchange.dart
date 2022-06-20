@@ -1521,7 +1521,7 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
     List<OrderCustomer> listDocs = await dbReadAllNewOrderCustomer();
     List<OrderCustomer> listSendDocs = await dbReadAllSendOrderCustomerWithoutNumbers();
 
-    // Каждый документ выгрузим в JSON
+    // Каждый НОВЫЙ документ выгрузим в JSON
     List dataList = [];
     for (var itemDoc in listDocs) {
       // Проверка заполненности реквизитов
@@ -1572,19 +1572,56 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       countOrderCustomer++;
     }
 
-    // Перезапросим номера у всех отправленных документов без номера из системы
-    for (var itemDoc in listSendDocs){
-      // Если этот документ уже отправлялся выше по коду, то пропустим
-      if (listDocs.contains(itemDoc)) {
+    // Каждый ОТПРАВЛЕННЫЙ документ выгрузим в JSON
+    for (var itemDoc in listSendDocs) {
+      // Проверка заполненности реквизитов
+      // Реквизиты (обязательные): Организация, партнер, контракт
+      if (itemDoc.uidOrganization == '' ||
+          itemDoc.uidPartner == '' ||
+          itemDoc.uidContract == '') {
         continue;
       }
+
+      // Если явно указано, что не надо отправлять
+      if (itemDoc.sendNoTo1C == 1) {
+        continue;
+      }
+
+      // Конвертация товаров
+      var listDataProduct = [];
+      List<ItemOrderCustomer> listItemOrderCustomer =
+      await dbReadItemsOrderCustomer(itemDoc.id);
+      for (var itemOrderCustomer in listItemOrderCustomer) {
+        var dataProduct = itemOrderCustomer.toJson();
+        listDataProduct.add(dataProduct);
+      }
+
+      // Нет товаров - нет отправки!
+      if(listItemOrderCustomer.isEmpty){
+        continue;
+      }
+
+      // Конвертация данных шапки
+      var data = itemDoc.toJson();
+
+      // Добавим товары документа
+      data['products'] = listDataProduct;
 
       // Добавим номер (UID) документа
       var dataNumber = {};
       dataNumber['uid'] = itemDoc.uid;
       dataNumber['typeDoc'] = 'orderCustomer';
       numberDocs.add(dataNumber);
+
+      // Добавим документ в список
+      dataList.add(data);
+
+      // Не будем добавлять статус отправленного, он и так там уже установлен.
+      //listSendOrderCustomer.add(itemDoc);
     }
+
+    addListLogs('Заказы (Новые): ${listDocs.length.toString()} шт.');
+    addListLogs('Заказы (Повторные): ${listSendDocs.length.toString()} шт.');
 
     return dataList;
   }
@@ -1651,10 +1688,32 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       countReturnOrderCustomer++;
     }
 
-    // Перезапросим номера у всех отправленных документов без номера из системы
-    for (var itemDoc in listSendDocs){
-      // Если этот документ уже отправлялся выше по коду, то пропустим
-      if (listDocs.contains(itemDoc)) {
+    // Каждый документ выгрузим в JSON
+    for (var itemDoc in listSendDocs) {
+      // Проверка заполненности реквизитов
+      // Реквизиты (обязательные): Организация, партнер, контракт
+      if (itemDoc.uidOrganization == '' ||
+          itemDoc.uidPartner == '' ||
+          itemDoc.uidContract == '') {
+        continue;
+      }
+
+      // Если явно указано, что не надо отправлять
+      if (itemDoc.sendNoTo1C == 1) {
+        continue;
+      }
+
+      // Конвертация товаров
+      var listDataProduct = [];
+      List<ItemReturnOrderCustomer> listItemReturnOrderCustomer =
+      await dbReadItemsReturnOrderCustomer(itemDoc.id);
+      for (var itemOrderCustomer in listItemReturnOrderCustomer) {
+        var dataProduct = itemOrderCustomer.toJson();
+        listDataProduct.add(dataProduct);
+      }
+
+      // Нет товаров - нет отправки!
+      if(listItemReturnOrderCustomer.isEmpty){
         continue;
       }
 
@@ -1663,7 +1722,19 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       dataNumber['uid'] = itemDoc.uid;
       dataNumber['typeDoc'] = 'returnOrderCustomer';
       numberDocs.add(dataNumber);
+
+      // Конвертация данных шапки
+      var data = itemDoc.toJson();
+
+      // Добавим товары документа
+      data['products'] = listDataProduct;
+
+      // Добавим документ в список
+      dataList.add(data);
     }
+
+    addListLogs('Возвраты (Новые): ${listDocs.length.toString()} шт.');
+    addListLogs('Возвраты (Повторные): ${listSendDocs.length.toString()} шт.');
 
     return dataList;
   }
@@ -1675,7 +1746,6 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
 
     // Получим данные для выгрузки
     List<IncomingCashOrder> listDocs = await dbReadAllNewIncomingCashOrder();
-
     List<IncomingCashOrder> listSendDocs = await dbReadAllSendIncomingCashOrderWithoutNumbers();
 
     // Каждый документ выгрузим в JSON
@@ -1714,19 +1784,38 @@ class _ScreenExchangeDataState extends State<ScreenExchangeData> {
       countIncomingCashOrder++;
     }
 
-    // Перезапросим номера у всех отправленных документов без номера из системы
-    for (var itemDoc in listSendDocs){
-      // Если этот документ уже отправлялся выше по коду, то пропустим
-      if (listDocs.contains(itemDoc)) {
+    // Каждый ОТПРАВЛЕННЫЙ документ выгрузим в JSON
+    for (var itemDoc in listSendDocs) {
+      // Проверка заполненности реквизитов
+      // Реквизиты (обязательные): Организация, партнер, контракт
+      if (itemDoc.uidOrganization == '' ||
+          itemDoc.uidPartner == '' ||
+          itemDoc.uidContract == '') {
         continue;
       }
 
-      // Добавим номер (UID) документа
+      // Если явно указано, что не надо отправлять
+      if (itemDoc.sendNoTo1C == 1) {
+        continue;
+      }
+
+      // Заполним структуру для получения номера доумента из учетной системы
       var dataNumber = {};
+
+      // Добавим номер (UID) документа
       dataNumber['uid'] = itemDoc.uid;
       dataNumber['typeDoc'] = 'incomingCashOrder';
       numberDocs.add(dataNumber);
+
+      // Конвертация данных
+      var data = itemDoc.toJson();
+
+      // Добавим документ в список
+      dataList.add(data);
     }
+
+    addListLogs('ПКО (Новые): ${listDocs.length.toString()} шт.');
+    addListLogs('ПКО (Повторные): ${listSendDocs.length.toString()} шт.');
 
     return dataList;
   }

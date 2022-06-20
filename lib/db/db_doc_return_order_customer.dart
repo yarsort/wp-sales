@@ -172,7 +172,7 @@ Future<ReturnOrderCustomer> dbCreateReturnOrderCustomer(ReturnOrderCustomer retu
     List<ItemReturnOrderCustomer> itemsReturnOrderCustomer) async {
   final db = await instance.database;
   try {
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       returnOrderCustomer.id = await txn.insert(tableReturnOrderCustomer, returnOrderCustomer.toJson());
 
       /// Запись ТЧ "Товары"
@@ -191,7 +191,7 @@ Future<int> dbUpdateReturnOrderCustomer(ReturnOrderCustomer returnOrderCustomer,
   final db = await instance.database;
   int intOperation = 0;
   try {
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       intOperation = intOperation +
           await txn.update(
             tableReturnOrderCustomer,
@@ -239,7 +239,7 @@ Future<int> dbUpdateReturnOrderCustomerWithoutItems(ReturnOrderCustomer returnOr
 Future<int> dbDeleteReturnOrderCustomer(int id) async {
   final db = await instance.database;
   try {
-    db.transaction((txn) async {
+    await db.transaction((txn) async {
       txn.delete(
         tableReturnOrderCustomer,
         where: '${ReturnOrderCustomerFields.id} = ?',

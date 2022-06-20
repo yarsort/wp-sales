@@ -115,7 +115,7 @@ class OrderCustomer {
     data['sendNoTo1C'] = sendNoTo1C;
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
-    data['countItems'] = countItems.toString();
+    data['countItems'] = countItems;
     return data;
   }
 }

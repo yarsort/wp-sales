@@ -1282,10 +1282,10 @@ class _ScreenReturnOrderCustomerListState
                                     builder: (context) =>
                                         ScreenPartnerSelection(
                                             returnOrderCustomer:
-                                                newReturnOrderCustomer)));
+                                                sendReturnOrderCustomer)));
                             setState(() {
                               textFieldSendPartnerController.text =
-                                  newReturnOrderCustomer.namePartner;
+                                  sendReturnOrderCustomer.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -1294,8 +1294,8 @@ class _ScreenReturnOrderCustomerListState
                           onPressed: () async {
                             setState(() {
                               textFieldSendPartnerController.text = '';
-                              newReturnOrderCustomer.uidPartner = '';
-                              newReturnOrderCustomer.namePartner = '';
+                              sendReturnOrderCustomer.uidPartner = '';
+                              sendReturnOrderCustomer.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -1490,10 +1490,10 @@ class _ScreenReturnOrderCustomerListState
                                     builder: (context) =>
                                         ScreenPartnerSelection(
                                             returnOrderCustomer:
-                                                newReturnOrderCustomer)));
+                                                trashReturnOrderCustomer)));
                             setState(() {
                               textFieldTrashPartnerController.text =
-                                  newReturnOrderCustomer.namePartner;
+                                  trashReturnOrderCustomer.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -1502,8 +1502,8 @@ class _ScreenReturnOrderCustomerListState
                           onPressed: () async {
                             setState(() {
                               textFieldTrashPartnerController.text = '';
-                              newReturnOrderCustomer.uidPartner = '';
-                              newReturnOrderCustomer.namePartner = '';
+                              trashReturnOrderCustomer.uidPartner = '';
+                              trashReturnOrderCustomer.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),

@@ -331,6 +331,7 @@ class _ScreenIncomingCashOrderListState
     // Отбор по условиям
     if (textFieldSendPeriodController.text.isNotEmpty ||
         textFieldSendPartnerController.text.isNotEmpty) {
+
       if (textFieldSendPeriodController.text.isNotEmpty) {
         String dayStart = textFieldSendPeriodController.text.substring(0, 2);
         String monthStart = textFieldSendPeriodController.text.substring(3, 5);
@@ -1281,10 +1282,10 @@ class _ScreenIncomingCashOrderListState
                                     builder: (context) =>
                                         ScreenPartnerSelection(
                                             incomingCashOrder:
-                                                newIncomingCashOrder)));
+                                              sendIncomingCashOrder)));
                             setState(() {
                               textFieldSendPartnerController.text =
-                                  newIncomingCashOrder.namePartner;
+                                  sendIncomingCashOrder.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -1293,8 +1294,8 @@ class _ScreenIncomingCashOrderListState
                           onPressed: () async {
                             setState(() {
                               textFieldSendPartnerController.text = '';
-                              newIncomingCashOrder.uidPartner = '';
-                              newIncomingCashOrder.namePartner = '';
+                              sendIncomingCashOrder.uidPartner = '';
+                              sendIncomingCashOrder.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -1485,10 +1486,10 @@ class _ScreenIncomingCashOrderListState
                                     builder: (context) =>
                                         ScreenPartnerSelection(
                                             incomingCashOrder:
-                                                newIncomingCashOrder)));
+                                            trashIncomingCashOrder)));
                             setState(() {
                               textFieldTrashPartnerController.text =
-                                  newIncomingCashOrder.namePartner;
+                                  trashIncomingCashOrder.namePartner;
                             });
                           },
                           icon: const Icon(Icons.people, color: Colors.blue),
@@ -1497,8 +1498,8 @@ class _ScreenIncomingCashOrderListState
                           onPressed: () async {
                             setState(() {
                               textFieldTrashPartnerController.text = '';
-                              newIncomingCashOrder.uidPartner = '';
-                              newIncomingCashOrder.namePartner = '';
+                              trashIncomingCashOrder.uidPartner = '';
+                              trashIncomingCashOrder.namePartner = '';
                             });
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
