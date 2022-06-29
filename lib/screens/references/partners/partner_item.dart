@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wp_sales/db/db_accum_partner_depts.dart';
-import 'package:wp_sales/db/db_ref_contract.dart';
-import 'package:wp_sales/db/db_ref_partner.dart';
+import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/import/import_model.dart';
 import 'package:wp_sales/screens/documents/incoming_cash_order/incoming_cash_order_item.dart';
+import 'package:wp_sales/screens/documents/order_customer/order_customer_item.dart';
 import 'package:wp_sales/screens/documents/return_order_customer/return_order_customer_item.dart';
 import 'package:wp_sales/screens/references/contracts/contract_item.dart';
-import 'package:wp_sales/system/system.dart';
 import 'package:wp_sales/system/widgets.dart';
 
 class ScreenPartnerItem extends StatefulWidget {
@@ -25,6 +24,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
   List<Contract> tempItems = [];
   List<Contract> listContracts = [];
   List<AccumPartnerDept> listAccumPartnerDept = [];
+  List<OrderCustomer> listOrderCustomer = [];
 
   /// Поле ввода: Name
   TextEditingController textFieldNameController = TextEditingController();
@@ -61,6 +61,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     super.initState();
     renewItem();
     readBalance();
+    readOrderCustomer();
   }
 
   renewItem() async {
@@ -150,10 +151,24 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
     setState(() {});
   }
 
+  readOrderCustomer() async {
+    listOrderCustomer.clear();
+    listOrderCustomer.addAll(await dbReadOrderCustomerUIDPartner(
+        widget.partnerItem.uid));
+
+    /// Сортировка списка: сначала новые документы
+    listOrderCustomer.sort((a, b) => b.date.compareTo(a.date));
+
+    /// Удалим заказы, которые не были отправлены
+    listOrderCustomer.removeWhere((item) => item.status != 2);
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -164,6 +179,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               Tab(text: 'Главная'),
               Tab(text: 'Контракты'),
               Tab(text: 'К оплате'),
+              Tab(text: 'Заказы'),
               Tab(text: 'Служебные'),
             ],
           ),
@@ -188,6 +204,12 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
               physics: const BouncingScrollPhysics(),
               children: [
                 listDebtsCustomer(),
+              ],
+            ),
+            ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                listOrdersCustomer(),
               ],
             ),
             ListView(
@@ -476,7 +498,7 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
         itemBuilder: (context, index) {
           final itemDept = listAccumPartnerDept[index];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 5),
             child: Card(
               elevation: 3,
               child: PopupMenuButton<String>(
@@ -672,6 +694,235 @@ class _ScreenPartnerItemState extends State<ScreenPartnerItem> {
             ),
           );
         });
+  }
+
+  listOrdersCustomer() {
+    // Отображение списка заказов покупателя
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 7, 0, 7),
+      child: ColumnListViewBuilder(
+          itemCount: listOrderCustomer.length,
+          itemBuilder: (context, index) {
+            final orderCustomer = listOrderCustomer[index];
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 7),
+              child: Card(
+                elevation: 3,
+                child: Slidable(
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    children: [
+                      SlidableAction(
+                        onPressed: (BuildContext context) async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                            ),
+                          );
+                          readOrderCustomer();
+                        },
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        icon: Icons.edit,
+                        //label: '',
+                      ),
+                      SlidableAction(
+                        onPressed: (BuildContext context) async {
+
+                          /// Получим копию объекта
+                          OrderCustomer oldOrderCustomer = await dbReadOrderCustomer(orderCustomer.id);
+                          List<ItemOrderCustomer> oldItemOrderCustomer = await dbReadItemsOrderCustomer(orderCustomer.id);
+
+                          OrderCustomer newOrderCustomer = OrderCustomer.fromJson(oldOrderCustomer.toJson());
+
+                          /// Очистим реквизиты перед записью
+                          newOrderCustomer.date = DateTime.now();
+                          newOrderCustomer.datePaying = DateTime(1900, 1, 1);
+                          newOrderCustomer.dateSending = DateTime(1900, 1, 1);
+                          newOrderCustomer.dateSendingTo1C = DateTime(1900, 1, 1);
+                          newOrderCustomer.numberFrom1C = '';
+                          newOrderCustomer.status = 1;
+
+                          /// Очистим для записи нового документа
+                          newOrderCustomer.id = 0;
+                          newOrderCustomer.uid = const Uuid().v4();
+                          for (var itemOrderCustomer in oldItemOrderCustomer) {
+                            itemOrderCustomer.id = 0;
+                          }
+
+                          /// Сумма товаров в заказе
+                          OrderCustomer().allSum(newOrderCustomer, oldItemOrderCustomer);
+
+                          /// Количество товаров в заказе
+                          OrderCustomer().allCount(newOrderCustomer, oldItemOrderCustomer);
+
+                          /// Запишем данные нового документа
+                          await dbCreateOrderCustomer(newOrderCustomer, oldItemOrderCustomer);
+
+                          /// Откроем на редактирование
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
+                            ),
+                          );
+
+                          // Обновим список
+                          readOrderCustomer();
+                        },
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        icon: Icons.copy,
+                        //label: '',
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    tileColor: orderCustomer.numberFrom1C != ''
+                        ? Colors.lightGreen[50]
+                        : Colors.deepOrange[50],
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                        ),
+                      );
+                      readOrderCustomer();
+                    },
+                    title: Text(orderCustomer.namePartner),
+                    subtitle: Column(
+                      children: [
+                        const Divider(),
+                        Row(
+                          children: [
+                            const Icon(Icons.date_range,
+                                color: Colors.blue, size: 20),
+                            const SizedBox(width: 5),
+                            Flexible(
+                                child: Text(fullDateToString(orderCustomer.date))),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            const Icon(Icons.domain, color: Colors.blue, size: 20),
+                            const SizedBox(width: 5),
+                            Flexible(
+                                flex: 1, child: Text(orderCustomer.nameContract)),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(children: [
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.access_time,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(shortDateToString(orderCustomer.dateSending)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.history_toggle_off,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(shortDateToString(
+                                          orderCustomer.datePaying)),
+                                    ],
+                                  ),
+                                ],
+                              )),
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(doubleToString(orderCustomer.sum) +
+                                          ' грн'),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.format_list_numbered_rtl,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(orderCustomer.countItems.toString() +
+                                          ' поз'),
+                                    ],
+                                  ),
+                                ],
+                              ))
+                        ]),
+                        const Divider(),
+                        Row(children: [
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.more_time,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(shortDateToString(
+                                          orderCustomer.dateSendingTo1C)),
+                                    ],
+                                  )
+                                ],
+                              )),
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      orderCustomer.numberFrom1C != ''
+                                          ? const Icon(Icons.repeat_one,
+                                          color: Colors.green, size: 20)
+                                          : const Icon(Icons.repeat_one,
+                                          color: Colors.red, size: 20),
+                                      const SizedBox(width: 5),
+                                      orderCustomer.numberFrom1C != ''
+                                          ? Text(orderCustomer.numberFrom1C)
+                                          : const Text('Нет данных!',
+                                          style: TextStyle(color: Colors.red)),
+                                    ],
+                                  )
+                                ],
+                              ))
+                        ]),
+                        const SizedBox(height: 5),
+                        if (orderCustomer.comment != '')
+                          Row(children: [
+                            const Icon(Icons.text_fields,
+                                color: Colors.blue, size: 20),
+                            const SizedBox(width: 5),
+                            Text(orderCustomer.comment),
+                          ]),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
   }
 
   listService() {

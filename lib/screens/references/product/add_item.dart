@@ -826,6 +826,17 @@ class _ScreenAddItemState extends State<ScreenAddItem> {
     var price = double.parse(
         doubleThreeToString(double.parse(textFieldPriceController.text)));
 
+    // Checking values
+    if (discount > 100) {
+      discount = 0;
+    }
+    if (count < 0) {
+      count = 0;
+    }
+    if (price < 0) {
+      price = 0;
+    }
+
     textFieldPriceController.text = doubleToString(price);
     textFieldDiscountController.text = doubleToString(discount);
     textFieldCountController.text = doubleThreeToString(count);

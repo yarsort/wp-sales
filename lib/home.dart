@@ -336,7 +336,7 @@ class _ScreenHomePageState extends State<ScreenHomePage> {
                 child: ListTile(
                   title: const Center(
                       child: Text(
-                    'Баланс к оплате',
+                    'Просрочено',
                     style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
