@@ -22,7 +22,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   TextEditingController textFieldNewSearchController = TextEditingController();
   TextEditingController textFieldSendSearchController = TextEditingController();
   TextEditingController textFieldTrashSearchController =
-      TextEditingController();
+  TextEditingController();
 
   /// Видимость панелей отбора документов
   bool visibleListNewParameters = false;
@@ -32,26 +32,50 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   String uidPartner = '';
   String uidContract = '';
   OrderCustomer newOrderCustomer =
-      OrderCustomer(); // Шаблонный объект для отборов
+  OrderCustomer(); // Шаблонный объект для отборов
   OrderCustomer sendOrderCustomer =
-      OrderCustomer(); // Шаблонный объект для отборов
+  OrderCustomer(); // Шаблонный объект для отборов
   OrderCustomer trashOrderCustomer =
-      OrderCustomer(); // Шаблонный объект для отборов
+  OrderCustomer(); // Шаблонный объект для отборов
 
   /// Начало периода отбора
   DateTime startPeriodDocs =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime(DateTime
+      .now()
+      .year, DateTime
+      .now()
+      .month, DateTime
+      .now()
+      .day);
 
   /// Конец периода отбора
-  DateTime finishPeriodDocs = DateTime(DateTime.now().year,
-      DateTime.now().month, DateTime.now().day, 23, 59, 59);
+  DateTime finishPeriodDocs = DateTime(DateTime
+      .now()
+      .year,
+      DateTime
+          .now()
+          .month, DateTime
+          .now()
+          .day, 23, 59, 59);
 
   DateTime startPeriodDocsToday =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime(DateTime
+      .now()
+      .year, DateTime
+      .now()
+      .month, DateTime
+      .now()
+      .day);
 
   /// Конец периода отбора
-  DateTime finishPeriodDocsToday = DateTime(DateTime.now().year,
-      DateTime.now().month, DateTime.now().day, 23, 59, 59);
+  DateTime finishPeriodDocsToday = DateTime(DateTime
+      .now()
+      .year,
+      DateTime
+          .now()
+          .month, DateTime
+          .now()
+          .day, 23, 59, 59);
 
   /// Списки документов
   List<OrderCustomer> listNewOrdersCustomer = [];
@@ -65,45 +89,45 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   /// Количество
   int countNewDocs = 0;
   TextEditingController textFieldCountNewDocsController =
-      TextEditingController();
+  TextEditingController();
   int countSendDocs = 0;
   TextEditingController textFieldCountSendDocsController =
-      TextEditingController();
+  TextEditingController();
   int countTrashDocs = 0;
   TextEditingController textFieldCountTrashDocsController =
-      TextEditingController();
+  TextEditingController();
 
   /// Количество за сутки
   int countNewDocsToday = 0;
   TextEditingController textFieldCountNewDocsTodayController =
-      TextEditingController();
+  TextEditingController();
   int countSendDocsToday = 0;
   TextEditingController textFieldCountSendDocsTodayController =
-      TextEditingController();
+  TextEditingController();
   int countTrashDocsToday = 0;
   TextEditingController textFieldCountTrashDocsTodayController =
-      TextEditingController();
+  TextEditingController();
 
   /// Суммы
   double sumNewDocs = 0.0;
   TextEditingController textFieldSumNewDocsController = TextEditingController();
   double sumSendDocs = 0.0;
   TextEditingController textFieldSumSendDocsController =
-      TextEditingController();
+  TextEditingController();
   double sumTrashDocs = 0.0;
   TextEditingController textFieldSumTrashDocsController =
-      TextEditingController();
+  TextEditingController();
 
   /// Суммы за сутки
   double sumNewDocsToday = 0.0;
   TextEditingController textFieldSumNewDocsTodayController =
-      TextEditingController();
+  TextEditingController();
   double sumSendDocsToday = 0.0;
   TextEditingController textFieldSumSendDocsTodayController =
-      TextEditingController();
+  TextEditingController();
   double sumTrashDocsToday = 0.0;
   TextEditingController textFieldSumTrashDocsTodayController =
-      TextEditingController();
+  TextEditingController();
 
   String uidFilterNewPartner = '';
   String uidFilterSendPartner = '';
@@ -111,29 +135,33 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
   /// Выбор периода отображения документов в списке
   String textPeriod = '';
-  DateTime firstDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+  DateTime firstDate = DateTime(DateTime
+      .now()
+      .year, DateTime
+      .now()
+      .month, 1);
   DateTime lastDate = DateTime.now();
 
   /// Поле ввода: Период
   TextEditingController textFieldNewPeriodController = TextEditingController();
   TextEditingController textFieldSendPeriodController = TextEditingController();
   TextEditingController textFieldTrashPeriodController =
-      TextEditingController();
+  TextEditingController();
 
   /// Поле ввода: Партнер
   TextEditingController textFieldNewPartnerController = TextEditingController();
   TextEditingController textFieldSendPartnerController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController textFieldTrashPartnerController =
-      TextEditingController();
+  TextEditingController();
 
   /// Поле ввода: Договор или торговая точка
   TextEditingController textFieldNewContractController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController textFieldSendContractController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController textFieldTrashContractController =
-      TextEditingController();
+  TextEditingController();
 
   @override
   void initState() {
@@ -233,7 +261,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Отбор по условиям
     if (textFieldNewPeriodController.text.isNotEmpty ||
         textFieldNewPartnerController.text.isNotEmpty) {
-
       if (textFieldNewPeriodController.text.isNotEmpty) {
         String dayStart = textFieldNewPeriodController.text.substring(0, 2);
         String monthStart = textFieldNewPeriodController.text.substring(3, 5);
@@ -242,7 +269,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
         String dayFinish = textFieldNewPeriodController.text.substring(13, 15);
         String monthFinish =
-            textFieldNewPeriodController.text.substring(16, 18);
+        textFieldNewPeriodController.text.substring(16, 18);
         String yearFinish = textFieldNewPeriodController.text.substring(19, 23);
         finishPeriodDocs =
             DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59');
@@ -335,7 +362,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Отбор по условиям
     if (textFieldSendPeriodController.text.isNotEmpty ||
         textFieldSendPartnerController.text.isNotEmpty) {
-
       if (textFieldSendPeriodController.text.isNotEmpty) {
         String dayStart = textFieldSendPeriodController.text.substring(0, 2);
         String monthStart = textFieldSendPeriodController.text.substring(3, 5);
@@ -344,9 +370,9 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
         String dayFinish = textFieldSendPeriodController.text.substring(13, 15);
         String monthFinish =
-            textFieldSendPeriodController.text.substring(16, 18);
+        textFieldSendPeriodController.text.substring(16, 18);
         String yearFinish =
-            textFieldSendPeriodController.text.substring(19, 23);
+        textFieldSendPeriodController.text.substring(19, 23);
         finishPeriodDocs =
             DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59');
       }
@@ -440,7 +466,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
     // Отбор по условиям
     if (textFieldTrashPeriodController.text.isNotEmpty ||
         textFieldTrashPartnerController.text.isNotEmpty) {
-
       if (textFieldTrashPeriodController.text.isNotEmpty) {
         String dayStart = textFieldTrashPeriodController.text.substring(0, 2);
         String monthStart = textFieldTrashPeriodController.text.substring(3, 5);
@@ -448,11 +473,11 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
         startPeriodDocs = DateTime.parse('$yearStart-$monthStart-$dayStart');
 
         String dayFinish =
-            textFieldTrashPeriodController.text.substring(13, 15);
+        textFieldTrashPeriodController.text.substring(13, 15);
         String monthFinish =
-            textFieldTrashPeriodController.text.substring(16, 18);
+        textFieldTrashPeriodController.text.substring(16, 18);
         String yearFinish =
-            textFieldTrashPeriodController.text.substring(19, 23);
+        textFieldTrashPeriodController.text.substring(19, 23);
         finishPeriodDocs =
             DateTime.parse('$yearFinish-$monthFinish-$dayFinish 23:59:59');
       }
@@ -530,7 +555,6 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
   }
 
   calculateNewDocuments() async {
-
     sumNewDocsToday = 0.0;
     sumSendDocsToday = 0.0;
     sumTrashDocsToday = 0.0;
@@ -549,11 +573,23 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
 
     // Начало текущего дня
     DateTime dateA =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    DateTime(DateTime
+        .now()
+        .year, DateTime
+        .now()
+        .month, DateTime
+        .now()
+        .day);
 
     // Конец текущего дня
-    DateTime dateB = DateTime(DateTime.now().year, DateTime.now().month,
-        DateTime.now().day, 23, 59, 59);
+    DateTime dateB = DateTime(DateTime
+        .now()
+        .year, DateTime
+        .now()
+        .month,
+        DateTime
+            .now()
+            .day, 23, 59, 59);
 
     /// Новые
     for (var itemDoc in tempListNewOrdersCustomer) {
@@ -637,7 +673,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
+                          MaterialStateProperty.all(Colors.red)),
                       onPressed: () async {
                         Navigator.of(context).pop(true);
                       },
@@ -825,6 +861,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               /// Количество документов
               Row(
                 children: [
+
                   /// Count
                   Expanded(
                     flex: 1,
@@ -870,6 +907,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               /// Сумма документов
               Row(
                 children: [
+
                   /// Sum
                   Expanded(
                     flex: 1,
@@ -943,23 +981,25 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                             if (_datePick != null) {
                               startPeriodDocs = _datePick.start;
                               finishPeriodDocs = _datePick.end;
-                              textFieldNewPeriodController.text = shortDateToString(startPeriodDocs) +
-                                  ' - ' +
-                                  shortDateToString(finishPeriodDocs);
+                              textFieldNewPeriodController.text =
+                                  shortDateToString(startPeriodDocs) +
+                                      ' - ' +
+                                      shortDateToString(finishPeriodDocs);
                               setState(() {});
                             }
                           },
                           icon:
-                              const Icon(Icons.date_range, color: Colors.blue),
+                          const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {
                             startPeriodDocs = startPeriodDocsToday;
                             finishPeriodDocs = finishPeriodDocsToday;
 
-                            textFieldNewPeriodController.text = shortDateToString(startPeriodDocs) +
-                                ' - ' +
-                                shortDateToString(finishPeriodDocs);
+                            textFieldNewPeriodController.text =
+                                shortDateToString(startPeriodDocs) +
+                                    ' - ' +
+                                    shortDateToString(finishPeriodDocs);
                             setState(() {});
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -1026,7 +1066,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   children: [
                     SizedBox(
                       height: 40,
-                      width: MediaQuery.of(context).size.width - 28,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
                             visibleListNewParameters = false;
@@ -1114,6 +1157,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               /// Количество документов
               Row(
                 children: [
+
                   /// Count
                   Expanded(
                     flex: 1,
@@ -1159,6 +1203,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
               /// Сумма документов
               Row(
                 children: [
+
                   /// Sum
                   Expanded(
                     flex: 1,
@@ -1233,23 +1278,25 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               startPeriodDocs = _datePick.start;
                               finishPeriodDocs = _datePick.end;
 
-                              textFieldSendPeriodController.text = shortDateToString(startPeriodDocs) +
-                                  ' - ' +
-                                  shortDateToString(finishPeriodDocs);
+                              textFieldSendPeriodController.text =
+                                  shortDateToString(startPeriodDocs) +
+                                      ' - ' +
+                                      shortDateToString(finishPeriodDocs);
                               setState(() {});
                             }
                           },
                           icon:
-                              const Icon(Icons.date_range, color: Colors.blue),
+                          const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {
                             startPeriodDocs = startPeriodDocsToday;
                             finishPeriodDocs = finishPeriodDocsToday;
 
-                            textFieldSendPeriodController.text = shortDateToString(startPeriodDocs) +
-                                ' - ' +
-                                shortDateToString(finishPeriodDocs);
+                            textFieldSendPeriodController.text =
+                                shortDateToString(startPeriodDocs) +
+                                    ' - ' +
+                                    shortDateToString(finishPeriodDocs);
                             setState(() {});
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -1314,7 +1361,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   children: [
                     SizedBox(
                       height: 40,
-                      width: MediaQuery.of(context).size.width - 28,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
                             visibleListSendParameters = false;
@@ -1381,7 +1431,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                     onPressed: () async {
                       setState(() {
                         visibleListTrashParameters =
-                            !visibleListTrashParameters;
+                        !visibleListTrashParameters;
                       });
                     },
                     icon: visibleListTrashParameters
@@ -1436,23 +1486,25 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               startPeriodDocs = _datePick.start;
                               finishPeriodDocs = _datePick.end;
 
-                              textFieldTrashPeriodController.text = shortDateToString(startPeriodDocs) +
-                                  ' - ' +
-                                  shortDateToString(finishPeriodDocs);
+                              textFieldTrashPeriodController.text =
+                                  shortDateToString(startPeriodDocs) +
+                                      ' - ' +
+                                      shortDateToString(finishPeriodDocs);
                             }
                             setState(() {});
                           },
                           icon:
-                              const Icon(Icons.date_range, color: Colors.blue),
+                          const Icon(Icons.date_range, color: Colors.blue),
                         ),
                         IconButton(
                           onPressed: () async {
                             startPeriodDocs = startPeriodDocsToday;
                             finishPeriodDocs = finishPeriodDocsToday;
 
-                            textFieldTrashPeriodController.text = shortDateToString(startPeriodDocs) +
-                                ' - ' +
-                                shortDateToString(finishPeriodDocs);
+                            textFieldTrashPeriodController.text =
+                                shortDateToString(startPeriodDocs) +
+                                    ' - ' +
+                                    shortDateToString(finishPeriodDocs);
                             setState(() {});
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -1488,7 +1540,7 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                     builder: (context) =>
                                         ScreenPartnerSelection(
                                             orderCustomer:
-                                                trashOrderCustomer)));
+                                            trashOrderCustomer)));
 
                             textFieldTrashPartnerController.text =
                                 trashOrderCustomer.namePartner;
@@ -1522,7 +1574,10 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   children: [
                     SizedBox(
                       height: 40,
-                      width: MediaQuery.of(context).size.width - 28,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width - 28,
                       child: ElevatedButton(
                           onPressed: () async {
                             visibleListTrashParameters = false;
@@ -1551,11 +1606,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                   children: [
                     SizedBox(
                       height: 40,
-                      width: MediaQuery.of(context).size.width - 28,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width - 28,
                       child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor:
-                                  MaterialStateProperty.all(Colors.grey)),
+                              MaterialStateProperty.all(Colors.grey)),
                           onPressed: () async {
                             await deleteTrashDocuments();
                             await loadTrashDocuments();
@@ -1591,105 +1649,148 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
           return Padding(
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
-              elevation: 3,
-              child: ListTile(
-                //tileColor: Colors.cyan[50],
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ScreenItemOrderCustomer(orderCustomer: orderCustomer),
-                    ),
-                  );
-                  loadData();
-                },
-                title: Text(orderCustomer.namePartner),
-                subtitle: Column(
-                  children: [
-                    const Divider(),
-                    Row(
+                elevation: 3,
+                child: Slidable(
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    children: [
+                      SlidableAction(
+                        onPressed: (BuildContext context) async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ScreenItemOrderCustomer(
+                                      orderCustomer: orderCustomer),
+                            ),
+                          );
+                          loadData();
+                        },
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        icon: Icons.edit,
+                        //label: '',
+                      ),
+                      SlidableAction(
+                        onPressed: (BuildContext context) async {
+
+                          /// Очистим реквизиты перед записью
+                          orderCustomer.dateSendingTo1C = DateTime(1900, 1, 1);
+                          orderCustomer.numberFrom1C = '';
+                          orderCustomer.status = 3;
+
+                          /// Обновим данные документа
+                          await dbUpdateOrderCustomerWithoutItems(orderCustomer);
+
+                          /// Обновим списки
+                          loadData();
+                        },
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        //label: '',
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    //tileColor: Colors.cyan[50],
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                        ),
+                      );
+                      loadData();
+                    },
+                    title: Text(orderCustomer.namePartner),
+                    subtitle: Column(
                       children: [
-                        const Icon(Icons.date_range,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            child: Text(fullDateToString(orderCustomer.date))),
+                        const Divider(),
+                        Row(
+                          children: [
+                            const Icon(Icons.date_range,
+                                color: Colors.blue, size: 20),
+                            const SizedBox(width: 5),
+                            Flexible(
+                                child: Text(fullDateToString(orderCustomer.date))),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            const Icon(Icons.domain, color: Colors.blue, size: 20),
+                            const SizedBox(width: 5),
+                            Flexible(
+                                flex: 1, child: Text(orderCustomer.nameContract)),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(children: [
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.access_time,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(shortDateToString(orderCustomer.dateSending)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.history_toggle_off,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(shortDateToString(
+                                          orderCustomer.datePaying)),
+                                    ],
+                                  )
+                                ],
+                              )),
+                          Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.price_change,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(doubleToString(orderCustomer.sum) +
+                                          ' грн'),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.format_list_numbered_rtl,
+                                          color: Colors.blue, size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(orderCustomer.countItems.toString() +
+                                          ' поз'),
+                                    ],
+                                  )
+                                ],
+                              ))
+                        ]),
+                        const SizedBox(height: 5),
+                        if (orderCustomer.comment != '')
+                          Row(children: [
+                            const Icon(Icons.text_fields,
+                                color: Colors.blue, size: 20),
+                            const SizedBox(width: 5),
+                            Text(orderCustomer.comment),
+                          ]),
                       ],
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        const Icon(Icons.domain, color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            flex: 1, child: Text(orderCustomer.nameContract)),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.access_time,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(orderCustomer.dateSending)),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.history_toggle_off,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(
-                                      orderCustomer.datePaying)),
-                                ],
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(doubleToString(orderCustomer.sum) +
-                                      ' грн'),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                children: [
-                                  const Icon(Icons.format_list_numbered_rtl,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(orderCustomer.countItems.toString() +
-                                      ' поз'),
-                                ],
-                              )
-                            ],
-                          ))
-                    ]),
-                    const SizedBox(height: 5),
-                    if (orderCustomer.comment != '')
-                      Row(children: [
-                        const Icon(Icons.text_fields,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Text(orderCustomer.comment),
-                      ]),
-                  ],
+                  ),
                 ),
-              ),
             ),
           );
         });
@@ -1715,7 +1816,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                                ScreenItemOrderCustomer(
+                                    orderCustomer: orderCustomer),
                           ),
                         );
                         loadData();
@@ -1729,10 +1831,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       onPressed: (BuildContext context) async {
 
                         /// Получим копию объекта
-                        OrderCustomer oldOrderCustomer = await dbReadOrderCustomer(orderCustomer.id);
-                        List<ItemOrderCustomer> oldItemOrderCustomer = await dbReadItemsOrderCustomer(orderCustomer.id);
+                        OrderCustomer oldOrderCustomer = await dbReadOrderCustomer(
+                            orderCustomer.id);
+                        List<
+                            ItemOrderCustomer> oldItemOrderCustomer = await dbReadItemsOrderCustomer(
+                            orderCustomer.id);
 
-                        OrderCustomer newOrderCustomer = OrderCustomer.fromJson(oldOrderCustomer.toJson());
+                        OrderCustomer newOrderCustomer = OrderCustomer.fromJson(
+                            oldOrderCustomer.toJson());
 
                         /// Очистим реквизиты перед записью
                         newOrderCustomer.date = DateTime.now();
@@ -1750,20 +1856,24 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                         }
 
                         /// Сумма товаров в заказе
-                        OrderCustomer().allSum(newOrderCustomer, oldItemOrderCustomer);
+                        OrderCustomer().allSum(
+                            newOrderCustomer, oldItemOrderCustomer);
 
                         /// Количество товаров в заказе
-                        OrderCustomer().allCount(newOrderCustomer, oldItemOrderCustomer);
+                        OrderCustomer().allCount(
+                            newOrderCustomer, oldItemOrderCustomer);
 
                         /// Запишем данные нового документа
-                        await dbCreateOrderCustomer(newOrderCustomer, oldItemOrderCustomer);
+                        await dbCreateOrderCustomer(
+                            newOrderCustomer, oldItemOrderCustomer);
 
                         /// Откроем на редактирование
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                ScreenItemOrderCustomer(orderCustomer: newOrderCustomer),
+                                ScreenItemOrderCustomer(
+                                    orderCustomer: newOrderCustomer),
                           ),
                         );
 
@@ -1786,7 +1896,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            ScreenItemOrderCustomer(orderCustomer: orderCustomer),
+                            ScreenItemOrderCustomer(
+                                orderCustomer: orderCustomer),
                       ),
                     );
                     loadData();
@@ -1801,14 +1912,16 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                               color: Colors.blue, size: 20),
                           const SizedBox(width: 5),
                           Flexible(
-                              child: Text(fullDateToString(orderCustomer.date))),
+                              child: Text(
+                                  fullDateToString(orderCustomer.date))),
                         ],
                       ),
                       const SizedBox(height: 5),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          const Icon(Icons.domain, color: Colors.blue, size: 20),
+                          const Icon(
+                              Icons.domain, color: Colors.blue, size: 20),
                           const SizedBox(width: 5),
                           Flexible(
                               flex: 1, child: Text(orderCustomer.nameContract)),
@@ -1825,7 +1938,8 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                     const Icon(Icons.access_time,
                                         color: Colors.blue, size: 20),
                                     const SizedBox(width: 5),
-                                    Text(shortDateToString(orderCustomer.dateSending)),
+                                    Text(shortDateToString(
+                                        orderCustomer.dateSending)),
                                   ],
                                 ),
                                 const SizedBox(height: 5),
@@ -1891,14 +2005,14 @@ class _ScreenOrderCustomerListState extends State<ScreenOrderCustomerList> {
                                   children: [
                                     orderCustomer.numberFrom1C != ''
                                         ? const Icon(Icons.repeat_one,
-                                            color: Colors.green, size: 20)
+                                        color: Colors.green, size: 20)
                                         : const Icon(Icons.repeat_one,
-                                            color: Colors.red, size: 20),
+                                        color: Colors.red, size: 20),
                                     const SizedBox(width: 5),
                                     orderCustomer.numberFrom1C != ''
                                         ? Text(orderCustomer.numberFrom1C)
                                         : const Text('Нет данных!',
-                                            style: TextStyle(color: Colors.red)),
+                                        style: TextStyle(color: Colors.red)),
                                   ],
                                 )
                               ],

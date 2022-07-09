@@ -307,7 +307,7 @@ class _ScreenProductSelectionTreeViewState
     }
 
     // Запишем текущий каталог
-    if (parentProduct.uid != '00000000-0000-0000-0000-000000000000') {
+    if (parentProduct.uid != '00000-0000-0000-0000-000000000000000') {
       tempListTreeParentProductFromSettings.add(parentProduct.uid);
     }
 

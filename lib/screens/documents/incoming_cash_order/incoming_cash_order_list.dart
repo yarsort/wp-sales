@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wp_sales/db/init_db.dart';
 import 'package:wp_sales/import/import_db.dart';
 import 'package:wp_sales/models/doc_incoming_cash_order.dart';
@@ -1588,93 +1590,136 @@ class _ScreenIncomingCashOrderListState
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
-              child: ListTile(
-                //tileColor: Colors.cyan[50],
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScreenItemIncomingCashOrder(
-                          incomingCashOrder: incomingCashOrder),
-                    ),
-                  );
-                  loadData();
-                },
-                title: Text(incomingCashOrder.namePartner),
-                subtitle: Column(
+              child: Slidable(
+                endActionPane: ActionPane(
+                  motion: const ScrollMotion(),
                   children: [
-                    const Divider(),
-                    Row(
-                      children: [
-                        const Icon(Icons.date_range,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            child: Text(fullDateToString(incomingCashOrder.date))),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ScreenItemIncomingCashOrder(
+                                    incomingCashOrder: incomingCashOrder),
+                          ),
+                        );
+                        loadData();
+                      },
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      icon: Icons.edit,
+                      //label: '',
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Icon(Icons.fact_check,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Text(incomingCashOrder.nameParent),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) async {
+
+                        /// Очистим реквизиты перед записью
+                        incomingCashOrder.dateSendingTo1C = DateTime(1900, 1, 1);
+                        incomingCashOrder.numberFrom1C = '';
+                        incomingCashOrder.status = 3;
+
+                        /// Обновим данные документа
+                        await dbUpdateIncomingCashOrder(incomingCashOrder);
+
+                        /// Обновим список
+                        loadData();
+                      },
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      //label: '',
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Icon(Icons.recent_actors,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            flex: 1,
-                            child: Text(incomingCashOrder.nameContract)),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.history_toggle_off,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(
-                                      incomingCashOrder.date)),
-                                ],
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(doubleToString(incomingCashOrder.sum) +
-                                      ' грн'),
-                                ],
-                              ),
-                            ],
-                          ))
-                    ]),
-                    const SizedBox(height: 5),
-                    if (incomingCashOrder.comment != '')
-                      Row(children: [
-                        const Icon(Icons.text_fields,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Text(incomingCashOrder.comment),
-                      ]),
                   ],
+                ),
+                child: ListTile(
+                  //tileColor: Colors.cyan[50],
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemIncomingCashOrder(
+                            incomingCashOrder: incomingCashOrder),
+                      ),
+                    );
+                    loadData();
+                  },
+                  title: Text(incomingCashOrder.namePartner),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        children: [
+                          const Icon(Icons.date_range,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: Text(fullDateToString(incomingCashOrder.date))),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.fact_check,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(incomingCashOrder.nameParent),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          const Icon(Icons.recent_actors,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              flex: 1,
+                              child: Text(incomingCashOrder.nameContract)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.history_toggle_off,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(shortDateToString(
+                                        incomingCashOrder.date)),
+                                  ],
+                                )
+                              ],
+                            )),
+                        Expanded(
+                            flex: 2,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.price_change,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(doubleToString(incomingCashOrder.sum) +
+                                        ' грн'),
+                                  ],
+                                ),
+                              ],
+                            ))
+                      ]),
+                      const SizedBox(height: 5),
+                      if (incomingCashOrder.comment != '')
+                        Row(children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(incomingCashOrder.comment),
+                        ]),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1692,130 +1737,191 @@ class _ScreenIncomingCashOrderListState
             padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
             child: Card(
               elevation: 3,
-              child: ListTile(
-                tileColor: incomingCashOrder.numberFrom1C != ''
-                    ? Colors.lightGreen[50]
-                    : Colors.deepOrange[50],
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ScreenItemIncomingCashOrder(
-                          incomingCashOrder: incomingCashOrder),
-                    ),
-                  );
-                  loadData();
-                },
-                title: Text(incomingCashOrder.namePartner),
-                subtitle: Column(
+              child: Slidable(
+                endActionPane: ActionPane(
+                  motion: const ScrollMotion(),
                   children: [
-                    const Divider(),
-                    Row(
-                      children: [
-                        const Icon(Icons.date_range,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            child: Text(fullDateToString(incomingCashOrder.date))),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ScreenItemIncomingCashOrder(
+                                  incomingCashOrder: incomingCashOrder),
+                          ),
+                        );
+                        loadData();
+                      },
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      icon: Icons.edit,
+                      //label: '',
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        const Icon(Icons.domain, color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Flexible(
-                            flex: 1,
-                            child: Text(incomingCashOrder.nameContract)),
-                      ],
+                    SlidableAction(
+                      onPressed: (BuildContext context) async {
+                        /// Получим копию объекта
+                        IncomingCashOrder newIncomingCashOrder = IncomingCashOrder.fromJson(
+                             incomingCashOrder.toJson());
+
+                        /// Очистим реквизиты перед записью
+                        newIncomingCashOrder.date = DateTime.now();
+                        newIncomingCashOrder.dateSendingTo1C = DateTime(1900, 1, 1);
+                        newIncomingCashOrder.numberFrom1C = '';
+                        newIncomingCashOrder.status = 1;
+
+                        /// Очистим для записи нового документа
+                        newIncomingCashOrder.id = 0;
+                        newIncomingCashOrder.uid = const Uuid().v4();
+
+                        /// Запишем данные нового документа
+                        await dbCreateIncomingCashOrder(newIncomingCashOrder);
+
+                        /// Откроем на редактирование
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ScreenItemIncomingCashOrder(
+                                    incomingCashOrder: newIncomingCashOrder),
+                          ),
+                        );
+
+                        /// Обновим список
+                        loadData();
+                      },
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      icon: Icons.copy,
+                      //label: '',
                     ),
-                    const SizedBox(height: 5),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.history_toggle_off,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(shortDateToString(
-                                      incomingCashOrder.date)),
-                                ],
-                              ),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.price_change,
-                                      color: Colors.blue, size: 20),
-                                  const SizedBox(width: 5),
-                                  Text(doubleToString(incomingCashOrder.sum) +
-                                      ' грн'),
-                                ],
-                              ),
-                            ],
-                          ))
-                    ]),
-                    const Divider(),
-                    Row(children: [
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  incomingCashOrder.numberFrom1C != ''
-                                      ? const Icon(Icons.numbers,
-                                          color: Colors.green, size: 20)
-                                      : const Icon(Icons.numbers,
-                                          color: Colors.red, size: 20),
-                                  const SizedBox(width: 5),
-                                  incomingCashOrder.numberFrom1C != ''
-                                      ? Text(shortDateToString(
-                                          incomingCashOrder.dateSendingTo1C))
-                                      : const Text('Даты нет!',
-                                          style: TextStyle(color: Colors.red)),
-                                ],
-                              )
-                            ],
-                          )),
-                      Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  incomingCashOrder.numberFrom1C != ''
-                                      ? const Icon(Icons.repeat_one,
-                                          color: Colors.green, size: 20)
-                                      : const Icon(Icons.repeat_one,
-                                          color: Colors.red, size: 20),
-                                  const SizedBox(width: 5),
-                                  incomingCashOrder.numberFrom1C != ''
-                                      ? Text(incomingCashOrder.numberFrom1C)
-                                      : const Text('Номера нет!',
-                                          style: TextStyle(color: Colors.red)),
-                                ],
-                              )
-                            ],
-                          ))
-                    ]),
-                    const SizedBox(height: 5),
-                    if (incomingCashOrder.comment != '')
-                      Row(children: [
-                        const Icon(Icons.text_fields,
-                            color: Colors.blue, size: 20),
-                        const SizedBox(width: 5),
-                        Text(incomingCashOrder.comment),
-                      ]),
                   ],
+                ),
+                child: ListTile(
+                  tileColor: incomingCashOrder.numberFrom1C != ''
+                      ? Colors.lightGreen[50]
+                      : Colors.deepOrange[50],
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ScreenItemIncomingCashOrder(
+                            incomingCashOrder: incomingCashOrder),
+                      ),
+                    );
+                    loadData();
+                  },
+                  title: Text(incomingCashOrder.namePartner),
+                  subtitle: Column(
+                    children: [
+                      const Divider(),
+                      Row(
+                        children: [
+                          const Icon(Icons.date_range,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              child: Text(fullDateToString(incomingCashOrder.date))),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          const Icon(Icons.domain, color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Flexible(
+                              flex: 1,
+                              child: Text(incomingCashOrder.nameContract)),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.history_toggle_off,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(shortDateToString(
+                                        incomingCashOrder.date)),
+                                  ],
+                                ),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.price_change,
+                                        color: Colors.blue, size: 20),
+                                    const SizedBox(width: 5),
+                                    Text(doubleToString(incomingCashOrder.sum) +
+                                        ' грн'),
+                                  ],
+                                ),
+                              ],
+                            ))
+                      ]),
+                      const Divider(),
+                      Row(children: [
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    incomingCashOrder.numberFrom1C != ''
+                                        ? const Icon(Icons.numbers,
+                                            color: Colors.green, size: 20)
+                                        : const Icon(Icons.numbers,
+                                            color: Colors.red, size: 20),
+                                    const SizedBox(width: 5),
+                                    incomingCashOrder.numberFrom1C != ''
+                                        ? Text(shortDateToString(
+                                            incomingCashOrder.dateSendingTo1C))
+                                        : const Text('Даты нет!',
+                                            style: TextStyle(color: Colors.red)),
+                                  ],
+                                )
+                              ],
+                            )),
+                        Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    incomingCashOrder.numberFrom1C != ''
+                                        ? const Icon(Icons.repeat_one,
+                                            color: Colors.green, size: 20)
+                                        : const Icon(Icons.repeat_one,
+                                            color: Colors.red, size: 20),
+                                    const SizedBox(width: 5),
+                                    incomingCashOrder.numberFrom1C != ''
+                                        ? Text(incomingCashOrder.numberFrom1C)
+                                        : const Text('Номера нет!',
+                                            style: TextStyle(color: Colors.red)),
+                                  ],
+                                )
+                              ],
+                            ))
+                      ]),
+                      const SizedBox(height: 5),
+                      if (incomingCashOrder.comment != '')
+                        Row(children: [
+                          const Icon(Icons.text_fields,
+                              color: Colors.blue, size: 20),
+                          const SizedBox(width: 5),
+                          Text(incomingCashOrder.comment),
+                        ]),
+                    ],
+                  ),
                 ),
               ),
             ),
