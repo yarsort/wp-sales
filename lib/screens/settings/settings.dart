@@ -894,7 +894,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            textFieldFTPUserController.text = '';
+                            textFieldFTPServerController.text = '';
                           },
                           icon: const Icon(Icons.delete, color: Colors.red),
                           //icon: const Icon(Icons.delete, color: Colors.red),
